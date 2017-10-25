@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/dashboard-screenshot.png">
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/dashboard-screenshot.png" width="500"/>
+  <a href="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshot-collection.png">
+    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshot-collection.png" width="500"/>
   </a>
 </p>
 
