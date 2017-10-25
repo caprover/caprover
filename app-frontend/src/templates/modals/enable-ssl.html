@@ -1,0 +1,13 @@
+<div class="modal-content">
+    <div class="modal-header bg-success">
+        <i class="ion-checkmark modal-icon"></i><span>Enable HTTPS</span>
+    </div>
+    <div class="modal-body">
+        <p>Captain uses <a href="https://letsencrypt.org/" target="_blank" rel="noopener noreferrer">Let&#39;s Encrypt</a> to provide free SSL Certificates (HTTPS). This email address is very important as Let&#39;s Encrypt uses it for validation purposes. Please provide a valid email here.</p>
+        <label for="sslEmailAddress">Your Email Address</label>
+        <input type="text" class="form-control" id="sslEmailAddress" placeholder="your@email.com" ng-model="modaldata.emailaddress">
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-success" ng-click="$close()">OK</button>
+    </div>
+</div>

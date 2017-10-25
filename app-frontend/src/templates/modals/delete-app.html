@@ -1,0 +1,17 @@
+<div class="modal-content">
+    <div class="modal-header bg-danger">
+        <i class="ion-checkmark modal-icon"></i><span>Delete App</span>
+    </div>
+    <div class="modal-body">
+        <p>
+            You are about to delete <i> {{modalAppDelete.appName}}</i>. Please type the name of this app in
+            the box below to confirm deletation of this app. Please note that this is <b>not reversible</b>.
+        </p>
+        <label>Confirm App Name:</label>
+        <input type="text" class="form-control" placeholder="{{modalAppDelete.appName}}" ng-model="modalAppDelete.appNameConfirm">
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="$close(false)">CANCEL</button>
+        <button type="button" class="btn btn-danger" ng-click="$close(true)">DELETE</button>
+    </div>
+</div>

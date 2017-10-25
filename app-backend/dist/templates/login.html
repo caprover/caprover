@@ -1,0 +1,32 @@
+<div class="full-page-content">
+	<div class="row">
+		<div class="col-lg-4"></div>
+		<div class="col-lg-4">
+
+			<rd-widget>
+				<rd-widget-header icon="fa-key" title="Login">
+				</rd-widget-header>
+				<rd-widget-body>
+
+					<form>
+						<div class="row">
+
+							<div>
+								<label for="inputFirstName">Password (default: captain42 )</label>
+								<input type="password" class="form-control" id="inputFirstName" ng-model="data.captainPassword">
+							</div>
+
+							<div class="pull-right">
+								<button type="submit" class="btn btn-primary" ng-click="onLoginClicked()">
+								<span>	<i class="fa fa-sign-in"></i></span> &nbsp;	Login</button>
+							</div>
+
+						</div>
+					</form>
+					
+				</rd-widget-body>
+			</rd-widget>
+
+		</div>
+	</div>
+</div>

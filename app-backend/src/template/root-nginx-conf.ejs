@@ -1,0 +1,90 @@
+
+    server {
+        listen       80;
+        server_name  _;
+
+	location /nginx_status {
+		stub_status on;
+
+		access_log off;
+		allow 10.0.0.0/24; # This can be improved by adding authentication as well.
+		deny all;
+	}
+
+        location / {
+            root   <%-captain.defaultHtmlDir%>;
+            index  index.html index.htm;
+        }
+
+        error_page 404 500 502 503 504 /error.html;
+
+    }
+
+
+
+    server {
+        listen       80;
+        client_max_body_size 200m;
+
+    <%
+        if (captain.hasRootSsl) {
+    %>
+        listen              443 ssl;
+        ssl_certificate     <%-captain.crtPath%>;
+        ssl_certificate_key <%-captain.keyPath%>;
+    <%
+        }
+    %>
+
+        server_name  <%-captain.domain%>;
+
+        resolver 127.0.0.11 valid=10s;
+        set $upstream http://<%-captain.serviceName%>:<%-captain.serviceExposedPort%>;
+
+        # IMPORTANT!! Except proxy_read_timeout, this block should be same as location /api/v1/user/appData
+        location / {
+            proxy_pass $upstream;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # temporary until build process becomes an asynchronous process
+        location /api/v1/user/appData {
+            proxy_pass $upstream;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            proxy_read_timeout 120s;
+        }
+
+        # change to this to allow the applications to serve well-known files as well https://stackoverflow.com/questions/869001/how-to-serve-all-existing-static-files-directly-with-nginx-but-proxy-the-rest-t
+        location /.well-known/ {
+            root <%-captain.staticWebRoot%>;
+        }
+    }
+
+
+
+    server {
+        listen       80;
+        client_max_body_size 200m;
+    <%
+        if (registry.hasRootSsl) {
+    %>
+        listen              443 ssl;
+        ssl_certificate     <%-registry.crtPath%>;
+        ssl_certificate_key <%-registry.keyPath%>;
+    <%
+        }
+    %>
+
+        server_name  <%-registry.domain%>;
+
+        location / {
+            root <%-registry.staticWebRoot%>;
+        }
+    }

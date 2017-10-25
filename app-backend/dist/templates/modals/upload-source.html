@@ -1,0 +1,16 @@
+<div class="modal-content">
+    <div class="modal-header bg-primary">
+        <i class="ion-checkmark modal-icon"></i><span>Upload Source for {{app.appName}}</span>
+    </div>
+    <div class="modal-body">
+        <p>You are about to upload <b>{{app.sourceToUpload.name}}</b> as the source code for <b>{{app.appName}}</b>. Do you
+            want to proceed?</p>
+        <br>
+        <h5>NOTE:</h5>
+        <p>This process might take up to a couple of minutes, depending on your connection speed. Please be patient!</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="$close(false)">CANCEL</button>
+        <button type="button" class="btn btn-primary" ng-click="$close(true)">Upload &amp; Deploy</button>
+    </div>
+</div>

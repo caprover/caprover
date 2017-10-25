@@ -1,0 +1,31 @@
+.selected-side-menu {
+    background-color: rgba(225, 225, 225, .2);
+}
+
+.full-page-content {
+    align-items: center;
+    padding-right: 200px;
+    margin-top: 100px;
+}
+
+.inline-loader {
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid blue;
+    border-bottom: 3px solid blue;
+    width: 20px;
+    height: 20px;
+    -webkit-animation: spin-loader 2s linear infinite;
+    animation: spin-loader 2s linear infinite;
+  }
+  
+  @-webkit-keyframes spin-loader {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+  @keyframes spin-loader {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  

@@ -1,0 +1,107 @@
+<rd-loading ng-show="loadingState.enabled">
+</rd-loading>
+
+<div ng-show="!loadingState.enabled">
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+
+      <rd-widget>
+        <rd-widget-header icon="fa-link" title="Attach a New Node">
+        </rd-widget-header>
+        <rd-widget-body>
+
+          <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label for="inputFirstName">Remote IP Address (as seen by Captain)</label>
+                <input type="text" class="form-control" id="inputFirstName" placeholder="Remote IP Address" ng-model="nodeToAdd.remoteNodeIpAddress">
+              </div>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label for="inputLastName">Remote Username</label>
+                <input type="text" class="form-control" id="inputLastName" ng-model="nodeToAdd.remoteUserName">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label for="inputFirstName">Captain IP Address (as seen by remote)</label>
+                <input type="text" class="form-control" ng-model="nodeToAdd.captainIpAddress" id="captainIpAddress" placeholder="Captain IP Address">
+              </div>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label for="inputWebsite">Node Type</label>
+                <input type="text" class="form-control" ng-model="nodeToAdd.nodeType" id="inputWebsite" placeholder="worker/manager">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+              <div class="form-group">
+                <label for="textarea01">SSH Private Key</label>
+                <textarea style="font-family: monospace" ng-model="nodeToAdd.privateKey" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;MIICWwIBAAKBgQDArfs81aizq8ckg16e+ewFgJg7J..." class="form-control" id="textarea01"></textarea>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-11">
+              <div class="pull-right">
+                <button type="submit" ng-click="onAddNodeClicked()" class="btn btn-primary">Join Cluster</button>
+              </div>
+            </div>
+          </div>
+
+        </rd-widget-body>
+      </rd-widget>
+    </div>
+  </div>
+
+  <br>
+  <hr>
+  <br>
+
+  <div ng-repeat="node in allNodes">
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+
+        <rd-widget>
+          <rd-widget-header icon="fa-server" title="{{node.ip}} {{node.state=='down'?'** DOWN **':''}}">
+          </rd-widget-header>
+          <rd-widget-body>
+            <div class="row">
+
+              <div class="col-md-7">
+                <p><b>Hostname:</b> {{node.hostname}} </p>
+                <p><b>ID:</b> {{node.nodeId}} </p>
+                <p><b>Type:</b> {{node.isLeader?'Leader':node.type}} </p>
+                <p><b>Docker Engine:</b> {{node.dockerEngineVersion}} </p>
+              </div>
+              <div class="col-md-5">
+                <p><b>OS:</b> {{node.operatingSystem}} </p>
+                <p><b>Architecture:</b> {{node.architecture}} </p>
+                <p><b>CPU Cores:</b> {{node.nanoCpu/1e9}} </p>
+                <p><b>Memory:</b> {{node.memoryBytes/1024/1024/1024| number:2}} GB </p>
+              </div>
+
+            </div>
+          </rd-widget-body>
+        </rd-widget>
+
+      </div>
+    </div>
+    <br>
+  </div>
+  <br>
+  <br>
+</div>

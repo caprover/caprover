@@ -1,0 +1,88 @@
+<div class="row">
+	<div class="col-md-4"></div>
+	<div class="col-md-4">
+
+		<rd-widget>
+			<rd-widget-header icon="fa-key" title="Change Password">
+			</rd-widget-header>
+			<rd-widget-body loading="loadingState.enabled">
+
+				<div class="row">
+
+					<div>
+						<label>Old Password</label>
+						<input type="password" class="form-control" ng-model="passwords.oldPass">
+					</div>
+					<hr>
+					<div>
+						<label>New Password</label>
+						<input type="password" class="form-control" ng-model="passwords.newPass">
+					</div>
+					<div>
+						<label>Confirm New Password</label>
+						<input type="password" class="form-control" ng-model="passwords.newPassConfirm">
+					</div>
+					<div>
+						<p class="text-danger">
+							{{ ((!!passwords.newPass || !!passwords.newPassConfirm) && (passwords.newPass!==passwords.newPassConfirm))? 'Passwords should
+							match':'&nbsp;'}}
+						</p>
+					</div>
+
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" ng-disabled="((!passwords.newPass || !passwords.newPassConfirm) || (passwords.newPass!==passwords.newPassConfirm))" ng-click="onChangePasswordClicked()">
+							<span>	<i class="fa fa-sign-in"></i></span> &nbsp;	Change</button>
+					</div>
+
+				</div>
+			</rd-widget-body>
+		</rd-widget>
+
+	</div>
+</div>
+
+<hr>
+
+<div class="row">
+	<div class="col-md-4"></div>
+	<div class="col-md-4">
+
+		<rd-widget>
+
+			<rd-widget-header icon="fa-cloud-download" title="Check for Updates">
+			</rd-widget-header>
+
+			<rd-widget-body loading="loadingState.enabled">
+
+				<div class="row">
+
+					<p>
+						Captain allows in-place updates to be installed. However, always read the change logs before updating your Captain. There
+						might be breaking changes that you need to be aware of. The update might take several minutes and your Captain may
+						become unresponsive until the update process is finished.
+					</p>
+
+					<br>
+
+					<p>
+						<b>Current Version</b>: {{versionInfo.currentVersion}}
+					</p>
+
+					<p>
+						<b>Latest Stable Version</b>: {{versionInfo.latestVersion}}
+					</p>
+
+					<div>
+						<button ng-show="versionInfo.canUpdate" type="submit" class="btn btn-success" ng-click="onPerformUpdateClicked()">
+								<span>	<i class="fa fa-download"></i></span> &nbsp;	Install Update</button>
+					</div>
+
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" ng-click="onCheckForUpdatesClicked()">
+								<span>	<i class="fa fa-refresh"></i></span> &nbsp;	Check for Updates</button>
+					</div>
+				</div>
+			</rd-widget-body>
+		</rd-widget>
+	</div>
+</div>

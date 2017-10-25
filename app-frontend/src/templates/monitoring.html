@@ -1,0 +1,307 @@
+<div class="row">
+	<div class="col-xs-12">
+		<rd-widget>
+			<rd-widget-header icon="fa-cog fa-spin" title="Load Balancer Stats">
+			</rd-widget-header>
+			<rd-widget-body classes="no-padding small" loading="!loadBalancerInfo">
+				<div class="row" style="margin-top: 35px;">
+					<div class="col-lg-3 col-md-6 col-xs-12">
+						<rd-widget>
+							<rd-widget-body uib-tooltip="Constantly going up as refreshing.">
+								<div class="widget-icon blue pull-left">
+									<i class="fa fa-globe"></i>
+								</div>
+								<div class="title">{{loadBalancerInfo.total}}</div>
+								<div class="comment">Total Requests</div>
+							</rd-widget-body>
+						</rd-widget>
+					</div>
+					<div class="col-lg-3 col-md-6 col-xs-12">
+						<rd-widget>
+							<rd-widget-body>
+								<div class="widget-icon green pull-left">
+									<i class="fa fa-sitemap"></i>
+								</div>
+								<div class="pull-right">
+									<div>{{loadBalancerInfo.handled}} handled</div>
+									<div>{{loadBalancerInfo.accepted}} accepted</div>
+								</div>
+								<div class="title">{{loadBalancerInfo.activeConnections}}</div>
+								<div class="comment">Active Connections</div>
+							</rd-widget-body>
+						</rd-widget>
+					</div>
+					<div class="col-lg-3 col-md-6 col-xs-12">
+						<rd-widget>
+							<rd-widget-body>
+								<div class="widget-icon orange pull-left">
+									<i class="fa fa-refresh"></i>
+								</div>
+								<div class="pull-right">
+									<div>{{loadBalancerInfo.reading}} reading</div>
+									<div>{{loadBalancerInfo.writing}} writing</div>
+								</div>
+								<div class="title">{{loadBalancerInfo.writing+loadBalancerInfo.reading}}</div>
+								<div class="comment">Active Requests</div>
+							</rd-widget-body>
+						</rd-widget>
+					</div>
+					<div class="col-lg-3 col-md-6 col-xs-12">
+						<rd-widget>
+							<rd-widget-body>
+								<div class="widget-icon red pull-left">
+									<i class="fa fa-square-o"></i>
+								</div>
+								<div class="title">{{loadBalancerInfo.waiting}}</div>
+								<div class="comment">Waiting Requests</div>
+							</rd-widget-body>
+						</rd-widget>
+					</div>
+				</div>
+			</rd-widget-body>
+		</rd-widget>
+	</div>
+</div>
+
+<hr />
+
+<div class="row">
+	<div class="col-lg-2"></div>
+	<div class="col-lg-8">
+		<rd-widget>
+			<rd-widget-header icon="fa-tasks" title="NetData Monitoring Tool">
+			</rd-widget-header>
+			<rd-widget-body loading="loadingState.enabled">
+				<div>
+					<p>
+						<a href="https://github.com/firehol/netdata/" target="_blank" rel="noopener noreferrer"> NetData</a> is one of the
+						most popular and most powerful monitoring tools that provide a web interface. It is a system for distributed real-time
+						performance and health monitoring. It provides unparalleled insights, in real-time, of everything happening on the
+						system it runs (including applications such as web and database servers), using modern interactive web dashboards.
+					</p>
+					<p>
+						NetData is fast and efficient, designed to permanently run on all systems (physical & virtual servers, containers, IoT devices),
+						without disrupting their core function.
+					</p>
+					<p>
+						Captain provides a simple interface to enable NetData on your captain instance. Currently, Captain only supports installing
+						NetData on your <b>leader node</b>, i.e., the node where Captain instance resides. This limitation is due to
+						a limitation in Docker interface,
+						<a href="https://github.com/moby/moby/issues/25885/" target="_blank" rel="noopener noreferrer"> see here</a> .
+					</p>
+					<p><i>For more details regarding NetData, visit their
+							<a href="https://github.com/firehol/netdata/" 
+							target="_blank" rel="noopener noreferrer"> GitHub page</a>
+							.
+						</div>
+
+				<hr />
+
+
+<div class="row" ng-show="!netDataInfo.isEnabled">
+	<div class="col-sm-12">
+				<div class="pull-right">
+						<button type="submit" ng-click="onStartNetDataClicked()"
+						 class="btn btn-primary"><span>Start NetData Engine &nbsp; <i class="fa fa-play"></i></span>
+						</button>
+				</div>
+
+	</div>
+</div>
+<div ng-show="netDataInfo.isEnabled">
+	<div class="row">
+		<div class="col-sm-3">
+			<button type="submit" ng-click="onStopNetDataClicked()" class="btn btn-danger"><span>Turn NetData Off &nbsp; <i class="fa fa-power-off"></i></span></button>
+
+		</div>
+		<div class="col-sm-9">
+			<div class="pull-right">
+				<a type="submit" href="//{{netDataInfo.netDataUrl}}" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><span>Open NetData &nbsp;
+											<i class="fa fa-external-link"></i></span>
+							</a>
+			</div>
+		</div>
+	</div>
+
+	<hr/>
+	<h3>Notification Settings</h3>
+
+	<p>
+		NetData offers multiple ways for you to receive notifications if something is going wrong with your server resource usage.
+		<i>
+										All notification options are completely OPTIONAL.
+								</i>
+	</p>
+	<hr/>
+
+	<div class="row">
+		<div class="col-lg-12">
+
+			<!-- *****   BEGINNING OF SMTP ***** -->
+
+			<h4>Email (SMTP)</h4>
+
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputFirstName">Recipient Email Address</label>
+						<input type="text" class="form-control" id="inputFirstName" placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.smtp.to">
+					</div>
+				</div>
+				<div class="col-sm-2"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputLastName">Server Name in Email</label>
+						<input type="text" class="form-control" id="inputFirstName" placeholder="my-aws-server-01-anything" ng-model="netDataInfo.data.smtp.hostname">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label for="inputFirstName">SMTP Server Address</label>
+						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.server" id="captainIpAddress" placeholder="smtp.gmail.com">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="form-group">
+						<label for="inputWebsite">SMTP Port</label>
+						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.port" id="inputWebsite" placeholder="587">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="form-group">
+						<label for="inputWebsite">Unsecure</label>
+						<div class="checkbox">
+							<label>
+								<input id="inputWebsite" type="checkbox" ng-model="netDataInfo.data.smtp.allowNonTls"> 
+								allow non-TLS
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputFirstName">SMTP Username</label>
+						<input type="text" class="form-control" id="inputFirstName" 
+						placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.smtp.username">
+					</div>
+				</div>
+				<div class="col-sm-2"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputLastName">SMTP password</label>
+						<input type="password" class="form-control" id="inputFirstName" 
+						placeholder="your password" ng-model="netDataInfo.data.smtp.password">
+					</div>
+				</div>
+			</div>
+
+
+			<!-- *****   END OF SMTP ***** -->
+
+			<!-- *****   BEGINNING OF Slack ***** -->
+
+
+			<hr/>
+			<h4>Slack</h4>
+
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputFirstName">Slack Webhook</label>
+						<input type="text" class="form-control" id="inputFirstName"
+						 placeholder="https://hooks.slack.com/services/XXXX" 
+						 ng-model="netDataInfo.data.slack.hook">
+					</div>
+				</div>
+				<div class="col-sm-2"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputLastName">Slack Channel</label>
+						<input type="text" class="form-control" id="inputFirstName" placeholder="alertschannel" ng-model="netDataInfo.data.slack.channel">
+					</div>
+				</div>
+			</div>
+
+
+			<!-- *****   END OF Slack ***** -->
+
+			<!-- *****   BEGINNING OF Telegram ***** -->
+
+			<hr/>
+			<h4>Telegram</h4>
+
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputFirstName">Bot Token</label>
+						<input type="text" class="form-control" id="inputFirstName"
+						 placeholder="TELEGRAM_BOT_TOKEN" ng-model="netDataInfo.data.telegram.botToken">
+					</div>
+				</div>
+				<div class="col-sm-2"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputLastName">Chat ID</label>
+						<input type="text" class="form-control" id="inputFirstName" 
+						placeholder="Telegram Chat ID" ng-model="netDataInfo.data.telegram.chatId">
+					</div>
+				</div>
+			</div>
+
+
+			<!-- *****   END OF Telegram ***** -->
+
+			<!-- *****   BEGINNING OF Push Bullet ***** -->
+
+			<hr/>
+			<h4>Push Bullet</h4>
+
+			<div class="row">
+				<div class="col-sm-1"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputFirstName">Push Bullet API token</label>
+						<input type="text" class="form-control" id="inputFirstName" 
+						placeholder="PUSH_BULLET_API_TOKEN" ng-model="netDataInfo.data.pushBullet.apiToken">
+					</div>
+				</div>
+				<div class="col-sm-2"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="inputLastName">Default Email (fallback receiver)</label>
+						<input type="text" class="form-control" id="inputFirstName"
+						 placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.pushBullet.fallbackEmail">
+					</div>
+				</div>
+			</div>
+
+
+			<!-- *****   END OF Push Bullet ***** -->
+
+
+			<br/>
+			<div class="row">
+				<div class="col-sm-11">
+					<div class="pull-right">
+						<button type="submit" ng-click="onUpdateNetDataClicked()" class="btn btn-primary">Update NetData</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--    END OF NOTIFICATION SETTINGS  -->
+
+</rd-widget-body>
+</rd-widget>
+</div>
+</div>
