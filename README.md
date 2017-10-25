@@ -32,7 +32,7 @@ https://docs.docker.com/engine/installation
 
 Just run the following line, sit back and enjoy!
 ```bash
-$      mkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck
+ mkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck
 ```
 
 You will see a bunch of output on your screen. Once the Captain is initialized, you can visit `http://[IP_OF_YOUR_SERVER]:3000` in your browser and login to Captain using the default password `captain42`. You can change your password in settings.
@@ -45,7 +45,7 @@ Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `
 
 Assuming you have npm installed. Simply run (add `sudo` if needed):
 ```bash
-$      npm install -g npm captainduckduck
+ npm install -g npm captainduckduck
 ```
 
 Then, run `captainduckduck login`, follow the steps and login to your captain instance.
@@ -56,7 +56,7 @@ Then, run `captainduckduck login`, follow the steps and login to your captain in
 Go to the Captain in your browser, from the left menu select Apps and create a new app. Name it `my-first-app`. Then, download any of the test apps????, unzip the content. and while inside the directory of the test app, run:
 
 ```bash
-/home/Desktop/captain-examples/captain-node $    captainduckduck deploy
+/home/Desktop/captain-examples/captain-node$  captainduckduck deploy
 ```
 Follow the instructions, enter `my-first-app` when asked for app name. First time build takes about two minutes. After build is completed, visit `my-first-app.something.mydomain.com` where `something.mydomain.com` is your root domain. 
 CONGRATS! Your app is live!!
