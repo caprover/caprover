@@ -1,3 +1,10 @@
+<p align="center">
+  <a href="https://github.com/githubsaturn/captainduckduck">
+    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/icon.png" width="300"/>
+  </a>
+</p>
+
+
 # CaptainDuckDuck
 
 Captain is a modern automated app deployment & web server manager.
