@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/githubsaturn/captainduckduck">
+  <a href="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/dashboard-screenshot.png">
     <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/dashboard-screenshot.png" width="500"/>
   </a>
 </p>
