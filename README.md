@@ -21,11 +21,11 @@ Captain is a modern automated app deployment & web server manager.
 
 #### A) Domain Name
 
-During installation, you'll be asked to point a wildcard DNS entry to your Captain IP Address. If you don't know what this is, see Domain & DNS details?????. This will cost you as low as $2 a year.
+During installation, you'll be asked to point a wildcard DNS entry to your Captain IP Address. If you don't know what this is, see <a href="#setup-domain-and-dns">Domain and DNS</a>. This will cost you as low as $2 a year.
 
 #### B) Server with a Public IP
 
-Captain has to be installed on a machine with a public IP address. If you don't know what this is, see get a server?????. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
+Captain has to be installed on a machine with a public IP address. If you don't know what this is, see <a href="#server--public-ip-address">Server & Public IP address</a>. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
 
 Note that you can install Captain on your laptop which behind NAT (your router) for testing, but it requires some special setup, like port forwarding.
 
@@ -46,7 +46,7 @@ You will see a bunch of output on your screen. Once the Captain is initialized, 
 
 ### Step 2: Connect Root Domain
 
-Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you don't know how to do this, see Domain & DNS details?????. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root, and click update. If DNS changes are succesful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
+Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you don't know how to do this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root, and click update. If DNS changes are succesful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
 
 ### Step 3: Install Captain CLI
 
@@ -60,7 +60,7 @@ Then, run `captainduckduck login`, follow the steps and login to your captain in
 
 ### Step 4: Deploy the Test App
 
-Go to the Captain in your browser, from the left menu select Apps and create a new app. Name it `my-first-app`. Then, download any of the test apps????, unzip the content. and while inside the directory of the test app, run:
+Go to the Captain in your browser, from the left menu select Apps and create a new app. Name it `my-first-app`. Then, download any of the test apps <a href="https://github.com/githubsaturn/captainduckduck/tree/master/captain-sample-apps">here</a>, unzip the content. and while inside the directory of the test app, run:
 
 ```bash
 /home/Desktop/captain-examples/captain-node$  captainduckduck deploy
