@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://github.com/githubsaturn/captainduckduck">
     <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/icon.png" width="300"/>
-  </a>
 </p>
 
 <p align="center">
