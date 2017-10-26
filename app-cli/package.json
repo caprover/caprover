@@ -1,13 +1,13 @@
 {
   "name": "captainduckduck",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
-  "main": "index.js",
+  "main": "captainduckduck.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "captainduckduck": "./index.js"
+    "captainduckduck": "./captainduckduck.js"
   },
   "repository": {
     "type": "git",
