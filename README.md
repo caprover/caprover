@@ -1,9 +1,3 @@
-<p align="center">
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/icon.png" width="300"/>
-</p>
-
-
-
 Video Overview and Tutorial
 ===
 
