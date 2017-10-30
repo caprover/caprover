@@ -2,11 +2,12 @@
     <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/icon.png" width="300"/>
 </p>
 
-<p align="center">
-  <a href="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshot-collection.png">
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshot-collection.png" width="500"/>
-  </a>
-</p>
+
+
+Video Overview and Tutorial
+===
+
+[![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/youtube-snapshot.png)](https://www.youtube.com/watch?v=576RsaocNUE)
 
 
 # CaptainDuckDuck
@@ -25,15 +26,15 @@ Captain is a modern automated app deployment & web server manager.
 
 #### A) Domain Name
 
-During installation, you'll be asked to point a wildcard DNS entry to your Captain IP Address. If you don't know what this is, see <a href="#setup-domain-and-dns">Domain and DNS</a>. This will cost you as low as $2 a year.
+During installation, you'll be asked to point a wildcard DNS entry to your Captain IP Address. If you need help with domain name, see <a href="#setup-domain-and-dns">Domain and DNS</a>. This will cost you as low as $2 a year.
 
 #### B) Server with a Public IP
 
-Captain has to be installed on a machine with a public IP address. If you don't know what this is, see <a href="#server--public-ip-address">Server & Public IP address</a>. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
+Captain has to be installed on a machine with a public IP address. If you need help with Public IP, see <a href="#server--public-ip-address">Server & Public IP address</a>. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
 
 Note that you can install Captain on your laptop which behind NAT (your router) for testing, but it requires some special setup, like port forwarding.
 
-#### C) Install Docker on Server
+#### C) Install Docker on Server (at least, version 17.06.x)
 
 If you get your server from DigitalOcean, you can select a server with "pre-installed Docker". This will be the easiest option. Otherwise, you can install Docker CE by following this instruction:
 https://docs.docker.com/engine/installation
@@ -50,7 +51,7 @@ You will see a bunch of output on your screen. Once the Captain is initialized, 
 
 ### Step 2: Connect Root Domain
 
-Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you don't know how to do this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root, and click update. If DNS changes are succesful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
+Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you need help with this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root, and click update. If DNS changes are succesful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
 
 ### Step 3: Install Captain CLI
 
@@ -163,7 +164,7 @@ Enter `some-random-word.something.mydomain.com` and check to see if the IP is co
 
 ### Server & Public IP address
 
-If you don't know how to get a server, DigitalOcean is probably the easiest solution for you. Plus, you can use this link and get $10 credit!
+If this is your first time setting up a server, DigitalOcean is probably the easiest solution for you. Plus, you can use this link and get $10 credit!
 https://m.do.co/c/6410aa23d3f3
 
 DigitalOcean calls their servers "Droplets". After signing up, go to the Droplets section and click on "Create Droplet". Under choose an image, click on One-Click Apps, and select Docker. This way, Docker comes pre-installed with your server. If you have an SSH key, enter your SSH key at the bottom of this Droplet Create page, if not, don't worry, it's just alternative password. Once your Droplet is created, you will get an email with IP address of your server, user and pass. If you know how to SSH, then great, SSH into your server. If not, again don't worry! DigitalOcean is really beginner friendly. Simply go to your Droplets section on your DigitalOcean account, click on the Droplet you created. From the menu on the left side, select ACCESS and lauch console. Enter `root` when asked for login and enter the password which you received in email. If you didn't receive your password in email, click on Reset Root Password below Launch Console button. Note that you'll have to type your long password. The web interface that DigitalOcean gives you does not support Copy/Paste ctrl+c ctrl+v.
