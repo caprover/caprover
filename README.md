@@ -1,4 +1,6 @@
-CaptainDuckDuck
+# CaptainDuckDuck
+### An nginx & Docker marriage made in heaven.
+
 ===
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/youtube-snapshot.png)](https://www.youtube.com/watch?v=576RsaocNUE)
