@@ -4,7 +4,7 @@ Video Overview and Tutorial
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/youtube-snapshot.png)](https://www.youtube.com/watch?v=576RsaocNUE)
 
 
-# CaptainDuckDuck
+# CaptainDuckDuck - An Easy Interface for Docker+nginx+LetsEncrypt+NetData
 
 Captain is a modern automated app deployment & web server manager.
 
