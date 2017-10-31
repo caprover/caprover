@@ -8,7 +8,7 @@ Video Overview and Tutorial
 
 Captain is a modern automated app deployment & web server manager.
 
-  - Deploy apps in your own space
+  - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
   - Secure your services over HTTPS for FREE
   - Scale in seconds
   - Focus on your apps! Not the bells and whistles just to run your apps!
@@ -69,6 +69,7 @@ CONGRATS! Your app is live!!
 
 You can visit Captain in the browser and set custom parameters for your app such as environment variables, and do much more!
 
+For more details regarding deployment, mainly `captain-definition` file, please see CLI docs.
 
 
 ## Do Much More:
