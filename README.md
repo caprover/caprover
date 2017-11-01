@@ -111,7 +111,7 @@ https://docs.docker.com/engine/swarm/how-swarm-mode-works/nodes/
 Note: for cluster mode you will need to setup a Docker Registry.
 
 
-### Setup Docker Registery:
+### Setup Docker Registry:
 
 Docker Registry is simply the repository that different nodes in a cluster can access to download your app and run it. If you are not running your instance on a cluster, there is pretty much no benefit to setting up Docker Registry.
 
