@@ -1,7 +1,8 @@
 ### An nginx & Docker marriage made in heaven.
-<p align="center">
+<p>
     <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif" width="400"/>
 </p>
+
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/youtube-snapshot.png)](https://www.youtube.com/watch?v=576RsaocNUE)
 
 
@@ -110,7 +111,7 @@ https://docs.docker.com/engine/swarm/how-swarm-mode-works/nodes/
 Note: for cluster mode you will need to setup a Docker Registry.
 
 
-### Setup Docker Registery:
+### Setup Docker Registry:
 
 Docker Registry is simply the repository that different nodes in a cluster can access to download your app and run it. If you are not running your instance on a cluster, there is pretty much no benefit to setting up Docker Registry.
 
