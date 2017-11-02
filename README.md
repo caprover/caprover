@@ -30,7 +30,7 @@ During installation, you'll be asked to point a wildcard DNS entry to your Capta
 
 Captain has to be installed on a machine with a public IP address. If you need help with Public IP, see <a href="#server--public-ip-address">Server & Public IP address</a>. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
 
-Note that you can install Captain on your laptop which behind NAT (your router) for testing, but it requires some special setup, like port forwarding.
+Note that you can install Captain on your laptop which is behind NAT (your router) for testing purposes, but it requires some special setup, like port forwarding.
 
 #### C) Install Docker on Server (at least, version 17.06.x)
 
@@ -45,15 +45,16 @@ Just run the following line, sit back and enjoy!
  mkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck
 ```
 
-You will see a bunch of output on your screen. Once the Captain is initialized, you can visit `http://[IP_OF_YOUR_SERVER]:3000` in your browser and login to Captain using the default password `captain42`. You can change your password in settings.
+You will see a bunch of outputs on your screen. Once the Captain is initialized, you can visit `http://[IP_OF_YOUR_SERVER]:3000` in your browser and login to Captain using the default password `captain42`. You can change your password in settings.
 
 ### Step 2: Connect Root Domain
 
-Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you need help with this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root, and click update. If DNS changes are succesful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
+Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you need help with this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root and click on "update root domain". If DNS changes are successful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
 
 ### Step 3: Install Captain CLI
 
-Assuming you have npm installed. Simply run (add `sudo` if needed):
+Assuming you have npm installed, simply run (add `sudo` if needed):
+
 ```bash
  npm install -g npm captainduckduck
 ```
@@ -73,14 +74,14 @@ CONGRATS! Your app is live!!
 
 You can visit Captain in the browser and set custom parameters for your app such as environment variables, and do much more!
 
-For more details regarding deployment, mainly `captain-definition` file, please see CLI docs.
+For more details regarding deployment, please see CLI docs. For details on `captain-definition` file, see Captain Definition File section below.
 
 
 ## Do Much More:
 
 ### Enable HTTPS on Captain:
 
-One of a benefits of Captain, is ONE CLICK HTTPS activation. Simply click on Enable HTTPs on your dashboard and after a coupld of seconds your HTTPS is enabled. Note that once HTTPS is enabled, you cannot change your root domain, i.e. `something.mydomain.com`, of course it's always possible to re-install Captain and change it. After enabling HTTPS, you can optionally, although very recommented, enforce HTTPS for all connections, i.e. denying plain insecure HTTP connections and redirect them to HTTPS. Make sure you manually check HTTPS before doing this. Simply go to `https://captain.something.mydomain.com` and if it works, you can safely force HTTPS.
+One of the benefits of Captain, is the ONE CLICK HTTPS activation. Simply click on Enable HTTPs on your dashboard and after a couple of seconds your HTTPS is enabled. Note that once HTTPS is enabled, you cannot change your root domain, i.e. `something.mydomain.com`, of course it's always possible to re-install Captain and change it. After enabling HTTPS, you can optionally, although very recommended, enforce HTTPS for all requests, i.e. denying plain insecure HTTP connections and redirect them to HTTPS. Make sure you manually check HTTPS before doing this. Simply go to `https://captain.something.mydomain.com` and if it works, you can safely force HTTPS.
 
 ### Enable HTTPS for Apps:
 
@@ -90,15 +91,85 @@ You have full control over enabling HTTPS on your own apps. Once Captain root HT
 
 Let's say, your `pizza.something.yourdomain.com` is very popular and you want to take the next step and make it available on `www.pizza.com`. First you buy the domain! Next, similar to Captain setup, you go to your DNS settings and point `www` host to your Captain IP address. Alternatively, you can point `*` to Captain IP address. After doing this, go to Apps section, and enter `www.pizza.com` as custom domain and click on connect! Done!
 
+
+### Captain Definition File
+
+One of the key components of CaptainDuckDuck is the `captain-definition` file that sits at the root of your project. In case of NodeJS app, it sits next package.json, or next to index.php in case of PHP, or requirements.txt for Python app. It's a simple JSON like below:
+
+
+```
+ {
+  "schemaVersion" :1 ,
+  "templateId" :"node/8.7.0"
+ }
+```
+
+schemaVersion is always 1. And templateId is the piece which defines the what sort of base you need in order to run your app. It is in LANGUAGE/VERSION format. LANGUAGE can be one of these: `node`, `php`, `python`. See supported versions below for the versions.
+
+Note that although the current version of CaptainDuckDuck comes with 3 most popular web app languages: NodeJS, PHP and Python (Django). It gives you the advanced option of defining your own Dockerfile. For example, the two captain-definition files below generate the exact same result.
+
+Simple version
+
+```
+ {
+  "schemaVersion" :1 ,
+  "templateId" :"node/8.7.0"
+ }
+```
+
+
+Advanced Version
+
+```
+ {
+  "schemaVersion" :1 ,
+  "dockerfileLines" :[
+						"FROM node:8.7.0-alpine",
+						"RUN mkdir -p /usr/src/app",
+						"WORKDIR /usr/src/app",
+						"COPY ./src/package.json /usr/src/app/",
+						"RUN npm install && npm cache clean --force",
+						"COPY ./src /usr/src/app",
+						"ENV NODE_ENV production",
+						"ENV PORT 80",
+						"EXPOSE 80",
+						"CMD [ \"npm\", \"start\" ]"
+				    ]
+ }
+```
+
+Even if you don't know anything about Docker, you can get an idea what this does.
+
+Captain generates a dockerfile and puts it besides a directory named `src` where your source code sits. Using this approach you can deploy Ruby, Java, Scala, literally everything! As Captain becomes more mature, more and more languages will be added to the built-in template, so you don't have to create the dockerfile manually like above. If you need more details on dockerfile, please see:
+
+https://docs.docker.com/engine/reference/builder/
+and
+https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/
+
+
+#### Supported version tags for built-in languages:
+
+node/
+carbon, 8, 8.9, 8.9.0, 9, 9.0, 9.0.0, argon, 4, 4.8, 4.8.5, boron, 6, 6.11, 6.11.5, 8.8, 8.8.1, 8.8.0, 8.7, 8.7.0, 6.11.4, 8.6, 8.6.0, 8.5, 8.5.0, 4.8.4, 6.11.3, 6.11.2, 7, 7.10, 7.10.1, 8.4, 8.4.0, 8.3, 8.3.0, 8.2, 8.2.1, 6.11.1, 8.2.0, 8.1, 8.1.4, 4.8.3, 6.11.0, 8.1.3, 8.1.2, 8.1.1, 8.1.0, 8.0, 8.0.0, 6.10, 6.10.3, 7.10.0, 4.8.2, 6.10.2, 7.9, 7.9.0, 7.8, 7.8.0, 4.8.1, 6.10.1, 7.7, 7.7.4, 4.8.0, 6.10.0, 7.7.3, 7.7.2, 7.7.1, 7.7.0, 7.6, 7.6.0, 4.7, 4.7.3, 6.9, 6.9.5, 7.5, 7.5.0, 4.7.2, 6.9.4, 7.4, 7.4.0, 4.7.1, 6.9.3, 7.3, 7.3.0, 6.9.2, 4.7.0, 7.2.1, 7.2, 4.6, 4.6.2, 7.2.0, 6.9.1, 7.1, 7.1.0
+ 
+ 
+php/
+5, 5.6, 5.6.32, 7, 7.1, 7.1.11, 7.0, 7.0.25, rc, 7.2-rc, 7.2.0RC5, 7.2.0RC4, 5.6.31, 7.0.24, 7.1.10, 7.2.0RC3, 7.1.9, 7.0.23, 7.2.0RC2, 7.2.0RC1, 7.0.22, 7.1.8, 7.2.0beta3, 7.2.0beta2, 7.1.7, 7.2.0beta1, 7.0.21, 7.2.0alpha3, 5.6.30, 7.0.20, 7.1.6, 7.1.5, 7.0.19, 7.0.18, 7.1.4, 7.0.17, 7.1.3, 7.0.16, 7.1.2, 7.1.1, 7.0.15, 5.6.29, 7.0.14, 7.1.0, 5.6.28, 7.0.13, 7.1-rc, 7.1.0RC6, 7.1.0RC5, 7.0.12, 5.6.27, 7.1.0RC4, 7.1.0RC3, 5.6.26, 7.0.11, 7.1.0RC2, 5.6.25, 7.0.10, 7.1.0RC1, 5.6.24, 7.0.9, 5.5.38, 5.5, 5.5.37, 5.6.23, 7.0.8, 5.5.36, 5.6.22, 7.0.7, 7.0.6, 5.6.21, 5.5.35, 7.0.5, 5.6.20, 5.5.34, 7.0.4, 5.6.19, 5.5.33, 7.0.3, 5.6.18, 5.5.32, 7.0.2, 5.6.17, 5.5.31, 7.0.1, 5.6.16, 5.5.30, 7.0.0, 5.4, 5.4.45, 7.0.0RC8, 5.6.15, 7.0.0RC7, 7.0.0RC6, 7.0.0RC5, 5.6.14, 7.0.0RC4, 7.0.0RC3, 5.6.13, 5.5.29, 7.0.0RC2, 7.0.0RC1, 7.0.0beta3, 5.6.12, 5.5.28, 5.4.44, 7.0.0beta2, 5.6.11, 5.5.27, 5.4.43, 7.0.0beta1, 5.5.21, 5.5.19, 5.5.16, 5.4.40, 5.4.41, 5.4.39, 5.5.17, 5.6.3, 5.6.0, 5.6.8, 5.6.4, 5.4.42, 5.5.20, 5.4.38, 5.5.22, 5.6.5, 5.6.2, 5.4.35, 5.4.36, 5.4.33, 5.3.29, 5.3, 5.5.26, 5.5.18, 5.4.32, 5.4.37, 5.6.1, 5.6.6, 5.6.9, 5.6.10, 5.4.34, 5.6.7, 5.5.24, 5.5.23, 5.5.25
+ 
+ 
+python/
+2, 2.7, 2.7.14, rc, 3.7-rc, 3.7.0a2, 3, 3.6, 3.6.3, 3.7.0a1, 2.7.13, 3.6.2, 3.6-rc, 3.6.2rc2, 3.6.1, 3.6.2rc1
+
+
 ### Run Multiple Instances of App:
 
-Your Pizza app is doing great and you are getting thousands of hits on your website. Having once instance of your app is not good enough. Your latency has gone up. Next thing you want to consider to run multiple instances of your app on your Captain. You can do this from the Apps section of Captain web. Let's say you change your instance count to 3. Captain creates 3 instances of your app running at the same time. If any of them dies (crashes), it automatically spins off a new one! You always have 3 instances of your Pizza app running! The best part? Captain automatically spreads the requests between different instances of your app. 
+Your Pizza app is doing great and you are getting thousands of hits on your website. Having one instance of your app is not good enough. Your latency has gone up. Next thing you want is to consider to run multiple instances of your app on your Captain. You can do this from the Apps section of Captain web. Let's say you change your instance count to 3. Captain creates 3 instances of your app running at the same time. If any of them dies (crashes), it automatically spins off a new one! You always have 3 instances of your Pizza app running! The best part? Captain automatically spreads the requests between different instances of your app. 
 
 ### Run Multiple Servers:
 
-Wow! Your Pizza app is really popular! You have 3 instances of your app running on the same server, RAM and CPU are almost maxed out. You need a get a second server. How do you connect the servers? Captain does that for you ;-) You simply get a server with Docker installed on it, similar to what you did for the original Captain server.
+Wow! Your Pizza app is really popular! You have 3 instances of your app running on the same server, RAM and CPU are almost maxed out. You need to get a second server. How do you connect the servers? Captain does that for you ;-) You simply get a server with Docker installed on it, similar to what you did for the original Captain server.
 
-At this point, you have IP address of your new server, IP address of your main Captain node, username of your remote server (root is required for Docker use), private SSH key. Now, go to the "Nodes" section of Captain, enter the values and click on Join Cluster. Done! You now have a real cluster of your own! You can now change the instance count to 6, and Captain will new up some instances on the other server for you, automatically load balances the request and create new instances if one machine dies.
+At this point, you have IP address of your new server, IP address of your main Captain node, username of your remote server (root is required for Docker use), private SSH key. Now, go to the "Nodes" section of Captain, enter the values and click on Join Cluster. Done! You now have a real cluster of your own! You can now change the instance count to 6, and Captain will spin up some instances on the other server for you, also automatically load balances the request and creates new instances if one machine dies.
 
 Note on worker / manager nodes. Rule of thumb is you keep your manager count as an odd number:
 - 2 machines: main machine manager, the other machine worker
@@ -139,7 +210,7 @@ Captain uses:
 4789 TCP/UDP for Container Overlay Network
 2377 TCP/UDP for Docker swarm API
 3000 TCP for initial Captain Installation (can be blocked once Captain is attached to a domain)
-80   TCP for regular HTTP connectiosn
+80   TCP for regular HTTP connections
 443  TCP for secure HTTPS connections
 996  TCP for secure HTTPS connections specific to Docker Registry
 
@@ -147,7 +218,7 @@ Captain uses:
 
 ### Setup Domain and DNS
 
-To do this, you need to login to the domain provider which you used to purchase your `mydomain.com` domain. You can use GoDaddy.com or NameCheap.com. If you are first time buyer with GoDaddy, just google for GoDaddy 99 cent domains. You'll find copouns that offer 1-year leas for dot com domains for 99 cents! 
+To do this, you need to login to the domain provider which you used to purchase your `mydomain.com` domain. You can use GoDaddy.com or NameCheap.com. If you are first time buyer with GoDaddy, just google for GoDaddy 99 cent domains. You'll find coupons that offer 1-year lease for dot com domains for 99 cents! 
 
 After you purchased your domain, look for DNS settings under your domain settings. You should see a table of some sort with various entries. Look for an ADD button. Then fill the entries:
 
@@ -166,7 +237,7 @@ Enter `some-random-word.something.mydomain.com` and check to see if the IP is co
 If this is your first time setting up a server, DigitalOcean is probably the easiest solution for you. Plus, you can use this link and get $10 credit!
 https://m.do.co/c/6410aa23d3f3
 
-DigitalOcean calls their servers "Droplets". After signing up, go to the Droplets section and click on "Create Droplet". Under choose an image, click on One-Click Apps, and select Docker. This way, Docker comes pre-installed with your server. If you have an SSH key, enter your SSH key at the bottom of this Droplet Create page, if not, don't worry, it's just alternative password. Once your Droplet is created, you will get an email with IP address of your server, user and pass. If you know how to SSH, then great, SSH into your server. If not, again don't worry! DigitalOcean is really beginner friendly. Simply go to your Droplets section on your DigitalOcean account, click on the Droplet you created. From the menu on the left side, select ACCESS and lauch console. Enter `root` when asked for login and enter the password which you received in email. If you didn't receive your password in email, click on Reset Root Password below Launch Console button. Note that you'll have to type your long password. The web interface that DigitalOcean gives you does not support Copy/Paste ctrl+c ctrl+v.
+DigitalOcean calls their servers "Droplets". After signing up, go to the Droplets section and click on "Create Droplet". Under choose an image, click on One-Click Apps, and select Docker. This way, Docker comes pre-installed with your server. If you have an SSH key, enter your SSH key at the bottom of this Droplet Create page, if not, don't worry, it's just alternative password. Once your Droplet is created, you will get an email with IP address of your server, user and pass. If you know how to SSH, then great, SSH into your server. If not, again don't worry! DigitalOcean is really beginner friendly. Simply go to your Droplets section on your DigitalOcean account, click on the Droplet you created. From the menu on the left side, select ACCESS and launch console. Enter `root` when asked for login and enter the password which you received in email. If you didn't receive your password in email, click on Reset Root Password below Launch Console button. Note that you'll have to type your long password. The web interface that DigitalOcean gives you does not support Copy/Paste ctrl+c ctrl+v.
 
 At this point you are logged into your server and you can run:
 
