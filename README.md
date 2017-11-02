@@ -124,17 +124,17 @@ Advanced Version
  {
   "schemaVersion" :1 ,
   "dockerfileLines" :[
-						"FROM node:8.7.0-alpine",
-						"RUN mkdir -p /usr/src/app",
-						"WORKDIR /usr/src/app",
-						"COPY ./src/package.json /usr/src/app/",
-						"RUN npm install && npm cache clean --force",
-						"COPY ./src /usr/src/app",
-						"ENV NODE_ENV production",
-						"ENV PORT 80",
-						"EXPOSE 80",
-						"CMD [ \"npm\", \"start\" ]"
-				    ]
+                        "FROM node:8.7.0-alpine",
+                        "RUN mkdir -p /usr/src/app",
+                        "WORKDIR /usr/src/app",
+                        "COPY ./src/package.json /usr/src/app/",
+                        "RUN npm install && npm cache clean --force",
+                        "COPY ./src /usr/src/app",
+                        "ENV NODE_ENV production",
+                        "ENV PORT 80",
+                        "EXPOSE 80",
+                        "CMD [ \"npm\", \"start\" ]"
+                    ]
  }
 ```
 
