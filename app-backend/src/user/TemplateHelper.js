@@ -154,6 +154,14 @@ class TemplateHelper {
 
                         self.cachedImageTags = tempCache;
 
+                        // Used for README
+                        for (let tempIdx = 0; tempIdx < self.templates.length; tempIdx++) {
+                            Logger.d(' ');
+                            Logger.d(self.templates[tempIdx].templateName + '/');
+                            Logger.d(self.getDockerVersionsForTemplateName(self.templates[tempIdx].templateName).join(', '));
+                            Logger.d(' ');
+                        }
+
                         setTimeout(function () {
 
                             self.updateCachedImageTags();
