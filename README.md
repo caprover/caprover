@@ -1,4 +1,4 @@
-### An nginx & Docker marriage made in heaven.
+### A nginx & Docker marriage made in heaven.
 <p>
     <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif" width="400"/>
 </p>
