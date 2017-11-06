@@ -61,8 +61,8 @@ change `var BASE_API = '/api/v1/'` to
 - `var BASE_API = 'http://captain.captain.x/api/v1/'` if you have dnsmasq installed
 - `var BASE_API = 'http://127.0.0.1:3000/api/v1/'` if you have dnsmasq installed
 
-To hardcode logged in user, steal the auth token from the the network inspector on chrome and hardcode it in apiManager.js.
-You can simply replace `var authToken = null` with `var authToken = 'THE_DOMAIN_NAME_STOLEN_FROM_NETWORK_INSPECTOR'`
+To hardcode logged in user, steal the auth token from the the network inspector on Chrome and hardcode it in apiManager.js.
+You can simply replace `var authToken = null` with `var authToken = 'THE_AUTH_TOKEN_STOLEN_FROM_NETWORK_INSPECTOR'`
 
 ### CLI development:
 Just simply install dependecies in `app-cli` directory by runnin `npm install` and you are good to go!
