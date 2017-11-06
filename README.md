@@ -203,6 +203,9 @@ You want to see how your app is behaving. Is it eating up your memory or CPU? Or
 
 ## Need More Help?
 
+### How to stop and remove Captain?
+See here: https://github.com/githubsaturn/captainduckduck/issues/12
+
 ### Firewall & Port Forwarding
 
 Captain uses:
@@ -244,6 +247,5 @@ At this point you are logged into your server and you can run:
 ```bash
 docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck
 ```
-
 
 > Icon made by Freepik from www.flaticon.com
