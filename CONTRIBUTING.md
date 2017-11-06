@@ -22,6 +22,9 @@ Please note we have a code of conduct, please follow it in all your interactions
 First, you need a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
 or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README)
 
+> Docker for Mac users: You need to add `/captain` to shared paths.  
+> Do to so, click on the Docker icon -> Setting -> File Sharing and add `/captain`
+
 Log in to your machine, clone the git repo, go to `app-backend` directory and run the following line:
 
 ```bash
