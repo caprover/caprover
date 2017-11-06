@@ -19,8 +19,8 @@ Please note we have a code of conduct, please follow it in all your interactions
    
 ## Runnig dev environment
 
-You a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
-or your local machine itself.
+First, you need a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
+or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README)
 
 Log in to your machine, clone the git repo, go to `app-backend` directory and run the following line:
 
@@ -32,12 +32,12 @@ You are good to go! You can run the following line to see the logs for the back-
 ```bash
 docker service logs captain-captain --follow
 ```
-Of the differences between the release and debug mode are:
+The main differences between the release and debug mode are:
 - docker image is created from the local source file, instead of getting pulled from Docker hub
 - security is much weaker is debug due to a static salt
-- self health monitoring is disabled in debug so that we are able to see possible crashes
-- same origin policy is disable in debug mode to make front end development easier
-- an additional end point is available `/force-exit` which force restarts the app.
+- self health monitoring is disabled in debug so that we can see possible crashes
+- same origin policy is disabled in debug mode to make front end development easier
+- an additional endpoint is available at `/force-exit` which force restarts the backend service
 - static resources (including front end app) are not being served in debug build.
 
 Captain by default uses `captain.x` as its root domain. It's not always needed, but if you need a root
@@ -45,32 +45,32 @@ domain for your development, you can simply run a local DNS server on your local
 `*.captain-x` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
 On ubuntu 16, it's as simple of editing this file:
 `/etc/NetworkManager/dnsmasq.d/dnsmasq-localhost.conf` (create if does not exist)
-And add a this line to it: `address=/captain.x/192.168.1.2`
+And add this line to it: `address=/captain.x/192.168.1.2` where `192.168.1.2` is your local IP address.
 To make sure you have dnsmasq, you can run `which dnsmasq` on your terminal, if it's available,
-path of if will be printed on the terminal, otherwise, there won't be anything printer on your terminal.
+path of it will be printed on the terminal, otherwise, there won't be anything printed on your terminal.
 
 
 ### front end development:
-You simply run the debug build for the backend service as explained above.
+First, you simply run the debug build for the backend service as explained above.
 Then go to `app-frontend` and run follow the installation guide explained in
 frontend app [README.md](https://github.com/githubsaturn/captainduckduck/tree/master/app-frontend#installation)
 
-Change the endpoint for the backend server to your debug instance by editting this file:
+Change the endpoint for the backend server to your debug instance by editing this file:
 `/captainduckduck/app-frontend/src/js/captain/apiManager.js` and
 change `var BASE_API = '/api/v1/'` to 
 - `var BASE_API = 'http://captain.captain.x/api/v1/'` if you have dnsmasq installed
 - `var BASE_API = 'http://127.0.0.1:3000/api/v1/'` if you have dnsmasq installed
 
-To hardcode logged in user, steal the auth token from the the network inspector on Chrome and hardcode it in apiManager.js.
+You need to hardcode a logged in user to avoid having to log it with every refresh of the page. To do so, steal the auth token from the the network inspector on Chrome and hardcode it in apiManager.js.
 You can simply replace `var authToken = null` with `var authToken = 'THE_AUTH_TOKEN_STOLEN_FROM_NETWORK_INSPECTOR'`
 
 ### CLI development:
-Just simply install dependecies in `app-cli` directory by runnin `npm install` and you are good to go!
+Just simply install dependecies in `app-cli` directory by running `npm install` and you are good to go!
 
 ### Backend development:
 Start the debug build for the backend service as explained above. To see any changes you make,
 first save the changes, then you need to restart the service either by sending a request to `/force-exit` endpoint,
-or buy running `./dev-reset-service.sh` which is available in `app-backend` directory.
+or by running `./dev-reset-service.sh` script which is available in `app-backend` directory.
 
 ## Code of Conduct
 
