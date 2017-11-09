@@ -192,7 +192,7 @@ class DockerApi {
 
                     stream.on('data', function (chunk) {
                         // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                        // ('stream data ' + chunk);
+                        Logger.dev('stream data ' + chunk);
                     });
 
                     // stream.pipe(process.stdout, {end: true});
