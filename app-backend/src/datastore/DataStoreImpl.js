@@ -2,6 +2,7 @@
  * Created by kasra on 27/06/17.
  */
 const Configstore = require('configstore');
+const isValidPath = require('is-valid-path');
 const fs = require('fs-extra');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const CaptainConstants = require('../utils/CaptainConstants');
@@ -23,8 +24,8 @@ const NET_DATA_INFO = 'netDataInfo';
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.x';
 
 
-function isNameAllowed(appName) {
-    return (!!appName) && (appName.length < 50) && /^[a-z0-9\-]+$/.test(appName) && appName.indexOf('--') < 0;
+function isNameAllowed(name) {
+    return (!!name) && !/^\d/.test(name) && (name.length < 50) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
 }
 
 class DataStore {
@@ -363,7 +364,8 @@ class DataStore {
         });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars) {
+    getAppDefinition(appName) {
+
         const self = this;
 
         return this.getAppDefinitions()
@@ -379,9 +381,21 @@ class DataStore {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, ('App could not be found ' + appName));
                 }
 
+                return app;
+
+            });
+    }
+
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId) {
+        const self = this;
+
+        return this.getAppDefinition(appName)
+            .then(function (app) {
+
                 instanceCount = Number(instanceCount);
 
                 app.instanceCount = instanceCount;
+                app.nodeId = nodeId;
 
                 if (envVars) {
                     app.envVars = [];
@@ -396,12 +410,36 @@ class DataStore {
                     }
                 }
 
+                if (volumes) {
+
+                    for (let i = 0; i < volumes.length; i++) {
+                        let obj = volumes[i];
+                        if (!isNameAllowed(obj.volumeName)) {
+                            throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                        }
+                        if (!isValidPath(obj.containerPath)) {
+                            throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                        }
+                    }
+
+                    app.volumes = [];
+
+                    for (let i = 0; i < volumes.length; i++) {
+                        let obj = volumes[i];
+                        app.volumes.push({
+                            containerPath: obj.containerPath,
+                            volumeName: self.getNameSpace() + '--' + obj.volumeName,
+                            type: 'volume'
+                        })
+                    }
+                }
+
                 self.data.set(APP_DEFINITIONS + '.' + appName, app);
 
             });
     }
 
-    setUserEmailAddress(emailAddress){
+    setUserEmailAddress(emailAddress) {
 
         const self = this;
 
@@ -586,10 +624,11 @@ class DataStore {
     /**
      * Creates a new app definition.
      *
-     * @param appName             The appName you want to register
+     * @param appName                   The appName you want to register
+     * @param hasPersistentData         whether the app has persistent data, you can only run one instance of the app.
      * @returns {Promise}
      */
-    registerAppDefinition(appName) {
+    registerAppDefinition(appName, hasPersistentData) {
         const self = this;
 
         return new Promise(function (resolve, reject) {
@@ -605,9 +644,11 @@ class DataStore {
             }
 
             let defaultAppDefinition = {
+                hasPersistentData: !!hasPersistentData,
                 instanceCount: 1,
-                networks: [CaptainConstants.captainNetworkName], // TODO fix capitalization
+                networks: [CaptainConstants.captainNetworkName],
                 envVars: [],
+                volumes: [],
                 versions: []
             };
 

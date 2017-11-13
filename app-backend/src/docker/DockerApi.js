@@ -820,8 +820,10 @@ class DockerApi {
      * @param volumes
      * [
      *    {
-     *        hostPath: 'somekey'
-     *        containerPath: 'some value'
+     *        containerPath: 'some value' [REQUIRED]
+     *        hostPath: 'somekey' [REQUIRED for bind type]
+     *        volumeName: 'my-volume-name' [REQUIRED for type:volume]
+     *        type: <defaults to bind>, can be volume or tmpfs (not supported yet through captain)
      *    }
      * ]
      * @param networks
@@ -850,7 +852,7 @@ class DockerApi {
      * @param instanceCount: String '12' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount) {
+    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -867,6 +869,20 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Image = imageName;
                 }
 
+                if (nodeId) {
+                    updatedData.TaskTemplate.Placement = updatedData.TaskTemplate.Placement || {};
+                    updatedData.TaskTemplate.Placement.Constraints = updatedData.TaskTemplate.Placement.Constraints || [];
+                    let newConstraints = [];
+                    for (let i = 0; i < updatedData.TaskTemplate.Placement.Constraints.length; i++) {
+                        let c = updatedData.TaskTemplate.Placement.Constraints[i];
+                        if (c.indexOf('node.id') < 0) {
+                            newConstraints.push(c);
+                        }
+                    }
+                    newConstraints.push('node.id == ' + nodeId);
+                    updatedData.TaskTemplate.Placement.Constraints = newConstraints;
+                }
+
                 if (arrayOfEnvKeyAndValue) {
                     updatedData.TaskTemplate.ContainerSpec.Env = [];
 
@@ -881,13 +897,36 @@ class DockerApi {
                     let mts = [];
                     for (let idx = 0; idx < volumes.length; idx++) {
                         let v = volumes[idx];
-                        mts.push({
-                            Source: v.hostPath,
-                            Target: v.containerPath,
-                            Type: 'bind',
-                            ReadOnly: false,
-                            Consistency: 'default'
-                        });
+
+                        const TYPE_BIND = 'bind';
+                        const TYPE_VOLUME = 'volume';
+                        v.type = v.type || TYPE_BIND;
+
+                        if (v.type === TYPE_BIND) {
+
+                            mts.push({
+                                Source: v.hostPath,
+                                Target: v.containerPath,
+                                Type: TYPE_BIND,
+                                ReadOnly: false,
+                                Consistency: 'default'
+                            });
+                        }
+                        else if (v.type === TYPE_VOLUME) {
+
+                            // named volumes are created here:
+                            // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
+                            mts.push({
+                                Source: v.volumeName,
+                                Target: v.containerPath,
+                                Type: TYPE_VOLUME,
+                                ReadOnly: false
+                            });
+
+                        }
+                        else {
+                            throw new Error("Unknown volume type!!");
+                        }
 
                     }
                     updatedData.TaskTemplate.ContainerSpec.Mounts = mts;

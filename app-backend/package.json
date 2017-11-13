@@ -16,6 +16,7 @@
     "express": "~4.15.2",
     "fs-extra": "^4.0.0",
     "http-proxy": "^1.16.2",
+    "is-valid-path": "^0.1.1",
     "js-base64": "^2.1.9",
     "jsonwebtoken": "^7.4.1",
     "moment": "^2.18.1",
