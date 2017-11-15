@@ -25,7 +25,7 @@ const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.x';
 
 
 function isNameAllowed(name) {
-    return (!!name) && !/^\d/.test(name) && (name.length < 50) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
+    return (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
 }
 
 class DataStore {
@@ -325,17 +325,23 @@ class DataStore {
 
                 Object.keys(apps).forEach(function (appName) {
 
+                    let webApp = apps[appName];
+
+                    if (webApp.notExposeAsWebApp) {
+                        return;
+                    }
+
                     let localDomain = self.getServiceName(appName);
 
                     let serverWithSubDomain = {};
-                    serverWithSubDomain.hasSsl = hasRootSsl && apps[appName].hasDefaultSubDomainSsl;
+                    serverWithSubDomain.hasSsl = hasRootSsl && webApp.hasDefaultSubDomainSsl;
                     serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
                     serverWithSubDomain.localDomain = localDomain;
 
                     servers.push(serverWithSubDomain);
 
                     // adding custom domains
-                    let customDomainArray = apps[appName].customDomain;
+                    let customDomainArray = webApp.customDomain;
                     if (customDomainArray && customDomainArray.length > 0) {
                         for (let idx = 0; idx < customDomainArray.length; idx++) {
                             let d = customDomainArray[idx];
@@ -386,7 +392,7 @@ class DataStore {
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp) {
         const self = this;
 
         return this.getAppDefinition(appName)
@@ -395,6 +401,7 @@ class DataStore {
                 instanceCount = Number(instanceCount);
 
                 app.instanceCount = instanceCount;
+                app.notExposeAsWebApp = !!notExposeAsWebApp;
                 app.nodeId = nodeId;
 
                 if (envVars) {

@@ -55,6 +55,22 @@
                   </div>
                 </div>
               </div>
+              
+              <div class="row">
+                <form class="col-xl-10 col-lg-12">
+
+                  <div class="form-group">
+                    <div class="input-group">
+                      <input type="text" class="form-control" ng-model="app.newCustomDomain" id="customDomain" placeholder="www.the-best-app-in-the-world.com">
+                      <span class="input-group-btn ">
+                      <button type="submit" class="btn btn-primary"  uib-tooltip="Make sure it points to this IP, otherwise verification will fail."
+                      ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
+                      Connect New Domain</button>
+                      </span>
+                    </div>
+                  </div>
+                </form>
+              </div>
 
               <br/>
 
@@ -94,22 +110,6 @@
                 </div>
               </div>
               <hr/>
-
-              <div class="row">
-                <form class="col-xl-10 col-lg-12">
-
-                  <div class="form-group">
-                    <div class="input-group">
-                      <input type="text" class="form-control" ng-model="app.newCustomDomain" id="customDomain" placeholder="www.the-best-app-in-the-world.com">
-                      <span class="input-group-btn ">
-                      <button type="submit" class="btn btn-primary"  uib-tooltip="Make sure it points to this IP, otherwise verification will fail."
-                      ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
-                      Connect New Domain</button>
-                      </span>
-                    </div>
-                  </div>
-                </form>
-              </div>
 
               <div ng-repeat="c in app.customDomain">
 

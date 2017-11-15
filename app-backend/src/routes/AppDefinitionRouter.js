@@ -271,13 +271,14 @@ router.post('/update/', function (req, res, next) {
 
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
+    let notExposeAsWebApp = req.body.notExposeAsWebApp;
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
     let instanceCount = req.body.instanceCount || '0';
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);

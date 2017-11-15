@@ -459,6 +459,11 @@ class ServiceManager {
 
                 return dataStore.deleteAppDefinition(appName);
 
+            })
+            .then(function () {
+
+                return self.reloadLoadBalancer();
+
             });
     }
 
@@ -526,7 +531,7 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp) {
 
         const self = this;
         const dataStore = this.dataStore;
@@ -617,11 +622,14 @@ class ServiceManager {
             })
             .then(function () {
 
-                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId);
+                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp);
 
             })
             .then(function () {
                 return self.updateServiceOnDefinitionUpdate(appName);
+            })
+            .then(function () {
+                return self.reloadLoadBalancer();
             });
     }
 
