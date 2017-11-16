@@ -421,11 +421,13 @@ class DataStore {
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        if (!isNameAllowed(obj.volumeName)) {
-                            throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
-                        }
-                        if (!isValidPath(obj.containerPath)) {
-                            throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                        if (obj.containerPath && obj.volumeName){
+                            if (!isNameAllowed(obj.volumeName)) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                            }
+                            if (!isValidPath(obj.containerPath)) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                            }
                         }
                     }
 
@@ -433,11 +435,13 @@ class DataStore {
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        app.volumes.push({
-                            containerPath: obj.containerPath,
-                            volumeName: self.getNameSpace() + '--' + obj.volumeName,
-                            type: 'volume'
-                        })
+                        if (obj.containerPath && obj.volumeName){
+                            app.volumes.push({
+                                containerPath: obj.containerPath,
+                                volumeName: self.getNameSpace() + '--' + obj.volumeName,
+                                type: 'volume'
+                            });
+                        }
                     }
                 }
 

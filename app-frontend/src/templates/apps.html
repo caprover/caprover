@@ -56,7 +56,7 @@
 
               <p>Your app is interally avilable as
                 <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, in it accessible via
-                <code>http://srv-captain--{{app.appName}}</code> from other apps</p>
+                <code>http://srv-captain--{{app.appName}}</code> from other apps.</p>
               <hr/>
 
               <div class="checkbox" uib-tooltip="Use this if you don't want your app be externally available.">
@@ -192,6 +192,34 @@
               <div class="row">
                 <div class="col-md-12">
                   <button type="button" ng-click="addEnvVarClicked(app)" class="btn btn-default">Add Key/Value Pair</button>
+                </div>
+              </div>
+              <hr/>
+
+              <div ng-show="app.hasPersistentData">
+                <h4>Persistent Directories:</h4>
+                <div ng-show="!app.volumes || !app.volumes.length">
+                  <i>Currently, this app does not have any persistent directories.</i>
+                </div>
+                <br/>
+                <div class="row" ng-repeat="vol in app.volumes">
+                  <div class="form-group col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Label:</span>
+                      <input style="height:50px" type="text" class="form-control" ng-model="vol.volumeName" placeholder="some-name">
+                    </div>
+                  </div>
+                  <div class="col-sm-6 form-group">
+                    <div class="input-group">
+                      <span class="input-group-addon">Directory:</span>
+                      <textarea style="height:50px;padding-top:13px;" type="text" class="form-control" ng-model="vol.containerPath" placeholder="/some/thing"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <button type="button" ng-click="addVolumeClicked(app)" class="btn btn-default">Add directory</button>
+                  </div>
                 </div>
               </div>
 

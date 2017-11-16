@@ -341,12 +341,13 @@
                         });
             },
             updateConfigAndSave: function(appName, instanceCount, envVars, 
-                notExposeAsWebApp, callback) {
+                notExposeAsWebApp, volumes, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', { 
                         appName: appName,
                         instanceCount: instanceCount,
                         notExposeAsWebApp: notExposeAsWebApp,
+                        volumes: volumes,
                         envVars: envVars
                     }, createConfig())
                     .then(
