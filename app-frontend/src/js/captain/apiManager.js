@@ -3,14 +3,14 @@
     .factory('apiManager', ApiManager);
 
     
-    var BASE_API = '/api/v1/'; // 'http://captain.captain.x/'; 
+    var BASE_API = 'http://captain.captain.x:3000/api/v1/'; // 'http://captain.captain.x/'; 
     var TOKEN_HEADER = 'x-captain-auth';
     var NAMESPACE = 'x-namespace';
     var CAPTAIN = 'captain';
     
     function ApiManager(captainLogger, $http, $timeout) {
 
-        var authToken = null;
+        var authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiJ0ZXN0In0sImlhdCI6MTUxMDgwMjE5NSwiZXhwIjoxNTQ2ODAyMTk1fQ.ZjDPVMn9Cbk5dV0gw2or-x1jCP0k5jtkMWt7x34p12M';
 
         function createConfig() {
             var headers = {};
@@ -284,10 +284,11 @@
                             callback(null);
                         });
             },
-            registerNewApp: function(appName, callback) {
+            registerNewApp: function(appName, hasPersistentData, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/register', { 
-                        appName: appName
+                        appName: appName,
+                        hasPersistentData: hasPersistentData
                     }, createConfig())
                     .then(
                         function(response) {
@@ -339,12 +340,14 @@
                             callback(null);
                         });
             },
-            updateConfigAndSave: function(appName, instanceCount, envVars, callback) {
+            updateConfigAndSave: function(appName, instanceCount, envVars, 
+                notExposeAsWebApp, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', { 
                         appName: appName,
                         instanceCount: instanceCount,
-                        envVars:envVars
+                        notExposeAsWebApp: notExposeAsWebApp,
+                        envVars: envVars
                     }, createConfig())
                     .then(
                         function(response) {

@@ -63,8 +63,9 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
             $scope.loadingState.enabled = true;
 
             var appName = $scope.newAppData.newAppToRegister;
+            var hasPersistentData = $scope.newAppData.newAppHasPersistentData;
 
-            apiManager.registerNewApp(appName, function (data) {
+            apiManager.registerNewApp(appName, hasPersistentData, function (data) {
 
                 if (captainToast.showErrorToastIfNeeded(data)) {
                     $scope.loadingState.enabled = false;
@@ -212,7 +213,8 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         $scope.onUpdateConfigAndSave = function (app) {
             $scope.loadingState.enabled = true;
 
-            apiManager.updateConfigAndSave(app.appName, app.instanceCount, app.envVars, function (data) {
+            apiManager.updateConfigAndSave(app.appName, app.instanceCount,
+                 app.envVars, app.notExposeAsWebApp, function (data) {
 
                 if (captainToast.showErrorToastIfNeeded(data)) {
                     $scope.loadingState.enabled = false;
