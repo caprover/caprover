@@ -459,6 +459,11 @@ class ServiceManager {
 
                 return dataStore.deleteAppDefinition(appName);
 
+            })
+            .then(function () {
+
+                return self.reloadLoadBalancer();
+
             });
     }
 
@@ -511,7 +516,7 @@ class ServiceManager {
                 Logger.d('Updating service: ' + serviceName + ' with image: ' + imageName);
 
                 return dockerApi
-                    .updateService(serviceName, imageName, null, app.networks, app.envVars, null, dockerAuthObject, Number(app.instanceCount));
+                    .updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, null, dockerAuthObject, Number(app.instanceCount), app.nodeId);
 
             })
             .then(function () {
@@ -526,20 +531,105 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp) {
 
         const self = this;
         const dataStore = this.dataStore;
         const dockerApi = this.dockerApi;
 
+        let serviceName = null;
+
         return Promise.resolve()
             .then(function () {
 
-                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars);
+                return dataStore.getAppDefinition(appName);
+
+            })
+            .then(function (app) {
+
+                serviceName = dataStore.getServiceName(appName);
+
+                // After leaving this block, nodeId will be guaranteed to be NonNull
+                if (app.hasPersistentData) {
+
+                    if (instanceCount !== 1) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, ('App with persistent data can only have 1 instance: ' + appName));
+                    }
+
+                    if (nodeId) {
+
+                        if (app.nodeId) {
+
+                            if (nodeId !== app.nodeId) {
+                                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot change Node ID after it's set!");
+                            }
+
+                        }
+                        else {
+
+                            return dockerApi
+                                .getNodesInfo()
+                                .then(function (nodeInfo) {
+
+                                    for (let i = 0; i < nodeInfo.length; i++) {
+                                        if (nodeId === nodeInfo[i].nodeId) {
+                                            return;
+                                        }
+                                    }
+
+                                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Node ID you requested in not part of the swarm " + nodeId);
+
+                                })
+                        }
+                    }
+                    else {
+
+                        if (app.nodeId) {
+
+                            nodeId = app.nodeId;
+
+                        }
+                        else {
+
+                            return dockerApi
+                                .isServiceRunningByName(serviceName)
+                                .then(function (isRunning) {
+                                    if (!isRunning) {
+                                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot find the service. Try again in a minute...");
+                                    }
+                                    return dockerApi
+                                        .getNodeIdByServiceName(serviceName);
+                                })
+                                .then(function (nodeIdRunningService) {
+                                    if (!nodeIdRunningService) {
+                                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "No NodeId was found. Try again in a minute...");
+                                    }
+
+                                    nodeId = nodeIdRunningService;
+
+                                });
+                        }
+
+                    }
+
+                }
+                else {
+                    if (volumes && volumes.length) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot set volumes for a non-persistent container!");
+                    }
+                }
+
+            })
+            .then(function () {
+
+                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp);
 
             })
             .then(function () {
                 return self.updateServiceOnDefinitionUpdate(appName);
+            })
+            .then(function () {
+                return self.reloadLoadBalancer();
             });
     }
 
@@ -557,11 +647,7 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
-                return dataStore.getAppDefinitions()
-                    .then(function (apps) {
-                        Logger.d('App definitions retrieved');
-                        return apps[appName];
-                    });
+                return dataStore.getAppDefinition(appName);
             })
             .then(function (appFound) {
 
@@ -570,7 +656,7 @@ class ServiceManager {
                 }
 
                 return dockerApi
-                    .updateService(serviceName, null, null, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount));
+                    .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId);
             });
 
     }

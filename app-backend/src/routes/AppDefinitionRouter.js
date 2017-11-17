@@ -193,10 +193,11 @@ router.post('/register/', function (req, res, next) {
     let serviceManager = res.locals.user.serviceManager;
 
     let appName = req.body.appName;
+    let hasPersistentData = !!req.body.hasPersistentData;
 
     Logger.d('Registering app started: ' + appName);
 
-    dataStore.registerAppDefinition(appName)
+    dataStore.registerAppDefinition(appName, hasPersistentData)
         .then(function () {
 
             return serviceManager.createImage(appName);
@@ -269,12 +270,15 @@ router.post('/update/', function (req, res, next) {
     let serviceManager = res.locals.user.serviceManager;
 
     let appName = req.body.appName;
+    let nodeId = req.body.nodeId;
+    let notExposeAsWebApp = req.body.notExposeAsWebApp;
     let envVars = req.body.envVars || [];
+    let volumes = req.body.volumes || [];
     let instanceCount = req.body.instanceCount || '0';
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, instanceCount, envVars)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);
