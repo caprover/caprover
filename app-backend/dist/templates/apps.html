@@ -22,7 +22,7 @@
                   </span>
 
                 </div>
-                <div class="input-group">
+                <div class="input-group" ng-show="false">
                   <div class="checkbox" uib-tooltip="Used for databases, see docs for details.">
                     <label>
                       <input type="checkbox" ng-model="newAppData.newAppHasPersistentData"> Has Persistent Data
@@ -55,7 +55,7 @@
             <div class="row">
 
               <p>Your app is interally avilable as
-                <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, in it accessible via
+                <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, it is accessible via
                 <code>http://srv-captain--{{app.appName}}</code> from other apps.</p>
               <hr>
 
