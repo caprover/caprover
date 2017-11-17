@@ -3,14 +3,14 @@
     .factory('apiManager', ApiManager);
 
     
-    var BASE_API = 'http://captain.captain.x:3000/api/v1/'; // 'http://captain.captain.x/'; 
+    var BASE_API = '/api/v1/'; // 'http://captain.captain.x/'; 
     var TOKEN_HEADER = 'x-captain-auth';
     var NAMESPACE = 'x-namespace';
     var CAPTAIN = 'captain';
     
     function ApiManager(captainLogger, $http, $timeout) {
 
-        var authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiJ0ZXN0In0sImlhdCI6MTUxMDgwMjE5NSwiZXhwIjoxNTQ2ODAyMTk1fQ.ZjDPVMn9Cbk5dV0gw2or-x1jCP0k5jtkMWt7x34p12M';
+        var authToken = null;
 
         function createConfig() {
             var headers = {};
