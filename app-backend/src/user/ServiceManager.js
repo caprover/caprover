@@ -169,7 +169,10 @@ class ServiceManager {
             .then(function () {
 
                 return dockerApi
-                    .buildImageFromDockerFile(imageName, newVersion, tarballFilePath);
+                    .buildImageFromDockerFile(imageName, newVersion, tarballFilePath)
+                    .catch(function (error) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.BUILD_ERROR, ('' + error).trim());
+                    })
 
             })
             .then(function () {

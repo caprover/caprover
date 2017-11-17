@@ -28,7 +28,9 @@ let apiStatusCode = {
 
     VERIFICATION_FAILED: 1107,
 
-    ILLEGAL_OPERATION: 1108
+    ILLEGAL_OPERATION: 1108,
+
+    BUILD_ERROR: 1109
 
 };
 

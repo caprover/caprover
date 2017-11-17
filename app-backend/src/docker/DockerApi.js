@@ -188,11 +188,27 @@ class DockerApi {
             })
             .then(function (stream) {
 
-                return new Promise(function (resolve) {
+                return new Promise(function (resolve, reject) {
 
+                    let errorMessage = '';
+
+                    stream.setEncoding('utf8');
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunk) {
-                        // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                        Logger.dev('stream data ' + chunk);
+
+                        chunk = JSON.parse(chunk);
+
+                        if (chunk.stream) {
+                            Logger.dev('stream data ' + chunk.stream);
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error);
+                            Logger.e(JSON.stringify(chunk.errorDetail));
+                            errorMessage += chunk.error;
+                            errorMessage += '\n';
+                        }
                     });
 
                     // stream.pipe(process.stdout, {end: true});
@@ -200,8 +216,17 @@ class DockerApi {
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        if (errorMessage) {
+                            reject(errorMessage);
+                            return;
+                        }
                         resolve();
                     });
+
+                    stream.on('error', function (chunk) {
+                        errorMessage += chunk;
+                    });
+
                 });
 
             })
