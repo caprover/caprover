@@ -202,20 +202,26 @@ You want to see how your app is behaving. Is it eating up your memory or CPU? Or
 
 ## Need More Help?
 
+### Cannot connect <ip_server>:3000?
+There is a whole set of reasons for this. First you need to make sure that CaptainDuckDuck is running on your server. To check this, ssh to your server and run `docker service ps captain-captain --no-trunc`. You might see Captain is getting restarted constantly due to an error. Fix the issue and retry. See here for example: https://github.com/githubsaturn/captainduckduck/issues/14
+
+If you don't see any errors, then try `curl localhost:3000 -v`. If successful, it's probably your firewall that's blocking the connection. See firewall section below.
+
 ### How to stop and remove Captain?
 See here: https://github.com/githubsaturn/captainduckduck/issues/12
 
 ### Firewall & Port Forwarding
 
 Captain uses:
-7946 TCP/UDP for Container Network Discovery
-4789 TCP/UDP for Container Overlay Network
-2377 TCP/UDP for Docker swarm API
-3000 TCP for initial Captain Installation (can be blocked once Captain is attached to a domain)
-80   TCP for regular HTTP connections
-443  TCP for secure HTTPS connections
-996  TCP for secure HTTPS connections specific to Docker Registry
+- 7946 TCP/UDP for Container Network Discovery
+- 4789 TCP/UDP for Container Overlay Network
+- 2377 TCP/UDP for Docker swarm API
+- 3000 TCP for initial Captain Installation (can be blocked once Captain is attached to a domain)
+- 80   TCP for regular HTTP connections
+- 443  TCP for secure HTTPS connections
+- 996  TCP for secure HTTPS connections specific to Docker Registry
 
+Or simply disable firewall entirely. In case of an ubuntu server, run `ufw disable`.
 
 
 ### Setup Domain and DNS
