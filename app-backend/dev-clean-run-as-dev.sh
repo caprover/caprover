@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if ! [ $(id -u) = 0 ]; then
+   echo "Must run as sudo or root"
+   exit 1
+fi
+
 pwd > currentdirectory
 docker service rm captain-captain captain-nginx captain-certbot captain-registry
 sleep 1s
