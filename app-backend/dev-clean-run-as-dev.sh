@@ -12,6 +12,7 @@ docker secret rm captain-salt
 docker build -t captain-debug -f dockerfile-captain.debug .
 rm -rf /captain
 mkdir /captain
+chmod -R 777 /captain
 docker run \
    -e "CAPTAIN_IS_DEBUG=1" \
    -v /var/run/docker.sock:/var/run/docker.sock \
