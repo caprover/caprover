@@ -18,8 +18,16 @@
 
                   <input type="text" class="form-control" id="new-app-name" placeholder="my-amazing-app" ng-model="newAppData.newAppToRegister">
                   <span class="input-group-btn">
-                      <button type="submit" class="btn btn-primary" ng-click="onCreateNewAppClicked()">Create a New App</button>
+                    <button type="submit" class="btn btn-primary" ng-click="onCreateNewAppClicked()">Create a New App</button>
                   </span>
+
+                </div>
+                <div class="input-group">
+                  <div class="checkbox" uib-tooltip="Used for databases, see docs for details.">
+                    <label>
+                      <input type="checkbox" ng-model="newAppData.newAppHasPersistentData"> Has Persistent Data
+                    </label>
+                  </div>
                 </div>
               </div>
             </form>
@@ -38,33 +46,100 @@
 
         <rd-widget>
           <rd-widget-header icon="fa-code" title="{{app.appName}}">
-            <div class="pull-right"><button type="button" class="btn btn-sm btn-danger" ng-click="onDeleteAppClicked(app.appName)">Delete App</button></div>
+            <div class="pull-right">
+              <button type="button" class="btn btn-sm btn-danger" ng-click="onDeleteAppClicked(app.appName)">Delete App</button>
+            </div>
           </rd-widget-header>
           <rd-widget-body>
 
             <div class="row">
 
+              <p>Your app is interally avilable as
+                <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, it is accessible via
+                <code>http://srv-captain--{{app.appName}}</code> from other apps.</p>
+              <hr>
 
-              <div class="row">
-                <div class="col-lg-12">
-                  <p>Your app is available at:</p>
-                  <a href="http{{(app.hasDefaultSubDomainSsl?'s':'')+'://'+app.appName+'.'+rootDomain}}" target="_blank" rel="noopener noreferrer"> http{{(app.hasDefaultSubDomainSsl?'s':'')+'://'+app.appName+'.'+rootDomain}}</a>
-                  <div class="pull-right">
-                    <button type="button" class="btn btn-sm btn-success" ng-disabled="app.hasDefaultSubDomainSsl" ng-click="onEnableBaseDomainSsl(app.appName)">Enable HTTPS</button>
-                  </div>
-                </div>
+              <div class="checkbox" uib-tooltip="Use this if you don't want your app be externally available.">
+                <label>
+                  <input type="checkbox" ng-model="app.notExposeAsWebApp"> Do not expose as web-app
+                </label>
               </div>
 
-              <br>
+              <div ng-show="!app.notExposeAsWebApp">
+                <div class="row">
+                  <div class="col-lg-12">
+
+                    <p>Your app is available to public at:</p>
+                    <a href="http{{(app.hasDefaultSubDomainSsl?'s':'')+'://'+app.appName+'.'+rootDomain}}" target="_blank" rel="noopener noreferrer">
+                      http{{(app.hasDefaultSubDomainSsl?'s':'')+'://'+app.appName+'.'+rootDomain}}</a>
+                    <div class="pull-right">
+                      <button type="button" class="btn btn-sm btn-success" ng-disabled="app.hasDefaultSubDomainSsl" ng-click="onEnableBaseDomainSsl(app.appName)">Enable HTTPS</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <form class="col-xl-10 col-lg-12">
+
+                    <div class="form-group">
+                      <div class="input-group">
+                        <input type="text" class="form-control" ng-model="app.newCustomDomain" id="customDomain" placeholder="www.the-best-app-in-the-world.com">
+                        <span class="input-group-btn">
+                          <button type="submit" class="btn btn-primary" uib-tooltip="Make sure it points to this IP, otherwise verification will fail." ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
+                            Connect New Domain</button>
+                        </span>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <br>
+
+                <div ng-repeat="c in app.customDomain">
+
+                  <div class="row">
+
+                    <div style="margin-top: 5px" class="col-md-9">
+                      <a style="color: #777777" href="http://{{c.publicDomain}}">{{c.publicDomain}}</a>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="pull-right">
+
+                        <form class="col-md-3">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <span class="input-group-btn">
+                                <button ng-disabled="c.hasSsl" ng-click="onEnableCustomDomainSslClicked(app.appName,c.publicDomain)" type="button" class="btn btn-success">Enable HTTPS</button>
+                                <button type="button" ng-click="onRemoveCustomDomainClicked(app.appName,c.publicDomain)" class="btn btn-default btn-with-icon">
+                                  <i class="fa-minus-circle fa"></i> Remove
+                                </button>
+                              </span>
+                            </div>
+                          </div>
+                        </form>
+
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <br>
+
+                </div>
+              </div>
 
               <h4>Deploy your app</h4>
               <div class="row">
                 <div class="col-lg-12">
                   <h5>Current Version:</h5>
                   <p>
-                    <b>Version: </b>{{app.deployedVersion}} <br>
-                    <b>git hash: </b> {{app.deployedGitHash}}  <br>
-                    <b>Deployed at</b> {{app.deployedTimeStamp}} <br>
+                    <b>Version: </b>{{app.deployedVersion}}
+                    <br>
+                    <b>git hash: </b> {{app.deployedGitHash}}
+                    <br>
+                    <b>Deployed at</b> {{app.deployedTimeStamp}}
+                    <br>
                   </p>
                   <p>You can deploy your app using the Captain command line tool (recommended) or via this web interface. No
                     matter what approach you choose, you need to provide 'captain-definition' file. See docs for more details.</p>
@@ -74,73 +149,26 @@
                         Select TAR source file
                         <input type="file" style="display: none" fileread="app.sourceToUpload">
                       </label>
-                      <p style="padding-top: 5px"><i>{{app.sourceToUpload.name}}</i></p>
+                      <p style="padding-top: 5px">
+                        <i>{{app.sourceToUpload.name}}</i>
+                      </p>
                     </div>
                     <div class="col-lg-3">
                       <button type="button" class="btn btn-sm btn-primary" ng-disabled="!app.sourceToUpload" ng-click="onUploadSourceCodeClicked(app)">Upload &amp; Deploy</button>
                     </div>
                   </div>
                   <div class="row" ng-show="app.isAppBuilding">
-                      <div class="pull-left">
-                        <div class="inline-loader"></div>  
+                    <div class="pull-left">
+                      <div class="inline-loader"></div>
                     </div>
                     <div style="margin-left: 15px" class="pull-left">
-                        Building the image. This might take a few minutes...
+                      Building the image. This might take a few minutes...
                     </div>
                   </div>
                 </div>
               </div>
+
               <hr>
-
-              <div class="row">
-                <form class="col-xl-10 col-lg-12">
-
-                  <div class="form-group">
-                    <div class="input-group">
-                      <input type="text" class="form-control" ng-model="app.newCustomDomain" id="customDomain" placeholder="www.the-best-app-in-the-world.com">
-                      <span class="input-group-btn">
-                      <button type="submit" class="btn btn-primary" uib-tooltip="Make sure it points to this IP, otherwise verification will fail." ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
-                      Connect New Domain</button>
-                      </span>
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              <div ng-repeat="c in app.customDomain">
-
-                <div class="row">
-
-                  <div style="margin-top: 5px" class="col-md-9">
-                    <a style="color: #777777" href="http://{{c.publicDomain}}">{{c.publicDomain}}</a>
-                  </div>
-                
-                  <div class="col-md-3">
-                    <div class="pull-right">
-                
-                      <form class="col-md-3">
-                        <div class="form-group">
-                          <div class="input-group">
-                            <span class="input-group-btn">
-                              <button ng-disabled="c.hasSsl" ng-click="onEnableCustomDomainSslClicked(app.appName,c.publicDomain)" type="button" class="btn btn-success">Enable HTTPS</button>
-                              <button type="button" ng-click="onRemoveCustomDomainClicked(app.appName,c.publicDomain)" class="btn btn-default btn-with-icon">
-                                <i class="fa-minus-circle fa"></i> Remove
-                              </button>
-                            </span>
-                          </div>
-                        </div>
-                      </form>
-
-                    </div>
-                  </div>
-
-                </div>
-
-                <br>
-
-              </div>
-              <hr>
-              <br>
               <h4>Environmental Variables:</h4>
               <div ng-show="!app.envVars || !app.envVars.length">
                 <i>Currently, this app does not have any custom environmental variables yet.</i>
@@ -165,13 +193,41 @@
                   <button type="button" ng-click="addEnvVarClicked(app)" class="btn btn-default">Add Key/Value Pair</button>
                 </div>
               </div>
+              <hr>
+
+              <div ng-show="app.hasPersistentData">
+                <h4>Persistent Directories:</h4>
+                <div ng-show="!app.volumes || !app.volumes.length">
+                  <i>Currently, this app does not have any persistent directories.</i>
+                </div>
+                <br>
+                <div class="row" ng-repeat="vol in app.volumes">
+                  <div class="form-group col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Label:</span>
+                      <input style="height:50px" type="text" class="form-control" ng-model="vol.volumeName" placeholder="some-name">
+                    </div>
+                  </div>
+                  <div class="col-sm-6 form-group">
+                    <div class="input-group">
+                      <span class="input-group-addon">Directory:</span>
+                      <textarea style="height:50px;padding-top:13px" type="text" class="form-control" ng-model="vol.containerPath" placeholder="/some/thing"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <button type="button" ng-click="addVolumeClicked(app)" class="btn btn-default">Add directory</button>
+                  </div>
+                </div>
+              </div>
 
               <br>
 
               <div class="form-group col-xs-6">
-                <div class="input-group" uib-tooltip="Number of running instances of this app">
+                <div class="input-group" uib-tooltip="{{app.hasPersistentData?'Cannot change instances of an app with persistent data':'Number of running instances of this app'}}">
                   <span class="input-group-addon">Instance Count:</span>
-                  <input type="text" class="form-control" ng-model="app.instanceCount" placeholder="With help">
+                  <input type="text" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
                 </div>
               </div>
 

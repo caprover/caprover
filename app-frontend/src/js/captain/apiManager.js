@@ -284,10 +284,11 @@
                             callback(null);
                         });
             },
-            registerNewApp: function(appName, callback) {
+            registerNewApp: function(appName, hasPersistentData, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/register', { 
-                        appName: appName
+                        appName: appName,
+                        hasPersistentData: hasPersistentData
                     }, createConfig())
                     .then(
                         function(response) {
@@ -339,12 +340,15 @@
                             callback(null);
                         });
             },
-            updateConfigAndSave: function(appName, instanceCount, envVars, callback) {
+            updateConfigAndSave: function(appName, instanceCount, envVars, 
+                notExposeAsWebApp, volumes, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', { 
                         appName: appName,
                         instanceCount: instanceCount,
-                        envVars:envVars
+                        notExposeAsWebApp: notExposeAsWebApp,
+                        volumes: volumes,
+                        envVars: envVars
                     }, createConfig())
                     .then(
                         function(response) {

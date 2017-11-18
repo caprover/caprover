@@ -63,8 +63,9 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
             $scope.loadingState.enabled = true;
 
             var appName = $scope.newAppData.newAppToRegister;
+            var hasPersistentData = $scope.newAppData.newAppHasPersistentData;
 
-            apiManager.registerNewApp(appName, function (data) {
+            apiManager.registerNewApp(appName, hasPersistentData, function (data) {
 
                 if (captainToast.showErrorToastIfNeeded(data)) {
                     $scope.loadingState.enabled = false;
@@ -78,7 +79,15 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         };
 
         $scope.addEnvVarClicked = function (app) {
+            if (!app.envVars)
+                app.envVars = [];
             app.envVars.push({ key: '', value: '' });
+        }
+
+        $scope.addVolumeClicked = function (app) {
+            if (!app.volumes)
+                app.volumes = [];
+            app.volumes.push({ volumeName: '', containerPath: '' });
         }
 
         $scope.onNewCustomDomainClicked = function (appName, newCustomDomain) {
@@ -212,17 +221,18 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         $scope.onUpdateConfigAndSave = function (app) {
             $scope.loadingState.enabled = true;
 
-            apiManager.updateConfigAndSave(app.appName, app.instanceCount, app.envVars, function (data) {
+            apiManager.updateConfigAndSave(app.appName, app.instanceCount,
+                app.envVars, app.notExposeAsWebApp, app.volumes, function (data) {
 
-                if (captainToast.showErrorToastIfNeeded(data)) {
-                    $scope.loadingState.enabled = false;
-                    return;
-                }
+                    if (captainToast.showErrorToastIfNeeded(data)) {
+                        $scope.loadingState.enabled = false;
+                        return;
+                    }
 
-                captainToast.showToastSuccess('You app data and configuration is successfully updated.');
-                $state.reload();
+                    captainToast.showToastSuccess('You app data and configuration is successfully updated.');
+                    $state.reload();
 
-            });
+                });
         };
 
     }())

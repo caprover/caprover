@@ -82,7 +82,11 @@ module.exports.install = function () {
 
             let ports = [];
 
+            let captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub + ':' + CaptainConstants.version;
+
             if (CaptainConstants.isDebug) {
+
+                captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
 
                 env.push({
                     key: EnvVar.keys.CAPTAIN_IS_DEBUG,
@@ -106,7 +110,7 @@ module.exports.install = function () {
                 hostPort: CaptainConstants.captainServiceExposedPort
             });
 
-            return DockerApi.get().createServiceOnNodeId(CaptainConstants.publishedNameOnDockerHub + ':' + CaptainConstants.version,
+            return DockerApi.get().createServiceOnNodeId(captainNameAndVersion,
                 CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env);
 
         })

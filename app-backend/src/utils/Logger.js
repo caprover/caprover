@@ -1,7 +1,7 @@
 /**
  * Created by kasra on 27/06/17.
  */
-
+const CaptainConstants = require('./CaptainConstants');
 const moment = require('moment');
 
 function errorize(error) {
@@ -34,7 +34,9 @@ module.exports = {
 
     dev: function (msg) {
 
-        console.log(getTime() + '########### ' + msg + '');
+        if (CaptainConstants.isDebug) {
+            console.log(getTime() + '########### ' + msg + '');
+        }
 
     },
 

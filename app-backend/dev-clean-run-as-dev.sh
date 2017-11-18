@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if ! [ $(id -u) = 0 ]; then
+   echo "Must run as sudo or root"
+   exit 1
+fi
+
 pwd > currentdirectory
 docker service rm captain-captain captain-nginx captain-certbot captain-registry
 sleep 1s
@@ -8,6 +13,7 @@ docker build -t captain-debug -f dockerfile-captain.debug .
 rm -rf /captain
 mkdir /captain
 docker run \
+   -e "CAPTAIN_IS_DEBUG=1" \
    -v /var/run/docker.sock:/var/run/docker.sock \
    -v $(pwd):/usr/src/app captain-debug
 sleep 2s
