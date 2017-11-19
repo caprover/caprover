@@ -2,11 +2,16 @@
     angular.module('RDash')
     .factory('apiManager', ApiManager);
 
-    
-    var BASE_API = '/api/v1/'; // 'http://captain.captain.x/'; 
+    var BASE_API = '/api/v1/';
     var TOKEN_HEADER = 'x-captain-auth';
     var NAMESPACE = 'x-namespace';
     var CAPTAIN = 'captain';
+
+    // In developement
+    // Uncomment the following line if you have dnsmasq installed
+    // BASE_API = 'http://captain.captain.x/api/v1';
+    // Uncomment the following line if you don't have dnsmasq installed
+    // BASE_API = 'http://127.0.0.1:3000/api/v1/';
     
     function ApiManager(captainLogger, $http, $timeout) {
 
