@@ -62,7 +62,7 @@ Change the endpoint for the backend server to your debug instance by editing thi
 `/captainduckduck/app-frontend/src/js/captain/apiManager.js` and
 change `var BASE_API = '/api/v1/'` to 
 - `var BASE_API = 'http://captain.captain.x/api/v1/'` if you have dnsmasq installed
-- `var BASE_API = 'http://127.0.0.1:3000/api/v1/'` if you have dnsmasq installed
+- `var BASE_API = 'http://127.0.0.1:3000/api/v1/'` if you don't have dnsmasq installed
 
 You need to hardcode a logged in user to avoid having to log it with every refresh of the page. To do so, steal the auth token from the the network inspector on Chrome and hardcode it in apiManager.js.
 You can simply replace `var authToken = null` with `var authToken = 'THE_AUTH_TOKEN_STOLEN_FROM_NETWORK_INSPECTOR'`
