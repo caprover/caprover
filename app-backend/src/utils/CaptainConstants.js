@@ -104,6 +104,8 @@ let data = {
 
     captainTarImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_tar',
 
+    captainDefinitionTempDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/captain_definition',
+
     baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
 
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',

@@ -5,6 +5,7 @@ const tar = require('tar');
 const CaptainManager = require('./CaptainManager');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const TemplateHelper = require('./TemplateHelper');
+const uuid = require('uuid/v4');
 
 const SOURCE_FOLDER_NAME = 'src';
 const DOCKER_FILE = 'Dockerfile';
@@ -24,6 +25,10 @@ function getTarImageBaseFolder(imageName, newVersionPulled) {
     return CaptainConstants.captainTarImagesDir + '/' + imageName + '/' + newVersionPulled;
 }
 
+function getCaptainDefinitionTempFolder(serviceName, randomSuffix) {
+    return CaptainConstants.captainDefinitionTempDir + '/' + serviceName + '/' + randomSuffix;
+}
+
 class ServiceManager {
 
     constructor(user, dockerApi, loadBalancerManager) {
@@ -39,6 +44,45 @@ class ServiceManager {
 
     isInited() {
         return this.isReady;
+    }
+
+    createTarFarFromCaptainContent(captainDefinitionContent, appName, tarDestination) {
+
+        let serviceName = this.dataStore.getServiceName(appName);
+
+        let captainDefinitionDirPath;
+
+        return Promise.resolve()
+            .then(function () {
+
+                for (let i = 0; i < 100; i++) {
+                    let temp = getCaptainDefinitionTempFolder(serviceName, uuid());
+                    if (!fs.pathExistsSync) {
+                        captainDefinitionDirPath = temp;
+                        break;
+                    }
+                }
+
+                if (!captainDefinitionDirPath) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot create a temp file! Something is seriously wrong with the temp folder");
+                }
+
+                return fs.outputFile(captainDefinitionDirPath + '/' + CAPTAIN_DEFINITION_FILE, captainDefinitionContent);
+
+            })
+            .then(function () {
+
+                return tar.c({
+                    file: tarDestination,
+                    cwd: captainDefinitionDirPath
+                }, [CAPTAIN_DEFINITION_FILE]);
+
+            })
+            .then(function () {
+
+                return fs.remove(captainDefinitionDirPath);
+
+            });
     }
 
     createImage(appName, pathToSrcTarballFile, gitHash) {

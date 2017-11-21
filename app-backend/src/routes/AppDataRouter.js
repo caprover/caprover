@@ -5,7 +5,8 @@ const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
 const multer = require('multer');
 const fs = require('fs-extra');
-const upload = multer({dest: 'temp_upload/'});
+const TEMP_UPLOAD = 'temp_upload/';
+const upload = multer({dest: TEMP_UPLOAD});
 
 router.post('/:appName/', function (req, res, next) {
 
@@ -45,10 +46,53 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         return;
     }
 
-    const tarballSourceFilePath = req.file.path;
+    let tarballSourceFilePath = req.file.path;
+    const captainDefinitionContent = req.body.captainDefinitionContent;
+
+
+    if ((tarballSourceFilePath && captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
+        res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION), "Either tarballfile or captainDefinitionContent should be present.");
+        return;
+    }
+
     let gitHash = req.body.gitHash || '';
 
-    serviceManager.createImage(appName, tarballSourceFilePath, gitHash)
+    Promise.resolve()
+        .then(function () {
+
+            if (captainDefinitionContent) {
+
+                if (tarballSourceFilePath) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Both tarballfile & captainDefinitionContent cannot be present at the same time.")
+                }
+
+                for (let i = 0; i < 1000; i++) {
+                    let tempPath = __dirname + '../' + TEMP_UPLOAD + appName + i;
+                    if (!fs.pathExistsSync(tempPath)) {
+                        tarballSourceFilePath = tempPath;
+                        break;
+                    }
+                }
+
+                if (!tarballSourceFilePath) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot create a temp file! Something is seriously wrong with the temp folder");
+                }
+
+                return serviceManager.createTarFarFromCaptainContent(captainDefinitionContent, appName, tarballSourceFilePath);
+            }
+            else {
+
+                if (!tarballSourceFilePath) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present.")
+                }
+            }
+
+        })
+        .then(function () {
+
+            return serviceManager.createImage(appName, tarballSourceFilePath, gitHash);
+
+        })
         .then(function (version) {
 
             fs.removeSync(tarballSourceFilePath);
