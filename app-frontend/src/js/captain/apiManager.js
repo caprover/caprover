@@ -276,6 +276,19 @@
                         callback(null);
                     });
             },
+            uploadCaptainDefinitionContent: function(appName, captainDefinitionContent, callback) {
+                $http
+                    .post(BASE_API + 'user/appData/' + appName, { 
+                        captainDefinitionContent: captainDefinitionContent
+                    }, createConfig())
+                    .then(
+                        function(response) {
+                            callback(response.data);
+                        },
+                        function() {
+                            callback(null);
+                        });
+            },
             deleteApp: function(appName, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/delete', { 
