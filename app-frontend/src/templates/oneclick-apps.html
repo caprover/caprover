@@ -1,0 +1,52 @@
+<rd-loading ng-show="loadingState.enabled">
+</rd-loading>
+
+<div ng-show="!loadingState.enabled">
+  <div class="row" ng-show="!selectedTemplate.firstStep">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+
+      <rd-widget>
+        <rd-widget-header icon="fa-link" title="Select From List">
+        </rd-widget-header>
+        <rd-widget-body>
+
+          <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+              Choose an app, a database or a bundle (app+database) from the list below. The rest is magic, well... Wizard!
+            </div>
+          </div>
+
+          <br/>
+
+          <div class="row">
+            <div class="col-sm-11">
+              <div class="pull-right col-sm-4">
+                <label>One-Click Apps</label>
+                <div class="form-group">
+                  <select class="form-control" ng-model="selectedApp.id" ng-options="opt for opt in oneClickAppList"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-11">
+              <div class="pull-right col-sm-4">
+                  <button type="submit" ng-disabled="!selectedApp.id" class="btn btn-primary btn-block" 
+                  ng-click="onOneClickAppSelected()">Next</button>
+              </div>
+            </div>
+          </div>
+
+        </rd-widget-body>
+      </rd-widget>
+    </div>
+  </div>
+
+  <br/>
+  <hr/>
+  <br/>
+
+</div>

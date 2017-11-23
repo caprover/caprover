@@ -1,10 +1,10 @@
 angular.module('RDash')
     .controller('AppDefinitionCtrl', ['$scope', '$cookieStore',
         '$rootScope', 'pageDefinitions', 'apiManager', 'captainToast',
-        '$uibModal', '$state', AppDefinitionCtrl]);
+        '$uibModal', '$state', '$location', AppDefinitionCtrl]);
 
 function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
-    apiManager, captainToast, $uibModal, $state) {
+    apiManager, captainToast, $uibModal, $state, $location) {
 
     $scope.loadingState = {};
     $scope.loadingState.enabled = true;
@@ -58,6 +58,10 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
 
             });
         };
+
+        $scope.onCreateOneClickAppClick = function () {
+            $location.path('/oneclickapps');
+        }
 
         $scope.onCreateNewAppClicked = function () {
             $scope.loadingState.enabled = true;

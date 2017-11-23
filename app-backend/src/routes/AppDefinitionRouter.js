@@ -1,8 +1,35 @@
 const express = require('express');
+const fs = require('fs');
 const router = express.Router();
 const BaseApi = require('../api/BaseApi');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
+
+// Get a list of oneclickspps
+router.get('/oneclickapps', function (req, res, next) {
+
+    fs.readdir(__dirname + '/../../dist/oneclick-apps', function (err, files) {
+
+        if (err) {
+            Logger.e(err);
+            res.sendStatus(500);
+            return;
+        }
+
+        let ret = [];
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].endsWith('.js')) {
+                ret.push(files[i].substring(0, files[i].length - 3));
+            }
+        }
+
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "One click app list is fetched.");
+        baseApi.data = ret;
+
+        res.send(baseApi);
+    });
+});
 
 // Get All App Definitions
 router.get('/', function (req, res, next) {

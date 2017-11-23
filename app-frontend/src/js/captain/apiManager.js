@@ -64,6 +64,17 @@
                             callback(null);
                         });
             },
+            getOneClickAppList: function(callback) {
+                $http
+                    .get(BASE_API + 'user/appDefinitions/oneclickapps', createConfig())
+                    .then(
+                        function(response) {
+                            callback(response.data);
+                        },
+                        function() {
+                            callback(null);
+                        });
+            },
             changePassword: function (oldPass, newPass, callback) {
                 $http
                     .post(BASE_API + 'user/changepassword', {
