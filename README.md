@@ -1,14 +1,11 @@
-### An nginx & Docker marriage made in heaven.
-<p>
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif" width="400"/>
-</p>
+### CaptainDuckDuck: An nginx & Docker marriage made in heaven.
 
-[![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/youtube-snapshot.png)](https://www.youtube.com/watch?v=576RsaocNUE)
+[![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
 
-# CaptainDuckDuck
+## Powered by most advanced tools and technologies
 
-## It uses Docker+nginx+LetsEncrypt+NetData
+Captain uses Docker+nginx+LetsEncrypt+NetData under the hood.
 
 Captain is a modern automated app deployment & web server manager.
 
@@ -17,6 +14,9 @@ Captain is a modern automated app deployment & web server manager.
   - Scale in seconds
   - Focus on your apps! Not the bells and whistles just to run your apps!
 
+<p>
+    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/diagram.png" width="450"/>
+</p>
 
 ## Getting started!
 
