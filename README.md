@@ -1,13 +1,14 @@
-### CaptainDuckDuck: An nginx & Docker marriage made in heaven.
+### Unbelievably Simple.Powerful.Customizable interface for Docker, nginx, LetsEncrypt, NetData. Setup and start deploying apps in 10min!
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
+## Seriously! Who should care about CaptainDuckDuck?
+- A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
+- A developer who uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 400% (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on vultr!!)
 
-## Powered by most advanced tools and technologies
+### Code about your app, Captain does the rest!
 
-Captain uses Docker+nginx+LetsEncrypt+NetData under the hood.
-
-Captain is a modern automated app deployment & web server manager.
+Captain is a modern automated app deployment & web server manager. It doesn't use any less than perfect technologies. Under the hood, Docker+nginx+LetsEncrypt+NetData are in the the power chain.
 
   - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
   - Secure your services over HTTPS for FREE
