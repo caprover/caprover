@@ -5,6 +5,9 @@
 ### Seriously! Who should care about CaptainDuckDuck?
 - A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
 - A developer who uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 400% (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on vultr!!)
+- Someone who prefers to write more of `showResults(getUserList())` and not much of `$ apt-get install libstdc++6 > /dev/null`
+- Someone who likes installing MySQL, MongoDB and etc on their server by selecting from a dropdown and clicking on install!
+- How much server/docker/linux knowledge is required to set up a CaptainDuckDuck server? Answer: Knowledge of Copy & Paste!! Head over to "Getting Started" for information on what to copy & paste ;-)
 
 ### You code your app, Captain does the rest!
 
