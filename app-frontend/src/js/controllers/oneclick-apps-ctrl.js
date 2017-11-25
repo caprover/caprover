@@ -1,14 +1,14 @@
 angular.module('RDash')
     .controller('OneClickAppsCtrl', ['$scope', '$ocLazyLoad',
         '$rootScope', 'captainOneClickApps', 'apiManager', 'captainToast',
-        '$uibModal', '$state', OneClickAppsCtrl]);
+        '$uibModal', '$location', OneClickAppsCtrl]);
 
 if (typeof oneClickAppsRepository === 'undefined') {
     var oneClickAppsRepository = {};
 }
 
 function OneClickAppsCtrl($scope, $ocLazyLoad, $rootScope, captainOneClickApps,
-    apiManager, captainToast, $uibModal, $state) {
+    apiManager, captainToast, $uibModal, $location) {
 
     $scope.loadingState = {};
     $scope.loadingState.enabled = true;
@@ -26,24 +26,40 @@ function OneClickAppsCtrl($scope, $ocLazyLoad, $rootScope, captainOneClickApps,
         $scope.oneClickAppList = data.data;
     });
 
-    (function NodesInfoContentCtrl() {
+    $scope.onOneClickAppNextStepClicked = function () {
 
-        $scope.onOneClickAppSelected = function () {
+        // It was the last step...
+        if (!$scope.selectedTemplate.currentStep.next) {
+            $location.path('/apps');
+            return;
+        }
 
-            $scope.loadingState.enabled = true;
+        $scope.loadingState.enabled = true;
 
-            captainOneClickApps.getTemplate($ocLazyLoad, $scope.selectedApp.id, function (template) {
+        var dataToProcess = {};
+        var array = $scope.selectedTemplate.currentStep.next.data;
 
-                $scope.selectedTemplate.firstStep = template;
-                $scope.selectedTemplate.currentStep = template;
+        for (var index = 0; index < array.length; index++) {
+            const element = array[index];
+            dataToProcess[element.id] = element.value;
+        }
 
-                console.log(template);
-                console.log('------------------------------------');
+        $scope.selectedTemplate.currentStep.next.process(dataToProcess, function (nextStep) {
+            $scope.loadingState.enabled = false;
+            $scope.selectedTemplate.currentStep = nextStep;
+        });
+    }
 
-                // use template to kickoff the wizard
+    $scope.onOneClickAppSelected = function () {
 
-            });
-        };
-    }());
+        $scope.loadingState.enabled = true;
 
+        captainOneClickApps.getTemplate($ocLazyLoad, $scope.selectedApp.id, function (template) {
+
+            $scope.selectedTemplate.firstStep = template;
+            $scope.selectedTemplate.currentStep = template;
+
+            $scope.loadingState.enabled = false;
+        });
+    };
 }

@@ -1,5 +1,14 @@
-<rd-loading ng-show="loadingState.enabled">
-</rd-loading>
+<div class="text-center" ng-show="loadingState.enabled">
+  <br>
+  <br>
+  <br>
+  <br>
+  <div class="row" ng-show="selectedTemplate.firstStep">
+    NOTE: This might take around 2 minutes... Please DO NOT refresh the page or navigate away!!!
+  </div>
+  <rd-loading>
+  </rd-loading>
+</div>
 
 <div ng-show="!loadingState.enabled">
   <div class="row" ng-show="!selectedTemplate.firstStep">
@@ -34,7 +43,7 @@
           <div class="row">
             <div class="col-sm-11">
               <div class="pull-right col-sm-4">
-                  <button type="submit" ng-disabled="!selectedApp.id" class="btn btn-primary btn-block" ng-click="onOneClickAppSelected()">Next</button>
+                <button type="submit" ng-disabled="!selectedApp.id" class="btn btn-primary btn-block" ng-click="onOneClickAppSelected()">Next</button>
               </div>
             </div>
           </div>
@@ -47,5 +56,54 @@
   <br>
   <hr>
   <br>
+
+  <div class="row" ng-show="selectedTemplate.firstStep">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+
+      <rd-widget>
+        <rd-widget-header icon="fa-link" title="Setup your {{selectedApp.id}}">
+        </rd-widget-header>
+        <rd-widget-body>
+
+          <div class="row" ng-show="selectedTemplate.currentStep.message">
+            <div class="row alerts-container">
+              <div class="col-xs-12">
+                <uib-alert type="{{selectedTemplate.currentStep.message.type}}">
+                  {{selectedTemplate.currentStep.message.text}}</uib-alert>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" ng-show="selectedTemplate.currentStep.next">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-6">
+
+              <div ng-repeat="param in selectedTemplate.currentStep.next.data">
+                <small> {{param}}</small>
+                <label> {{param.label}}</label>
+                <input ng-show="param.type==='text'" class="form-control" ng-model="param.value">
+                <br>
+                <br>
+              </div>
+
+            </div>
+          </div>
+
+          <br>
+          <br>
+
+          <div class="row">
+            <div class="col-sm-11">
+              <div class="pull-right col-sm-4">
+                <button type="submit" class="btn btn-primary btn-block" ng-click="onOneClickAppNextStepClicked()">{{selectedTemplate.currentStep.next?'Next':'Finish'}}</button>
+              </div>
+            </div>
+          </div>
+
+        </rd-widget-body>
+      </rd-widget>
+    </div>
+  </div>
 
 </div>

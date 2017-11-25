@@ -1,8 +1,9 @@
 
 (function () {
 
-    var SUCCESS = 'SUCCESS';
-    var ERROR = 'ERROR';
+    var SUCCESS = 'success';
+    var ERROR = 'danger';
+    var INFO = 'info';
 
     function shouldShowError(data) {
 
@@ -11,7 +12,7 @@
         }
 
         if (data.status != 100) {
-            return 'ERROR: ' + data.status + ' ' + data.description;
+            return 'ERROR ' + data.status + ': ' + data.description;
         }
     }
 
@@ -43,7 +44,9 @@
             function endWithSuccess() {
                 step1Callback({
                     message: {
-                        text: 'MySQL is deployed and available as srv-captain--' + data[MYSQL_CONTAINER_NAME] + ':3306 to other apps.',
+                        text: 'MySQL is deployed and available as srv-captain--' + data[MYSQL_CONTAINER_NAME]
+                            + ':3306 to other apps. For example with NodeJS, you do "var con = mysql.createConnection({ host: "srv-captain--'
+                            + data[MYSQL_CONTAINER_NAME] +'", user: "root", password: "*********" });"',
                         type: SUCCESS
                     },
                     next: null // this can be similar to step1next, in that case the flow continues...
@@ -53,7 +56,7 @@
             function endWithError(errorMessage) {
                 step1Callback({
                     message: {
-                        text: 'Something went wrong... Try again',
+                        text: errorMessage,
                         type: ERROR
                     },
                     next: step1next
@@ -61,6 +64,8 @@
             }
 
             // process the inputs:
+
+            var errorMessage = null;
 
             if (!data[MYSQL_ROOT_PASSWORD]) {
                 errorMessage = 'Root password is required!';
@@ -104,7 +109,7 @@
                     }
 
                     deployDockerfile();
-                })
+                });
             }
 
             function deployDockerfile() {
@@ -133,6 +138,10 @@
         }
 
         var step1 = {};
+        step1.message = {
+            type: INFO,
+            text: 'Enter your MySQL Configuration parameters and click on next. It will take about a minute for the process to finish.'
+        }
         step1.next = step1next;
         return step1;
 

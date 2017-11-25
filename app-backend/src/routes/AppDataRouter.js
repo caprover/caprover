@@ -41,12 +41,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
 
     let appName = req.params.appName;
 
-    if (!req.file) {
-        res.sendStatus(500);
-        return;
-    }
-
-    let tarballSourceFilePath = req.file.path;
+    let tarballSourceFilePath = (!!req.file) ? req.file.path : null;
     const captainDefinitionContent = req.body.captainDefinitionContent;
 
 
@@ -67,7 +62,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                 }
 
                 for (let i = 0; i < 1000; i++) {
-                    let tempPath = __dirname + '../' + TEMP_UPLOAD + appName + i;
+                    let tempPath = __dirname + '/../../' + TEMP_UPLOAD + appName + i;
                     if (!fs.pathExistsSync(tempPath)) {
                         tarballSourceFilePath = tempPath;
                         break;

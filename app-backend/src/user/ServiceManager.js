@@ -57,7 +57,7 @@ class ServiceManager {
 
                 for (let i = 0; i < 100; i++) {
                     let temp = getCaptainDefinitionTempFolder(serviceName, uuid());
-                    if (!fs.pathExistsSync) {
+                    if (!fs.pathExistsSync(temp)) {
                         captainDefinitionDirPath = temp;
                         break;
                     }
