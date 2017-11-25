@@ -563,7 +563,7 @@ class ServiceManager {
                 Logger.d('Updating service: ' + serviceName + ' with image: ' + imageName);
 
                 return dockerApi
-                    .updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, null, dockerAuthObject, Number(app.instanceCount), app.nodeId);
+                    .updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, null, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace());
 
             })
             .then(function () {
@@ -703,7 +703,7 @@ class ServiceManager {
                 }
 
                 return dockerApi
-                    .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId);
+                    .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId, dataStore.getNameSpace());
             });
 
     }

@@ -877,7 +877,7 @@ class DockerApi {
      * @param instanceCount: String '12' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId) {
+    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -942,7 +942,7 @@ class DockerApi {
                             // named volumes are created here:
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
-                                Source: v.volumeName,
+                                Source: (namespace ? (namespace + '--' ) : '' ) + v.volumeName,
                                 Target: v.containerPath,
                                 Type: TYPE_VOLUME,
                                 ReadOnly: false

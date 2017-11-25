@@ -46,7 +46,7 @@
                     message: {
                         text: 'MySQL is deployed and available as srv-captain--' + data[MYSQL_CONTAINER_NAME]
                             + ':3306 to other apps. For example with NodeJS, you do "var con = mysql.createConnection({ host: "srv-captain--'
-                            + data[MYSQL_CONTAINER_NAME] +'", user: "root", password: "*********" });"',
+                            + data[MYSQL_CONTAINER_NAME] + '", user: "root", password: "*********" });"',
                         type: SUCCESS
                     },
                     next: null // this can be similar to step1next, in that case the flow continues...
@@ -80,7 +80,8 @@
 
             var appName = data[MYSQL_CONTAINER_NAME];
             var envVars = [{
-                MYSQL_CONTAINER_NAME: data[MYSQL_CONTAINER_NAME]
+                key: MYSQL_ROOT_PASSWORD,
+                value: data[MYSQL_ROOT_PASSWORD]
             }];
             var volumes = [{
                 volumeName: appName + '-mysql-vol',

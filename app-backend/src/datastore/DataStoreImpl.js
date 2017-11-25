@@ -421,7 +421,7 @@ class DataStore {
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName){
+                        if (obj.containerPath && obj.volumeName) {
                             if (!isNameAllowed(obj.volumeName)) {
                                 throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
                             }
@@ -435,10 +435,10 @@ class DataStore {
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName){
+                        if (obj.containerPath && obj.volumeName) {
                             app.volumes.push({
                                 containerPath: obj.containerPath,
-                                volumeName: self.getNameSpace() + '--' + obj.volumeName,
+                                volumeName: obj.volumeName,
                                 type: 'volume'
                             });
                         }
