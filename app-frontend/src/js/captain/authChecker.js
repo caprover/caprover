@@ -11,9 +11,8 @@ angular.module('RDash')
                     $timeout(function () {
                         $location.path('/login');
                     }, 1);
-                } else {
-                    captainLogger.log('Auth accepted.');
                 }
+                
             });
 
             $rootScope.onLogoutClicked = function () {

@@ -18,6 +18,7 @@ var paths = {
     styles: 'src/less/**/*.*',
     images: 'src/img/**/*.*',
     templates: 'src/templates/**/*.html',
+    oneclickapps: 'src/oneclick-apps/*.js',
     index: 'src/index.html',
     bower_fonts: 'src/components/**/*.{ttf,woff,woff2,eof,svg}',
     custom_fonts: 'src/fonts/**/*.{ttf,woff,woff2,eof,svg}'
@@ -59,7 +60,7 @@ gulp.task('copy-custom_fonts', function() {
 /**
  * Handle custom files
  */
-gulp.task('build-custom', ['custom-images', 'custom-js', 'custom-less', 'custom-templates']);
+gulp.task('build-custom', ['custom-images', 'custom-js', 'custom-less', 'custom-templates', 'custom-oneclick-apps']);
 
 gulp.task('custom-images', function() {
     return gulp.src(paths.images)
@@ -86,6 +87,12 @@ gulp.task('custom-templates', function() {
         .pipe(gulp.dest(DIST_DIRECTORY+'/templates'));
 });
 
+gulp.task('custom-oneclick-apps', function() {
+    return gulp.src(paths.oneclickapps)
+        .pipe(gulp.dest(DIST_DIRECTORY+'/oneclick-apps'));
+
+});
+
 /**
  * Watch custom files
  */
@@ -94,6 +101,7 @@ gulp.task('watch', function() {
     gulp.watch([paths.styles], ['custom-less']);
     gulp.watch([paths.scripts], ['custom-js']);
     gulp.watch([paths.templates], ['custom-templates']);
+    gulp.watch([paths.oneclickapps], ['custom-oneclick-apps']);
     gulp.watch([paths.index], ['usemin']);
 });
 

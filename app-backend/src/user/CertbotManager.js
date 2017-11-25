@@ -270,6 +270,21 @@ class CertbotManager {
         return Promise.resolve()
             .then(function () {
 
+                return fs.ensureDir(CaptainConstants.letsEncryptEtcPath);
+
+            })
+            .then(function () {
+
+                return fs.ensureDir(CaptainConstants.letsEncryptLibPath);
+
+            })
+            .then(function () {
+
+                return fs.ensureDir(domainSpecificRootDirectoryInHost);
+
+            })
+            .then(function () {
+
                 return dockerApi
                     .isServiceRunningByName(CaptainConstants.certbotServiceName);
 
@@ -319,21 +334,6 @@ class CertbotManager {
                     return true;
 
                 }
-            })
-            .then(function () {
-
-                return fs.ensureDir(CaptainConstants.letsEncryptEtcPath);
-
-            })
-            .then(function () {
-
-                return fs.ensureDir(CaptainConstants.letsEncryptLibPath);
-
-            })
-            .then(function () {
-
-                return fs.ensureDir(domainSpecificRootDirectoryInHost);
-
             })
             .then(function () {
                 Logger.d('Updating Certbot service...');

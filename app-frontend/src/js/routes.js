@@ -39,6 +39,12 @@
                 icon: 'cogs'
             },
             {
+                name: 'One-Click Apps',
+                url: '/oneclickapps',
+                templateUrl: 'templates/oneclick-apps.html',
+                controller: 'OneClickAppsCtrl'
+            },
+            {
                 name: 'Login',
                 url: '/login',
                 templateUrl: 'templates/login.html',

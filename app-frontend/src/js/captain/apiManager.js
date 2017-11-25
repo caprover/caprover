@@ -17,6 +17,11 @@
 
         var authToken = null;
 
+        // for debugging:
+        // if (BASE_API.startsWith('http://127.0.0.1')){
+        //    authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiJ0ZXN0In0sImlhdCI6MTUxMTU4MjA4NiwiZXhwIjoxNTQ3NTgyMDg2fQ.CR4QIk0sFBrbMn6T5-QgaSLjQd86WL8_hvQikQxzgSg';            
+        // }
+
         function createConfig() {
             var headers = {};
             if (authToken)
@@ -56,6 +61,17 @@
             getVersionInfo: function(callback) {
                 $http
                     .get(BASE_API + 'user/system/versioninfo', createConfig())
+                    .then(
+                        function(response) {
+                            callback(response.data);
+                        },
+                        function() {
+                            callback(null);
+                        });
+            },
+            getOneClickAppList: function(callback) {
+                $http
+                    .get(BASE_API + 'user/appDefinitions/oneclickapps', createConfig())
                     .then(
                         function(response) {
                             callback(response.data);
@@ -275,6 +291,19 @@
                     .error(function (serverResp, status) {
                         callback(null);
                     });
+            },
+            uploadCaptainDefinitionContent: function(appName, captainDefinitionContent, callback) {
+                $http
+                    .post(BASE_API + 'user/appData/' + appName, { 
+                        captainDefinitionContent: captainDefinitionContent
+                    }, createConfig())
+                    .then(
+                        function(response) {
+                            callback(response.data);
+                        },
+                        function() {
+                            callback(null);
+                        });
             },
             deleteApp: function(appName, callback) {
                 $http
