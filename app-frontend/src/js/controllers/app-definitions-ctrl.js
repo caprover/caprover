@@ -8,6 +8,10 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
 
     $scope.loadingState = {};
     $scope.loadingState.enabled = true;
+    $scope.search = {};
+    $scope.editContent = {
+        appsToEdit: []
+    };
 
     $scope.allApps = null;
     apiManager.getAllApps(function (data) {
@@ -81,6 +85,18 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
 
             });
         };
+
+        $scope.openAppEdit = function (app) {
+            // Make a copy of app object to avoid showing the unsaved data in the table
+            $scope.editContent.appsToEdit.push(JSON.parse(JSON.stringify(app)));
+        }
+
+        $scope.closeAppEdit = function (app) {
+            var idx = $scope.editContent.appsToEdit.indexOf(app);
+            if (idx > -1) {
+                $scope.editContent.appsToEdit.splice(idx, 1);
+            }
+        }
 
         $scope.addEnvVarClicked = function (app) {
             if (!app.envVars)
