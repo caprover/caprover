@@ -5,18 +5,9 @@
     var ERROR = 'danger';
     var INFO = 'info';
 
-    function shouldShowError(data) {
-
-        if (!data) {
-            return 'Error... Please try again...';
-        }
-
-        if (data.status != 100) {
-            return 'ERROR ' + data.status + ': ' + data.description;
-        }
-    }
-
     oneClickAppsRepository["mysql"] = function (apiManager) {
+
+        var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var MYSQL_CONTAINER_NAME = 'MYSQL_CONTAINER_NAME';
         var MYSQL_ROOT_PASSWORD = 'MYSQL_ROOT_PASSWORD';
@@ -93,8 +84,8 @@
                 var hasPersistentData = true;
 
                 apiManager.registerNewApp(appName, hasPersistentData, function (data) {
-                    if (shouldShowError(data)) {
-                        endWithError(shouldShowError(data));
+                    if (getErrorMessageIfExists(data)) {
+                        endWithError(getErrorMessageIfExists(data));
                         return;
                     }
 
@@ -104,8 +95,8 @@
 
             function setupAppDefinition() {
                 apiManager.updateConfigAndSave(appName, 1, envVars, true, volumes, function (data) {
-                    if (shouldShowError(data)) {
-                        endWithError(shouldShowError(data));
+                    if (getErrorMessageIfExists(data)) {
+                        endWithError(getErrorMessageIfExists(data));
                         return;
                     }
 
@@ -124,8 +115,8 @@
 
                 apiManager.uploadCaptainDefinitionContent(appName,
                     JSON.stringify(captainDefinitionContent), function (data) {
-                        if (shouldShowError(data)) {
-                            endWithError(shouldShowError(data));
+                        if (getErrorMessageIfExists(data)) {
+                            endWithError(getErrorMessageIfExists(data));
                             return;
                         }
 

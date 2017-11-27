@@ -48,8 +48,8 @@
   </div>
 
   <div class="row" ng-show="!editContent.appsToEdit.length && allApps && !!allApps.length">
-    <div class="col-md-3"></div>
-    <div class="col-md-6">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
       <br/>
       <br/>
 
@@ -67,17 +67,21 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th class="text-center">App Name</th>
+                    <th style="padding-left: 35px;">App Name</th>
                     <th class="text-center">Persistent Data</th>
                     <th class="text-center">Exposed Webapp</th>
                     <th class="text-center">Instance Count</th>
                     <th class="text-center">Open in Browser</th>
-                    <th class="text-center">Click to Edit</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr ng-repeat="app in allApps | filter:search">
-                    <td class="text-center">{{app.appName}}</td>
+                    <td style="padding-left: 15px;">
+                      <a href="" ng-click="openAppEdit(app)">
+                        <i style="margin-right: 10px" class="fa fa-pencil" aria-hidden="true"></i>
+                        {{app.appName}}
+                      </a>
+                    </td>
                     <td class="text-center">{{app.hasPersistentData?'✔':''}}</td>
                     <td class="text-center">{{!app.notExposeAsWebApp?'✔':''}}</td>
                     <td class="text-center">{{app.instanceCount}}</td>
@@ -89,11 +93,6 @@
                         </a>
 
                       </div>
-                    </td>
-                    <td class="text-center">
-                      <a href="" ng-click="openAppEdit(app)">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </a>
                     </td>
                   </tr>
                 </tbody>

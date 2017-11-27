@@ -80,7 +80,6 @@
             <div class="col-sm-6">
 
               <div ng-repeat="param in selectedTemplate.currentStep.next.data">
-                <small> {{param}}</small>
                 <label> {{param.label}}</label>
                 <input ng-show="param.type==='text'" class="form-control" ng-model="param.value">
                 <br>
