@@ -1,4 +1,4 @@
-### Unbelievably Simple, Powerful and Customizable interface for Docker, nginx, LetsEncrypt, NetData. Install and start deploying apps in 10min!
+### Easiest app deployment platform and webserver package for your NodeJS, Python, Java applications. No Docker, nginx knowledge required!
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
@@ -11,11 +11,12 @@
 
 ### You code your app, Captain does the rest!
 
-Captain is a modern automated app deployment & web server manager. It doesn't use any less than perfect technologies. Under the hood, Docker+nginx+LetsEncrypt+NetData are in the power chain.
+Captain is a modern automated app deployment & web server manager. It's blazingly fast and very robust as it uses Docker, nginx, LetsEncrypt, NetData. 
 
   - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
+  - Deploying built-in apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.
   - Secure your services over HTTPS for FREE
-  - Scale in seconds
+  - Attach more nodes and create a cluster in seconds! Captain automatically configures nginx to load balance.
   - Focus on your apps! Not the bells and whistles just to run your apps!
 
 <p>
