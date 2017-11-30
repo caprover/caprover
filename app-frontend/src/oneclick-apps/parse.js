@@ -17,7 +17,6 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var PARSE_NAME = 'PARSE_NAME';
-        var MONGODB_ROOT_PASSWORD = 'MONGODB_ROOT_PASSWORD';
         var PARSE_SERVER_APPLICATION_ID = 'PARSE_SERVER_APPLICATION_ID';
         var PARSE_SERVER_MASTER_KEY = 'PARSE_SERVER_MASTER_KEY';
 
@@ -27,11 +26,6 @@
         step1next.data.push({
             label: 'Parser Server Name',
             id: PARSE_NAME,
-            type: 'text'
-        });
-        step1next.data.push({
-            label: 'OPTINAL: Choose a MongoDB Root Password - or leave empty for randomly generated value',
-            id: MONGODB_ROOT_PASSWORD,
             type: 'text'
         });
         step1next.data.push({
@@ -75,7 +69,6 @@
 
             var errorMessage = null;
 
-            data[MONGODB_ROOT_PASSWORD] = data[MONGODB_ROOT_PASSWORD] || uuidv4();
             data[PARSE_SERVER_APPLICATION_ID] = data[PARSE_SERVER_APPLICATION_ID] || uuidv4();
             data[PARSE_SERVER_MASTER_KEY] = data[PARSE_SERVER_MASTER_KEY] || uuidv4();
 
@@ -92,13 +85,7 @@
             var appName = data[PARSE_NAME];
             var mongoDbContainerName = data[PARSE_NAME] + '-mongodb';
 
-            var envVarsMongo = [{
-                key: 'MONGO_INITDB_ROOT_USERNAME',
-                value: 'root'
-            }, {
-                key: MONGODB_ROOT_PASSWORD,
-                value: data[MONGODB_ROOT_PASSWORD]
-            }];
+            var envVarsMongo = [];
 
             var volumesMongoDb = [{
                 volumeName: appName + '-mongo-db-vol',
@@ -165,9 +152,7 @@
                 value: data[PARSE_SERVER_MASTER_KEY]
             }, {
                 key: 'PARSE_SERVER_DATABASE_URI',
-                value: 'mongodb://root:'
-                    + encodeURIComponent(data[MONGODB_ROOT_PASSWORD])
-                    + '@srv-captain--' + mongoDbContainerName + ':27017/parse'
+                value: 'mongodb://srv-captain--' + mongoDbContainerName + ':27017/parse'
             }];
             var volumesParse = [];
 

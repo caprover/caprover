@@ -44,7 +44,7 @@
 
         step1next.data.push({
             label: 'OPTINAL: MongoDB Server Port (defaults to 27017)',
-            id: ADMINER_PLUGINS,
+            id: ME_CONFIG_MONGODB_PORT,
             type: 'text'
         });
 
@@ -185,7 +185,7 @@
                     schemaVersion: 1,
                     dockerfileLines: [
                         "FROM mongo-express",
-                        'ENV VCAP_APP_HOST=80',
+                        'ENV VCAP_APP_PORT=80',
                         'EXPOSE 80'
                     ]
                 }
