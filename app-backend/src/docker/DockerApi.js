@@ -415,8 +415,15 @@ class DockerApi {
      *        value: 'some value'
      *    }
      * ]
+     * @param resourcesObject:
+     * [
+     *    {
+     *        Limits:      {   NanoCPUs	, MemoryBytes}
+     *        Reservation: {   NanoCPUs	, MemoryBytes}
+     *
+     * ]
      */
-    createServiceOnNodeId(imageName, serviceName, portsToMap, nodeId, volumeToMount, arrayOfEnvKeyAndValue) {
+    createServiceOnNodeId(imageName, serviceName, portsToMap, nodeId, volumeToMount, arrayOfEnvKeyAndValue, resourcesObject) {
 
         const self = this;
 
@@ -437,6 +444,7 @@ class DockerApi {
                 ContainerSpec: {
                     Image: imageName
                 },
+                Resources: resourcesObject,
                 Placement: {
                     Constraints: nodeId ? ['node.id == ' + nodeId] : []
                 }
@@ -875,6 +883,8 @@ class DockerApi {
      *    }
      * ]
      * @param instanceCount: String '12' or null
+     * @param nodeId: nodeId of the node this service will be locked to or null
+     * @param namespace: String 'captain' or null
      * @returns {Promise.<>}
      */
     updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace) {
@@ -942,7 +952,7 @@ class DockerApi {
                             // named volumes are created here:
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
-                                Source: (namespace ? (namespace + '--' ) : '' ) + v.volumeName,
+                                Source: (namespace ? (namespace + '--') : '') + v.volumeName,
                                 Target: v.containerPath,
                                 Type: TYPE_VOLUME,
                                 ReadOnly: false

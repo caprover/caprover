@@ -251,7 +251,7 @@ class LoadBalancerManager {
 
     }
 
-    ensureBaseNginxConf(){
+    ensureBaseNginxConf() {
         return Promise.resolve()
             .then(function () {
 
@@ -280,7 +280,11 @@ class LoadBalancerManager {
             }, {
                 containerPort: 443,
                 hostPort: 443
-            }], nodeId)
+            }], nodeId, null, null, {
+                Reservation: {
+                    MemoryBytes: 30 * 1024 * 1024
+                }
+            })
                 .then(function () {
 
                     let waitTimeInMillis = 5000;

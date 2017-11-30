@@ -111,7 +111,11 @@ module.exports.install = function () {
             });
 
             return DockerApi.get().createServiceOnNodeId(captainNameAndVersion,
-                CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env);
+                CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env, {
+                    Reservation: {
+                        MemoryBytes: 100 * 1024 * 1024
+                    }
+                });
 
         })
         .catch(function (error) {
