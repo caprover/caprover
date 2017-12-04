@@ -23,13 +23,13 @@
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Adminer design',
+            label: 'OPTIONAL: Adminer design',
             labelDesc: 'List of designs: https://github.com/vrana/adminer/tree/master/designs',
             id: ADMINER_DESIGN,
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Adminer plugins (space separated)',
+            label: 'OPTIONAL: Adminer plugins (space separated)',
             id: ADMINER_PLUGINS,
             type: 'text'
         });

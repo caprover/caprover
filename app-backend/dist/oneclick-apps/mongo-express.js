@@ -44,7 +44,7 @@
         });
 
         step1next.data.push({
-            label: 'OPTINAL: MongoDB Server Port (defaults to 27017)',
+            label: 'OPTIONAL: MongoDB Server Port (defaults to 27017)',
             id: ME_CONFIG_MONGODB_PORT,
             type: 'text'
         });

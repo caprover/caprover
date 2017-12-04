@@ -34,7 +34,9 @@
               <div class="pull-right col-sm-4">
                 <label>One-Click Apps</label>
                 <div class="form-group">
-                  <select class="form-control" ng-model="selectedApp.id" ng-options="opt for opt in oneClickAppList"></select>
+
+                  <input type="text" ng-model="selectedApp.id" uib-typeahead="opt for opt in oneClickAppList | filter:$viewValue | limitTo:8" class="form-control" typeahead-min-length="0" typeahead-show-hint="true" typeahead-select-on-blur="true" typeahead-editable="false">
+
                 </div>
               </div>
             </div>
@@ -82,7 +84,7 @@
               <div class="row">
                 <div class="col-sm-1"></div>
                 <div class="col-sm-10">
-                  
+
                   <label> {{param.label}}</label>
                   <p ng-show="!!param.labelDesc">{{param.labelDesc}}</p>
                   <div class="row">

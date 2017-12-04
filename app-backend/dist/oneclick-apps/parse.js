@@ -30,19 +30,19 @@
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose a MongoDB Root Password',
+            label: 'OPTIONAL: Choose a MongoDB Root Password',
             labelDesc: 'or leave empty for randomly generated value.',
             id: MONGODB_ROOT_PASSWORD,
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose an Application ID',
+            label: 'OPTIONAL: Choose an Application ID',
             labelDesc: 'or leave empty for randomly generated value.',
             id: PARSE_SERVER_APPLICATION_ID,
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose a Master Key',
+            label: 'OPTIONAL: Choose a Master Key',
             labelDesc: 'or leave empty for randomly generated value.',
             id: PARSE_SERVER_MASTER_KEY,
             type: 'text'
