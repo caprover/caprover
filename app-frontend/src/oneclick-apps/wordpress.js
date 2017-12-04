@@ -92,7 +92,15 @@
             }
 
             function setupMySqlAppDefinition() {
-                apiManager.updateConfigAndSave(mySqlAppName, 1, envVarsMySql, true, volumesMySql, function (data) {
+
+                var appDefinitionMySql = {
+                    instanceCount: 1,
+                    envVars: envVarsMySql,
+                    notExposeAsWebApp: true,
+                    volumes: volumesMySql,
+                };
+
+                apiManager.updateConfigAndSave(mySqlAppName, appDefinitionMySql, function (data) {
                     if (getErrorMessageIfExists(data)) {
                         endWithError(getErrorMessageIfExists(data));
                         return;
@@ -151,7 +159,15 @@
             }
 
             function setupWordPressAppDefinition() {
-                apiManager.updateConfigAndSave(wordPressContainerName, 1, envVarsWordPress, false, volumesWordPress, function (data) {
+
+                var appDefinitionWordpress = {
+                    instanceCount: 1,
+                    envVars: envVarsWordPress,
+                    notExposeAsWebApp: false,
+                    volumes: volumesWordPress,
+                };
+
+                apiManager.updateConfigAndSave(wordPressContainerName, appDefinitionWordpress, function (data) {
                     if (getErrorMessageIfExists(data)) {
                         endWithError(getErrorMessageIfExists(data));
                         return;

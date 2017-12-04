@@ -374,8 +374,13 @@
                         callback(null);
                     });
             },
-            updateConfigAndSave: function (appName, instanceCount, envVars,
-                notExposeAsWebApp, volumes, callback) {
+            updateConfigAndSave: function (appName, appDefinition, callback) {
+
+                var instanceCount = appDefinition.instanceCount;
+                var envVars = appDefinition.envVars;
+                var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
+                var volumes = appDefinition.volumes;
+
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
                         appName: appName,

@@ -100,7 +100,15 @@
             }
 
             function setupAppDefinition() {
-                apiManager.updateConfigAndSave(appName, 1, envVars, false, volumes, function (data) {
+
+                var appDefinition = {
+                    instanceCount: 1,
+                    envVars: envVars,
+                    notExposeAsWebApp: false,
+                    volumes: volumes,
+                };
+
+                apiManager.updateConfigAndSave(appName, appDefinition, function (data) {
                     if (getErrorMessageIfExists(data)) {
                         endWithError(getErrorMessageIfExists(data));
                         return;

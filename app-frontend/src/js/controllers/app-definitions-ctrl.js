@@ -241,18 +241,24 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         $scope.onUpdateConfigAndSave = function (app) {
             $scope.loadingState.enabled = true;
 
-            apiManager.updateConfigAndSave(app.appName, app.instanceCount,
-                app.envVars, app.notExposeAsWebApp, app.volumes, function (data) {
+            var appDefinition = {
+                instanceCount: app.instanceCount,
+                envVars: app.envVars,
+                notExposeAsWebApp: app.notExposeAsWebApp,
+                volumes: app.volumes,
+            }
 
-                    if (captainToast.showErrorToastIfNeeded(data)) {
-                        $scope.loadingState.enabled = false;
-                        return;
-                    }
+            apiManager.updateConfigAndSave(app.appName, appConfig, function (data) {
 
-                    captainToast.showToastSuccess('You app data and configuration is successfully updated.');
-                    $state.reload();
+                if (captainToast.showErrorToastIfNeeded(data)) {
+                    $scope.loadingState.enabled = false;
+                    return;
+                }
 
-                });
+                captainToast.showToastSuccess('You app data and configuration is successfully updated.');
+                $state.reload();
+
+            });
         };
 
     }())
