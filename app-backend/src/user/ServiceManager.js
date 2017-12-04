@@ -2,6 +2,7 @@ const CaptainConstants = require('../utils/CaptainConstants');
 const Logger = require('../utils/Logger');
 const fs = require('fs-extra');
 const tar = require('tar');
+const path = require('path');
 const CaptainManager = require('./CaptainManager');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const TemplateHelper = require('./TemplateHelper');
@@ -128,69 +129,120 @@ class ServiceManager {
             })
             .then(function (rawImageSourceFolder) {
 
-                if (pathToSrcTarballFile) {
-                    return tar
-                        .x({
-                            file: pathToSrcTarballFile,
-                            cwd: rawImageSourceFolder
-                        })
-                        .then(function () {
+                if (!pathToSrcTarballFile) {
+                    return PLACEHOLDER_DOCKER_FILE_CONTENT;
+                }
 
-                            return fs.pathExists(rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE)
+                return tar
+                    .x({
+                        file: pathToSrcTarballFile,
+                        cwd: rawImageSourceFolder
+                    })
+                    .then(function () {
 
-                        })
-                        .then(function (exists) {
+                        return fs.pathExists(rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE)
 
-                            if (!exists) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!");
+                    })
+                    .then(function (exists) {
+
+                        if (!exists) {
+
+                            Logger.d('Captain Definition does not exist in the base tar. Looking inside...');
+
+                            // check if there is only one child
+                            // check if it's a directory
+                            // check if captain definition exists in it
+                            // rename rawImageSourceFolder to rawImageSourceFolder+'.bak'
+                            // move the child directory out to base and rename it to rawImageSourceFolder
+                            // read captain definition from the folder and return it.
+
+                            let directoryInside = null;
+
+                            return new Promise(
+                                function (resolve, reject) {
+
+                                    fs.readdir(rawImageSourceFolder, function (err, files) {
+
+                                        if (err) {
+                                            reject(err);
+                                            return;
+                                        }
+
+                                        if (files.length !== 1 || !fs.statSync(path.join(rawImageSourceFolder, files[0])).isDirectory()) {
+                                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!"));
+                                            return;
+                                        }
+
+                                        resolve(files[0]);
+
+                                    });
+                                })
+                                .then(function (directory) {
+
+                                    directoryInside = directory;
+
+                                    return fs.pathExists(path.join(path.join(rawImageSourceFolder, directoryInside), CAPTAIN_DEFINITION_FILE));
+
+                                })
+                                .then(function (captainDefinitionExists) {
+
+                                    if (!captainDefinitionExists) {
+                                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!");
+                                    }
+
+                                    const BAK = '.bak';
+
+                                    fs.renameSync(rawImageSourceFolder, rawImageSourceFolder + BAK);
+                                    fs.renameSync(path.join(rawImageSourceFolder + BAK, directoryInside), rawImageSourceFolder);
+
+                                });
+                        }
+                    })
+                    .then(function () {
+
+                        return fs.readJson(rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE);
+
+                    })
+                    .then(function (data) {
+
+                        if (!data) {
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition File is empty!");
+                        }
+
+                        if (!data.schemaVersion) {
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is empty!");
+                        }
+
+                        if (data.schemaVersion === 1) {
+
+                            let templateIdTag = data.templateId;
+                            let dockerfileLines = data.dockerfileLines;
+                            let hasDockerfileLines = dockerfileLines && dockerfileLines.length > 0;
+
+                            if (hasDockerfileLines && !templateIdTag) {
+
+                                return dockerfileLines.join('\n');
+
                             }
+                            else if (!hasDockerfileLines && templateIdTag) {
 
-                            return fs.readJson(rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE);
-
-                        })
-                        .then(function (data) {
-
-                            if (!data) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition File is empty!");
-                            }
-
-                            if (!data.schemaVersion) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is empty!");
-                            }
-
-                            if (data.schemaVersion === 1) {
-
-                                let templateIdTag = data.templateId;
-                                let dockerfileLines = data.dockerfileLines;
-                                let hasDockerfileLines = dockerfileLines && dockerfileLines.length > 0;
-
-                                if (hasDockerfileLines && !templateIdTag) {
-
-                                    return dockerfileLines.join('\n');
-
-                                }
-                                else if (!hasDockerfileLines && templateIdTag) {
-
-                                    return TemplateHelper.get().getDockerfileContentFromTemplateTag(templateIdTag);
-
-                                }
-                                else {
-
-                                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Dockerfile or TemplateId must be present. Both should not be present at the same time");
-
-                                }
+                                return TemplateHelper.get().getDockerfileContentFromTemplateTag(templateIdTag);
 
                             }
                             else {
 
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is not supported!");
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Dockerfile or TemplateId must be present. Both should not be present at the same time");
 
                             }
-                        });
-                }
-                else {
-                    return PLACEHOLDER_DOCKER_FILE_CONTENT;
-                }
+
+                        }
+                        else {
+
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is not supported!");
+
+                        }
+                    });
+
             })
             .then(function (dockerfileContent) {
 
