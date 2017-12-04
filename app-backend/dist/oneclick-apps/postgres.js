@@ -40,7 +40,8 @@
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTIONAL: Arguments for "postgres initdb", e.g. --data-checksums',
+            label: 'OPTIONAL: Arguments for "postgres initdb"',
+            labelDesc: 'e.g. --data-checksums',
             id: POSTGRES_INITDB_ARGS,
             type: 'text'
         });
@@ -177,7 +178,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Enter your Postgres Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'PostgreSQL, often simply "Postgres", is an object-relational database management system (ORDBMS) with an emphasis on extensibility and standards-compliance. As a database server, its primary function is to store data, securely and supporting best practices, and retrieve it later, as requested by other software applications, be it those on the same computer or those running on another computer across a network (including the Internet). It can handle workloads ranging from small single-machine applications to large Internet-facing applications with many concurrent users.' +
+                '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 5432 to other CaptainDuckDuck apps.' +
+                '\n\n Enter your Postgres Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

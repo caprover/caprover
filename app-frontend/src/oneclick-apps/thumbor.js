@@ -131,8 +131,10 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images. See http://thumbor.org/ for more details. ' +
-                'Enter your thumbor Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'thumbor is a smart imaging service. It enables on-demand crop, resizing and flipping of images. It also features a VERY smart detection of important points in the image for better cropping and resizing, using state-of-the-art face and feature detection algorithms (more on that in Detection Algorithms). Using thumbor is very easy (after it is running). All you have to do is access it using an URL for an image, like this:' +
+                '\n http://<thumbor-server>/300x200/smart/s.glbimg.com/et/bb/f/original/2011/03/24/VN0JiwzmOw0b0lg.jpg' +
+                '\n\n See http://thumbor.org for more details. ' +
+                '\n\n Enter your thumbor Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

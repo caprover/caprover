@@ -68,25 +68,36 @@
 
           <div class="row" ng-show="selectedTemplate.currentStep.message">
             <div class="row alerts-container">
-              <div class="col-xs-12">
-                <uib-alert type="{{selectedTemplate.currentStep.message.type}}">
-                  {{selectedTemplate.currentStep.message.text}}</uib-alert>
+              <div class="col-sm-12">
+                <uib-alert class="allow-linebreaks-spans" type="{{selectedTemplate.currentStep.message.type}}">{{selectedTemplate.currentStep.message.text}}</uib-alert>
               </div>
             </div>
           </div>
+          <br/>
+          <br/>
 
-          <div class="row" ng-show="selectedTemplate.currentStep.next">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-6">
+          <div ng-show="selectedTemplate.currentStep.next">
 
-              <div ng-repeat="param in selectedTemplate.currentStep.next.data">
-                <label> {{param.label}}</label>
-                <input ng-show="param.type==='text'" class="form-control" ng-model="param.value">
-                <br/>
-                <br/>
+            <div ng-repeat="param in selectedTemplate.currentStep.next.data">
+              <div class="row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-10">
+                  
+                  <label> {{param.label}}</label>
+                  <p ng-show="!!param.labelDesc">{{param.labelDesc}}</p>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <input ng-show="param.type==='text'" class="form-control" ng-model="param.value">
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
+              <br/>
+              <br/>
             </div>
+
           </div>
 
           <br/>

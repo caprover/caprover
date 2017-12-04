@@ -8,6 +8,10 @@
     margin-top: 100px;
 }
 
+.allow-linebreaks-spans span {
+    white-space: pre-line;
+}
+
 .inline-loader {
     border: 3px solid #f3f3f3;
     border-radius: 50%;

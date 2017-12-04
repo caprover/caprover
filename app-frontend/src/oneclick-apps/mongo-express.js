@@ -37,7 +37,8 @@
         });
 
         step1next.data.push({
-            label: 'MongoDB Server Address. If MongoDB is created by CaptainDuckDuck, use srv-captain--REPLACE_THIS_WITH_CONTAINER_NAME.',
+            label: 'MongoDB Server Address.',
+            labelDesc: 'If MongoDB is created by CaptainDuckDuck, use srv-captain--REPLACE_THIS_WITH_CONTAINER_NAME.',
             id: ME_CONFIG_MONGODB_SERVER,
             type: 'text'
         });
@@ -216,8 +217,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'MongoExpress is a Web-based MongoDB admin interface, written with Node.js and express. https://github.com/mongo-express/mongo-express ' +
-                'Enter your MongoExpress Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'MongoExpress is a Web-based MongoDB admin interface, written with Node.js and express. ' +
+                ' See MongoExpress page for more details: https://github.com/mongo-express/mongo-express' +
+                '\n\n Enter your MongoExpress Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

@@ -140,7 +140,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Enter your MySQL Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'MySQL is the world\'s most popular open source database. With its proven performance, reliability and ease-of-use, MySQL has become the leading database choice for web-based applications, covering the entire range from personal projects and websites, via e-commerce and information services, all the way to high profile web properties including Facebook, Twitter, YouTube, Yahoo! and many more.'+
+            '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 3306 to other CaptainDuckDuck apps.' +            
+            '\n\nEnter your MySQL Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

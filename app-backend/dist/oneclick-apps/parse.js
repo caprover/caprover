@@ -30,17 +30,20 @@
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose a MongoDB Root Password - or leave empty for randomly generated value',
+            label: 'OPTINAL: Choose a MongoDB Root Password',
+            labelDesc: 'or leave empty for randomly generated value.',
             id: MONGODB_ROOT_PASSWORD,
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose an Application ID - or leave empty for randomly generated value',
+            label: 'OPTINAL: Choose an Application ID',
+            labelDesc: 'or leave empty for randomly generated value.',
             id: PARSE_SERVER_APPLICATION_ID,
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTINAL: Choose a Master Key - or leave empty for randomly generated value',
+            label: 'OPTINAL: Choose a Master Key',
+            labelDesc: 'or leave empty for randomly generated value.',
             id: PARSE_SERVER_MASTER_KEY,
             type: 'text'
         });
@@ -241,8 +244,8 @@
         step1.message = {
             type: INFO,
             text: 'Parse Server is an open source version of the Parse backend that can be deployed to any infrastructure that can run Node.js.' +
-                ' For more information on Parse platform see http://parseplatform.org/' +
-                ' Enter your Parse Configuration parameters and click on next. A MongoDB (database) and a Parse container will be created for you. ' +
+                ' For more information on Parse platform see http://parseplatform.org' +
+                '\n\n Enter your Parse Configuration parameters and click on next. A MongoDB (database) and a Parse container will be created for you. ' +
                 ' The process will take about a minute for the process to finish.'
         }
         step1.next = step1next;

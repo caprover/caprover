@@ -153,7 +153,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Enter your MongoDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'MongoDB is a cross-platform document-oriented database. Classified as a NoSQL database program, MongoDB uses JSON-like documents with schemas. '+
+            '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 27017 to other CaptainDuckDuck apps.' +
+            '\n\n Enter your MongoDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

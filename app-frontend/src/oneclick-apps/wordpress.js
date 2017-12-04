@@ -35,7 +35,8 @@
             function endWithSuccess() {
                 step1Callback({
                     message: {
-                        text: 'Wordpress is deployed and available as ' + data[WORDPRESS_NAME],
+                        text: 'Wordpress is deployed and available as ' + data[WORDPRESS_NAME]+
+                        '\n\n IMPORTANT: It will take up to 2 minutes for wordpress to be ready. Before that, you might see 502 error page.\n ',
                         type: SUCCESS
                     },
                     next: null // this can be similar to step1next, in that case the flow continues...
@@ -205,7 +206,8 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Enter your WordPress Configuration parameters and click on next. A MySQL (database) and a WordPress container will be created for you. ' +
+            text: 'WordPress is an online, open source website creation tool written in PHP. But in non-geek speak, it’s probably the easiest and most powerful blogging and website content management system (or CMS) in existence today.' +
+                '\n\n Enter your WordPress Configuration parameters and click on next. A MySQL (database) and a WordPress container will be created for you. ' +
                 ' The process will take about a minute for the process to finish.'
         }
         step1.next = step1next;

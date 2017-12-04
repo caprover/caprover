@@ -24,6 +24,7 @@
         });
         step1next.data.push({
             label: 'OPTINAL: Adminer design',
+            labelDesc: 'List of designs: https://github.com/vrana/adminer/tree/master/designs',
             id: ADMINER_DESIGN,
             type: 'text'
         });
@@ -148,8 +149,10 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP. Conversely to phpMyAdmin, it consist of a single file ready to deploy to the target server. Adminer is available for MySQL, PostgreSQL, SQLite, MS SQL, Oracle, Firebird, SimpleDB, Elasticsearch and MongoDB. ' +
-                'Enter your Adminer Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP.'+
+                ' Conversely to phpMyAdmin, it consist of a single file ready to deploy to the target server. Adminer is available for MySQL, PostgreSQL, SQLite, MS SQL, Oracle, Firebird, SimpleDB, Elasticsearch and MongoDB. ' +
+                '\n\n For more details, see: https://github.com/vrana/adminer'+
+                '\n\nEnter your Adminer Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

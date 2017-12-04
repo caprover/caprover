@@ -128,8 +128,8 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'PhpMyAdmin is the most popular web interface for MySQL & MariaDB.' +
-                'Enter your PhpMyAdmin Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'PhpMyAdmin is the most popular web interface for MySQL & MariaDB. Simply install PhpMyAdmin and then select what database you want to connect to.' +
+                '\n\n Enter your PhpMyAdmin Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;
