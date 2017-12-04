@@ -128,7 +128,7 @@
                     instanceCount: 1,
                     envVars: envVarsMongo,
                     notExposeAsWebApp: true,
-                    volumes: volumesMongoDb,
+                    volumes: volumesMongoDb
                 };
 
                 apiManager.updateConfigAndSave(mongoDbContainerName, appDefinitionMongo, function (data) {
@@ -199,7 +199,7 @@
                     instanceCount: 1,
                     envVars: envVarParse,
                     notExposeAsWebApp: false,
-                    volumes: volumesParse,
+                    volumes: volumesParse
                 };
 
                 apiManager.updateConfigAndSave(appName, appDefinitionParse, function (data) {

@@ -88,7 +88,7 @@
                     instanceCount: 1,
                     envVars: envVars,
                     notExposeAsWebApp: false,
-                    volumes: volumes,
+                    volumes: volumes
                 };
 
                 apiManager.updateConfigAndSave(appName, appDefinition, function (data) {

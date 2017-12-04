@@ -97,7 +97,7 @@
                     instanceCount: 1,
                     envVars: envVarsMySql,
                     notExposeAsWebApp: true,
-                    volumes: volumesMySql,
+                    volumes: volumesMySql
                 };
 
                 apiManager.updateConfigAndSave(mySqlAppName, appDefinitionMySql, function (data) {
@@ -164,7 +164,7 @@
                     instanceCount: 1,
                     envVars: envVarsWordPress,
                     notExposeAsWebApp: false,
-                    volumes: volumesWordPress,
+                    volumes: volumesWordPress
                 };
 
                 apiManager.updateConfigAndSave(wordPressContainerName, appDefinitionWordpress, function (data) {

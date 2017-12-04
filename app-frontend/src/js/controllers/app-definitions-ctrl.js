@@ -245,7 +245,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                 instanceCount: app.instanceCount,
                 envVars: app.envVars,
                 notExposeAsWebApp: app.notExposeAsWebApp,
-                volumes: app.volumes,
+                volumes: app.volumes
             }
 
             apiManager.updateConfigAndSave(app.appName, appConfig, function (data) {
