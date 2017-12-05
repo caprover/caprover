@@ -248,7 +248,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                 volumes: app.volumes
             }
 
-            apiManager.updateConfigAndSave(app.appName, appConfig, function (data) {
+            apiManager.updateConfigAndSave(app.appName, appDefinition, function (data) {
 
                 if (captainToast.showErrorToastIfNeeded(data)) {
                     $scope.loadingState.enabled = false;
