@@ -288,7 +288,7 @@ const questions = [
         type: 'input',
         name: 'captainRootDomain',
         message: 'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
-            ' setup your DNS to point *.test.yourdomain.com to ' + ipAddressOfServer + ': ',
+            ' setup your DNS to point *.test.yourdomain.com to ip address of your server' + ': ',
         filter: function (value) {
             return new Promise(function (res, rej) {
 
