@@ -14,6 +14,7 @@ const chalk = require('chalk');
 program
     .version(packagejson.version + '')
     .description(packagejson.description)
+    .command('serversetup', 'Performs necessary actions and prepares your Captain server.')
     .command('login', 'Login to a CaptainDuckDuck machine. You can be logged in to multiple machines simultaneously.')
     .command('logout', 'Logout from a specific Captain machine.')
     .command('list', 'List all Captain machines currently logged in.')

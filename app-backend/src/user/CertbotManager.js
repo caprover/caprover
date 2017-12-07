@@ -110,11 +110,16 @@ class CertbotManager {
                     + '.api.letsencrypt.org/directory';
 
                 if (!fs.existsSync(rootPathDir)) {
-                    Logger.d('Fresh install of Certbot. There is nothing in the registration directory');
+                    Logger.d('Fresh install of Certbot. There is no registration directory');
                     return null;
                 }
 
                 const files = fs.readdirSync(rootPathDir);
+
+                if (files.length === 0) {
+                    Logger.d('Fresh install of Certbot. There is nothing in the registration directory');
+                    return null;
+                }
 
                 if (files.length !== 1) {
                     throw new Error('I do not know know what to do when there are multiple directories in ' + rootPathDir);

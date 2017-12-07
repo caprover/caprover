@@ -820,7 +820,7 @@ class CaptainManager {
             })
             .then(function (hasRootSsl) {
 
-                if (hasRootSsl) {
+                if (hasRootSsl && self.dataStore.getRootDomain() !== requestedCustomDomain) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'SSL is enabled for root. Too late to change your mind!');
                 }
 
