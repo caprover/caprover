@@ -10,14 +10,26 @@ Captain is a modern automated app deployment & web server manager.
 
 ### Getting started!
 
-This guide assumes that you have installed Captain on a linux server and was able to access it using the web interface.
+This guide assumes that you have installed Captain on a linux server.
 
 You can use this CLI tool to deploy your apps. Before anything, install the CLI tool using npm:
 ```
 npm install -g captainduckduck
 ```
 
+### Server Setup
+
+The very first thing you need to do is to setup your Captain server. You can either do this by visiting `HTTP://IP_ADDRESS_OF_SERVER:3000` in your browser, or the recommended way which is the command line tool. Simple run
+```
+captainduckduck serversetup
+```
+
+Follow the steps as instructed, enter IP address of server. Enter the root domain to be used with this Captain instance. If you don't know what Captain root domain is, please visit www.CaptainDuckDuck.com for documentation. This is a very crucial step. After that, you'll be asked to enter your email address. This should be a valid email address as it will be used in your SSL certificate. After HTTPS is enabled, you'll be asked to change your password. And... Your are done! Go to Deploy section below to read more about app deployment.
+
+
 ### Login
+
+*If you've done the "Server Setup" process through the command line. You can skip "Login" step because "server setup" automatically logs you in as the last step of setup.*
 
 The very first thing you need to do is to login to your Captain server. It is recommended that at this point you have already set up your HTTPS. Login over insecure, plain HTTP is not recommended.
 

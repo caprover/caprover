@@ -418,15 +418,22 @@ const questions = [
 inquirer.prompt(questions).then(function (answers) {
 
 
-    console.log(' ');
-    console.log(' ');
+    var captainAddress = 'https://' + customDomainFromUser;
     let machines = configs.get('captainMachines');
     machines.push({
         authToken: authTokenFromLogin,
-        baseUrl: 'https://' + customDomainFromUser,
+        baseUrl: captainAddress,
         name: answers.captainName
     });
     configs.set('captainMachines', machines);
+
+    console.log(' ');
+    console.log(' ');
+    console.log('Captain is available at ' + captainAddress);
+    console.log(' ');
+    console.log('For more details and docs see http://www.captainduckduck.com');
+    console.log(' ');
+    console.log(' ');
 
 });
 
