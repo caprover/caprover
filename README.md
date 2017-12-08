@@ -145,7 +145,9 @@ Advanced Version
 
 Even if you don't know anything about Docker, you can get an idea what this does.
 
-Captain generates a dockerfile and puts it besides a directory named `src` where your source code sits. Using this approach you can deploy Ruby, Java, Scala, literally everything! As Captain becomes more mature, more and more languages will be added to the built-in template, so you don't have to create the dockerfile manually like above. If you need more details on dockerfile, please see:
+**IMPORANT NOTE:** Captain generates a dockerfile and puts it besides a directory named `src` where your source code sits. So if in your normal dockerfile, you have `COPY ./somefile /usr/app`, you will have to change it to `COPY ./src/somefile /usr/app` otherwise deploy would fail.
+
+Using this approach you can deploy Ruby, Java, Scala, literally everything! As Captain becomes more mature, more and more languages will be added to the built-in template, so you don't have to create the dockerfile manually like above. If you need more details on dockerfile, please see:
 
 https://docs.docker.com/engine/reference/builder/
 and
