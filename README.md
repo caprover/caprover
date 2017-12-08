@@ -54,7 +54,13 @@ You will see a bunch of outputs on your screen. Once the Captain is initialized,
 
 ### Step 2: Connect Root Domain
 
-Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you need help with this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. Go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root and click on "update root domain". If DNS changes are successful, you will get a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
+Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `A-record` in your DNS settings to point to the IP address of the server where you installed Captain. If you need help with this, see <a href="#setup-domain-and-dns">Domain and DNS</a>. Note that it can take several hours for this change to take into effect. It will show up like this in your DNS configs:
+- **TYPE**: A record
+- **HOST**: `*.something`
+- **POINTS TO**: (IP Address of your server)
+- **TTL**: (doesn't really matter)
+
+Next, go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root and click on "update root domain" assuming you have already set `*.something.mydomain.com` to point to your server's IP address in your DNS configs. One you click on update, you should see a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
 
 ### Step 3: Install Captain CLI
 
