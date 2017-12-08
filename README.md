@@ -67,7 +67,7 @@ Next, go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `someth
 Assuming you have npm installed, simply run (add `sudo` if needed):
 
 ```bash
- npm install -g npm captainduckduck
+ npm install -g captainduckduck
 ```
 
 Then, run `captainduckduck login`, follow the steps and login to your captain instance.
