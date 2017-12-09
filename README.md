@@ -1,6 +1,6 @@
 ### Easiest app deployment platform and webserver package for your NodeJS, Python, Java applications. No Docker, nginx knowledge required!
 
-[![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
+[![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
 ### Seriously! Who should care about CaptainDuckDuck?
 - A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
@@ -20,7 +20,7 @@ Captain is a modern automated app deployment & web server manager. It's blazingl
   - Focus on your apps! Not the bells and whistles just to run your apps!
 
 <p>
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/diagram.png" width="450"/>
+    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/diagram.png" width="450"/>
 </p>
 
 ## Getting started!
