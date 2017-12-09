@@ -31,10 +31,11 @@ https://github.com/githubsaturn/captainduckduck/blob/master/TUTORIAL.md
 </p>
 
 
+
 ## Captain Architecture in One Picture
 
 <p>
-    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/diagram.png" width="450"/>
+    <img alt="CaptainDuckDuck" src="https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/captain-architecture.png" width="450"/>
 </p>
 
 
