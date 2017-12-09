@@ -22,7 +22,7 @@ Captain is a modern automated app deployment & web server manager. It's blazingl
 ## Getting Started!
 
 For a detailed tutorial, please see
-https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/TUTORIAL.md
+https://github.com/githubsaturn/captainduckduck/blob/master/TUTORIAL.md
 
 ## Captain Workflow in One Picture
 
