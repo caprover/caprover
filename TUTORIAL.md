@@ -46,7 +46,13 @@ Assuming you have npm installed, simply run (add `sudo` if needed):
  npm install -g captainduckduck
 ```
 
-Then, run `captainduckduck serversetup`, follow the steps and login to your captain instance. When prompted to enter the root domain, enter `something.mydomain.com` assuming that you set `*.something.mydomain.com` to point to your IP address in step #2. Now you can access your captain from `captain.something.mydomain.com`
+Then, run
+
+```bash
+ captainduckduck serversetup
+```
+
+Follow the steps and login to your captain instance. When prompted to enter the root domain, enter `something.mydomain.com` assuming that you set `*.something.mydomain.com` to point to your IP address in step #2. Now you can access your captain from `captain.something.mydomain.com`
 
 
 ### Step 4: Deploy the Test App
