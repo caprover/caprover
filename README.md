@@ -1,4 +1,4 @@
-### Easiest app deployment platform and webserver package for your NodeJS, Python, Java applications. No Docker, nginx knowledge required!
+### Easiest app/database deployment platform and webserver package for your NodeJS, Python, Java applications. No Docker, nginx knowledge required!
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
