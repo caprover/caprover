@@ -26,7 +26,7 @@ Just run the following line, sit back and enjoy!
  mkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck
 ```
 
-You will see a bunch of outputs on your screen. Once the Captain is initialized, you can visit `http://[IP_OF_YOUR_SERVER]:3000` in your browser and login to Captain using the default password `captain42`. You can change your password in settings.
+You will see a bunch of outputs on your screen. Once the Captain is initialized, you can visit `http://[IP_OF_YOUR_SERVER]:3000` in your browser and login to Captain using the default password `captain42`. You can change your password later.
 
 ### Step 2: Connect Root Domain
 
@@ -36,7 +36,7 @@ Let's say you own `mydomain.com`. You can set `*.something.mydomain.com` as an `
 - **POINTS TO**: (IP Address of your server)
 - **TTL**: (doesn't really matter)
 
-Next, go to `http://[IP_OF_YOUR_SERVER]:3000` in your browser, and enter `something.mydomain.com` as your root and click on "update root domain" assuming you have already set `*.something.mydomain.com` to point to your server's IP address in your DNS configs. One you click on update, you should see a success message and you can access your captain from `captain.something.mydomain.com` instead of `http://[IP_OF_YOUR_SERVER]:3000`.
+To confirm, go to https://mxtoolbox.com/DNSLookup.aspx and enter `randomthing123.something.mydomain.com` and check if IP address resolves to the IP you set in your DNS. Note that `randomthing123` is needed because you set a wildcard entry in your DNS by setting `*.something` as your host, not `something`.
 
 ### Step 3: Install Captain CLI
 
@@ -46,7 +46,7 @@ Assuming you have npm installed, simply run (add `sudo` if needed):
  npm install -g captainduckduck
 ```
 
-Then, run `captainduckduck login`, follow the steps and login to your captain instance.
+Then, run `captainduckduck serversetup`, follow the steps and login to your captain instance. When prompted to enter the root domain, enter `something.mydomain.com` assuming that you set `*.something.mydomain.com` to point to your IP address in step #2. Now you can access your captain from `captain.something.mydomain.com`
 
 
 ### Step 4: Deploy the Test App
