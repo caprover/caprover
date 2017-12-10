@@ -119,7 +119,7 @@ const questions = [
     {
         type: 'confirm',
         name: 'confirmedToDeploy',
-        message: 'Are you sure you want to deploy to this Captain machine?',
+        message: 'Note that uncommited files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
         default: true,
         when: function (answers) {
             return !!answers.captainNameToDeploy;
