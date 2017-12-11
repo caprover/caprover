@@ -2,6 +2,9 @@
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
+Tutorial for version 0.2:
+https://www.youtube.com/watch?v=XDrTmGSDW3s
+
 ### Seriously! Who should care about CaptainDuckDuck?
 - A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
 - A developer who uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 4x (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on vultr!!)
