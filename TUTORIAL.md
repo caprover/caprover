@@ -11,7 +11,9 @@ During installation, you'll be asked to point a wildcard DNS entry to your Capta
 
 Captain has to be installed on a machine with a public IP address. If you need help with Public IP, see <a href="#server--public-ip-address">Server & Public IP address</a>. This will cost you as low as $5 a month. If you use the DigitalOcean referral code, you'll get $10 credit - two months worth of free server: https://m.do.co/c/6410aa23d3f3 
 
-Note that you can install Captain on your laptop which is behind NAT (your router) for testing purposes, but it requires some special setup, like port forwarding.
+Note that the build process sometimes consumes too much RAM, and 512MB RAM that come with $5 instances on DigitalOcean might not be enough (see https://github.com/githubsaturn/captainduckduck/issues/28). To be safe, $10/month instances with 1GB RAM is recommended. Also, it's worth mentioning that if you are interested in a $5 instance, you can try www.vultr.com as they offer 1GB servers for $5.
+
+You can install Captain on your laptop which is behind NAT (your router) for testing purposes, but it requires some special setup, like port forwarding. 
 
 #### C) Install Docker on Server (at least, version 17.06.x)
 
