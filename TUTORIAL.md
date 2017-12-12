@@ -2,7 +2,7 @@
 ## MOVED TO WIKI:
 https://github.com/githubsaturn/captainduckduck/wiki
 
-## Content below won't get update and will be deleted soon.
+## Content below is just kept to avoid breaking links. It won't get updated and will be deleted very soon.
 
 
 ### Step 0: Prerequisites
