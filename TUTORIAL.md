@@ -1,5 +1,9 @@
 
-## Getting started!
+## MOVED TO WIKI:
+https://github.com/githubsaturn/captainduckduck/wiki
+
+## Content below won't get update and will be deleted soon.
+
 
 ### Step 0: Prerequisites
 
