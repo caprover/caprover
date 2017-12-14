@@ -8,7 +8,7 @@ const request = require('request');
 const commandExistsSync = require('command-exists').sync;
 const ProgressBar = require('progress');
 const ora = require('ora');
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 
 const packagejson = require('./package.json');
 
@@ -240,8 +240,13 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
 
     function callback(error, response, body) {
 
-        spinner.stop();
-        fs.removeSync(zipFileFullPath);
+        if (spinner) {
+            spinner.stop();
+        }
+
+        if (fs.pathExistsSync(zipFileFullPath)) {
+            fs.removeSync(zipFileFullPath);
+        }
 
         try {
 
