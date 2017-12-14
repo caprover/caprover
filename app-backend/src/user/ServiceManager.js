@@ -362,7 +362,7 @@ class ServiceManager {
                     && (customDomain.length < 80)
                     && /^[a-z0-9\-\.]+$/.test(customDomain)
                     && (customDomain.indexOf('..') < 0)
-                    && (customDomain.indexOf(rootDomain) < 0 || ((customDomain.indexOf(rootDomain) + rootDomain.length) !== customDomain.length));
+                    && (customDomain.indexOf(rootDomain) < 0 || (customDomain === rootDomain) || ((customDomain.indexOf(rootDomain) + rootDomain.length) !== customDomain.length));
 
                 if (!isAllowed) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
