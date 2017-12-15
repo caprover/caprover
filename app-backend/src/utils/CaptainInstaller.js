@@ -67,6 +67,13 @@ module.exports.install = function () {
                 value: '1'
             });
 
+            if (EnvVar.DEFAULT_PASSWORD) {
+                env.push({
+                    key: EnvVar.keys.DEFAULT_PASSWORD,
+                    value: EnvVar.DEFAULT_PASSWORD
+                });
+            }
+
             if (EnvVar.CAPTAIN_DOCKER_API) {
                 env.push({
                     key: EnvVar.keys.CAPTAIN_DOCKER_API,

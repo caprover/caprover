@@ -3,6 +3,7 @@ module.exports =
         keys: {
             CAPTAIN_DOCKER_API: 'CAPTAIN_DOCKER_API',
             CAPTAIN_IS_DEBUG: 'CAPTAIN_IS_DEBUG',
+            DEFAULT_PASSWORD: 'DEFAULT_PASSWORD',
             IS_CAPTAIN_INSTANCE: 'IS_CAPTAIN_INSTANCE'
         },
 
