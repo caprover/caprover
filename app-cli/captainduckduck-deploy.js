@@ -273,9 +273,24 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
             throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
 
         } catch (error) {
-            console.error(chalk.red('Something bad happened. Cannot deploy "' + appName + '"'));
-            let errorMessage = error.message ? error.message : error;
-            console.error(chalk.red(errorMessage));
+            
+            console.error(chalk.red('\nSomething bad happened. Cannot deploy "' + appName + '"\n'));
+
+            if (error.message) {
+                try {
+                    var errorObj = JSON.parse(error.message);
+                    if (errorObj.status) {
+                        console.error(chalk.red('\nError code: ' + errorObj.status));
+                        console.error(chalk.red('\nError message:\n\n ' + errorObj.description));
+                    } else {
+                        throw new Error("NOT API ERROR");
+                    }
+                } catch (ignoreError) {
+                    console.error(chalk.red(error.message));
+                }
+            } else {
+                console.error(chalk.red(error));
+            }
             console.log(' ');
         }
     }

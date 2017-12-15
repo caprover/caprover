@@ -192,7 +192,7 @@ class DockerApi {
 
                     let errorMessage = '';
                     let logsBeforeError = [];
-                    for (let i = 0; i < 10; i++) {
+                    for (let i = 0; i < 20; i++) {
                         logsBeforeError.push('');
                     }
 
@@ -214,9 +214,10 @@ class DockerApi {
                         if (chunk.error) {
                             Logger.e(chunk.error);
                             Logger.e(JSON.stringify(chunk.errorDetail));
-                            errorMessage += chunk.error;
-                            errorMessage += '\n LOGS: \n';
+                            errorMessage += '\n [truncated] \n';
                             errorMessage += logsBeforeError.join('');
+                            errorMessage += '\n';
+                            errorMessage += chunk.error;
                         }
                     });
 
