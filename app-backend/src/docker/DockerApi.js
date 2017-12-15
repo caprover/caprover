@@ -191,23 +191,32 @@ class DockerApi {
                 return new Promise(function (resolve, reject) {
 
                     let errorMessage = '';
+                    let logsBeforeError = [];
+                    for (let i = 0; i < 10; i++) {
+                        logsBeforeError.push('');
+                    }
 
                     stream.setEncoding('utf8');
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunk) {
 
+                        Logger.dev('stream data ' + chunk);
                         chunk = JSON.parse(chunk);
 
-                        if (chunk.stream) {
-                            Logger.dev('stream data ' + chunk.stream);
+                        let chuckStream = chunk.stream;
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            logsBeforeError.shift();
+                            logsBeforeError.push(chuckStream);
                         }
 
                         if (chunk.error) {
                             Logger.e(chunk.error);
                             Logger.e(JSON.stringify(chunk.errorDetail));
                             errorMessage += chunk.error;
-                            errorMessage += '\n';
+                            errorMessage += '\n LOGS: \n';
+                            errorMessage += logsBeforeError.join('');
                         }
                     });
 
