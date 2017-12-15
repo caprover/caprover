@@ -657,29 +657,20 @@ class ServiceManager {
 
                     if (nodeId) {
 
-                        if (app.nodeId) {
+                        return dockerApi
+                            .getNodesInfo()
+                            .then(function (nodeInfo) {
 
-                            if (nodeId !== app.nodeId) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot change Node ID after it's set!");
-                            }
-
-                        }
-                        else {
-
-                            return dockerApi
-                                .getNodesInfo()
-                                .then(function (nodeInfo) {
-
-                                    for (let i = 0; i < nodeInfo.length; i++) {
-                                        if (nodeId === nodeInfo[i].nodeId) {
-                                            return;
-                                        }
+                                for (let i = 0; i < nodeInfo.length; i++) {
+                                    if (nodeId === nodeInfo[i].nodeId) {
+                                        return;
                                     }
+                                }
 
-                                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Node ID you requested in not part of the swarm " + nodeId);
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Node ID you requested in not part of the swarm " + nodeId);
 
-                                })
-                        }
+                            });
+
                     }
                     else {
 
