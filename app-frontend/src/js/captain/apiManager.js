@@ -382,6 +382,7 @@
                 var volumes = appDefinition.volumes;
                 var ports = appDefinition.ports;
                 var nodeId = appDefinition.nodeId;
+                var appPushWebhook = appDefinition.appPushWebhook;
 
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
@@ -390,6 +391,7 @@
                         notExposeAsWebApp: notExposeAsWebApp,
                         volumes: volumes,
                         ports: ports,
+                        appPushWebhook: appPushWebhook,
                         nodeId: nodeId,
                         envVars: envVars
                     }, createConfig())

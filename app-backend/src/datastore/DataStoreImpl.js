@@ -2,6 +2,7 @@
  * Created by kasra on 27/06/17.
  */
 const Configstore = require('configstore');
+const uuid = require('uuid/v4');
 const isValidPath = require('is-valid-path');
 const fs = require('fs-extra');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
@@ -392,17 +393,61 @@ class DataStore {
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook, authenticator) {
         const self = this;
 
-        return this.getAppDefinition(appName)
-            .then(function (app) {
+        let app;
+
+        return Promise.resolve()
+            .then(function () {
+
+                return self.getAppDefinition(appName);
+
+            })
+            .then(function (appObj) {
+
+                app = appObj;
+
+            })
+            .then(function () {
+
+                if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch
+                    && appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
+                    return authenticator
+                        .getAppPushWebhookDatastore({
+                            repo: appPushWebhook.repoInfo.repo,
+                            branch: appPushWebhook.repoInfo.branch,
+                            user: appPushWebhook.repoInfo.user,
+                            password: appPushWebhook.repoInfo.password
+                        })
+                }
+
+                return null;
+
+            })
+            .then(function (appPushWebhookRepoInfo) {
 
                 instanceCount = Number(instanceCount);
 
                 app.instanceCount = instanceCount;
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
                 app.nodeId = nodeId;
+
+                if (appPushWebhookRepoInfo) {
+
+                    app.appPushWebhook = app.appPushWebhook || {};
+
+                    if (!app.appPushWebhook.tokenVersion) {
+                        app.appPushWebhook.tokenVersion = uuid();
+                    }
+
+                    app.appPushWebhook.repoInfo = appPushWebhookRepoInfo;
+                }
+                else {
+
+                    app.appPushWebhook = {};
+
+                }
 
                 if (ports) {
 
@@ -469,6 +514,21 @@ class DataStore {
                             });
                         }
                     }
+                }
+
+            })
+            .then(function () {
+
+                if (app.appPushWebhook.repoInfo) {
+                    return authenticator
+                        .getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion)
+                }
+
+            })
+            .then(function (pushWebhookToken) {
+
+                if (pushWebhookToken) {
+                    app.appPushWebhook.pushWebhookToken = pushWebhookToken;
                 }
 
                 self.data.set(APP_DEFINITIONS + '.' + appName, app);
@@ -687,6 +747,7 @@ class DataStore {
                 envVars: [],
                 volumes: [],
                 ports: [],
+                appPushWebhook: {}, // tokenVersion, repoInfo, pushWebhookToken
                 versions: []
             };
 

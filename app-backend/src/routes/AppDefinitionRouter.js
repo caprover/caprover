@@ -4,6 +4,7 @@ const router = express.Router();
 const BaseApi = require('../api/BaseApi');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
+const Authenticator = require('../user/Authenticator');
 
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
@@ -36,18 +37,38 @@ router.get('/', function (req, res, next) {
 
     let dataStore = res.locals.user.dataStore;
     let serviceManager = res.locals.user.serviceManager;
+    let appsArray = [];
 
     dataStore.getAppDefinitions()
         .then(function (apps) {
 
-            let appsArray = [];
+            let promises = [];
 
             Object.keys(apps).forEach(function (key, index) {
                 let app = apps[key];
                 app.appName = key;
                 app.isAppBuilding = serviceManager.isAppBuilding(key);
+                app.appPushWebhook = app.appPushWebhook || {};
+
+                let repoInfoEncrypted = app.appPushWebhook ? app.appPushWebhook.repoInfo : null;
+                if (repoInfoEncrypted) {
+                    promises.push(
+                        Authenticator.get(dataStore.getNameSpace())
+                            .decodeAppPushWebhookDatastore(repoInfoEncrypted)
+                            .then(function (decryptedData) {
+                                app.appPushWebhook.repoInfo = decryptedData;
+                            }));
+                }
+                else {
+                    app.appPushWebhook.repoInfo = {};
+                }
                 appsArray.push(app);
             });
+
+            return Promise.all(promises);
+
+        })
+        .then(function () {
 
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
             baseApi.data = appsArray;
@@ -299,6 +320,7 @@ router.post('/update/', function (req, res, next) {
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
+    let appPushWebhook = req.body.appPushWebhook || {};
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
     let ports = req.body.ports || [];
@@ -306,7 +328,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, ports)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);

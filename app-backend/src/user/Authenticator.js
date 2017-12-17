@@ -10,8 +10,9 @@ const DataStoreProvider = require('../datastore/DataStoreProvider');
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42';
 
-const COOKIE_AUTH_PREFIX = 'cookie-';
-
+const COOKIE_AUTH_SUFFIX = 'cookie-';
+const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push';
+const WEBHOOK_APP_PUSH_DATASTORE_SUFFIX = "-webhook-app-datastore";
 
 class Authenticator {
 
@@ -72,7 +73,7 @@ class Authenticator {
     }
 
     getAuthTokenForCookies(password) {
-        return this.getAuthToken(password, COOKIE_AUTH_PREFIX);
+        return this.getAuthToken(password, COOKIE_AUTH_SUFFIX);
     }
 
     getAuthToken(password, keySuffix) {
@@ -101,7 +102,7 @@ class Authenticator {
     }
 
     decodeAuthTokenFromCookies(token) {
-        return this.decodeAuthToken(token, COOKIE_AUTH_PREFIX);
+        return this.decodeAuthToken(token, COOKIE_AUTH_SUFFIX);
     }
 
     decodeAuthToken(token, keySuffix) {
@@ -135,6 +136,77 @@ class Authenticator {
 
         });
     }
+
+    getAppPushWebhookDatastore(dataToSave) {
+        const self = this;
+
+        return self.getGenericToken(dataToSave, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX)
+    }
+
+    decodeAppPushWebhookDatastore(token) {
+        const self = this;
+
+        return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX)
+    }
+
+    getAppPushWebhookToken(appName, tokenVersion) {
+        const self = this;
+
+        if (!appName) {
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name are required for webhook token..');
+        }
+
+        return self.getGenericToken({
+            tokenVersion: tokenVersion,
+            appName: appName
+        }, WEBHOOK_APP_PUSH_SUFFIX)
+    }
+
+    decodeAppPushWebhookToken(token) {
+        const self = this;
+
+        return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_SUFFIX)
+    }
+
+    getGenericToken(obj, keySuffix) {
+
+        const self = this;
+        obj.namespace = self.namespace;
+
+        return Promise.resolve()
+            .then(function () {
+                return jwt.sign({
+                    data: obj
+                }, self.encryptionKey + (keySuffix ? keySuffix : ''));
+            })
+    }
+
+    decodeGenericToken(token, keySuffix) {
+        const self = this;
+
+        return new Promise(function (resolve, reject) {
+
+            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded) {
+                if (err) {
+                    Logger.d(err);
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Token corrupted'));
+                    return;
+                }
+
+                let decodedData = rawDecoded.data;
+
+                if (decodedData.namespace !== self.namespace) {
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
+                        'token does not match the namespace'));
+                    return;
+                }
+
+                resolve(decodedData);
+            });
+
+        });
+    }
+
 }
 
 const authenticatorCache = {};

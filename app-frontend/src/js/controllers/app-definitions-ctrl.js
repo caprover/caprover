@@ -6,6 +6,7 @@ angular.module('RDash')
 function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
     apiManager, captainToast, $uibModal, $state, $location) {
 
+    $scope.rootDomainWithProtocol = window.location.protocol;
     $scope.loadingState = {};
     $scope.loadingState.enabled = true;
     $scope.search = {};
@@ -36,6 +37,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         }
 
         $scope.rootDomain = data.rootDomain;
+        $scope.rootDomainWithProtocol = window.location.protocol + '//' + data.rootDomain;
 
     });
 
@@ -257,6 +259,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                 ports: app.ports,
                 nodeId: app.nodeId,
                 notExposeAsWebApp: app.notExposeAsWebApp,
+                appPushWebhook: app.appPushWebhook,
                 volumes: app.volumes
             }
 

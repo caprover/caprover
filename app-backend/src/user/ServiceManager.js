@@ -6,6 +6,7 @@ const path = require('path');
 const CaptainManager = require('./CaptainManager');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const TemplateHelper = require('./TemplateHelper');
+const Authenticator = require('./Authenticator');
 const uuid = require('uuid/v4');
 
 const SOURCE_FOLDER_NAME = 'src';
@@ -630,7 +631,7 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook) {
 
         const self = this;
         const dataStore = this.dataStore;
@@ -721,7 +722,8 @@ class ServiceManager {
             })
             .then(function () {
 
-                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports);
+                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId,
+                    notExposeAsWebApp, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()));
 
             })
             .then(function () {

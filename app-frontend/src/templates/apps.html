@@ -236,6 +236,48 @@
                   <div class="col-lg-3">
                   </div>
                 </div>
+
+                <div class="row">
+                  <h4>
+                    Deploy from Github/Bitbucket
+                  </h4>
+                  <p>
+                    POST Webhook:
+                    <br>
+                    <pre>{{app.appPushWebhook.pushWebhookToken?(rootDomainWithProtocol+'/api/v1/webhooks/triggerbuild?token='+app.appPushWebhook.pushWebhookToken):
+                      '** Add repo info and save for this webhook to appear **'}}</pre>
+                  </p>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="form-group col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Username:</span>
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.user" placeholder="githubusername">
+                    </div>
+                  </div>
+                  <div class="col-sm-6 form-group">
+                    <div class="input-group">
+                      <span class="input-group-addon">Password:</span>
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.password" placeholder="githubpassword">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Repository:</span>
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.repo" placeholder="githubusername">
+                    </div>
+                  </div>
+                  <div class="col-sm-6 form-group">
+                    <div class="input-group">
+                      <span class="input-group-addon">Branch:</span>
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.branch" placeholder="master">
+                    </div>
+                  </div>
+                </div>
+
                 <div class="row" ng-show="app.isAppBuilding">
                   <div class="pull-left">
                     <div class="inline-loader"></div>
