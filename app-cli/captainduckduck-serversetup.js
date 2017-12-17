@@ -124,7 +124,7 @@ function login(baseApiUrl, password) {
 function apiEndpointWithLoading(message) {
     return (method, baseApiUrl, endpoint, dataToSend) => {
         return apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message)
-    } 
+    }
 }
 
 function apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message) {
@@ -404,6 +404,13 @@ const questions = [
                         } else {
                             console.log(chalk.red('Error: ' + error));
                         }
+
+                        console.log('');
+                        console.log(chalk.red('IMPORTANT!! Server setup is completed by password is not changed.'));
+                        console.log(chalk.red('You CANNOT use serversetup anymore. To continue: '));
+                        console.log(chalk.red('- Go to https://' + customDomainFromUser
+                            + ' login with default password and change the password in settings.'));
+                        console.log(chalk.red('- In terminal (here), type captainduckduck login and enter this as your root domain: ' + customDomainFromUser));
 
                         process.exit(0);
                     });
