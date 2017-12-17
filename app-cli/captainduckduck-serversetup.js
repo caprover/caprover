@@ -80,14 +80,14 @@ var oldPassword = 'captain42';
 
 function setCustomDomain(baseApiUrl, customDomain) {
 
-    return apiEndpointWithLoading('Change Domain')('POST', baseApiUrl, '/api/v1/user/system/changerootdomain/', {
+    return apiEndpointWithLoading('Changing Domain...')('POST', baseApiUrl, '/api/v1/user/system/changerootdomain/', {
         rootDomain: customDomain
     });
 }
 
 function enableHttps(baseApiUrl, emailAddress) {
 
-    return apiEndpointWithLoading('Enable SSL')('POST', baseApiUrl, '/api/v1/user/system/enablessl/', {
+    return apiEndpointWithLoading('Enabling SSL...')('POST', baseApiUrl, '/api/v1/user/system/enablessl/', {
         emailAddress: emailAddress
     });
 
@@ -95,7 +95,7 @@ function enableHttps(baseApiUrl, emailAddress) {
 
 function changePass(baseApiUrl, newPass) {
 
-    return apiEndpointWithLoading('Change Password')('POST', baseApiUrl, '/api/v1/user/changepassword/', {
+    return apiEndpointWithLoading('Changing Password...')('POST', baseApiUrl, '/api/v1/user/changepassword/', {
         oldPassword: oldPassword,
         newPassword: newPass
     });
@@ -104,7 +104,7 @@ function changePass(baseApiUrl, newPass) {
 
 function forceHttps(baseApiUrl) {
 
-    return apiEndpointWithLoading('Force SSL')('POST', baseApiUrl, '/api/v1/user/system/forcessl/', {
+    return apiEndpointWithLoading('Forcing SSL...')('POST', baseApiUrl, '/api/v1/user/system/forcessl/', {
         isEnabled: true
     });
 }
@@ -113,7 +113,7 @@ function forceHttps(baseApiUrl) {
 // rejects with ErrorCode or null
 function login(baseApiUrl, password) {
 
-    return apiEndpointWithLoading('Login')('POST', baseApiUrl, '/api/v1/login', {
+    return apiEndpointWithLoading('Login...')('POST', baseApiUrl, '/api/v1/login', {
         password: password
     }).then(function (data) {
         return data.token;
