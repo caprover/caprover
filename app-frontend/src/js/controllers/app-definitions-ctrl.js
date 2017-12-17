@@ -98,6 +98,16 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
             }
         }
 
+        $scope.unlockNodeId = function (app) {
+            app.unlockNodeIdForEdit = true;
+        }
+
+        $scope.addPortMappingClicked = function (app) {
+            if (!app.ports)
+                app.ports = [];
+            app.ports.push({ containerPort: '', hostPort: '' });
+        }
+
         $scope.addEnvVarClicked = function (app) {
             if (!app.envVars)
                 app.envVars = [];
@@ -244,6 +254,8 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
             var appDefinition = {
                 instanceCount: app.instanceCount,
                 envVars: app.envVars,
+                ports: app.ports,
+                nodeId: app.nodeId,
                 notExposeAsWebApp: app.notExposeAsWebApp,
                 volumes: app.volumes
             }

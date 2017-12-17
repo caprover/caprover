@@ -380,6 +380,8 @@
                 var envVars = appDefinition.envVars;
                 var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
                 var volumes = appDefinition.volumes;
+                var ports = appDefinition.ports;
+                var nodeId = appDefinition.nodeId;
 
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
@@ -387,6 +389,8 @@
                         instanceCount: instanceCount,
                         notExposeAsWebApp: notExposeAsWebApp,
                         volumes: volumes,
+                        ports: ports,
+                        nodeId: nodeId,
                         envVars: envVars
                     }, createConfig())
                     .then(
