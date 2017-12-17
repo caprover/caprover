@@ -638,6 +638,22 @@ class ServiceManager {
 
         let serviceName = null;
 
+        let checkIfNodeIdExists = function (nodeIdToCheck) {
+            return dockerApi
+                .getNodesInfo()
+                .then(function (nodeInfo) {
+
+                    for (let i = 0; i < nodeInfo.length; i++) {
+                        if (nodeIdToCheck === nodeInfo[i].nodeId) {
+                            return;
+                        }
+                    }
+
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Node ID you requested in not part of the swarm " + nodeIdToCheck);
+
+                });
+        };
+
         return Promise.resolve()
             .then(function () {
 
@@ -657,19 +673,7 @@ class ServiceManager {
 
                     if (nodeId) {
 
-                        return dockerApi
-                            .getNodesInfo()
-                            .then(function (nodeInfo) {
-
-                                for (let i = 0; i < nodeInfo.length; i++) {
-                                    if (nodeId === nodeInfo[i].nodeId) {
-                                        return;
-                                    }
-                                }
-
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Node ID you requested in not part of the swarm " + nodeId);
-
-                            });
+                        return checkIfNodeIdExists(nodeId);
 
                     }
                     else {
@@ -706,6 +710,11 @@ class ServiceManager {
                 else {
                     if (volumes && volumes.length) {
                         throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot set volumes for a non-persistent container!");
+                    }
+
+                    if (nodeId) {
+
+                        return checkIfNodeIdExists(nodeId);
                     }
                 }
 
