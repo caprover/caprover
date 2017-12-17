@@ -1050,7 +1050,7 @@ class DockerApi {
 
                 instanceCount = Number(instanceCount);
 
-                if (instanceCount) {
+                if ((instanceCount && instanceCount > 0) || instanceCount === 0) {
                     if (!updatedData.Mode.Replicated) {
                         throw new Error('Non replicated services cannot be associated with instance count')
                     }
