@@ -897,7 +897,7 @@ class DockerApi {
      * @param namespace: String 'captain' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace) {
+    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace, ports) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -935,6 +935,19 @@ class DockerApi {
                         let keyVal = arrayOfEnvKeyAndValue[i];
                         let newSet = keyVal.key + '=' + keyVal.value;
                         updatedData.TaskTemplate.ContainerSpec.Env.push(newSet);
+                    }
+                }
+
+                if (ports) {
+                    updatedData.EndpointSpec = updatedData.EndpointSpec || {};
+                    updatedData.EndpointSpec.Ports = [];
+                    for (let i = 0; i < ports.length; i++) {
+                        let p = ports[i];
+                        updatedData.EndpointSpec.Ports.push({
+                            Protocol: 'tcp',
+                            TargetPort: p.containerPort,
+                            PublishedPort: p.hostPort
+                        });
                     }
                 }
 

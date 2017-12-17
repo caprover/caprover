@@ -630,7 +630,7 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports) {
 
         const self = this;
         const dataStore = this.dataStore;
@@ -712,7 +712,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp);
+                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports);
 
             })
             .then(function () {
@@ -746,7 +746,9 @@ class ServiceManager {
                 }
 
                 return dockerApi
-                    .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId, dataStore.getNameSpace());
+                    .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null,
+                        dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId, dataStore.getNameSpace(),
+                        appFound.ports);
             });
 
     }

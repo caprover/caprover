@@ -392,7 +392,7 @@ class DataStore {
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports) {
         const self = this;
 
         return this.getAppDefinition(appName)
@@ -403,6 +403,32 @@ class DataStore {
                 app.instanceCount = instanceCount;
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
                 app.nodeId = nodeId;
+
+                if (ports) {
+
+                    function isPortValid(portNumber) {
+                        return portNumber > 0 && portNumber < 65535;
+                    }
+
+                    let tempPorts = [];
+                    for (let i = 0; i < ports.length; i++) {
+                        let obj = ports[i];
+                        if (obj.containerPort && obj.hostPort) {
+
+                            let containerPort = Number(obj.containerPort);
+                            let hostPort = Number(obj.hostPort);
+
+                            if (isPortValid(containerPort) && isPortValid(hostPort)) {
+                                tempPorts.push({
+                                    hostPort: hostPort,
+                                    containerPort: containerPort
+                                });
+                            }
+                        }
+                    }
+
+                    app.ports = tempPorts;
+                }
 
                 if (envVars) {
                     app.envVars = [];
@@ -660,6 +686,7 @@ class DataStore {
                 networks: [CaptainConstants.captainNetworkName],
                 envVars: [],
                 volumes: [],
+                ports: [],
                 versions: []
             };
 

@@ -83,7 +83,7 @@ const questions = [
         type: 'input',
         default: SAMPLE_DOMAIN,
         name: 'captainAddress',
-        message: 'Enter address of the Captain machine. \nIt can be in [IP]:[PORT] format or captain.[your-captain-root-domain] format:',
+        message: 'Enter address of the Captain machine. \nIt is captain.[your-captain-root-domain] :',
         validate: function (value) {
 
             if (value===SAMPLE_DOMAIN){

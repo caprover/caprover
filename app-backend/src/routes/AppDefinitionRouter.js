@@ -301,11 +301,12 @@ router.post('/update/', function (req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
+    let ports = req.body.ports || [];
     let instanceCount = req.body.instanceCount || '0';
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, ports)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);
