@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const inquirer = require('inquirer');
 const configstore = require('configstore');
 const request = require('request');
+const spinnerUtil = require('./utils/spinner');
 
 const packagejson = require('./package.json');
 
@@ -79,14 +80,14 @@ var oldPassword = 'captain42';
 
 function setCustomDomain(baseApiUrl, customDomain) {
 
-    return apiEnpoint('POST', baseApiUrl, '/api/v1/user/system/changerootdomain/', {
+    return apiEndpointWithLoading('Change Domain')('POST', baseApiUrl, '/api/v1/user/system/changerootdomain/', {
         rootDomain: customDomain
     });
 }
 
 function enableHttps(baseApiUrl, emailAddress) {
 
-    return apiEnpoint('POST', baseApiUrl, '/api/v1/user/system/enablessl/', {
+    return apiEndpointWithLoading('Enable SSL')('POST', baseApiUrl, '/api/v1/user/system/enablessl/', {
         emailAddress: emailAddress
     });
 
@@ -94,7 +95,7 @@ function enableHttps(baseApiUrl, emailAddress) {
 
 function changePass(baseApiUrl, newPass) {
 
-    return apiEnpoint('POST', baseApiUrl, '/api/v1/user/changepassword/', {
+    return apiEndpointWithLoading('Change Password')('POST', baseApiUrl, '/api/v1/user/changepassword/', {
         oldPassword: oldPassword,
         newPassword: newPass
     });
@@ -103,7 +104,7 @@ function changePass(baseApiUrl, newPass) {
 
 function forceHttps(baseApiUrl) {
 
-    return apiEnpoint('POST', baseApiUrl, '/api/v1/user/system/forcessl/', {
+    return apiEndpointWithLoading('Force SSL')('POST', baseApiUrl, '/api/v1/user/system/forcessl/', {
         isEnabled: true
     });
 }
@@ -112,7 +113,7 @@ function forceHttps(baseApiUrl) {
 // rejects with ErrorCode or null
 function login(baseApiUrl, password) {
 
-    return apiEnpoint('POST', baseApiUrl, '/api/v1/login', {
+    return apiEndpointWithLoading('Login')('POST', baseApiUrl, '/api/v1/login', {
         password: password
     }).then(function (data) {
         return data.token;
@@ -120,7 +121,13 @@ function login(baseApiUrl, password) {
 
 }
 
-function apiEnpoint(method, baseApiUrl, endpoint, dataToSend) {
+function apiEndpointWithLoading(message) {
+    return (method, baseApiUrl, endpoint, dataToSend) => {
+        return apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message)
+    } 
+}
+
+function apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message) {
 
     let options = {
         url: baseApiUrl + endpoint,
@@ -134,8 +141,11 @@ function apiEnpoint(method, baseApiUrl, endpoint, dataToSend) {
 
     return new Promise(function (res, rej) {
 
+        let spinner;
+        if (message) {
+            spinner = spinnerUtil.start(message);
+        }
         var callback = function (error, response, body) {
-
             try {
 
                 if (!error && response.statusCode === 200) {
@@ -143,10 +153,15 @@ function apiEnpoint(method, baseApiUrl, endpoint, dataToSend) {
                     let data = JSON.parse(body);
 
                     if (data.status !== 100) {
+                        if (spinner) {
+                            spinnerUtil.fail(spinner);
+                        }
                         rej(data);
                         return;
                     }
-
+                    if (spinner) {
+                        spinnerUtil.succeed(spinner);
+                    }
                     res(data);
 
                     return;
@@ -159,6 +174,9 @@ function apiEnpoint(method, baseApiUrl, endpoint, dataToSend) {
                 throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
 
             } catch (error) {
+                if (spinner) {
+                    spinnerUtil.fail(spinner);
+                }
                 console.error(chalk.red('Something bad happened. Cannot connect to "' + baseApiUrl + endpoint + '"'));
                 let errorMessage = error.message ? error.message : error;
                 console.error(chalk.red(errorMessage));
