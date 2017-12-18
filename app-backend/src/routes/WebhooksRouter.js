@@ -7,7 +7,7 @@ const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
 const CaptainConstants = require('../utils/CaptainConstants');
 
-router.all('/triggerbuild', function (req, res, next) {
+router.post('/triggerbuild', function (req, res, next) {
 
     res.sendStatus(200);
     let serviceManager = res.locals.user.serviceManager;

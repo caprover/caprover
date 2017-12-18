@@ -702,14 +702,16 @@ class DataStore {
                 app.versions = app.versions || [];
 
 
-                for (let i = 0; i < app.versions; i++) {
+                for (let i = 0; i < app.versions.length; i++) {
                     if (app.versions[i].version === newVersion) {
                         app.versions[i].gitHash = gitHashToSave;
-                        break;
+                        self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                        return;
                     }
                 }
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                Logger.e('Failed to set the git hash on the deployed version');
+
 
             });
 
