@@ -684,8 +684,38 @@ class DataStore {
             });
     }
 
+    setGitHash(appName, newVersion, gitHashToSave) {
 
-    getNewVersion(appName, gitHash) {
+        if (!appName) {
+            throw new Error('App Name should not be empty');
+        }
+
+        const self = this;
+
+        return this.getAppDefinition(appName)
+            .then(function (app) {
+
+                if (!app) {
+                    throw new Error('App could not be found ' + appName);
+                }
+
+                app.versions = app.versions || [];
+
+
+                for (let i = 0; i < app.versions; i++) {
+                    if (app.versions[i].version === newVersion) {
+                        app.versions[i].gitHash = gitHashToSave;
+                        break;
+                    }
+                }
+
+                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+
+            });
+
+    }
+
+    getNewVersion(appName) {
 
         if (!appName) {
             throw new Error('App Name should not be empty');
@@ -706,7 +736,7 @@ class DataStore {
 
                 versions.push({
                     version: newVersionIndex,
-                    gitHash: gitHash,
+                    gitHash: undefined,
                     timeStamp: new Date()
                 });
 

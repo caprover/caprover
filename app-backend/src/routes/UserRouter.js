@@ -4,6 +4,7 @@ const BaseApi = require('../api/BaseApi');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Injector = require('../injection/Injector');
 const SystemRouter = require('./SystemRouter');
+const WebhooksRouter = require('./WebhooksRouter');
 const AppDefinitionRouter = require('./AppDefinitionRouter');
 const AppDataRouter = require('./AppDataRouter');
 const Authenticator = require('../user/Authenticator');
@@ -11,6 +12,8 @@ const Logger = require('../utils/Logger');
 const onFinished = require('on-finished');
 
 const threadLockNamespace = {};
+
+router.use('/webhooks/', Injector.injectUserForWebhook());
 
 router.use(Injector.injectUser());
 
@@ -49,7 +52,7 @@ router.use(function (req, res, next) {
     if (isNotGetRequest(req)) {
         if (threadLockNamespace[namespace]) {
             let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'Operation still in progress... please wait...');
+                'Another operation still in progress... please wait...');
             res.send(response);
             return;
         }
@@ -83,6 +86,9 @@ router.post('/changepassword/', function (req, res, next) {
         })
 
 });
+
+// semi-secured end points:
+router.use('/webhooks/', WebhooksRouter);
 
 router.use('/system/', SystemRouter);
 

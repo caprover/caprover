@@ -27,6 +27,7 @@
     "recursive-readdir": "^2.2.1",
     "request": "^2.81.0",
     "serve-favicon": "~2.4.2",
+    "simple-git": "^1.85.0",
     "ssh2": "^0.5.5",
     "tar": "^3.1.7",
     "uuid": "^3.1.0",

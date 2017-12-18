@@ -248,7 +248,7 @@ router.post('/register/', function (req, res, next) {
     dataStore.registerAppDefinition(appName, hasPersistentData)
         .then(function () {
 
-            return serviceManager.createImage(appName);
+            return serviceManager.createImage(appName, {/*use default dockerfile*/});
 
         })
         .then(function (version) {
@@ -325,6 +325,18 @@ router.post('/update/', function (req, res, next) {
     let volumes = req.body.volumes || [];
     let ports = req.body.ports || [];
     let instanceCount = req.body.instanceCount || '0';
+
+    if (appPushWebhook.repoInfo) {
+        if (appPushWebhook.repoInfo.user) {
+            appPushWebhook.repoInfo.user = appPushWebhook.repoInfo.user.trim();
+        }
+        if (appPushWebhook.repoInfo.repo) {
+            appPushWebhook.repoInfo.repo = appPushWebhook.repoInfo.repo.trim();
+        }
+        if (appPushWebhook.repoInfo.branch) {
+            appPushWebhook.repoInfo.branch = appPushWebhook.repoInfo.branch.trim();
+        }
+    }
 
     Logger.d('Updating app started: ' + appName);
 

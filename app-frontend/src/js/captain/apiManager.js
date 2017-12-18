@@ -9,7 +9,7 @@
 
     // In developement
     // Uncomment the following line if you have dnsmasq installed
-    // BASE_API = 'http://captain.captain.x/api/v1';
+    // BASE_API = 'http://captain.captain.x/api/v1/';
     // Uncomment the following line if you don't have dnsmasq installed
     // BASE_API = 'http://127.0.0.1:3000/api/v1/';
 

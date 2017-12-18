@@ -7,6 +7,7 @@ const CaptainManager = require('./CaptainManager');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const TemplateHelper = require('./TemplateHelper');
 const Authenticator = require('./Authenticator');
+const GitHelper = require('../utils/GitHelper');
 const uuid = require('uuid/v4');
 
 const SOURCE_FOLDER_NAME = 'src';
@@ -87,7 +88,17 @@ class ServiceManager {
             });
     }
 
-    createImage(appName, pathToSrcTarballFile, gitHash) {
+    /**
+     *
+     * @param appName
+     * @param source
+     *                 pathToSrcTarballFile
+     *                   OR
+     *                 repoInfo : {repo, user, password, branch}
+     * @param gitHash
+     * @returns {Promise<void>}
+     */
+    createImage(appName, source, gitHash) {
 
         Logger.d('Creating image for: ' + appName);
 
@@ -108,7 +119,7 @@ class ServiceManager {
         return Promise.resolve()
             .then(function () {
 
-                return dataStore.getNewVersion(appName, gitHash);
+                return dataStore.getNewVersion(appName);
 
             })
             .then(function (newVersionPulled) {
@@ -130,14 +141,35 @@ class ServiceManager {
             })
             .then(function (rawImageSourceFolder) {
 
-                if (!pathToSrcTarballFile) {
+                let promiseToFetchDirectory = null;
+
+                if (source.pathToSrcTarballFile) {
+                    promiseToFetchDirectory = tar
+                        .x({
+                            file: source.pathToSrcTarballFile,
+                            cwd: rawImageSourceFolder
+                        })
+                        .then(function () {
+                            return gitHash;
+                        });
+                }
+                else if (source.repoInfo) {
+                    let repoInfo = source.repoInfo;
+                    promiseToFetchDirectory = GitHelper
+                        .clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, rawImageSourceFolder)
+                        .then(function () {
+                            return GitHelper.getLastHash(rawImageSourceFolder);
+                        });
+                }
+                else {
                     return PLACEHOLDER_DOCKER_FILE_CONTENT;
                 }
 
-                return tar
-                    .x({
-                        file: pathToSrcTarballFile,
-                        cwd: rawImageSourceFolder
+                return promiseToFetchDirectory
+                    .then(function (gitHashToSave) {
+
+                        return dataStore.setGitHash(appName, newVersion, gitHashToSave);
+
                     })
                     .then(function () {
 

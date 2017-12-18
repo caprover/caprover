@@ -34,6 +34,11 @@ module.exports.injectUser = function () {
 
     return function (req, res, next) {
 
+        if (res.locals.user) {
+            next();
+            return; // user is already injected by another layer
+        }
+
         const namespace = res.locals.namespace;
 
         Authenticator.get(namespace)
@@ -60,6 +65,70 @@ module.exports.injectUser = function () {
                 }
                 Logger.e(error);
                 res.locals.user = null;
+                next();
+            });
+
+    }
+};
+
+/**
+ * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
+ */
+module.exports.injectUserForWebhook = function () {
+
+    return function (req, res, next) {
+
+        let token = req.query.token;
+        let namespace = req.query.namespace;
+        let app = null;
+
+        if (!token || !namespace) {
+            Logger.e('Trigger build is called with no token/namespace');
+            next();
+            return;
+        }
+
+        let dataStore = DataStoreProvider.getDataStore(namespace);
+
+        let decodedInfo = null;
+
+        Authenticator.get(namespace).decodeAppPushWebhookToken(token)
+            .then(function (data) {
+
+                decodedInfo = data;
+
+                return dataStore
+                    .getAppDefinition(data.appName)
+
+            })
+            .then(function (appFound) {
+
+                app = appFound;
+
+                if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
+                    Logger.e('Token Info do not match')
+                }
+
+                let user = {
+                    namespace: namespace
+                };
+                user.dataStore = DataStoreProvider.getDataStore(namespace);
+                if (!serviceMangerCache[user.namespace]) {
+                    serviceMangerCache[user.namespace] = new ServiceManager(user, dockerApi, CaptainManager.get().getLoadBalanceManager());
+                }
+                user.serviceManager = serviceMangerCache[user.namespace];
+                user.initialized = user.serviceManager.isInited();
+
+                res.locals.user = user;
+                res.locals.app = app;
+                res.locals.appName = decodedInfo.appName;
+
+                next();
+
+            })
+            .catch(function (error) {
+                Logger.e(error);
+                res.locals.app = null;
                 next();
             });
 

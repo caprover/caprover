@@ -122,7 +122,6 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 //  ************  End of reverse proxy 3rd party services  ****************************************
 
 
-
 //  *********************  Beginning of API End Points  *******************************************
 
 let API_PREFIX = '/api/';
@@ -141,7 +140,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         return;
     }
 
-    if (!res.locals.namespace) {
+    if (!res.locals.namespace && !req.originalUrl.startsWith(API_PREFIX + CaptainConstants.apiVersion + '/user/webhooks/')) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'no namespace'));
         return;
     }
@@ -157,7 +156,6 @@ app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter);
 
 
 //  *********************  End of API End Points  *******************************************
-
 
 
 // catch 404 and forward to error handler

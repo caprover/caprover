@@ -85,7 +85,9 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         })
         .then(function () {
 
-            return serviceManager.createImage(appName, tarballSourceFilePath, gitHash);
+            return serviceManager.createImage(appName, {
+                pathToSrcTarballFile: tarballSourceFilePath
+            }, gitHash);
 
         })
         .then(function (version) {
