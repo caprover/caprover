@@ -266,11 +266,11 @@
                   <div class="form-group col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon">Username:</span>
-                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.user" placeholder="githubusername">
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.user" placeholder="myemail@gmail.com">
                     </div>
                   </div>
                   <div class="col-sm-6 form-group">
-                    <div class="input-group">
+                    <div class="input-group" uib-tooltip="Enter 123123 (or anything else!) for public repos">
                       <span class="input-group-addon">Password:</span>
                       <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.password" placeholder="githubpassword">
                     </div>
@@ -280,7 +280,7 @@
                   <div class="form-group col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon">Repository:</span>
-                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.repo" placeholder="githubusername">
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.repo" placeholder="github.com/someone/something">
                     </div>
                   </div>
                   <div class="col-sm-6 form-group">
