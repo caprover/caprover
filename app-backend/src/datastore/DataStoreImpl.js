@@ -428,8 +428,12 @@ class DataStore {
             .then(function (appPushWebhookRepoInfo) {
 
                 instanceCount = Number(instanceCount);
+			
+				if (instanceCount > 0) {
+					app.instanceCount = instanceCount;
+				}
 
-                app.instanceCount = instanceCount;
+                
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
                 app.nodeId = nodeId;
 
