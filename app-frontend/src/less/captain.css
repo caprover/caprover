@@ -13,14 +13,14 @@
 }
 
 .inline-loader {
-    border: 3px solid #f3f3f3;
+    border: 1px solid #f3f3f3;
     border-radius: 50%;
-    border-top: 3px solid blue;
-    border-bottom: 3px solid blue;
-    width: 20px;
-    height: 20px;
-    -webkit-animation: spin-loader 2s linear infinite;
-    animation: spin-loader 2s linear infinite;
+    border-top: 1px solid blue;
+    border-bottom: 1px solid blue;
+    width: 18px;
+    height: 18px;
+    -webkit-animation: spin-loader 0.8s linear infinite;
+    animation: spin-loader 0.8s linear infinite;
   }
   
   @-webkit-keyframes spin-loader {

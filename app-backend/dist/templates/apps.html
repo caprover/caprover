@@ -215,8 +215,22 @@
                   <b>Deployed at</b> {{app.deployedTimeStamp}}
                   <br>
                 </p>
-                <p>You can deploy your app using the Captain command line tool (recommended) or via this web interface. No matter
-                  what approach you choose, you need to provide 'captain-definition' file. See docs for more details.</p>
+                <p>Make sure that you have a 'captain-definition' file in your project. See
+                  <a href="https://github.com/githubsaturn/captainduckduck/wiki/Captain-Definition-File" target="_blank">docs</a> for more details.</p>
+                <h5>
+                  <b> Method 1 (RECOMMENDED)</b>
+                </h5>
+                <p>Use CLI deploy command. This is the best method as it's the only method that reports potential build failures
+                  to you.
+                  <a href="https://github.com/githubsaturn/captainduckduck/wiki/Getting-Started#step-4-deploy-the-test-app" target="_blank">Read here</a>
+                </p>
+                <h5>
+                  <b> Method 2: Tarball</b>
+                </h5>
+                <p>
+                  You can simiply create a tarball (
+                  <code>.tar</code>) of your project and upload it here via upload button.
+                </p>
                 <div class="row">
                   <div class="col-lg-6">
 
@@ -237,11 +251,13 @@
                 </div>
 
                 <div class="row">
-                  <h4>
-                    Deploy from Github/Bitbucket
-                  </h4>
+                  <h5>
+                    <b>
+                      Method 3: Deploy from Github/Bitbucket</b>
+                  </h5>
                   <p>
-                    POST Webhook:
+                    Enter your repository information in the form and save. Then copy the URL in the box as a webhook on Github, Bitbuck and
+                    etc. Once you push a commit, CaptainDuckDuck starts a new build.
                     <br>
                     <pre>{{app.appPushWebhook.pushWebhookToken?(rootDomainWithProtocol+'/api/v1/user/webhooks/triggerbuild?namespace=captain&token='+app.appPushWebhook.pushWebhookToken):
                       '** Add repo info and save for this webhook to appear **'}}</pre>
@@ -277,13 +293,18 @@
                   </div>
                 </div>
 
-                <div class="row" ng-show="app.isAppBuilding">
-                  <div class="pull-left">
-                    <div class="inline-loader"></div>
-                  </div>
-                  <div style="margin-left: 15px" class="pull-left">
-                    Building the image. This might take a few minutes...
-                  </div>
+                <div class="row alerts-container" ng-show="app.isAppBuilding">
+                  <hr>
+                  <uib-alert type="info">
+                    <div style="padding-left: 20px; padding-top: 10px" class="row">
+                      <div class="pull-left">
+                        <div class="inline-loader"></div>
+                      </div>
+                      <div style="margin-left: 15px" class="pull-left">
+                        Building the image. This might take a few minutes...
+                      </div>
+                    </div>
+                  </uib-alert>
                 </div>
               </div>
             </div>
