@@ -3,8 +3,7 @@
 
 <div ng-show="!loadingState.enabled">
   <div class="row">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
+    <div class="col-md-8 col-md-offset-2">
 
       <rd-widget>
         <rd-widget-header icon="fa-link" title="Attach a New Node">
@@ -12,15 +11,13 @@
         <rd-widget-body>
 
           <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-sm-offset-1">
               <div class="form-group">
                 <label for="inputFirstName">Remote IP Address (as seen by Captain)</label>
                 <input type="text" class="form-control" id="inputFirstName" placeholder="Remote IP Address" ng-model="nodeToAdd.remoteNodeIpAddress">
               </div>
             </div>
-            <div class="col-sm-2"></div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-sm-offset-2">
               <div class="form-group">
                 <label for="inputLastName">Remote Username</label>
                 <input type="text" class="form-control" id="inputLastName" ng-model="nodeToAdd.remoteUserName">
@@ -28,15 +25,13 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-sm-offset-1">
               <div class="form-group">
                 <label for="inputFirstName">Captain IP Address (as seen by remote)</label>
                 <input type="text" class="form-control" ng-model="nodeToAdd.captainIpAddress" id="captainIpAddress" placeholder="Captain IP Address">
               </div>
             </div>
-            <div class="col-sm-2"></div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-sm-offset-2">
               <div class="form-group">
                 <label for="inputWebsite">Node Type</label>
                 <input type="text" class="form-control" ng-model="nodeToAdd.nodeType" id="inputWebsite" placeholder="worker/manager">
@@ -44,8 +39,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-10">
+            <div class="col-sm-10 col-sm-offset-1">
               <div class="form-group">
                 <label for="textarea01">SSH Private Key</label>
                 <textarea style="font-family: monospace;" ng-model="nodeToAdd.privateKey" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;MIICWwIBAAKBgQDArfs81aizq8ckg16e+ewFgJg7J..."
@@ -73,8 +67,7 @@
 
   <div ng-repeat="node in allNodes">
     <div class="row">
-      <div class="col-md-3"></div>
-      <div class="col-md-6">
+      <div class="col-md-6 col-md-offset-3">
 
         <rd-widget>
           <rd-widget-header icon="fa-server" title="{{node.ip}} {{node.state=='down'?'** DOWN **':''}}">
