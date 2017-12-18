@@ -63,7 +63,7 @@
 
             var appName = data[CONTAINER_NAME];
             var envVars = [{
-                key: PMA_ARBITRARY,
+                key: "PMA_ARBITRARY",
                 value: "1"
             }];
             var volumes = [];
