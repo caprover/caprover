@@ -28,8 +28,8 @@ or your local machine itself. Needless to say, Docker is required (same minimum 
 Log in to your machine, clone the git repo, go to `app-backend` directory and run the following lines:
 
 ```bash
-npm install
-./dev-clean-run-as-dev.sh
+$   npm install
+$   ./dev-clean-run-as-dev.sh
 ```
 You are good to go! You can run the following line to see the logs for the back-end service.
 
