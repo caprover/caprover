@@ -431,7 +431,7 @@
             <div class="form-group col-xs-6">
               <div class="input-group" uib-tooltip="{{app.hasPersistentData?'Cannot change instances of an app with persistent data':'Number of running instances of this app'}}">
                 <span class="input-group-addon">Instance Count:</span>
-                <input type="text" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
+                <input type="number" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
               </div>
             </div>
 
