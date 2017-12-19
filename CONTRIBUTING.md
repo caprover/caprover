@@ -25,9 +25,10 @@ or your local machine itself. Needless to say, Docker is required (same minimum 
 > Docker for Mac users: You need to add `/captain` to shared paths.  
 > To do so, click on the Docker icon -> Setting -> File Sharing and add `/captain`
 
-Log in to your machine, clone the git repo, go to `app-backend` directory and run the following line:
+Log in to your machine, clone the git repo, go to `app-backend` directory and run the following lines:
 
 ```bash
+npm install
 ./dev-clean-run-as-dev.sh
 ```
 You are good to go! You can run the following line to see the logs for the back-end service.
