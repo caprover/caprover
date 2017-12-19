@@ -16,6 +16,7 @@ function getTagsForImage(imageBaseName, url, allTags) {
             function (error, response, body) {
 
                 if (error || !body) {
+                    Logger.e(error);
                     reject(error);
                     return;
                 }
@@ -29,6 +30,7 @@ function getTagsForImage(imageBaseName, url, allTags) {
                 }
 
                 if (!results) {
+                    Logger.e('NO RESULT');
                     reject(new Error('NO RESULT'));
                     return;
                 }

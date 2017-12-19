@@ -6,7 +6,6 @@
     server {
 
         listen       80;
-
     <%
     if (s.hasSsl) {
     %>
@@ -17,6 +16,7 @@
     }
     %>
 
+        client_max_body_size 500m;
 
         server_name  <%-s.publicDomain%>;
 

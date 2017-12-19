@@ -3,8 +3,7 @@
 
 <div ng-show="!loadingState.enabled">
   <div class="row" ng-show="!editContent.appsToEdit.length">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
+    <div class="col-md-4 col-md-offset-4">
 
       <rd-widget>
         <rd-widget-header icon="fa-plus" title="Create A New App">
@@ -48,8 +47,7 @@
   </div>
 
   <div class="row" ng-show="!editContent.appsToEdit.length && allApps && !!allApps.length">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
+    <div class="col-md-8 col-md-offset-2">
       <br/>
       <br/>
 
@@ -106,8 +104,7 @@
 
 
   <div class="row" ng-repeat="app in editContent.appsToEdit" ng-show="editContent.appsToEdit.length">
-    <div class="col-md-3"></div>
-    <div class="col-md-6">
+    <div class="col-md-6 col-md-offset-3">
       <br/>
       <br/>
 
@@ -269,11 +266,11 @@
                   <div class="form-group col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon">Username:</span>
-                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.user" placeholder="githubusername">
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.user" placeholder="myemail@gmail.com">
                     </div>
                   </div>
                   <div class="col-sm-6 form-group">
-                    <div class="input-group">
+                    <div class="input-group" uib-tooltip="Enter 123123 (or anything else!) for public repos">
                       <span class="input-group-addon">Password:</span>
                       <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.password" placeholder="githubpassword">
                     </div>
@@ -283,7 +280,7 @@
                   <div class="form-group col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon">Repository:</span>
-                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.repo" placeholder="githubusername">
+                      <input type="text" class="form-control" ng-model="app.appPushWebhook.repoInfo.repo" placeholder="github.com/someone/something">
                     </div>
                   </div>
                   <div class="col-sm-6 form-group">
@@ -436,7 +433,7 @@
             <div class="form-group col-xs-6">
               <div class="input-group" uib-tooltip="{{app.hasPersistentData?'Cannot change instances of an app with persistent data':'Number of running instances of this app'}}">
                 <span class="input-group-addon">Instance Count:</span>
-                <input type="text" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
+                <input type="number" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
               </div>
             </div>
 

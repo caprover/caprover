@@ -106,7 +106,7 @@ module.exports.injectUserForWebhook = function () {
                 app = appFound;
 
                 if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
-                    Logger.e('Token Info do not match')
+                    throw new Error('Token Info do not match');
                 }
 
                 let user = {

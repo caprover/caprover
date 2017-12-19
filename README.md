@@ -19,6 +19,7 @@ Captain is a modern automated app deployment & web server manager. It's blazingl
   - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
   - Deploying built-in apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.
   - Secure your services over HTTPS for FREE
+  - Automatic deploy from Github, Bitbucket and etc by using webhooks!
   - Attach more nodes and create a cluster in seconds! Captain automatically configures nginx to load balance.
   - Focus on your apps! Not the bells and whistles just to run your apps!
 
