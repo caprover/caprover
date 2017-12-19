@@ -429,9 +429,9 @@ class DataStore {
 
                 instanceCount = Number(instanceCount);
 			
-				if (instanceCount > 0) {
-					app.instanceCount = instanceCount;
-				}
+		if (instanceCount >= 0) {
+			app.instanceCount = instanceCount;
+		}
 
                 
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
