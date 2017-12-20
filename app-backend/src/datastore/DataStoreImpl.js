@@ -22,7 +22,7 @@ const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
 const APP_DEFINITIONS = 'appDefinitions';
 const EMAIL_ADDRESS = 'emailAddress';
 const NET_DATA_INFO = 'netDataInfo';
-const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.x';
+const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
 
 
 function isNameAllowed(name) {
