@@ -71,7 +71,7 @@ Go to the Captain in your browser, from the left menu select Apps and create a n
 Follow the instructions, enter `my-first-app` when asked for app name. First time build takes about two minutes. After build is completed, visit `my-first-app.something.mydomain.com` where `something.mydomain.com` is your root domain. 
 CONGRATS! Your app is live!!
 
-Note that when you run `captainduckduck deploy`, the current git commit will be sent over to your server. **IMPORATANT:** uncommited files and files in `gitignore` WILL NOT get pushed to the server.
+Note that when you run `captainduckduck deploy`, the current git commit will be sent over to your server. **IMPORATANT:** uncommitted files and files in `gitignore` WILL NOT get pushed to the server.
 
 You can visit Captain in the browser and set custom parameters for your app such as environment variables, and do much more! For more details regarding deployment, please see CLI docs. For details on `captain-definition` file, see Captain Definition File section below.
 
