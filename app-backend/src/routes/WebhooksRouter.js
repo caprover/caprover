@@ -1,4 +1,5 @@
 const express = require('express');
+let bodyParser = require('body-parser');
 const router = express.Router();
 const TokenApi = require('../api/TokenApi');
 const BaseApi = require('../api/BaseApi');
@@ -7,8 +8,9 @@ const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
 const CaptainConstants = require('../utils/CaptainConstants');
 
+var urlencodedParser = bodyParser.urlencoded({extended: true})
 
-router.post('/triggerbuild', function (req, res, next) {
+router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 
     // find which branch is pushed
     // inject it in locals.pushedBranches
@@ -19,8 +21,12 @@ router.post('/triggerbuild', function (req, res, next) {
     res.locals.pushedBranches = [];
 
     if (isGithub) {
+		refPayload = req.body.payload;
+		if(refPayload){
+			req.body = JSON.parse(refPayload);
+		}
         let ref = req.body.ref; // "ref/heads/somebranch"
-        res.locals.pushedBranches.push(ref.substring(11, ref.length));
+		res.locals.pushedBranches.push(ref.substring(11, ref.length));
     }
     else if (isBitbucket) {
         for (let i = 0; i < req.body.push.changes.length; i++) {
