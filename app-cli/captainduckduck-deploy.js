@@ -168,7 +168,7 @@ function deployTo(machineToDeploy, branchToPush, appName) {
     console.log(zipFileFullPath);
     console.log(' ');
 
-    exec('git archive --format tar --output ' + zipFileFullPath + ' ' + branchToPush, function (err, stdout, stderr) {
+    exec('git archive --format tar --output "' + zipFileFullPath + '" ' + branchToPush, function (err, stdout, stderr) {
         if (err) {
             console.log(chalk.red('TAR file failed'));
             console.log(chalk.red(err + ' '));
