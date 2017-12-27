@@ -1,5 +1,5 @@
 const express = require('express');
-let bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const router = express.Router();
 const TokenApi = require('../api/TokenApi');
 const BaseApi = require('../api/BaseApi');
@@ -8,7 +8,7 @@ const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
 const CaptainConstants = require('../utils/CaptainConstants');
 
-var urlencodedParser = bodyParser.urlencoded({extended: true})
+const urlencodedParser = bodyParser.urlencoded({extended: true});
 
 router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 
@@ -17,21 +17,27 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 
     let isGithub = req.header('X-GitHub-Event') === 'push';
     let isBitbucket = (req.header('X-Event-Key') === 'repo:push') && req.header('X-Request-UUID') && req.header('X-Hook-UUID');
+    let isGitlab = req.header('X-Gitlab-Event') === 'Push Hook';
 
     res.locals.pushedBranches = [];
 
     if (isGithub) {
-		refPayload = req.body.payload;
-		if(refPayload){
-			req.body = JSON.parse(refPayload);
-		}
-        let ref = req.body.ref; // "ref/heads/somebranch"
-		res.locals.pushedBranches.push(ref.substring(11, ref.length));
+        let refPayloadByFormEncoded = req.body.payload;
+        let bodyJson = req.body;
+        if (refPayloadByFormEncoded) {
+            bodyJson = JSON.parse(refPayloadByFormEncoded);
+        }
+        let ref = bodyJson.ref; // "refs/heads/somebranch"
+        res.locals.pushedBranches.push(ref.substring(11, ref.length));
     }
     else if (isBitbucket) {
         for (let i = 0; i < req.body.push.changes.length; i++) {
             res.locals.pushedBranches.push(req.body.push.changes[i].new.name);
         }
+    }
+    else if (isGitlab) {
+        let ref = req.body.ref; // "refs/heads/somebranch"
+        res.locals.pushedBranches.push(ref.substring(11, ref.length));
     }
 
     next();

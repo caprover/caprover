@@ -76,7 +76,7 @@ inquirer.prompt(questions).then(function (answers) {
         for (let i = 0; i < machines.length; i++) {
             if (machines[i].name === answers.captainNameToLogout) {
                 var baseUrl = machines[i].baseUrl;
-                machines.splice(i);
+                machines.splice(i,1);
                 configs.set('captainMachines', machines);
                 console.log('You are now logged out from ' + answers.captainNameToLogout + ' at ' + baseUrl + '...');
                 break;
