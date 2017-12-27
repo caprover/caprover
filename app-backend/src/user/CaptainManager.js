@@ -14,8 +14,8 @@ const DataStoreProvider = require('../datastore/DataStoreProvider');
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 
-const MAX_FAIL_ALLOWED = 6;
-const HEALTH_CHECK_INTERVAL = 5000;//ms
+const MAX_FAIL_ALLOWED = 4;
+const HEALTH_CHECK_INTERVAL = 20000;//ms
 
 class CaptainManager {
 
