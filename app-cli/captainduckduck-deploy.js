@@ -23,6 +23,7 @@ console.log(' ');
 
 program
     .description('Deploy current directory to a Captain machine.')
+    .option('-d, --default','Run with default options')
     .parse(process.argv);
 
 
@@ -39,7 +40,6 @@ if (!fs.pathExistsSync('./.git')) {
     console.log(chalk.bold.yellow('**** WARNING: You are not in a git root directory. This command will only deploys the current directory ****'));
     console.log(' ');
     console.log(' ');
-
 }
 
 let listOfMachines = [{
@@ -47,6 +47,7 @@ let listOfMachines = [{
     value: '',
     short: ''
 }];
+
 let machines = configs.get('captainMachines');
 for (let i = 0; i < machines.length; i++) {
     let m = machines[i];
@@ -57,23 +58,27 @@ for (let i = 0; i < machines.length; i++) {
     })
 }
 
-function getAppForDirectory() {
+// Gets default value for propType that is stored in a directory.
+// Replaces getAppForDirectory
+function getPropForDirectory(propType) {
     let apps = configs.get('apps');
     for (let i = 0; i < apps.length; i++) {
         let app = apps[i];
         if (app.cwd === process.cwd()) {
-            return app.appName;
+            return app[propType];
         }
     }
     return undefined;
 }
 
-function saveAppForDirectory(appName) {
+// Sets default value for propType that is stored in a directory to propValue.
+// Replaces saveAppForDirectory
+function savePropForDirectory(propType,propValue) {
     let apps = configs.get('apps');
     for (let i = 0; i < apps.length; i++) {
         let app = apps[i];
         if (app.cwd === process.cwd()) {
-            app.appName = appName;
+            app[propType] = propValue;
             configs.set('apps', apps);
             return;
         }
@@ -81,12 +86,21 @@ function saveAppForDirectory(appName) {
 
     apps.push({
         cwd: process.cwd(),
-        appName: appName
+        [propType]: propValue
     });
 
     configs.set('apps', apps);
 }
 
+
+function getDefaultMachine() {
+    let machine = getPropForDirectory('machineToDeploy');
+    console.log(machine);
+    if(machine){
+        return machine.name;
+    }
+    return 0;
+}
 
 console.log('Preparing deployment to Captain...');
 console.log(' ');
@@ -96,12 +110,13 @@ const questions = [
     {
         type: 'list',
         name: 'captainNameToDeploy',
+        default: getDefaultMachine(),
         message: 'Select the Captain Machine you want to deploy to:',
         choices: listOfMachines
     },
     {
         type: 'input',
-        default: 'master',
+        default: getPropForDirectory('branchToPush') || 'master',
         name: 'branchToPush',
         message: 'Enter the "git" branch you would like to deploy:',
         when: function (answers) {
@@ -110,7 +125,7 @@ const questions = [
     },
     {
         type: 'input',
-        default: getAppForDirectory(),
+        default: getPropForDirectory('appName'),
         name: 'appName',
         message: 'Enter the Captain app name this directory will be deployed to:',
         when: function (answers) {
@@ -128,31 +143,50 @@ const questions = [
     }
 ];
 
-inquirer.prompt(questions).then(function (answers) {
+let defaultInvalid = false;
 
-    console.log(' ');
-    console.log(' ');
+if(program.default){
 
-    if (!answers.confirmedToDeploy) {
-        console.log('Operation cancelled by the user...');
-        console.log(' ');
+    if(getDefaultMachine===0 || getPropForDirectory('branchToPush') === undefined || getPropForDirectory('appName') === undefined){
+        console.log('Default deploy failed. Please select deploy options.');
+        defaultInvalid = true;
     }
-    else {
-        let machines = configs.get('captainMachines');
-        let machineToDeploy = null;
-        for (let i = 0; i < machines.length; i++) {
-            if (machines[i].name === answers.captainNameToDeploy) {
-                console.log('Deploying to ' + answers.captainNameToDeploy);
-                machineToDeploy = machines[i];
-                break;
+    else{
+        console.log('Deploying to ' + getPropForDirectory('machineToDeploy').name);
+        deployTo(getPropForDirectory('machineToDeploy'),getPropForDirectory('branchToPush'), getPropForDirectory('appName'));
+    }
+        
+}
+
+if(!program.default || defaultInvalid){
+
+    inquirer.prompt(questions).then(function (answers) {
+
+        console.log(' ');
+        console.log(' ');
+
+        if (!answers.confirmedToDeploy) {
+            console.log('Operation cancelled by the user...');
+            console.log(' ');
+        }
+        else {
+            let machines = configs.get('captainMachines');
+            let machineToDeploy = null;
+            for (let i = 0; i < machines.length; i++) {
+                if (machines[i].name === answers.captainNameToDeploy) {
+                    console.log('Deploying to ' + answers.captainNameToDeploy);
+                    machineToDeploy = machines[i];
+                    break;
+                }
             }
+
+            console.log(' ');
+            deployTo(machineToDeploy, answers.branchToPush, answers.appName);
         }
 
-        console.log(' ');
-        deployTo(machineToDeploy, answers.branchToPush, answers.appName);
-    }
+    });
 
-});
+}
 
 function deployTo(machineToDeploy, branchToPush, appName) {
     if (!commandExistsSync('git')) {
@@ -191,7 +225,9 @@ function deployTo(machineToDeploy, branchToPush, appName) {
             }
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
-
+            
+            savePropForDirectory('branchToPush', branchToPush);
+            
             sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash);
 
         });
@@ -259,7 +295,8 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
                     throw new Error(JSON.stringify(data, null, 2));
                 }
 
-                saveAppForDirectory(appName);
+                savePropForDirectory('appName',appName);
+                savePropForDirectory('machineToDeploy', machineToDeploy);
 
                 console.log(chalk.green('Deployed successful: ') + appName);
                 console.log(' ');
