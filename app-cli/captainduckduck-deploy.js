@@ -74,6 +74,7 @@ function saveAppForDirectory(appName) {
         let app = apps[i];
         if (app.cwd === process.cwd()) {
             app.appName = appName;
+            configs.set('apps', apps);
             return;
         }
     }
