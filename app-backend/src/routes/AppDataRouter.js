@@ -123,7 +123,12 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                 return;
             }
 
-            res.sendStatus(500);
+            if (!error) {
+                error = new Error('ERROR: NULL');
+            }
+
+            res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, error.stack + ''));
+
 
         });
 });
