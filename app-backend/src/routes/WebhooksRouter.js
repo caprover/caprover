@@ -17,6 +17,7 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 
     let isGithub = req.header('X-GitHub-Event') === 'push';
     let isBitbucket = (req.header('X-Event-Key') === 'repo:push') && req.header('X-Request-UUID') && req.header('X-Hook-UUID');
+	let isGitlab = req.header('X-Gitlab-Event') === 'Push Hook';
 
     res.locals.pushedBranches = [];
 
@@ -25,7 +26,7 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 		if(refPayload){
 			req.body = JSON.parse(refPayload);
 		}
-        let ref = req.body.ref; // "ref/heads/somebranch"
+        let ref = req.body.ref; // "refs/heads/somebranch"
 		res.locals.pushedBranches.push(ref.substring(11, ref.length));
     }
     else if (isBitbucket) {
@@ -33,8 +34,12 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
             res.locals.pushedBranches.push(req.body.push.changes[i].new.name);
         }
     }
-
-    next();
+	else if (isGitlab) {
+		let ref = req.body.ref; // "refs/heads/somebranch"
+		res.locals.pushedBranches.push(ref.substring(11, ref.length));
+	}
+	
+	next();
 
 });
 
