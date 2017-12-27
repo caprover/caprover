@@ -36,10 +36,42 @@ if (program.args.length) {
     process.exit(1);
 }
 
+function printErrorAndExit(error) {
+    console.log(chalk.bold.red(error));
+    console.log(' ');
+    console.log(' ');
+    process.exit(0);
+}
+
 if (!fs.pathExistsSync('./.git')) {
-    console.log(chalk.bold.yellow('**** WARNING: You are not in a git root directory. This command will only deploys the current directory ****'));
-    console.log(' ');
-    console.log(' ');
+    printErrorAndExit('**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****');
+}
+
+if (!fs.pathExistsSync('./captain-definition')) {
+    printErrorAndExit('**** ERROR: captain-definition file cannot be found. Please see docs! ****');
+}
+
+var contents = fs.readFileSync('./captain-definition', 'utf8');
+var contentsJson = null;
+
+try {
+    contentsJson = JSON.parse(contents);
+} catch (e) {
+    console.log(e);
+    console.log('');
+    printErrorAndExit('**** ERROR: captain-definition file is not a valid JSON! ****');
+}
+
+if (!contentsJson.schemaVersion) {
+    printErrorAndExit('**** ERROR: captain-definition needs schemaVersion. Please see docs! ****');
+}
+
+if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
+    printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****');
+}
+
+if (contentsJson.templateId && contentsJson.dockerfileLines) {
+    printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****');
 }
 
 let listOfMachines = [{
@@ -147,7 +179,7 @@ let defaultInvalid = false;
 
 if(program.default){
 
-    if(getDefaultMachine===0 || getPropForDirectory('branchToPush') === undefined || getPropForDirectory('appName') === undefined){
+    if(getDefaultMachine === 0 || getPropForDirectory('branchToPush') === undefined || getPropForDirectory('appName') === undefined){
         console.log('Default deploy failed. Please select deploy options.');
         defaultInvalid = true;
     }
@@ -311,7 +343,7 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
             throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
 
         } catch (error) {
-            
+
             console.error(chalk.red('\nSomething bad happened. Cannot deploy "' + appName + '"\n'));
 
             if (error.message) {

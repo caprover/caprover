@@ -124,6 +124,10 @@ class DataStore {
 
     getImageName(authObj, appName, version) {
 
+        if (version === 0) {
+            version = '0';
+        }
+
         let authPrefix = '';
 
         if (authObj) {
@@ -428,12 +432,12 @@ class DataStore {
             .then(function (appPushWebhookRepoInfo) {
 
                 instanceCount = Number(instanceCount);
-			
-		if (instanceCount >= 0) {
-			app.instanceCount = instanceCount;
-		}
 
-                
+                if (instanceCount >= 0) {
+                    app.instanceCount = instanceCount;
+                }
+
+
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
                 app.nodeId = nodeId;
 
