@@ -26,7 +26,8 @@ const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
 
 
 function isNameAllowed(name) {
-    return (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
+    let isNameFormattingOk = (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
+    return isNameFormattingOk && (['captain', 'registry'].indexOf(name) < 0);
 }
 
 class DataStore {
