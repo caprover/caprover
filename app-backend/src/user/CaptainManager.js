@@ -16,6 +16,7 @@ const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 
 const MAX_FAIL_ALLOWED = 4;
 const HEALTH_CHECK_INTERVAL = 20000;//ms
+const TIMEOUT_HEALTH_CHECK = 15000;//ms
 
 class CaptainManager {
 
@@ -291,11 +292,28 @@ class CaptainManager {
 
         function checkCaptainHealth(callback) {
 
+            let callbackCalled = false;
+
+            setTimeout(function () {
+
+                if (callbackCalled) {
+                    return;
+                }
+                callbackCalled = true;
+
+                callback(false);
+            }, TIMEOUT_HEALTH_CHECK);
+
             let url = 'http://' + captainPublicDomain + CaptainConstants.healthCheckEndPoint;
 
             request(url,
 
                 function (error, response, body) {
+
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
 
                     if (error || !body || (body !== self.getHealthCheckUuid())) {
                         callback(false);
@@ -309,11 +327,34 @@ class CaptainManager {
 
         function checkNginxHealth(callback) {
 
+            let callbackCalled = false;
+
+            setTimeout(function () {
+
+                if (callbackCalled) {
+                    return;
+                }
+                callbackCalled = true;
+
+                callback(false);
+            }, TIMEOUT_HEALTH_CHECK);
+
             self.verifyCaptainOwnsDomainOrThrow(captainPublicDomain, '-healthcheck')
                 .then(function () {
+
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
+
                     callback(true);
                 })
                 .catch(function () {
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
+
                     callback(false);
                 });
         }
