@@ -20,13 +20,14 @@ const configs = new configstore(packagejson.name, {
 const BRANCH_TO_PUSH = 'branchToPush';
 const APP_NAME = 'appName';
 const MACHINE_TO_DEPLOY = 'machineToDeploy';
+const EMPTY_STRING = '';
 
 console.log(' ');
 console.log(' ');
 
 program
     .description('Deploy current directory to a Captain machine.')
-    .option('-d, --default','Run with default options')
+    .option('-d, --default', 'Run with default options')
     .parse(process.argv);
 
 
@@ -79,8 +80,8 @@ if (contentsJson.templateId && contentsJson.dockerfileLines) {
 
 let listOfMachines = [{
     name: '-- CANCEL --',
-    value: '',
-    short: ''
+    value: EMPTY_STRING,
+    short: EMPTY_STRING
 }];
 
 let machines = configs.get('captainMachines');
@@ -108,7 +109,7 @@ function getPropForDirectory(propType) {
 
 // Sets default value for propType that is stored in a directory to propValue.
 // Replaces saveAppForDirectory
-function savePropForDirectory(propType,propValue) {
+function savePropForDirectory(propType, propValue) {
     let apps = configs.get('apps');
     for (let i = 0; i < apps.length; i++) {
         let app = apps[i];
@@ -131,10 +132,10 @@ function savePropForDirectory(propType,propValue) {
 function getDefaultMachine() {
     let machine = getPropForDirectory(MACHINE_TO_DEPLOY);
     console.log(machine);
-    if(machine){
+    if (machine) {
         return machine.name;
     }
-    return 0;
+    return EMPTY_STRING;
 }
 
 console.log('Preparing deployment to Captain...');
@@ -180,20 +181,20 @@ const questions = [
 
 let defaultInvalid = false;
 
-if(program.default){
+if (program.default) {
 
-    if(!getDefaultMachine() || !getPropForDirectory(BRANCH_TO_PUSH) || !getPropForDirectory(APP_NAME)){
+    if (!getDefaultMachine() || !getPropForDirectory(BRANCH_TO_PUSH) || !getPropForDirectory(APP_NAME)) {
         console.log('Default deploy failed. Please select deploy options.');
         defaultInvalid = true;
     }
-    else{
+    else {
         console.log('Deploying to ' + getPropForDirectory(MACHINE_TO_DEPLOY).name);
-        deployTo(getPropForDirectory(MACHINE_TO_DEPLOY),getPropForDirectory(BRANCH_TO_PUSH), getPropForDirectory(APP_NAME));
+        deployTo(getPropForDirectory(MACHINE_TO_DEPLOY), getPropForDirectory(BRANCH_TO_PUSH), getPropForDirectory(APP_NAME));
     }
-        
+
 }
 
-if(!program.default || defaultInvalid){
+if (!program.default || defaultInvalid) {
 
     inquirer.prompt(questions).then(function (answers) {
 
@@ -260,8 +261,8 @@ function deployTo(machineToDeploy, branchToPush, appName) {
             }
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
-            
-            
+
+
             sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
 
         });
@@ -329,8 +330,8 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
                     throw new Error(JSON.stringify(data, null, 2));
                 }
 
-                savePropForDirectory(APP_NAME,appName);
-                savePropForDirectory(BRANCH_TO_PUSH, branchToPush);                
+                savePropForDirectory(APP_NAME, appName);
+                savePropForDirectory(BRANCH_TO_PUSH, branchToPush);
                 savePropForDirectory(MACHINE_TO_DEPLOY, machineToDeploy);
 
                 console.log(chalk.green('Deployed successful: ') + appName);
