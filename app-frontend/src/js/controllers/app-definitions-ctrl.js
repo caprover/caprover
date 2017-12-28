@@ -259,6 +259,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                 ports: app.ports,
                 nodeId: app.nodeId,
                 notExposeAsWebApp: app.notExposeAsWebApp,
+                forceSsl: app.forceSsl,
                 appPushWebhook: app.appPushWebhook,
                 volumes: app.volumes
             }

@@ -379,6 +379,7 @@
                 var instanceCount = appDefinition.instanceCount;
                 var envVars = appDefinition.envVars;
                 var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
+                var forceSsl = appDefinition.forceSsl;
                 var volumes = appDefinition.volumes;
                 var ports = appDefinition.ports;
                 var nodeId = appDefinition.nodeId;
@@ -389,6 +390,7 @@
                         appName: appName,
                         instanceCount: instanceCount,
                         notExposeAsWebApp: notExposeAsWebApp,
+                        forceSsl: forceSsl,
                         volumes: volumes,
                         ports: ports,
                         appPushWebhook: appPushWebhook,

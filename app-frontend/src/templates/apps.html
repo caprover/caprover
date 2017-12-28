@@ -127,8 +127,8 @@
                   <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, it is accessible via
                   <code>http://srv-captain--{{app.appName}}</code> from other apps.</p>
 
-                <div class="checkbox" uib-tooltip="Use this if you don't want your app be externally available.">
-                  <label>
+                <div class="checkbox">
+                  <label uib-tooltip="Use this if you don't want your app be externally available.">
                     <input type="checkbox" ng-model="app.notExposeAsWebApp"> Do not expose as web-app
                   </label>
                 </div>
@@ -196,7 +196,17 @@
                     <br/>
 
                   </div>
+
+
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" ng-model="app.forceSsl"> Enforce HTTPS by redirecting all HTTP traffic to HTTPS
+                    </label>
+                  </div>
+
                 </div>
+
+
               </div>
             </div>
 
@@ -230,7 +240,7 @@
                   <code>.tar</code>) of your project and upload it here via upload button.
                 </p>
                 <div class="row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-12">
 
                     <label class="btn btn-sm btn-default btn-file">
                       Select TAR source file
@@ -251,11 +261,11 @@
                 <div class="row">
                   <h5>
                     <b>
-                      Method 3: Deploy from Github/Bitbucket</b>
+                      Method 3: Deploy from Github/Bitbucket/Gitlab</b>
                   </h5>
                   <p>
-                    Enter your repository information in the form and save. Then copy the URL in the box as a webhook on Github, Bitbuck, Gitlab and
-                    etc. Once you push a commit, CaptainDuckDuck starts a new build.
+                    Enter your repository information in the form and save. Then copy the URL in the box as a webhook on Github, Bitbuck, Gitlab
+                    and etc. Once you push a commit, CaptainDuckDuck starts a new build.
                     <br>
                     <pre>{{app.appPushWebhook.pushWebhookToken?(rootDomainWithProtocol+'/api/v1/user/webhooks/triggerbuild?namespace=captain&token='+app.appPushWebhook.pushWebhookToken):
                       '** Add repo info and save for this webhook to appear **'}}</pre>
