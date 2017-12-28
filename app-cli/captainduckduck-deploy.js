@@ -17,6 +17,9 @@ const configs = new configstore(packagejson.name, {
     apps: []
 });
 
+const BRANCH_TO_PUSH = 'branchToPush';
+const APP_NAME = 'appName';
+const MACHINE_TO_DEPLOY = 'machineToDeploy';
 
 console.log(' ');
 console.log(' ');
@@ -126,7 +129,7 @@ function savePropForDirectory(propType,propValue) {
 
 
 function getDefaultMachine() {
-    let machine = getPropForDirectory('machineToDeploy');
+    let machine = getPropForDirectory(MACHINE_TO_DEPLOY);
     console.log(machine);
     if(machine){
         return machine.name;
@@ -148,8 +151,8 @@ const questions = [
     },
     {
         type: 'input',
-        default: getPropForDirectory('branchToPush') || 'master',
-        name: 'branchToPush',
+        default: getPropForDirectory(BRANCH_TO_PUSH) || 'master',
+        name: BRANCH_TO_PUSH,
         message: 'Enter the "git" branch you would like to deploy:',
         when: function (answers) {
             return !!answers.captainNameToDeploy;
@@ -157,8 +160,8 @@ const questions = [
     },
     {
         type: 'input',
-        default: getPropForDirectory('appName'),
-        name: 'appName',
+        default: getPropForDirectory(APP_NAME),
+        name: APP_NAME,
         message: 'Enter the Captain app name this directory will be deployed to:',
         when: function (answers) {
             return !!answers.captainNameToDeploy;
@@ -179,13 +182,13 @@ let defaultInvalid = false;
 
 if(program.default){
 
-    if(getDefaultMachine === 0 || getPropForDirectory('branchToPush') === undefined || getPropForDirectory('appName') === undefined){
+    if(!getDefaultMachine() || !getPropForDirectory(BRANCH_TO_PUSH) || !getPropForDirectory(APP_NAME)){
         console.log('Default deploy failed. Please select deploy options.');
         defaultInvalid = true;
     }
     else{
-        console.log('Deploying to ' + getPropForDirectory('machineToDeploy').name);
-        deployTo(getPropForDirectory('machineToDeploy'),getPropForDirectory('branchToPush'), getPropForDirectory('appName'));
+        console.log('Deploying to ' + getPropForDirectory(MACHINE_TO_DEPLOY).name);
+        deployTo(getPropForDirectory(MACHINE_TO_DEPLOY),getPropForDirectory(BRANCH_TO_PUSH), getPropForDirectory(APP_NAME));
     }
         
 }
@@ -258,16 +261,15 @@ function deployTo(machineToDeploy, branchToPush, appName) {
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
             
-            savePropForDirectory('branchToPush', branchToPush);
             
-            sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash);
+            sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
 
         });
     });
 
 }
 
-function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
+function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush) {
 
     console.log('Uploading file to ' + machineToDeploy.baseUrl);
 
@@ -327,8 +329,9 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash) {
                     throw new Error(JSON.stringify(data, null, 2));
                 }
 
-                savePropForDirectory('appName',appName);
-                savePropForDirectory('machineToDeploy', machineToDeploy);
+                savePropForDirectory(APP_NAME,appName);
+                savePropForDirectory(BRANCH_TO_PUSH, branchToPush);                
+                savePropForDirectory(MACHINE_TO_DEPLOY, machineToDeploy);
 
                 console.log(chalk.green('Deployed successful: ') + appName);
                 console.log(' ');
