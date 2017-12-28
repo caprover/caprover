@@ -320,6 +320,7 @@ router.post('/update/', function (req, res, next) {
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
+    let forceSsl = !!req.body.forceSsl;
     let appPushWebhook = req.body.appPushWebhook || {};
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
@@ -340,7 +341,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);

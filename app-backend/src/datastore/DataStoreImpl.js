@@ -338,11 +338,13 @@ class DataStore {
                     }
 
                     let localDomain = self.getServiceName(appName);
+                    let forceSsl = !!webApp.forceSsl;
 
                     let serverWithSubDomain = {};
                     serverWithSubDomain.hasSsl = hasRootSsl && webApp.hasDefaultSubDomainSsl;
                     serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
                     serverWithSubDomain.localDomain = localDomain;
+                    serverWithSubDomain.forceSsl = forceSsl;
 
                     servers.push(serverWithSubDomain);
 
@@ -353,6 +355,7 @@ class DataStore {
                             let d = customDomainArray[idx];
                             servers.push({
                                 hasSsl: d.hasSsl,
+                                forceSsl: forceSsl,
                                 publicDomain: d.publicDomain,
                                 localDomain: localDomain
                             });
@@ -398,7 +401,7 @@ class DataStore {
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook, authenticator) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, authenticator) {
         const self = this;
 
         let app;
@@ -440,7 +443,25 @@ class DataStore {
 
 
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
+                app.forceSsl = !!forceSsl;
                 app.nodeId = nodeId;
+
+                if (app.forceSsl) {
+                    let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;
+                    let customDomainArray = app.customDomain;
+                    if (customDomainArray && customDomainArray.length > 0) {
+                        for (let idx = 0; idx < customDomainArray.length; idx++) {
+                            if (customDomainArray[idx].hasSsl) {
+                                hasAtLeastOneSslDomain = true;
+                            }
+                        }
+                    }
+
+                    if (!hasAtLeastOneSslDomain) {
+                        throw new ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot force SSL without any SSL-enabled domain!");
+                    }
+
+                }
 
                 if (appPushWebhookRepoInfo) {
 

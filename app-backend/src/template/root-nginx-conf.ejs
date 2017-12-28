@@ -61,7 +61,6 @@
             proxy_read_timeout 120s;
         }
 
-        # change to this to allow the applications to serve well-known files as well https://stackoverflow.com/questions/869001/how-to-serve-all-existing-static-files-directly-with-nginx-but-proxy-the-rest-t
         location /.well-known/ {
             root <%-captain.staticWebRoot%>;
         }
