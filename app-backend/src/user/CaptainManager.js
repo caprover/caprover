@@ -27,7 +27,7 @@ class CaptainManager {
         this.dataStore = DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace);
         this.dockerApi = dockerApi;
         this.certbotManager = new CertbotManager(dockerApi);
-        this.loadBalancerManager = new LoadBalancerManager(dockerApi, this.certbotManager);
+        this.loadBalancerManager = new LoadBalancerManager(dockerApi, this.certbotManager, this.dataStore);
         this.dockerRegistry = new DockerRegistry(dockerApi, this.dataStore, this.certbotManager, this.loadBalancerManager, this);
         this.myNodeId = null;
         this.initRetryCount = 0;
@@ -820,6 +820,21 @@ class CaptainManager {
             })
     }
 
+    getNginxConfig() {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.getNginxConfig()
+            });
+    }
+
+    setNginxConfig(baseConfig, captainConfig) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.setNginxConfig(baseConfig, captainConfig)
+            });
+    }
 
     requestCertificateForDomain(domainName) {
         return this.certbotManager.enableSsl(domainName);

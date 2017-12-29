@@ -366,7 +366,6 @@ router.post('/versionInfo/', function (req, res, next) {
 });
 
 
-
 router.get('/netdata/', function (req, res, next) {
 
     const dataStore = res.locals.user.dataStore;
@@ -415,6 +414,65 @@ router.post('/netdata/', function (req, res, next) {
         .then(function () {
 
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info is updated');
+            res.send(baseApi);
+
+        })
+        .catch(function (error) {
+
+            Logger.e(error);
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+
+            res.sendStatus(500);
+        });
+});
+
+router.get('/nginxconfig/', function (req, res, next) {
+
+    return Promise.resolve()
+        .then(function () {
+
+            return CaptainManager.get().getNginxConfig();
+
+        })
+        .then(function (data) {
+
+            let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config retrieved');
+            baseApi.data = data;
+            res.send(baseApi);
+
+        })
+        .catch(function (error) {
+
+            Logger.e(error);
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+
+            res.sendStatus(500);
+        });
+
+});
+
+router.post('/nginxconfig/', function (req, res, next) {
+
+    let baseConfigCustomValue = req.body.baseConfig.customValue;
+    let captainConfigCustomValue = req.body.captainConfig.customValue;
+
+    return Promise.resolve()
+        .then(function () {
+
+            return CaptainManager.get().setNginxConfig(baseConfigCustomValue, captainConfigCustomValue);
+
+        })
+        .then(function () {
+
+            let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config is updated');
             res.send(baseApi);
 
         })

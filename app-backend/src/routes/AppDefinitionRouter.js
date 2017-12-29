@@ -70,9 +70,15 @@ router.get('/', function (req, res, next) {
         })
         .then(function () {
 
+            return dataStore.getDefaultAppNginxConfig();
+
+        })
+        .then(function (defaultNginxConfig) {
+
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
             baseApi.data = appsArray;
             baseApi.rootDomain = dataStore.getRootDomain();
+            baseApi.defaultNginxConfig = defaultNginxConfig;
 
             res.send(baseApi);
         })
@@ -320,6 +326,7 @@ router.post('/update/', function (req, res, next) {
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
+    let customNginxConfig = req.body.customNginxConfig;
     let forceSsl = !!req.body.forceSsl;
     let appPushWebhook = req.body.appPushWebhook || {};
     let envVars = req.body.envVars || [];
@@ -341,7 +348,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);
