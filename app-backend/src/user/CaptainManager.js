@@ -422,6 +422,12 @@ class CaptainManager {
 
                 function (error, response, body) {
 
+
+                    if (CaptainConstants.isDebug) {
+                        resolve(['v0.0.1']);
+                        return;
+                    }
+
                     if (error) {
                         reject(error);
                     }
@@ -832,7 +838,10 @@ class CaptainManager {
         const self = this;
         return Promise.resolve()
             .then(function () {
-                return self.dataStore.setNginxConfig(baseConfig, captainConfig)
+                return self.dataStore.setNginxConfig(baseConfig, captainConfig);
+            })
+            .then(function () {
+               self.resetSelf();
             });
     }
 

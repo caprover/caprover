@@ -4,7 +4,7 @@
 		<rd-widget>
 			<rd-widget-header icon="fa-key" title="Change Password">
 			</rd-widget-header>
-			<rd-widget-body loading="loadingState.enabled">
+			<rd-widget-body loading="loadingState.changePassword.enabled">
 
 				<div class="row">
 
@@ -30,7 +30,9 @@
 
 					<div class="pull-right">
 						<button type="submit" class="btn btn-primary" ng-disabled="((!passwords.newPass || !passwords.newPassConfirm) || (passwords.newPass!==passwords.newPassConfirm))" ng-click="onChangePasswordClicked()">
-							<span>	<i class="fa fa-sign-in"></i></span> &nbsp;	Change</button>
+							<span>
+								<i class="fa fa-sign-in"></i>
+							</span> &nbsp; Change</button>
 					</div>
 
 				</div>
@@ -50,7 +52,7 @@
 			<rd-widget-header icon="fa-cloud-download" title="Check for Updates">
 			</rd-widget-header>
 
-			<rd-widget-body loading="loadingState.enabled">
+			<rd-widget-body loading="loadingState.versionCheck.enabled">
 
 				<div class="row">
 
@@ -72,13 +74,87 @@
 
 					<div>
 						<button ng-show="versionInfo.canUpdate" type="submit" class="btn btn-success" ng-click="onPerformUpdateClicked()">
-								<span>	<i class="fa fa-download"></i></span> &nbsp;	Install Update</button>
+							<span>
+								<i class="fa fa-download"></i>
+							</span> &nbsp; Install Update</button>
 					</div>
 
 					<div class="pull-right">
 						<button type="submit" class="btn btn-primary" ng-click="onCheckForUpdatesClicked()">
-								<span>	<i class="fa fa-refresh"></i></span> &nbsp;	Check for Updates</button>
+							<span>
+								<i class="fa fa-refresh"></i>
+							</span> &nbsp; Check for Updates</button>
 					</div>
+				</div>
+			</rd-widget-body>
+		</rd-widget>
+	</div>
+</div>
+
+
+<hr>
+
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+
+		<rd-widget>
+
+			<rd-widget-header icon="fa-cloud-download" title="NGINX Configurations">
+			</rd-widget-header>
+
+			<rd-widget-body loading="loadingState.nginxConfig.enabled">
+
+				<div class="row">
+
+					<p>
+						Captain allows you to set custom configurations for your nginx router. This will allow high customization level in terms
+						of caching, special routing, http2 and etc.
+					</p>
+					<p>
+						Note that templates are build using EJS template pattern. Do not change the areas beween &lt;&percnt; and &percnt;&gt; unless you really know what you're doing!
+					</p>
+
+					<br>
+
+					<p>
+						<b>Base Config Located at</b>: /etc/nginx/nginx.conf
+					</p>
+
+					<div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
+						<div class="col-sm-12">
+							<div class="form-group">
+								<textarea style="font-family: monospace" rows="17" ng-model="nginxConfig.baseConfig.customValue" placeholder="" class="form-control" id="textareabaseconfig"></textarea>
+							</div>
+						</div>
+					</div>
+
+					<p>
+						<b>Captain Config Located at</b>: /etc/nginx/conf.d/captain-root.conf
+					</p>
+
+					<div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
+						<div class="col-sm-12">
+							<div class="form-group">
+								<textarea style="font-family: monospace" rows="17" ng-model="nginxConfig.captainConfig.customValue" placeholder="" class="form-control" id="textareacaptainConfig"></textarea>
+							</div>
+						</div>
+					</div>
+
+
+					<br>
+
+					<div>
+						<button class="btn btn-info" ng-click="onLoadDefaultNginxConfigClicked()">
+							Load Default and Edit</button>
+
+						<div class="pull-right">
+							<button type="submit" ng-disabled="!nginxConfig.baseConfig.customValue && !nginxConfig.captainConfig.customValue " class="btn btn-primary" ng-click="onUpdateNginxConfigClicked()">
+								<span>
+									<i class="fa fa-refresh"></i>
+								</span> &nbsp; Save and Update</button>
+						</div>
+					</div>
+
 				</div>
 			</rd-widget-body>
 		</rd-widget>

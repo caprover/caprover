@@ -80,6 +80,32 @@
                         callback(null);
                     });
             },
+            getNginxConfig: function (callback) {
+                $http
+                    .get(BASE_API + 'user/system/nginxconfig', createConfig())
+                    .then(
+                    function (response) {
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
+            setNginxConfig: function (customBase, customCaptain, callback) {
+                $http
+                    .post(BASE_API + 'user/system/nginxconfig', {
+                        baseConfig: { customValue: customBase },
+                        captainConfig: { customValue: customCaptain }
+                    }, createConfig())
+                    .then(
+                    function (response) {
+                        authToken = null;
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
             changePassword: function (oldPass, newPass, callback) {
                 $http
                     .post(BASE_API + 'user/changepassword', {
