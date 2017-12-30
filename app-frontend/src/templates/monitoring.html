@@ -144,15 +144,15 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputFirstName">Recipient Email Address</label>
-						<input type="text" class="form-control" id="inputFirstName" placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.smtp.to">
+						<label for="recEmail">Recipient Email Address</label>
+						<input type="text" class="form-control" id="recEmail" placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.smtp.to">
 					</div>
 				</div>
 				<div class="col-sm-2"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputLastName">Server Name in Email</label>
-						<input type="text" class="form-control" id="inputFirstName" placeholder="my-aws-server-01-anything" ng-model="netDataInfo.data.smtp.hostname">
+						<label for="serverName">Server Name in Email</label>
+						<input type="text" class="form-control" id="serverName" placeholder="my-aws-server-01-anything" ng-model="netDataInfo.data.smtp.hostname">
 					</div>
 				</div>
 			</div>
@@ -160,22 +160,22 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-6">
 					<div class="form-group">
-						<label for="inputFirstName">SMTP Server Address</label>
-						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.server" id="captainIpAddress" placeholder="smtp.gmail.com">
+						<label for="serverAddress">SMTP Server Address</label>
+						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.server" id="serverAddress" placeholder="smtp.gmail.com">
 					</div>
 				</div>
 				<div class="col-sm-2">
 					<div class="form-group">
-						<label for="inputWebsite">SMTP Port</label>
-						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.port" id="inputWebsite" placeholder="587">
+						<label for="smtpPort">SMTP Port</label>
+						<input type="text" class="form-control" ng-model="netDataInfo.data.smtp.port" id="smtpPort" placeholder="587">
 					</div>
 				</div>
 				<div class="col-sm-2">
 					<div class="form-group">
-						<label for="inputWebsite">Unsecure</label>
+						<label for="nonTls">Unsecure</label>
 						<div class="checkbox">
 							<label>
-								<input id="inputWebsite" type="checkbox" ng-model="netDataInfo.data.smtp.allowNonTls"> 
+								<input id="nonTls" type="checkbox" ng-model="netDataInfo.data.smtp.allowNonTls"> 
 								allow non-TLS
 							</label>
 						</div>
@@ -186,16 +186,16 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputFirstName">SMTP Username</label>
-						<input type="text" class="form-control" id="inputFirstName" 
+						<label for="smtpUser">SMTP Username</label>
+						<input type="text" class="form-control" id="smtpUser" 
 						placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.smtp.username">
 					</div>
 				</div>
 				<div class="col-sm-2"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputLastName">SMTP password</label>
-						<input type="password" class="form-control" id="inputFirstName" 
+						<label for="smtpPass">SMTP password</label>
+						<input type="password" class="form-control" id="smtpPass" 
 						placeholder="your password" ng-model="netDataInfo.data.smtp.password">
 					</div>
 				</div>
@@ -214,8 +214,8 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputFirstName">Slack Webhook</label>
-						<input type="text" class="form-control" id="inputFirstName"
+						<label for="slackWebhook">Slack Webhook</label>
+						<input type="text" class="form-control" id="slackWebhook"
 						 placeholder="https://hooks.slack.com/services/XXXX" 
 						 ng-model="netDataInfo.data.slack.hook">
 					</div>
@@ -223,8 +223,8 @@
 				<div class="col-sm-2"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputLastName">Slack Channel</label>
-						<input type="text" class="form-control" id="inputFirstName" placeholder="alertschannel" ng-model="netDataInfo.data.slack.channel">
+						<label for="slackChannel">Slack Channel</label>
+						<input type="text" class="form-control" id="slackChannel" placeholder="alertschannel" ng-model="netDataInfo.data.slack.channel">
 					</div>
 				</div>
 			</div>
@@ -241,16 +241,16 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputFirstName">Bot Token</label>
-						<input type="text" class="form-control" id="inputFirstName"
+						<label for="telegramBotToken">Bot Token</label>
+						<input type="text" class="form-control" id="telegramBotToken"
 						 placeholder="TELEGRAM_BOT_TOKEN" ng-model="netDataInfo.data.telegram.botToken">
 					</div>
 				</div>
 				<div class="col-sm-2"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputLastName">Chat ID</label>
-						<input type="text" class="form-control" id="inputFirstName" 
+						<label for="chatIdTelegram">Chat ID</label>
+						<input type="text" class="form-control" id="chatIdTelegram" 
 						placeholder="Telegram Chat ID" ng-model="netDataInfo.data.telegram.chatId">
 					</div>
 				</div>
@@ -268,16 +268,16 @@
 				<div class="col-sm-1"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputFirstName">Push Bullet API token</label>
-						<input type="text" class="form-control" id="inputFirstName" 
+						<label for="pushBulletToken">Push Bullet API token</label>
+						<input type="text" class="form-control" id="pushBulletToken" 
 						placeholder="PUSH_BULLET_API_TOKEN" ng-model="netDataInfo.data.pushBullet.apiToken">
 					</div>
 				</div>
 				<div class="col-sm-2"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
-						<label for="inputLastName">Default Email (fallback receiver)</label>
-						<input type="text" class="form-control" id="inputFirstName"
+						<label for="emailPushBullet">Default Email (fallback receiver)</label>
+						<input type="text" class="form-control" id="emailPushBullet"
 						 placeholder="alerts.receiver@example.com" ng-model="netDataInfo.data.pushBullet.fallbackEmail">
 					</div>
 				</div>
