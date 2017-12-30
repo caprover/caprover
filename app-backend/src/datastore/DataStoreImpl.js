@@ -534,28 +534,46 @@ class DataStore {
 
                 if (volumes) {
 
-                    for (let i = 0; i < volumes.length; i++) {
-                        let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName) {
-                            if (!isNameAllowed(obj.volumeName)) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
-                            }
-                            if (!isValidPath(obj.containerPath)) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
-                            }
-                        }
-                    }
-
                     app.volumes = [];
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName) {
-                            app.volumes.push({
-                                containerPath: obj.containerPath,
-                                volumeName: obj.volumeName,
-                                type: 'volume'
-                            });
+                        if (obj.containerPath && (obj.volumeName || obj.hostPath)) {
+
+                            if (obj.volumeName && obj.hostPath) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot define both host path and volume name!");
+                            }
+
+                            if (!isValidPath(obj.containerPath)) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                            }
+
+                            let newVol = {
+                                containerPath: obj.containerPath
+                            };
+
+                            if (obj.hostPath) {
+
+                                if (!isValidPath(obj.hostPath)) {
+                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume host path: " + obj.hostPath);
+                                }
+
+                                newVol.hostPath = obj.hostPath;
+                                newVol.type = 'bind';
+
+                            }
+                            else {
+
+                                if (!isNameAllowed(obj.volumeName)) {
+                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                                }
+
+                                newVol.volumeName = obj.volumeName;
+                                newVol.type = 'volume';
+
+                            }
+
+                            app.volumes.push(newVol);
                         }
                     }
                 }

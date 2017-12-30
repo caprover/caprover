@@ -24,7 +24,10 @@
                 <div class="input-group">
                   <div class="checkbox" uib-tooltip="Mostly used for databases, see docs for details.">
                     <label>
-                      <input type="checkbox" ng-model="newAppData.newAppHasPersistentData"> Has Persistent Data
+                      <input type="checkbox" ng-model="newAppData.newAppHasPersistentData"> Has Persistent Data &nbsp;
+                      <a href="https://github.com/githubsaturn/captainduckduck/wiki/App-Configuration#persistent-data" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      </a>
                     </label>
                   </div>
                 </div>
@@ -103,7 +106,7 @@
 
 
   <div class="row" ng-repeat="app in editContent.appsToEdit" ng-show="editContent.appsToEdit.length">
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-10 col-md-offset-1">
       <br>
       <br>
 
@@ -373,13 +376,13 @@
 
             <div>
 
-              <h4>Port Mapping:</h4>
+              <h4>Port Mapping &nbsp;
+                <a href="https://github.com/githubsaturn/captainduckduck/wiki/App-Configuration#port-mapping" target="_blank" rel="noopener noreferrer">
+                  <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </a>
+              </h4>
               <div ng-show="!app.ports || !app.ports.length">
-                <i>Currently, this app does not have any custom port mapping. You should use this feature if you want a specific
-                  port of your apps/containers to be publicly accessible. The most common use case is when you want to connect
-                  to a database container from your local machine. Note that even if you don't set any port mapping here,
-                  all ports are accessible from other containers on the same Captain cluster. You should only use this option
-                  if you want the port to be publicly accessible.
+                <i>Currently, this app does not have any custom port mapping.
                 </i>
               </div>
               <br>
@@ -407,23 +410,39 @@
             <hr>
 
             <div ng-show="app.hasPersistentData">
-              <h4>Persistent Directories:</h4>
+              <h4>Persistent Directories &nbsp;
+                <a href="https://github.com/githubsaturn/captainduckduck/wiki/App-Configuration#persistent-data" target="_blank" rel="noopener noreferrer">
+                  <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </a>
+
+
+              </h4>
               <div ng-show="!app.volumes || !app.volumes.length">
                 <i>Currently, this app does not have any persistent directories.</i>
               </div>
               <br>
               <div class="row" ng-repeat="vol in app.volumes">
-                <div class="form-group col-sm-6">
+                <div class="form-group col-sm-4">
+                  <div class="input-group">
+                    <span class="input-group-addon">Path in App:</span>
+                    <input type="text" class="form-control" ng-model="vol.containerPath" placeholder="/some/thing">
+                  </div>
+                </div>
+                <div ng-show="!!vol.hostPath" class="form-group col-sm-4">
+                  <div class="input-group" uib-tooltip="IMPORTANT: Ensure Host Path exists before assigning it here">
+                    <span class="input-group-addon">Path on Host:</span>
+                    <input type="text" class="form-control" ng-model="vol.hostPath" placeholder="/host/path/exists">
+                  </div>
+                </div>
+                <div ng-show="!vol.hostPath" class="form-group col-sm-4">
                   <div class="input-group">
                     <span class="input-group-addon">Label:</span>
                     <input type="text" class="form-control" ng-model="vol.volumeName" placeholder="some-name">
                   </div>
                 </div>
-                <div class="col-sm-6 form-group">
-                  <div class="input-group">
-                    <span class="input-group-addon">Directory:</span>
-                    <input type="text" class="form-control" ng-model="vol.containerPath" placeholder="/some/thing">
-                  </div>
+                <div class="form-group col-sm-4">
+                  <button ng-show="!vol.hostPath" type="button" class="btn btn-sm btn-default" ng-click="setHostPath(vol,'/')">Set specific host path</button>
+                  <button ng-show="vol.hostPath" type="button" class="btn btn-sm btn-default" ng-click="setHostPath(vol,'')">Let Captain manage host path</button>
                 </div>
               </div>
               <div class="row">
