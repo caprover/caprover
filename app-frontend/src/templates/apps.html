@@ -196,6 +196,31 @@
 
                   </div>
 
+                  <div class="row">
+
+                    <button ng-show="!app.customNginxConfig" class="btn btn-info" ng-click="onEditDefaultNginxConfigClicked(app)">
+                      Edit Default Nginx Configurations</button>
+
+                    <div ng-show="app.customNginxConfig">
+
+                      <p>
+                        Note that templates are build using EJS template pattern. Do not change the areas beween &lt;&percnt; and &percnt;&gt; unless
+                        you really know what you're doing!
+                      </p>
+
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <div class="form-group">
+                            <textarea style="font-family: monospace;" rows="17" ng-model="app.customNginxConfig" placeholder="" class="form-control"
+                              id="textareaAppNginxConfig"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <br/>
 
                   <div class="checkbox">
                     <label>

@@ -410,6 +410,7 @@
                 var ports = appDefinition.ports;
                 var nodeId = appDefinition.nodeId;
                 var appPushWebhook = appDefinition.appPushWebhook;
+                var customNginxConfig = appDefinition.customNginxConfig;
 
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
@@ -419,6 +420,7 @@
                         forceSsl: forceSsl,
                         volumes: volumes,
                         ports: ports,
+                        customNginxConfig: customNginxConfig,
                         appPushWebhook: appPushWebhook,
                         nodeId: nodeId,
                         envVars: envVars
