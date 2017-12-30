@@ -1,13 +1,13 @@
 <%
 if (s.forceSsl) {
 %>
-
     server {
 
         listen       80;
 
         server_name  <%-s.publicDomain%>;
 
+        # Used by Let's Encrypt
         location /.well-known/ {
             root <%-s.staticWebRoot%>;
         }
@@ -15,9 +15,7 @@ if (s.forceSsl) {
         location / {
             return 302 https://$http_host$request_uri$is_args$query_string;
         }
-
     }
-
 <%
 }
 %>
@@ -32,14 +30,9 @@ if (!s.forceSsl || s.hasSsl) {
     <%
     if (!s.forceSsl) {
     %>
-
-    listen       80;
-
+        listen       80;
     <%
     }
-    %>
-
-    <%
     if (s.hasSsl) {
     %>
         listen              443 ssl;
@@ -53,6 +46,9 @@ if (!s.forceSsl || s.hasSsl) {
 
         server_name  <%-s.publicDomain%>;
 
+        # 127.0.0.11 is DNS set up by Docker, see:
+        # https://docs.docker.com/engine/userguide/networking/configure-dns/
+        # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
         set $upstream http://<%-s.localDomain%>;
 
@@ -67,7 +63,6 @@ if (!s.forceSsl || s.hasSsl) {
         location /.well-known/ {
             root <%-s.staticWebRoot%>;
         }
-
     }
 
 <%
