@@ -95,6 +95,12 @@ class TemplateHelper {
                 dockerFileFromName: 'python',
                 displayName: 'Python',
                 tagSuffix: '-alpine3.6'
+            },
+            {   templateName: 'phoenix',
+                dockerHubImageName: 'marcelocg/phoenix',
+                dockerFileFromName: 'phoenix',
+                displayName: 'Phoenix',
+                tagSuffix: 'latest'
             }
         ];
 
