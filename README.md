@@ -1,4 +1,4 @@
-### Easiest app/database deployment platform and webserver package for your NodeJS, Python, Java applications. No Docker, nginx knowledge required!
+### Easiest app/database deployment platform and webserver package for your NodeJS, Python, PHP applications. No Docker, nginx knowledge required!
 
 [![YouTube](https://raw.githubusercontent.com/githubsaturn/captainduckduck/master/graphics/screenshots.gif)](https://www.youtube.com/watch?v=576RsaocNUE)
 
@@ -16,7 +16,7 @@ https://www.youtube.com/watch?v=XDrTmGSDW3s
 
 Captain is a modern automated app deployment & web server manager. It's blazingly fast and very robust as it uses Docker, nginx, LetsEncrypt, NetData. 
 
-  - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
+  - Deploy apps in your own space (Node js, PHP, Python, Java literally any language!)
   - Deploying one-click apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.
   - Ability to secure your services over HTTPS for FREE, ability to automatically redirect HTTP to HTTPS.
   - Many ways to deploy: upload your source from dashboard, use command line `captainduckduck deploy`, use github, bitbucket, gitlab and other webhooks to automatically trigger a build upon `git push`
