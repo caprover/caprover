@@ -445,6 +445,11 @@ class DockerApi {
                     TargetPort: portsToMap[i].containerPort,
                     PublishedPort: portsToMap[i].hostPort
                 });
+                ports.push({
+                    Protocol: 'udp',
+                    TargetPort: portsToMap[i].containerPort,
+                    PublishedPort: portsToMap[i].hostPort
+                });
             }
         }
 
@@ -945,6 +950,11 @@ class DockerApi {
                         let p = ports[i];
                         updatedData.EndpointSpec.Ports.push({
                             Protocol: 'tcp',
+                            TargetPort: p.containerPort,
+                            PublishedPort: p.hostPort
+                        });
+                        updatedData.EndpointSpec.Ports.push({
+                            Protocol: 'udp',
                             TargetPort: p.containerPort,
                             PublishedPort: p.hostPort
                         });
