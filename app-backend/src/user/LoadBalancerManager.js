@@ -381,6 +381,11 @@ class LoadBalancerManager {
             })
             .then(function () {
 
+                return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost);
+
+            })
+            .then(function () {
+
                 return dockerApi
                     .isServiceRunningByName(CaptainConstants.nginxServiceName);
 
@@ -449,6 +454,10 @@ class LoadBalancerManager {
                     {
                         containerPath: CaptainConstants.letsEncryptEtcPathOnNginx,
                         hostPath: CaptainConstants.letsEncryptEtcPath
+                    },
+                    {
+                        containerPath: CaptainConstants.nginxSharedPathOnNginx,
+                        hostPath: CaptainConstants.nginxSharedPathOnHost
                     }
                 ], [CaptainConstants.captainNetworkName]);
 
