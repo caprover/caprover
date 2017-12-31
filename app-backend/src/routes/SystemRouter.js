@@ -218,6 +218,7 @@ router.get('/info/', function (req, res, next) {
             return {
                 dockerRegistryDomain: dockerRegistryAuthObj ? dockerRegistryAuthObj.serveraddress : '',
                 hasRootSsl: hasRootSsl,
+                forceSsl: CaptainManager.get().getForceSslValue(),
                 rootDomain: dataStore.hasCustomDomain() ? dataStore.getRootDomain() : ''
             };
 

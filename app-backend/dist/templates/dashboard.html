@@ -38,7 +38,7 @@
 							</div>
 							<div class="row">
 								<div class="pull-right col-md-4">
-									<button type="button" class="btn btn-block btn-primary" uib-tooltip="Redirects all regular HTTP requests to HTTPS" ng-click="onForceSslClicked()" ng-disabled="!captaininfo.hasRootSsl">Force HTTPS</button>
+									<button type="button" class="btn btn-block btn-primary" uib-tooltip="Redirects all regular HTTP requests to HTTPS" ng-click="onForceSslClicked()" ng-disabled="!captaininfo.hasRootSsl || captaininfo.forceSsl">Force HTTPS</button>
 								</div>
 							</div>
 					</div>

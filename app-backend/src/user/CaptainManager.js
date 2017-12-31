@@ -24,6 +24,7 @@ class CaptainManager {
 
         let dockerApi = DockerApi.get();
 
+        this.hasForceSsl = false;
         this.dataStore = DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace);
         this.dockerApi = dockerApi;
         this.certbotManager = new CertbotManager(dockerApi);
@@ -760,7 +761,7 @@ class CaptainManager {
     }
 
     getForceSslValue() {
-        return this.hasForceSsl;
+        return !!this.hasForceSsl;
     }
 
     /**
@@ -841,7 +842,7 @@ class CaptainManager {
                 return self.dataStore.setNginxConfig(baseConfig, captainConfig);
             })
             .then(function () {
-               self.resetSelf();
+                self.resetSelf();
             });
     }
 
