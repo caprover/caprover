@@ -17,17 +17,13 @@ https://www.youtube.com/watch?v=XDrTmGSDW3s
 Captain is a modern automated app deployment & web server manager. It's blazingly fast and very robust as it uses Docker, nginx, LetsEncrypt, NetData. 
 
   - Deploy apps in your own space (Node js, PHP, Python, literally any language!)
-  - Deploying built-in apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.
-  - Secure your services over HTTPS for FREE
-  - Automatic deploy from Github, Bitbucket and etc by using webhooks!
+  - Deploying one-click apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.
+  - Ability to secure your services over HTTPS for FREE, ability to automatically redirect HTTP to HTTPS.
+  - Many ways to deploy: upload your source from dashboard, use command line `captainduckduck deploy`, use github, bitbucket, gitlab and other webhooks to automatically trigger a build upon `git push`
   - Attach more nodes and create a cluster in seconds! Captain automatically configures nginx to load balance.
+  - Simple interface for many docker operations: exposing container ports to host, setting up persistent directories, instance count and etc.
+  - Optionally fully customizable nginx config allowing you to enable HTTP2, specific caching logic, custom SSL certs and etc.
   - Focus on your apps! Not the bells and whistles just to run your apps!
-
-## Features & Components:
-- Many ways to deploy: upload your source from dashboard, use command line `captainduckduck deploy`, use github, bitbucket, gitlab and other webhooks to automatically trigger a build upon `git push`
-- Multiple one-click apps: start multiple WordPress, MongoDB, MySQL, Parse and etc in seconds!
-- Simple interface for many docker operations: exposing container ports to host, setting up persistent directories, instance count and etc.
-- Optionally fully customizable nginx config allowing you to enable HTTP2, specific caching logic, custom SSL certs and etc.
 
 ## Getting Started!
 
