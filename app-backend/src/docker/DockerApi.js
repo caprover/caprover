@@ -462,6 +462,12 @@ class DockerApi {
                 Resources: resourcesObject,
                 Placement: {
                     Constraints: nodeId ? ['node.id == ' + nodeId] : []
+                },
+                LogDriver: {
+                    Name: 'json-file',
+                    Options: {
+                        'max-size': CaptainConstants.defaultMaxLogSize
+                    }
                 }
             },
             EndpointSpec: {
@@ -1070,6 +1076,28 @@ class DockerApi {
                 return self.dockerode.getService(serviceName)
                     .update(updatedData);
             })
+            .then(function (serviceData) {
+
+                // give some time such that the new container is updated.
+                // also we don't want to fail the update just because prune failed.
+                setTimeout(function () {
+
+                    self.pruneContainers()
+                        .catch(function (err) {
+                            Logger.d('Prune Containers Failed!');
+                            Logger.e(err);
+                        });
+
+                }, 5000);
+
+                return serviceData;
+            })
+    }
+
+    pruneContainers() {
+        const self = this;
+        return self.dockerode
+            .pruneContainers();
     }
 
     isNodeManager(nodeId) {

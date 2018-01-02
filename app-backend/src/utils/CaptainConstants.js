@@ -22,6 +22,8 @@ let data = {
 
     defaultEmail: 'runner@captainduckduck.com',
 
+    defaultMaxLogSize: '512m',
+
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
     version: '0.4.0',
