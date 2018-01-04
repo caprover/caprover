@@ -326,6 +326,17 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
 
                 let data = JSON.parse(body);
 
+                if (data.status === 1106) {
+                    // expired token
+                    requestLogin(machineToDeploy.name, machineToDeploy.baseUrl, function callback(machineToDeployNew) {
+
+                        deployTo(machineToDeployNew, branchToPush, appName);
+
+                    });
+
+                    return;
+                }
+
                 if (data.status !== 100) {
                     throw new Error(JSON.stringify(data, null, 2));
                 }
@@ -373,4 +384,106 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
 
 }
 
+function requestLogin(serverName, serverAddress, loginCallback) {
 
+    console.log('Your auth token is not valid anymore. Try to login again.');
+
+    const questions = [
+        {
+            type: 'password',
+            name: 'captainPassword',
+            message: 'Please enter your password for ' + serverAddress,
+            validate: function (value) {
+
+                if (value && value.trim()) {
+                    return true;
+                }
+
+                return ('Please enter your password for ' + serverAddress);
+            }
+        }
+    ];
+
+    function updateAuthTokenInConfigStoreAndReturn(authToken) {
+
+        let machines = configs.get('captainMachines');
+        for (let i = 0; i < machines.length; i++) {
+            if (machines[i].name === serverName) {
+                var baseUrl = machines[i].authToken = authToken;
+                configs.set('captainMachines', machines);
+                console.log('You are now logged back in to ' + serverAddress);
+                return machines[i];
+            }
+        }
+    }
+
+
+    inquirer.prompt(questions).then(function (passwordAnswers) {
+
+        var password = passwordAnswers.captainPassword;
+
+        let options = {
+            url: serverAddress + '/api/v1/login',
+            headers: {
+                'x-namespace': 'captain'
+            },
+            method: 'POST',
+            form: {
+                password: password
+            }
+        };
+
+        function callback(error, response, body) {
+
+            try {
+
+                if (!error && response.statusCode === 200) {
+
+                    let data = JSON.parse(body);
+
+                    if (data.status !== 100) {
+                        throw new Error(JSON.stringify(data, null, 2));
+                    }
+
+                    var newMachineToDeploy = updateAuthTokenInConfigStoreAndReturn(data.token);
+
+                    loginCallback(newMachineToDeploy);
+
+                    return;
+                }
+
+                if (error) {
+                    throw new Error(error)
+                }
+
+                throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
+
+            } catch (error) {
+
+                if (error.message) {
+                    try {
+                        var errorObj = JSON.parse(error.message);
+                        if (errorObj.status) {
+                            console.error(chalk.red('\nError code: ' + errorObj.status));
+                            console.error(chalk.red('\nError message:\n\n ' + errorObj.description));
+                        } else {
+                            throw new Error("NOT API ERROR");
+                        }
+                    } catch (ignoreError) {
+                        console.error(chalk.red(error.message));
+                    }
+                } else {
+                    console.error(chalk.red(error));
+                }
+                console.log(' ');
+
+            }
+
+            process.exit(0);
+        }
+
+        request(options, callback);
+
+    });
+
+}
