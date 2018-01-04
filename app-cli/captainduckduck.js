@@ -2,8 +2,8 @@
 
 const packagejson = require('./package.json');
 const updateNotifier = require('update-notifier');
- 
-updateNotifier({pkg:packagejson}).notify();
+
+updateNotifier({ pkg: packagejson }).notify({ isGlobal: true });
 
 
 const program = require('commander');
