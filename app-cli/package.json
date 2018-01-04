@@ -1,6 +1,6 @@
 {
   "name": "captainduckduck",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
