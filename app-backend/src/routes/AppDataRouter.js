@@ -16,7 +16,8 @@ router.post('/:appName/', function (req, res, next) {
     dataStore.getAppDefinitions()
         .then(function (apps) {
             if (!apps[appName]) {
-                throw new Error('App not found!');
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    "App not found: " + appName + "! Make sure your app is created before deploy!");
             }
             next();
         })
