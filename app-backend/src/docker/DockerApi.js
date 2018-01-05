@@ -262,6 +262,60 @@ class DockerApi {
                     fromImage: imageName,
                     tag: tag
                 });
+            })
+            .then(function (stream) {
+
+                return new Promise(function (resolve, reject) {
+
+                    let errorMessage = '';
+                    let logsBeforeError = [];
+                    for (let i = 0; i < 20; i++) {
+                        logsBeforeError.push('');
+                    }
+
+                    stream.setEncoding('utf8');
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
+                    stream.on('data', function (chunk) {
+
+                        Logger.dev('stream data ' + chunk);
+                        chunk = JSON.parse(chunk);
+
+                        let chuckStream = chunk.stream;
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            logsBeforeError.shift();
+                            logsBeforeError.push(chuckStream);
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error);
+                            Logger.e(JSON.stringify(chunk.errorDetail));
+                            errorMessage += '\n [truncated] \n';
+                            errorMessage += logsBeforeError.join('');
+                            errorMessage += '\n';
+                            errorMessage += chunk.error;
+                        }
+                    });
+
+                    // stream.pipe(process.stdout, {end: true});
+                    // IncomingMessage
+                    // https://nodejs.org/api/stream.html#stream_event_end
+
+                    stream.on('end', function () {
+                        if (errorMessage) {
+                            reject(errorMessage);
+                            return;
+                        }
+                        resolve();
+                    });
+
+                    stream.on('error', function (chunk) {
+                        errorMessage += chunk;
+                    });
+
+                });
+
             });
     }
 
@@ -359,6 +413,16 @@ class DockerApi {
                         Binds: volumesMapped,
                         CapAdd: addedCapabilities,
                         NetworkMode: network
+                    },
+                    LogConfig: {
+                        Type: 'json-file',
+                        Config: {
+                            'max-size': CaptainConstants.defaultMaxLogSize
+                        }
+                    },
+                    RestartPolicy: {
+                        Name: 'always',
+                        MaximumRetryCount: 5
                     }
                 });
             })
