@@ -514,72 +514,72 @@ class CaptainManager {
 
                     let envVars = [];
 
-                    if (netDataInfo.smtp) {
+                    if (netDataInfo.data.smtp) {
                         envVars.push({
                             key: 'SSMTP_TO',
-                            value: netDataInfo.smtp.to
+                            value: netDataInfo.data.smtp.to
                         });
                         envVars.push({
                             key: 'SSMTP_HOSTNAME',
-                            value: netDataInfo.smtp.hostname
+                            value: netDataInfo.data.smtp.hostname
                         });
 
                         envVars.push({
                             key: 'SSMTP_SERVER',
-                            value: netDataInfo.smtp.server
+                            value: netDataInfo.data.smtp.server
                         });
 
                         envVars.push({
                             key: 'SSMTP_PORT',
-                            value: netDataInfo.smtp.port
+                            value: netDataInfo.data.smtp.port
                         });
 
                         envVars.push({
                             key: 'SSMTP_TLS',
-                            value: netDataInfo.smtp.allowNonTls ? 'NO' : 'YES'
+                            value: netDataInfo.data.smtp.allowNonTls ? 'NO' : 'YES'
                         });
 
                         envVars.push({
                             key: 'SSMTP_USER',
-                            value: netDataInfo.smtp.username
+                            value: netDataInfo.data.smtp.username
                         });
 
                         envVars.push({
                             key: 'SSMTP_PASS',
-                            value: netDataInfo.smtp.password
+                            value: netDataInfo.data.smtp.password
                         });
                     }
 
-                    if (netDataInfo.slack) {
+                    if (netDataInfo.data.slack) {
                         envVars.push({
                             key: 'SLACK_WEBHOOK_URL',
-                            value: netDataInfo.slack.hook
+                            value: netDataInfo.data.slack.hook
                         });
                         envVars.push({
                             key: 'SLACK_CHANNEL',
-                            value: netDataInfo.slack.channel
+                            value: netDataInfo.data.slack.channel
                         });
                     }
 
-                    if (netDataInfo.telegram) {
+                    if (netDataInfo.data.telegram) {
                         envVars.push({
                             key: 'TELEGRAM_BOT_TOKEN',
-                            value: netDataInfo.telegram.botToken
+                            value: netDataInfo.data.telegram.botToken
                         });
                         envVars.push({
                             key: 'TELEGRAM_CHAT_ID',
-                            value: netDataInfo.telegram.chatId
+                            value: netDataInfo.data.telegram.chatId
                         });
                     }
 
-                    if (netDataInfo.pushBullet) {
+                    if (netDataInfo.data.pushBullet) {
                         envVars.push({
                             key: 'PUSHBULLET_ACCESS_TOKEN',
-                            value: netDataInfo.pushBullet.apiToken
+                            value: netDataInfo.data.pushBullet.apiToken
                         });
                         envVars.push({
                             key: 'PUSHBULLET_DEFAULT_EMAIL',
-                            value: netDataInfo.pushBullet.fallbackEmail
+                            value: netDataInfo.data.pushBullet.fallbackEmail
                         });
                     }
 
