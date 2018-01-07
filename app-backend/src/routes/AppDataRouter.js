@@ -8,6 +8,39 @@ const fs = require('fs-extra');
 const TEMP_UPLOAD = 'temp_upload/';
 const upload = multer({dest: TEMP_UPLOAD});
 
+
+router.get('/:appName/', function (req, res, next) {
+
+    let appName = req.params.appName;
+    let serviceManager = res.locals.user.serviceManager;
+
+    return Promise.resolve()
+        .then(function () {
+
+            return serviceManager.getBuildStatus(appName);
+
+        })
+        .then(function (data) {
+
+            let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App build status retrieved');
+            baseApi.data = data;
+            res.send(baseApi);
+
+        })
+        .catch(function (error) {
+
+            Logger.e(error);
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+
+            res.sendStatus(500);
+        });
+
+});
+
 router.post('/:appName/', function (req, res, next) {
 
     let dataStore = res.locals.user.dataStore;
@@ -39,6 +72,8 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
 
     let dataStore = res.locals.user.dataStore;
     let serviceManager = res.locals.user.serviceManager;
+    let isDetachedBuild = !!req.query.detached;
+    console.log('---------------' + JSON.stringify(req.query));
 
     let appName = req.params.appName;
 
@@ -86,34 +121,19 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         })
         .then(function () {
 
-            return serviceManager.createImage(appName, {
-                pathToSrcTarballFile: tarballSourceFilePath
-            }, gitHash);
-
-        })
-        .then(function (version) {
-
-            fs.removeSync(tarballSourceFilePath);
-            return version;
-
-        })
-        .catch(function (error) {
-
-            return new Promise(function (resolve, reject) {
-                fs.removeSync(tarballSourceFilePath);
-                reject(error);
-            })
-
-        })
-        .then(function (version) {
-
-            return serviceManager.ensureServiceInitedAndUpdated(appName, version);
-
-        })
-        .then(function () {
-
-            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App Data Saved'));
-
+            if (isDetachedBuild) {
+                res.send(new BaseApi(ApiStatusCodes.STATUS_OK_DEPLOY_STARTED, 'Deploy is started'));
+                startBuildProcess()
+                    .catch(function (error) {
+                        Logger.e(error);
+                    });
+            }
+            else {
+                return startBuildProcess()
+                    .then(function () {
+                        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done'));
+                    });
+            }
         })
         .catch(function (error) {
 
@@ -130,8 +150,47 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
 
             res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, error.stack + ''));
 
-
+            try {
+                fs.removeSync(tarballSourceFilePath);
+            } catch (ignore) {
+            }
         });
+
+
+    function startBuildProcess() {
+
+        return serviceManager
+            .createImage(appName, {
+                pathToSrcTarballFile: tarballSourceFilePath
+            }, gitHash)
+            .then(function (version) {
+
+                fs.removeSync(tarballSourceFilePath);
+                return version;
+
+            })
+            .catch(function (error) {
+
+                return new Promise(function (resolve, reject) {
+                    fs.removeSync(tarballSourceFilePath);
+                    reject(error);
+                })
+
+            })
+            .then(function (version) {
+
+                return serviceManager.ensureServiceInitedAndUpdated(appName, version);
+
+            })
+            .catch(function (error) {
+
+                return new Promise(function (resolve, reject) {
+                    serviceManager.logBuildFailed(appName, error);
+                    reject(error);
+                })
+
+            });
+    }
 });
 
 module.exports = router;
