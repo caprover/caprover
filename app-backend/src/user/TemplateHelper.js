@@ -95,10 +95,10 @@ class TemplateHelper {
                 tagSuffix: '-alpine3.6'
             },
             {
-                templateName: 'ruby',
+                templateName: 'ruby-rack',
                 dockerHubImageName: 'library/ruby',
-                dockerFileFromName: 'ruby',
-                displayName: 'Ruby',
+                dockerFileFromName: 'ruby-rack',
+                displayName: 'Ruby Rack',
                 tagSuffix: '-alpine3.7'
             }
         ];
