@@ -73,7 +73,6 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     let dataStore = res.locals.user.dataStore;
     let serviceManager = res.locals.user.serviceManager;
     let isDetachedBuild = !!req.query.detached;
-    console.log('---------------' + JSON.stringify(req.query));
 
     let appName = req.params.appName;
 

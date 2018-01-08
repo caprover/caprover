@@ -6,7 +6,7 @@ const CaptainConstants = require('../utils/CaptainConstants');
 const Logger = require('../utils/Logger');
 const EnvVars = require('../utils/EnvVars');
 
-function safeParseChuck(chunk) {
+function safeParseChunk(chunk) {
     try {
         return JSON.parse(chunk);
     }
@@ -209,7 +209,7 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = safeParseChuck(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
@@ -287,7 +287,7 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = safeParseChuck(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
@@ -472,7 +472,7 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = safeParseChuck(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
