@@ -42,6 +42,7 @@ class BuildLog {
     }
 
     onBuildFailed(error) {
+        this.log('----------------------');
         this.log('Deploy failed!');
         this.log(error);
         this.isBuildFailed = true;
@@ -61,6 +62,7 @@ class BuildLog {
         this.lines.shift();
         this.lines.push(msg);
         this.firstLineNumber++;
+        Logger.dev(msg);
     }
 
     getLogs() {

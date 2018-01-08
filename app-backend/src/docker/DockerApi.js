@@ -448,9 +448,9 @@ class DockerApi {
 
         newVersion = '' + newVersion;
 
-        Logger.d('Pushing to remote: ' + imageName + ':' + newVersion);
-        Logger.d('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
-        Logger.d('This might take a few minutes...');
+        buildLogs.log('Pushing to remote: ' + imageName + ':' + newVersion);
+        buildLogs.log('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
+        buildLogs.log('This might take a few minutes...');
 
         return Promise.resolve()
             .then(function () {
