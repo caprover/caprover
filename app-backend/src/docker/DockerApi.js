@@ -421,17 +421,17 @@ class DockerApi {
                     HostConfig: {
                         Binds: volumesMapped,
                         CapAdd: addedCapabilities,
-                        NetworkMode: network
-                    },
-                    LogConfig: {
-                        Type: 'json-file',
-                        Config: {
-                            'max-size': CaptainConstants.defaultMaxLogSize
+                        NetworkMode: network,
+                        LogConfig: {
+                            Type: 'json-file',
+                            Config: {
+                                'max-size': CaptainConstants.defaultMaxLogSize
+                            }
+                        },
+                        RestartPolicy: {
+                            Name: 'always',
+                            MaximumRetryCount: 5
                         }
-                    },
-                    RestartPolicy: {
-                        Name: 'always',
-                        MaximumRetryCount: 5
                     }
                 });
             })
