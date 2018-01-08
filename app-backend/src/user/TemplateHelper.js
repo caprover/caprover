@@ -90,10 +90,10 @@ class TemplateHelper {
                 tagSuffix: '-apache'
             },
             {
-                templateName: 'python',
+                templateName: 'python-django',
                 dockerHubImageName: 'library/python',
-                dockerFileFromName: 'python',
-                displayName: 'Python',
+                dockerFileFromName: 'python-django',
+                displayName: 'Python Django',
                 tagSuffix: '-alpine3.6'
             },
             {
