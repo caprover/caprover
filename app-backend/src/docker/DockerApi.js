@@ -543,16 +543,25 @@ class DockerApi {
         let ports = [];
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
-                ports.push({
-                    Protocol: 'tcp',
-                    TargetPort: portsToMap[i].containerPort,
-                    PublishedPort: portsToMap[i].hostPort
-                });
-                ports.push({
-                    Protocol: 'udp',
-                    TargetPort: portsToMap[i].containerPort,
-                    PublishedPort: portsToMap[i].hostPort
-                });
+                if (portsToMap[i].protocol) {
+                    ports.push({
+                        Protocol: portsToMap[i].protocol,
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                }
+                else {
+                    ports.push({
+                        Protocol: 'tcp',
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                    ports.push({
+                        Protocol: 'udp',
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                }
             }
         }
 
@@ -1057,16 +1066,25 @@ class DockerApi {
                     updatedData.EndpointSpec.Ports = [];
                     for (let i = 0; i < ports.length; i++) {
                         let p = ports[i];
-                        updatedData.EndpointSpec.Ports.push({
-                            Protocol: 'tcp',
-                            TargetPort: p.containerPort,
-                            PublishedPort: p.hostPort
-                        });
-                        updatedData.EndpointSpec.Ports.push({
-                            Protocol: 'udp',
-                            TargetPort: p.containerPort,
-                            PublishedPort: p.hostPort
-                        });
+                        if (p.protocol) {
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: p.protocol,
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                        }
+                        else {
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: 'tcp',
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: 'udp',
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                        }
                     }
                 }
 

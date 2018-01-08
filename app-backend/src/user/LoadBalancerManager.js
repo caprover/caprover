@@ -307,9 +307,11 @@ class LoadBalancerManager {
             Logger.d('No Captain Nginx service is running. Creating one on captain node...');
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.nginxImageName, CaptainConstants.nginxServiceName, [{
+                protocol: 'tcp',
                 containerPort: 80,
                 hostPort: CaptainConstants.nginxPortNumber
             }, {
+                protocol: 'tcp',
                 containerPort: 443,
                 hostPort: 443
             }], nodeId, null, null, {
