@@ -95,6 +95,13 @@ class TemplateHelper {
                 dockerFileFromName: 'python',
                 displayName: 'Python',
                 tagSuffix: '-alpine3.6'
+            },
+            {
+                templateName: 'ruby-rack',
+                dockerHubImageName: 'library/ruby',
+                dockerFileFromName: 'ruby-rack',
+                displayName: 'Ruby Rack',
+                tagSuffix: '-alpine3.7'
             }
         ];
 
