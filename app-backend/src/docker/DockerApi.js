@@ -225,6 +225,7 @@ class DockerApi {
                             buildLogs.log(chunk.error);
                             errorMessage += '\n';
                             errorMessage += errorDetails;
+                            errorMessage += '\n';
                             errorMessage += chunk.error;
                         }
                     });
