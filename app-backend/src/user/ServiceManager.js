@@ -818,6 +818,23 @@ class ServiceManager {
         return !!this.activeBuilds[appName];
     }
 
+    /**
+     *
+     * @returns the active build that it finds
+     */
+    isAnyBuildRunning() {
+
+        let activeBuilds = this.activeBuilds;
+
+        for (let appName in activeBuilds) {
+            if (!!activeBuilds[appName]) {
+                return appName;
+            }
+        }
+
+        return null;
+    }
+
     getBuildStatus(appName) {
         const self = this;
         this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
