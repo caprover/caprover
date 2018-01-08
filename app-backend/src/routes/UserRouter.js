@@ -46,6 +46,7 @@ router.use(function (req, res, next) {
         return;
     }
 
+    const serviceManager = res.locals.user.serviceManager;
 
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
@@ -53,6 +54,14 @@ router.use(function (req, res, next) {
         if (threadLockNamespace[namespace]) {
             let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC,
                 'Another operation still in progress... please wait...');
+            res.send(response);
+            return;
+        }
+
+        let activeBuildAppName = serviceManager.isAnyBuildRunning();
+        if (activeBuildAppName) {
+            let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC,
+                `An active build (${activeBuildAppName}) is in progress... please wait...`);
             res.send(response);
             return;
         }

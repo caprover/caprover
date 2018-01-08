@@ -10,6 +10,7 @@ const Authenticator = require('./Authenticator');
 const GitHelper = require('../utils/GitHelper');
 const uuid = require('uuid/v4');
 
+const BUILD_LOG_SIZE = 50;
 const SOURCE_FOLDER_NAME = 'src';
 const DOCKER_FILE = 'Dockerfile';
 const CAPTAIN_DEFINITION_FILE = 'captain-definition';
@@ -32,6 +33,47 @@ function getCaptainDefinitionTempFolder(serviceName, randomSuffix) {
     return CaptainConstants.captainDefinitionTempDir + '/' + serviceName + '/' + randomSuffix;
 }
 
+
+class BuildLog {
+
+    constructor(size) {
+        this.size = size;
+        this.clear();
+    }
+
+    onBuildFailed(error) {
+        this.log('Deploy failed!');
+        this.log(error);
+        this.isBuildFailed = true;
+    }
+
+    clear() {
+        this.isBuildFailed = false;
+        this.firstLineNumber = -this.size;
+        this.lines = [];
+        for (let i = 0; i < this.size; i++) {
+            this.lines.push('');
+        }
+    }
+
+    log(msg) {
+        msg = (msg || '') + '';
+        this.lines.shift();
+        this.lines.push(msg);
+        this.firstLineNumber++;
+    }
+
+    getLogs() {
+        const self = this;
+        // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
+        return JSON.parse(JSON.stringify({
+            lines: self.lines,
+            firstLineNumber: self.firstLineNumber
+        }));
+    }
+}
+
+
 class ServiceManager {
 
     constructor(user, dockerApi, loadBalancerManager) {
@@ -40,6 +82,7 @@ class ServiceManager {
         this.dockerApi = dockerApi;
         this.loadBalancerManager = loadBalancerManager;
         this.activeBuilds = {};
+        this.buildLogs = {};
 
         this.isReady = true;
 
@@ -115,6 +158,11 @@ class ServiceManager {
         let dockerFilePath = null;
 
         this.activeBuilds[appName] = true;
+        this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
+
+        this.buildLogs[appName].clear();
+        this.buildLogs[appName].log('------------------------- ' + (new Date()));
+        this.buildLogs[appName].log('Build started for ' + appName);
 
         return Promise.resolve()
             .then(function () {
@@ -298,7 +346,7 @@ class ServiceManager {
             .then(function () {
 
                 return dockerApi
-                    .buildImageFromDockerFile(imageName, newVersion, tarballFilePath)
+                    .buildImageFromDockerFile(imageName, newVersion, tarballFilePath, self.buildLogs[appName])
                     .catch(function (error) {
                         throw ApiStatusCodes.createError(ApiStatusCodes.BUILD_ERROR, ('' + error).trim());
                     })
@@ -328,7 +376,7 @@ class ServiceManager {
                 Logger.d('Docker Auth is found. Pushing the image...');
 
                 return dockerApi
-                    .pushImage(imageName, newVersion, authObj);
+                    .pushImage(imageName, newVersion, authObj, self.buildLogs[appName]);
 
             })
             .then(function () {
@@ -768,6 +816,40 @@ class ServiceManager {
 
     isAppBuilding(appName) {
         return !!this.activeBuilds[appName];
+    }
+
+    /**
+     *
+     * @returns the active build that it finds
+     */
+    isAnyBuildRunning() {
+
+        let activeBuilds = this.activeBuilds;
+
+        for (let appName in activeBuilds) {
+            if (!!activeBuilds[appName]) {
+                return appName;
+            }
+        }
+
+        return null;
+    }
+
+    getBuildStatus(appName) {
+        const self = this;
+        this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
+
+        return {
+            isAppBuilding: self.isAppBuilding(appName),
+            logs: self.buildLogs[appName].getLogs(),
+            isBuildFailed: self.buildLogs[appName].isBuildFailed
+        }
+    }
+
+    logBuildFailed(appName, error) {
+        error = (error || '') + '';
+        this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
+        this.buildLogs[appName].onBuildFailed(error);
     }
 
     updateServiceOnDefinitionUpdate(appName) {

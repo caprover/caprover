@@ -6,6 +6,17 @@ const CaptainConstants = require('../utils/CaptainConstants');
 const Logger = require('../utils/Logger');
 const EnvVars = require('../utils/EnvVars');
 
+function safeParseChunk(chunk) {
+    try {
+        return JSON.parse(chunk);
+    }
+    catch (ignore) {
+        return {
+            stream: 'Cannot parse ' + chunk
+        }
+    }
+}
+
 class DockerApi {
 
     constructor(connectionParams) {
@@ -174,7 +185,7 @@ class DockerApi {
             });
     }
 
-    buildImageFromDockerFile(imageName, newVersion, tarballFilePath) {
+    buildImageFromDockerFile(imageName, newVersion, tarballFilePath, buildLogs) {
 
         const self = this;
 
@@ -191,10 +202,6 @@ class DockerApi {
                 return new Promise(function (resolve, reject) {
 
                     let errorMessage = '';
-                    let logsBeforeError = [];
-                    for (let i = 0; i < 20; i++) {
-                        logsBeforeError.push('');
-                    }
 
                     stream.setEncoding('utf8');
 
@@ -202,21 +209,22 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = JSON.parse(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
                             // Logger.dev('stream data ' + chuckStream);
-                            logsBeforeError.shift();
-                            logsBeforeError.push(chuckStream);
+                            buildLogs.log(chuckStream);
                         }
 
                         if (chunk.error) {
                             Logger.e(chunk.error);
-                            Logger.e(JSON.stringify(chunk.errorDetail));
-                            errorMessage += '\n [truncated] \n';
-                            errorMessage += logsBeforeError.join('');
+                            let errorDetails = JSON.stringify(chunk.errorDetail);
+                            Logger.e(errorDetails);
+                            buildLogs.log(errorDetails);
+                            buildLogs.log(chunk.error);
                             errorMessage += '\n';
+                            errorMessage += errorDetails;
                             errorMessage += chunk.error;
                         }
                     });
@@ -279,7 +287,7 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = JSON.parse(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
@@ -433,7 +441,7 @@ class DockerApi {
             });
     }
 
-    pushImage(imageName, newVersion, authObj) {
+    pushImage(imageName, newVersion, authObj, buildLogs) {
 
         const self = this;
 
@@ -454,23 +462,53 @@ class DockerApi {
             })
             .then(function (stream) {
 
-                return new Promise(function (resolve) {
+                return new Promise(function (resolve, reject) {
 
+                    let errorMessage = '';
+
+                    stream.setEncoding('utf8');
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunk) {
-                        // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                        // ('stream data ' + chunk);
-                    });
 
+                        Logger.dev('stream data ' + chunk);
+                        chunk = safeParseChunk(chunk);
+
+                        let chuckStream = chunk.stream;
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            buildLogs.log(chuckStream);
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error);
+                            let errorDetails = JSON.stringify(chunk.errorDetail);
+                            Logger.e(errorDetails);
+                            buildLogs.log(errorDetails);
+                            buildLogs.log(chunk.error);
+                            errorMessage += '\n';
+                            errorMessage += errorDetails;
+                            errorMessage += chunk.error;
+                        }
+                    });
 
                     // stream.pipe(process.stdout, {end: true});
                     // IncomingMessage
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        if (errorMessage) {
+                            reject(errorMessage);
+                            return;
+                        }
                         resolve();
                     });
-                });
 
+                    stream.on('error', function (chunk) {
+                        errorMessage += chunk;
+                    });
+
+                });
             });
     }
 
