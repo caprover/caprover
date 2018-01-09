@@ -429,8 +429,7 @@ class DockerApi {
                             }
                         },
                         RestartPolicy: {
-                            Name: 'always',
-                            MaximumRetryCount: 5
+                            Name: 'always'
                         }
                     }
                 });
