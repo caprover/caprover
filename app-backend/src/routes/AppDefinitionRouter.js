@@ -284,7 +284,7 @@ router.post('/register/', function (req, res, next) {
             }
 
             if (appCreated) {
-                return dataStore.deleteAppDefinition()
+                return dataStore.deleteAppDefinition(appName)
                     .then(function () {
                         return createRejectionPromise();
                     });
