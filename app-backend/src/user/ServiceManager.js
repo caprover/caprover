@@ -378,7 +378,14 @@ class ServiceManager {
                 Logger.d('Docker Auth is found. Pushing the image...');
 
                 return dockerApi
-                    .pushImage(imageName, newVersion, authObj, self.buildLogs[appName]);
+                    .pushImage(imageName, newVersion, authObj, self.buildLogs[appName])
+                    .catch(function (error) {
+                        return new Promise(function (resolve, reject) {
+                            Logger.e('PUSH FAILED');
+                            Logger.e(error);
+                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Push failed: ' + error));
+                        })
+                    });
 
             })
             .then(function () {

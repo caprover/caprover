@@ -249,9 +249,16 @@ router.post('/register/', function (req, res, next) {
     let appName = req.body.appName;
     let hasPersistentData = !!req.body.hasPersistentData;
 
+    let appCreated = false;
+
     Logger.d('Registering app started: ' + appName);
 
     dataStore.registerAppDefinition(appName, hasPersistentData)
+        .then(function () {
+
+            appCreated = true;
+
+        })
         .then(function () {
 
             return serviceManager.createImage(appName, {/*use default dockerfile*/});
@@ -266,6 +273,24 @@ router.post('/register/', function (req, res, next) {
 
             Logger.d('AppName is saved: ' + appName);
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved'));
+
+        })
+        .catch(function (error) {
+
+            function createRejectionPromise() {
+                return new Promise(function (resolve, reject) {
+                    reject(error);
+                });
+            }
+
+            if (appCreated) {
+                return dataStore.deleteAppDefinition()
+                    .then(function () {
+                        return createRejectionPromise();
+                    });
+            } else {
+                return createRejectionPromise();
+            }
 
         })
         .catch(function (error) {
