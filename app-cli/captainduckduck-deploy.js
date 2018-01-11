@@ -170,7 +170,7 @@ const questions = [
     {
         type: 'confirm',
         name: 'confirmedToDeploy',
-        message: 'Note that uncommited files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
+        message: 'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
         default: true,
         when: function (answers) {
             return !!answers.captainNameToDeploy;
