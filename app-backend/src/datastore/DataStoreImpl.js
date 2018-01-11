@@ -137,7 +137,7 @@ class DataStore {
         let authPrefix = '';
 
         if (authObj) {
-            authPrefix = authObj.serveraddress + '/';
+            authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
         }
 
         return authPrefix + 'img-' + this.getNameSpace() + '--' + appName + (version ? (':' + version) : '');
