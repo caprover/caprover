@@ -22,9 +22,11 @@ let data = {
 
     defaultEmail: 'runner@captainduckduck.com',
 
+    defaultMaxLogSize: '512m',
+
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
-    version: '0.3.1',
+    version: '0.5.3',
 
     captainSaltSecretKey: 'captain-salt',
 
@@ -96,7 +98,11 @@ let data = {
 
     registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
 
+    nginxSharedPathOnHost: CAPTAIN_ROOT_DIRECTORY + '/nginx-shared',
+
     letsEncryptEtcPathOnNginx: '/letencrypt/etc',
+
+    nginxSharedPathOnNginx: '/nginx-shared',
 
     captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
 

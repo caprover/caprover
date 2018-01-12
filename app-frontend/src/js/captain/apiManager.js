@@ -80,6 +80,32 @@
                         callback(null);
                     });
             },
+            getNginxConfig: function (callback) {
+                $http
+                    .get(BASE_API + 'user/system/nginxconfig', createConfig())
+                    .then(
+                    function (response) {
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
+            setNginxConfig: function (customBase, customCaptain, callback) {
+                $http
+                    .post(BASE_API + 'user/system/nginxconfig', {
+                        baseConfig: { customValue: customBase },
+                        captainConfig: { customValue: customCaptain }
+                    }, createConfig())
+                    .then(
+                    function (response) {
+                        authToken = null;
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
             changePassword: function (oldPass, newPass, callback) {
                 $http
                     .post(BASE_API + 'user/changepassword', {
@@ -379,18 +405,22 @@
                 var instanceCount = appDefinition.instanceCount;
                 var envVars = appDefinition.envVars;
                 var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
+                var forceSsl = appDefinition.forceSsl;
                 var volumes = appDefinition.volumes;
                 var ports = appDefinition.ports;
                 var nodeId = appDefinition.nodeId;
                 var appPushWebhook = appDefinition.appPushWebhook;
+                var customNginxConfig = appDefinition.customNginxConfig;
 
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
                         appName: appName,
                         instanceCount: instanceCount,
                         notExposeAsWebApp: notExposeAsWebApp,
+                        forceSsl: forceSsl,
                         volumes: volumes,
                         ports: ports,
+                        customNginxConfig: customNginxConfig,
                         appPushWebhook: appPushWebhook,
                         nodeId: nodeId,
                         envVars: envVars

@@ -20,13 +20,14 @@ const configs = new configstore(packagejson.name, {
 const BRANCH_TO_PUSH = 'branchToPush';
 const APP_NAME = 'appName';
 const MACHINE_TO_DEPLOY = 'machineToDeploy';
+const EMPTY_STRING = '';
 
 console.log(' ');
 console.log(' ');
 
 program
     .description('Deploy current directory to a Captain machine.')
-    .option('-d, --default','Run with default options')
+    .option('-d, --default', 'Run with default options')
     .parse(process.argv);
 
 
@@ -79,8 +80,8 @@ if (contentsJson.templateId && contentsJson.dockerfileLines) {
 
 let listOfMachines = [{
     name: '-- CANCEL --',
-    value: '',
-    short: ''
+    value: EMPTY_STRING,
+    short: EMPTY_STRING
 }];
 
 let machines = configs.get('captainMachines');
@@ -108,7 +109,7 @@ function getPropForDirectory(propType) {
 
 // Sets default value for propType that is stored in a directory to propValue.
 // Replaces saveAppForDirectory
-function savePropForDirectory(propType,propValue) {
+function savePropForDirectory(propType, propValue) {
     let apps = configs.get('apps');
     for (let i = 0; i < apps.length; i++) {
         let app = apps[i];
@@ -130,11 +131,10 @@ function savePropForDirectory(propType,propValue) {
 
 function getDefaultMachine() {
     let machine = getPropForDirectory(MACHINE_TO_DEPLOY);
-    console.log(machine);
-    if(machine){
+    if (machine) {
         return machine.name;
     }
-    return 0;
+    return EMPTY_STRING;
 }
 
 console.log('Preparing deployment to Captain...');
@@ -170,7 +170,7 @@ const questions = [
     {
         type: 'confirm',
         name: 'confirmedToDeploy',
-        message: 'Note that uncommited files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
+        message: 'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
         default: true,
         when: function (answers) {
             return !!answers.captainNameToDeploy;
@@ -180,20 +180,20 @@ const questions = [
 
 let defaultInvalid = false;
 
-if(program.default){
+if (program.default) {
 
-    if(!getDefaultMachine() || !getPropForDirectory(BRANCH_TO_PUSH) || !getPropForDirectory(APP_NAME)){
+    if (!getDefaultMachine() || !getPropForDirectory(BRANCH_TO_PUSH) || !getPropForDirectory(APP_NAME)) {
         console.log('Default deploy failed. Please select deploy options.');
         defaultInvalid = true;
     }
-    else{
+    else {
         console.log('Deploying to ' + getPropForDirectory(MACHINE_TO_DEPLOY).name);
-        deployTo(getPropForDirectory(MACHINE_TO_DEPLOY),getPropForDirectory(BRANCH_TO_PUSH), getPropForDirectory(APP_NAME));
+        deployTo(getPropForDirectory(MACHINE_TO_DEPLOY), getPropForDirectory(BRANCH_TO_PUSH), getPropForDirectory(APP_NAME));
     }
-        
+
 }
 
-if(!program.default || defaultInvalid){
+if (!program.default || defaultInvalid) {
 
     inquirer.prompt(questions).then(function (answers) {
 
@@ -226,15 +226,15 @@ if(!program.default || defaultInvalid){
 function deployTo(machineToDeploy, branchToPush, appName) {
     if (!commandExistsSync('git')) {
         console.log(chalk.red('"git" command not found...'));
-        console.log(chalk.red('Captain needs "git" to create zip file of your source files...'));
+        console.log(chalk.red('Captain needs "git" to create tar file of your source files...'));
         console.log(' ');
         process.exit(1);
     }
 
-    let zipFileNameToDeploy = 'temporary-captain-to-deploy.zip';
+    let zipFileNameToDeploy = 'temporary-captain-to-deploy.tar';
     let zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy);
 
-    console.log('Saving zip file to:');
+    console.log('Saving tar file to:');
     console.log(zipFileFullPath);
     console.log(' ');
 
@@ -260,8 +260,8 @@ function deployTo(machineToDeploy, branchToPush, appName) {
             }
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
-            
-            
+
+
             sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
 
         });
@@ -297,7 +297,7 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
 
 
     let options = {
-        url: machineToDeploy.baseUrl + '/api/v1/user/appData/' + appName,
+        url: machineToDeploy.baseUrl + '/api/v1/user/appData/' + appName + '/?detached=1',
         headers: {
             'x-namespace': 'captain',
             'x-captain-auth': machineToDeploy.authToken
@@ -325,16 +325,33 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
 
                 let data = JSON.parse(body);
 
-                if (data.status !== 100) {
+                if (data.status === 1106) {
+                    // expired token
+                    requestLogin(machineToDeploy.name, machineToDeploy.baseUrl, function callback(machineToDeployNew) {
+
+                        deployTo(machineToDeployNew, branchToPush, appName);
+
+                    });
+
+                    return;
+                }
+
+                if (data.status !== 100 && data.status !== 101) {
                     throw new Error(JSON.stringify(data, null, 2));
                 }
 
-                savePropForDirectory(APP_NAME,appName);
-                savePropForDirectory(BRANCH_TO_PUSH, branchToPush);                
+                savePropForDirectory(APP_NAME, appName);
+                savePropForDirectory(BRANCH_TO_PUSH, branchToPush);
                 savePropForDirectory(MACHINE_TO_DEPLOY, machineToDeploy);
 
-                console.log(chalk.green('Deployed successful: ') + appName);
-                console.log(' ');
+                if (data.status === 100) {
+                    console.log(chalk.green('Deployed successful: ') + appName);
+                    console.log(' ');
+                } else if (data.status === 101) {
+                    console.log(chalk.green('Building started: ') + appName);
+                    console.log(' ');
+                    startFetchingBuildLogs(machineToDeploy, appName);
+                }
 
                 return;
             }
@@ -372,4 +389,197 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
 
 }
 
+var lastLineNumberPrinted = -10000; // we want to show all lines to begin with!
 
+function startFetchingBuildLogs(machineToDeploy, appName) {
+
+    let options = {
+        url: machineToDeploy.baseUrl + '/api/v1/user/appData/' + appName,
+        headers: {
+            'x-namespace': 'captain',
+            'x-captain-auth': machineToDeploy.authToken
+        },
+        method: 'GET'
+    };
+
+    function onLogRetrieved(data) {
+
+        if (data) {
+            var lines = data.logs.lines;
+            var firstLineNumberOfLogs = data.logs.firstLineNumber;
+            var firstLinesToPrint = 0;
+            if (firstLineNumberOfLogs > lastLineNumberPrinted) {
+
+                if (firstLineNumberOfLogs < 0) {
+                    // This is the very first fetch, probably firstLineNumberOfLogs is around -50
+                    firstLinesToPrint = -firstLineNumberOfLogs;
+                } else {
+                    console.log('[[ TRUNCATED ]]');
+                }
+
+            } else {
+                firstLinesToPrint = lastLineNumberPrinted - firstLineNumberOfLogs;
+            }
+
+            lastLineNumberPrinted = firstLineNumberOfLogs + lines.length;
+
+            for (var i = firstLinesToPrint; i < lines.length; i++) {
+                console.log((lines[i] || '').trim());
+            }
+        }
+
+        if (data && !data.isAppBuilding) {
+            console.log(' ');
+            if (!data.isBuildFailed) {
+                console.log(chalk.green('Deployed successful: ') + appName);
+                console.log(chalk.magenta('App is available at ') + (machineToDeploy.baseUrl.replace('//captain.', '//' + appName + '.')));
+            } else {
+                console.error(chalk.red('\nSomething bad happened. Cannot deploy "' + appName + '"\n'));
+            }
+            console.log(' ');
+            return;
+        }
+
+        setTimeout(function () {
+            startFetchingBuildLogs(machineToDeploy, appName);
+        }, 2000);
+    }
+
+
+    function callback(error, response, body) {
+
+        try {
+
+            if (!error && response.statusCode === 200) {
+
+                let data = JSON.parse(body);
+
+                if (data.status !== 100) {
+                    throw new Error(JSON.stringify(data, null, 2));
+                }
+
+                onLogRetrieved(data.data);
+
+                return;
+            }
+
+            if (error) {
+                throw new Error(error)
+            }
+
+            throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
+
+        } catch (error) {
+
+            console.error(chalk.red('\nSomething while retrieving app build logs.. "' + error + '"\n'));
+
+            onLogRetrieved(null);
+        }
+    }
+
+    request(options, callback);
+}
+
+function requestLogin(serverName, serverAddress, loginCallback) {
+
+    console.log('Your auth token is not valid anymore. Try to login again.');
+
+    const questions = [
+        {
+            type: 'password',
+            name: 'captainPassword',
+            message: 'Please enter your password for ' + serverAddress,
+            validate: function (value) {
+
+                if (value && value.trim()) {
+                    return true;
+                }
+
+                return ('Please enter your password for ' + serverAddress);
+            }
+        }
+    ];
+
+    function updateAuthTokenInConfigStoreAndReturn(authToken) {
+
+        let machines = configs.get('captainMachines');
+        for (let i = 0; i < machines.length; i++) {
+            if (machines[i].name === serverName) {
+                var baseUrl = machines[i].authToken = authToken;
+                configs.set('captainMachines', machines);
+                console.log('You are now logged back in to ' + serverAddress);
+                return machines[i];
+            }
+        }
+    }
+
+
+    inquirer.prompt(questions).then(function (passwordAnswers) {
+
+        var password = passwordAnswers.captainPassword;
+
+        let options = {
+            url: serverAddress + '/api/v1/login',
+            headers: {
+                'x-namespace': 'captain'
+            },
+            method: 'POST',
+            form: {
+                password: password
+            }
+        };
+
+        function callback(error, response, body) {
+
+            try {
+
+                if (!error && response.statusCode === 200) {
+
+                    let data = JSON.parse(body);
+
+                    if (data.status !== 100) {
+                        throw new Error(JSON.stringify(data, null, 2));
+                    }
+
+                    var newMachineToDeploy = updateAuthTokenInConfigStoreAndReturn(data.token);
+
+                    loginCallback(newMachineToDeploy);
+
+                    return;
+                }
+
+                if (error) {
+                    throw new Error(error)
+                }
+
+                throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
+
+            } catch (error) {
+
+                if (error.message) {
+                    try {
+                        var errorObj = JSON.parse(error.message);
+                        if (errorObj.status) {
+                            console.error(chalk.red('\nError code: ' + errorObj.status));
+                            console.error(chalk.red('\nError message:\n\n ' + errorObj.description));
+                        } else {
+                            throw new Error("NOT API ERROR");
+                        }
+                    } catch (ignoreError) {
+                        console.error(chalk.red(error.message));
+                    }
+                } else {
+                    console.error(chalk.red(error));
+                }
+                console.log(' ');
+
+            }
+
+            process.exit(0);
+        }
+
+        request(options, callback);
+
+    });
+
+}

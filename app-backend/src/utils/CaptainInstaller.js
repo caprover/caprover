@@ -113,6 +113,7 @@ module.exports.install = function () {
             }
 
             ports.push({
+                protocol: 'tcp',
                 containerPort: CaptainConstants.captainServiceExposedPort,
                 hostPort: CaptainConstants.captainServiceExposedPort
             });

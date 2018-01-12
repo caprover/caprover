@@ -16,6 +16,7 @@ const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 
 const MAX_FAIL_ALLOWED = 4;
 const HEALTH_CHECK_INTERVAL = 20000;//ms
+const TIMEOUT_HEALTH_CHECK = 15000;//ms
 
 class CaptainManager {
 
@@ -23,10 +24,11 @@ class CaptainManager {
 
         let dockerApi = DockerApi.get();
 
+        this.hasForceSsl = false;
         this.dataStore = DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace);
         this.dockerApi = dockerApi;
         this.certbotManager = new CertbotManager(dockerApi);
-        this.loadBalancerManager = new LoadBalancerManager(dockerApi, this.certbotManager);
+        this.loadBalancerManager = new LoadBalancerManager(dockerApi, this.certbotManager, this.dataStore);
         this.dockerRegistry = new DockerRegistry(dockerApi, this.dataStore, this.certbotManager, this.loadBalancerManager, this);
         this.myNodeId = null;
         this.initRetryCount = 0;
@@ -291,11 +293,28 @@ class CaptainManager {
 
         function checkCaptainHealth(callback) {
 
+            let callbackCalled = false;
+
+            setTimeout(function () {
+
+                if (callbackCalled) {
+                    return;
+                }
+                callbackCalled = true;
+
+                callback(false);
+            }, TIMEOUT_HEALTH_CHECK);
+
             let url = 'http://' + captainPublicDomain + CaptainConstants.healthCheckEndPoint;
 
             request(url,
 
                 function (error, response, body) {
+
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
 
                     if (error || !body || (body !== self.getHealthCheckUuid())) {
                         callback(false);
@@ -309,11 +328,34 @@ class CaptainManager {
 
         function checkNginxHealth(callback) {
 
+            let callbackCalled = false;
+
+            setTimeout(function () {
+
+                if (callbackCalled) {
+                    return;
+                }
+                callbackCalled = true;
+
+                callback(false);
+            }, TIMEOUT_HEALTH_CHECK);
+
             self.verifyCaptainOwnsDomainOrThrow(captainPublicDomain, '-healthcheck')
                 .then(function () {
+
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
+
                     callback(true);
                 })
                 .catch(function () {
+                    if (callbackCalled) {
+                        return;
+                    }
+                    callbackCalled = true;
+
                     callback(false);
                 });
         }
@@ -380,6 +422,12 @@ class CaptainManager {
             request(url,
 
                 function (error, response, body) {
+
+
+                    if (CaptainConstants.isDebug) {
+                        resolve(['v0.0.1']);
+                        return;
+                    }
 
                     if (error) {
                         reject(error);
@@ -466,72 +514,72 @@ class CaptainManager {
 
                     let envVars = [];
 
-                    if (netDataInfo.smtp) {
+                    if (netDataInfo.data.smtp) {
                         envVars.push({
                             key: 'SSMTP_TO',
-                            value: netDataInfo.smtp.to
+                            value: netDataInfo.data.smtp.to
                         });
                         envVars.push({
                             key: 'SSMTP_HOSTNAME',
-                            value: netDataInfo.smtp.hostname
+                            value: netDataInfo.data.smtp.hostname
                         });
 
                         envVars.push({
                             key: 'SSMTP_SERVER',
-                            value: netDataInfo.smtp.server
+                            value: netDataInfo.data.smtp.server
                         });
 
                         envVars.push({
                             key: 'SSMTP_PORT',
-                            value: netDataInfo.smtp.port
+                            value: netDataInfo.data.smtp.port
                         });
 
                         envVars.push({
                             key: 'SSMTP_TLS',
-                            value: netDataInfo.smtp.allowNonTls ? 'NO' : 'YES'
+                            value: netDataInfo.data.smtp.allowNonTls ? 'NO' : 'YES'
                         });
 
                         envVars.push({
                             key: 'SSMTP_USER',
-                            value: netDataInfo.smtp.username
+                            value: netDataInfo.data.smtp.username
                         });
 
                         envVars.push({
                             key: 'SSMTP_PASS',
-                            value: netDataInfo.smtp.password
+                            value: netDataInfo.data.smtp.password
                         });
                     }
 
-                    if (netDataInfo.slack) {
+                    if (netDataInfo.data.slack) {
                         envVars.push({
                             key: 'SLACK_WEBHOOK_URL',
-                            value: netDataInfo.slack.hook
+                            value: netDataInfo.data.slack.hook
                         });
                         envVars.push({
                             key: 'SLACK_CHANNEL',
-                            value: netDataInfo.slack.channel
+                            value: netDataInfo.data.slack.channel
                         });
                     }
 
-                    if (netDataInfo.telegram) {
+                    if (netDataInfo.data.telegram) {
                         envVars.push({
                             key: 'TELEGRAM_BOT_TOKEN',
-                            value: netDataInfo.telegram.botToken
+                            value: netDataInfo.data.telegram.botToken
                         });
                         envVars.push({
                             key: 'TELEGRAM_CHAT_ID',
-                            value: netDataInfo.telegram.chatId
+                            value: netDataInfo.data.telegram.chatId
                         });
                     }
 
-                    if (netDataInfo.pushBullet) {
+                    if (netDataInfo.data.pushBullet) {
                         envVars.push({
                             key: 'PUSHBULLET_ACCESS_TOKEN',
-                            value: netDataInfo.pushBullet.apiToken
+                            value: netDataInfo.data.pushBullet.apiToken
                         });
                         envVars.push({
                             key: 'PUSHBULLET_DEFAULT_EMAIL',
-                            value: netDataInfo.pushBullet.fallbackEmail
+                            value: netDataInfo.data.pushBullet.fallbackEmail
                         });
                     }
 
@@ -713,7 +761,7 @@ class CaptainManager {
     }
 
     getForceSslValue() {
-        return this.hasForceSsl;
+        return !!this.hasForceSsl;
     }
 
     /**
@@ -779,6 +827,24 @@ class CaptainManager {
             })
     }
 
+    getNginxConfig() {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.getNginxConfig()
+            });
+    }
+
+    setNginxConfig(baseConfig, captainConfig) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.setNginxConfig(baseConfig, captainConfig);
+            })
+            .then(function () {
+                self.resetSelf();
+            });
+    }
 
     requestCertificateForDomain(domainName) {
         return this.certbotManager.enableSsl(domainName);
