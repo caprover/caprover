@@ -134,6 +134,9 @@ function getDefaultMachine() {
     if(machine){
         return machine.name;
     }
+    if(listOfMachines.length == 2){
+        return 1;
+    }
     return 0;
 }
 
