@@ -70,9 +70,15 @@ router.get('/', function (req, res, next) {
         })
         .then(function () {
 
+            return dataStore.getDefaultAppNginxConfig();
+
+        })
+        .then(function (defaultNginxConfig) {
+
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
             baseApi.data = appsArray;
             baseApi.rootDomain = dataStore.getRootDomain();
+            baseApi.defaultNginxConfig = defaultNginxConfig;
 
             res.send(baseApi);
         })
@@ -243,9 +249,16 @@ router.post('/register/', function (req, res, next) {
     let appName = req.body.appName;
     let hasPersistentData = !!req.body.hasPersistentData;
 
+    let appCreated = false;
+
     Logger.d('Registering app started: ' + appName);
 
     dataStore.registerAppDefinition(appName, hasPersistentData)
+        .then(function () {
+
+            appCreated = true;
+
+        })
         .then(function () {
 
             return serviceManager.createImage(appName, {/*use default dockerfile*/});
@@ -260,6 +273,24 @@ router.post('/register/', function (req, res, next) {
 
             Logger.d('AppName is saved: ' + appName);
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved'));
+
+        })
+        .catch(function (error) {
+
+            function createRejectionPromise() {
+                return new Promise(function (resolve, reject) {
+                    reject(error);
+                });
+            }
+
+            if (appCreated) {
+                return dataStore.deleteAppDefinition(appName)
+                    .then(function () {
+                        return createRejectionPromise();
+                    });
+            } else {
+                return createRejectionPromise();
+            }
 
         })
         .catch(function (error) {
@@ -320,6 +351,8 @@ router.post('/update/', function (req, res, next) {
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
+    let customNginxConfig = req.body.customNginxConfig;
+    let forceSsl = !!req.body.forceSsl;
     let appPushWebhook = req.body.appPushWebhook || {};
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
@@ -340,7 +373,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);

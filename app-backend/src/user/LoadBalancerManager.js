@@ -6,19 +6,17 @@ const uuid = require('uuid/v4');
 const request = require('request');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 
-const rootNginxTemplate = fs.readFileSync(__dirname + '/../template/root-nginx-conf.ejs').toString();
-const serverBlockTemplate = fs.readFileSync(__dirname + '/../template/server-block-conf.ejs').toString();
 const defaultPageTemplate = fs.readFileSync(__dirname + '/../template/default-page.ejs').toString();
-const baseConfigTemplate = fs.readFileSync(__dirname + '/../template/base-nginx-conf.ejs').toString();
 
 class LoadBalancerManager {
 
-    constructor(dockerApi, certbotManager) {
+    constructor(dockerApi, certbotManager, dataStore) {
         this.dockerApi = dockerApi;
         this.certbotManager = certbotManager;
         this.reloadInProcess = false;
         this.requestedReloadPromises = [];
         this.captainPublicRandomKey = uuid();
+        this.dataStore = dataStore;
     }
 
     /**
@@ -70,6 +68,8 @@ class LoadBalancerManager {
         const BACKUP = configFilePathBase + '.bak';
         const CONFIG = configFilePathBase + '.conf';
 
+        let nginxConfigContent = '';
+
         return fs.remove(FUTURE)
             .then(function () {
 
@@ -82,6 +82,8 @@ class LoadBalancerManager {
                     return '';
                 }
 
+                let promises = [];
+
                 for (let i = 0; i < servers.length; i++) {
                     let s = servers[i];
                     if (s.hasSsl) {
@@ -92,11 +94,24 @@ class LoadBalancerManager {
                     s.staticWebRoot = CaptainConstants.nginxStaticRootDir
                         + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
                         + s.publicDomain;
+
+                    promises.push(
+                        Promise.resolve()
+                            .then(function () {
+                                return ejs.render(s.nginxConfigTemplate, {s: s});
+                            })
+                            .then(function (rendered) {
+
+                                nginxConfigContent += rendered;
+
+                            })
+                    );
+
                 }
 
-                return ejs.render(serverBlockTemplate, {servers: servers});
+                return Promise.all(promises);
             })
-            .then(function (nginxConfigContent) {
+            .then(function () {
                 return fs.outputFile(FUTURE, nginxConfigContent);
             })
             .then(function () {
@@ -201,7 +216,18 @@ class LoadBalancerManager {
         const BACKUP = CaptainConstants.rootNginxConfigPath + '.bak';
         const CONFIG = CaptainConstants.rootNginxConfigPath + '.conf';
 
-        return dataStore.getHasRootSsl()
+        let rootNginxTemplate = null;
+
+        return Promise.resolve()
+            .then(function () {
+                return dataStore.getNginxConfig();
+            })
+            .then(function (nginxConfig) {
+
+                rootNginxTemplate = nginxConfig.captainConfig.customValue || nginxConfig.captainConfig.byDefault;
+
+                return dataStore.getHasRootSsl();
+            })
             .then(function (hasSsl) {
                 hasRootSsl = hasSsl;
                 return dataStore.getHasRegistrySsl();
@@ -252,8 +278,14 @@ class LoadBalancerManager {
     }
 
     ensureBaseNginxConf() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getNginxConfig();
+            })
+            .then(function (captainConfig) {
+
+                let baseConfigTemplate = captainConfig.baseConfig.customValue || captainConfig.baseConfig.byDefault;
 
                 return ejs.render(baseConfigTemplate, {});
 
@@ -275,9 +307,11 @@ class LoadBalancerManager {
             Logger.d('No Captain Nginx service is running. Creating one on captain node...');
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.nginxImageName, CaptainConstants.nginxServiceName, [{
+                protocol: 'tcp',
                 containerPort: 80,
                 hostPort: CaptainConstants.nginxPortNumber
             }, {
+                protocol: 'tcp',
                 containerPort: 443,
                 hostPort: 443
             }], nodeId, null, null, {
@@ -345,6 +379,11 @@ class LoadBalancerManager {
             .then(function () {
 
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath);
+
+            })
+            .then(function () {
+
+                return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost);
 
             })
             .then(function () {
@@ -417,6 +456,10 @@ class LoadBalancerManager {
                     {
                         containerPath: CaptainConstants.letsEncryptEtcPathOnNginx,
                         hostPath: CaptainConstants.letsEncryptEtcPath
+                    },
+                    {
+                        containerPath: CaptainConstants.nginxSharedPathOnNginx,
+                        hostPath: CaptainConstants.nginxSharedPathOnHost
                     }
                 ], [CaptainConstants.captainNetworkName]);
 

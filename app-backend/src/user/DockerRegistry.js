@@ -81,6 +81,7 @@ class DockerRegistry {
         function createRegistryServiceOnNode() {
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.registryImageName, CaptainConstants.registryServiceName, [{
+                protocol: 'tcp',
                 containerPort: 5000,
                 hostPort: CaptainConstants.registrySubDomainPort
             }], myNodeId, [

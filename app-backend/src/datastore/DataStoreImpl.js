@@ -22,11 +22,17 @@ const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
 const APP_DEFINITIONS = 'appDefinitions';
 const EMAIL_ADDRESS = 'emailAddress';
 const NET_DATA_INFO = 'netDataInfo';
+const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
+const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
 
+const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + '/../template/base-nginx-conf.ejs').toString();
+const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + '/../template/root-nginx-conf.ejs').toString();
+const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + '/../template/server-block-conf.ejs').toString();
 
 function isNameAllowed(name) {
-    return (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
+    let isNameFormattingOk = (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
+    return isNameFormattingOk && (['captain', 'registry'].indexOf(name) < 0);
 }
 
 class DataStore {
@@ -131,7 +137,7 @@ class DataStore {
         let authPrefix = '';
 
         if (authObj) {
-            authPrefix = authObj.serveraddress + '/';
+            authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
         }
 
         return authPrefix + 'img-' + this.getNameSpace() + '--' + appName + (version ? (':' + version) : '');
@@ -325,6 +331,11 @@ class DataStore {
             })
             .then(function () {
 
+                return self.getDefaultAppNginxConfig();
+
+            })
+            .then(function (defaultAppNginxConfig) {
+
                 let apps = self.data.get(APP_DEFINITIONS) || {};
                 let servers = [];
 
@@ -337,11 +348,15 @@ class DataStore {
                     }
 
                     let localDomain = self.getServiceName(appName);
+                    let forceSsl = !!webApp.forceSsl;
+                    let nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
 
                     let serverWithSubDomain = {};
                     serverWithSubDomain.hasSsl = hasRootSsl && webApp.hasDefaultSubDomainSsl;
                     serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
                     serverWithSubDomain.localDomain = localDomain;
+                    serverWithSubDomain.forceSsl = forceSsl;
+                    serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate;
 
                     servers.push(serverWithSubDomain);
 
@@ -352,8 +367,10 @@ class DataStore {
                             let d = customDomainArray[idx];
                             servers.push({
                                 hasSsl: d.hasSsl,
+                                forceSsl: forceSsl,
                                 publicDomain: d.publicDomain,
-                                localDomain: localDomain
+                                localDomain: localDomain,
+                                nginxConfigTemplate: nginxConfigTemplate
                             });
 
                         }
@@ -397,7 +414,7 @@ class DataStore {
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, ports, appPushWebhook, authenticator) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, authenticator, customNginxConfig) {
         const self = this;
 
         let app;
@@ -439,7 +456,26 @@ class DataStore {
 
 
                 app.notExposeAsWebApp = !!notExposeAsWebApp;
+                app.forceSsl = !!forceSsl;
                 app.nodeId = nodeId;
+                app.customNginxConfig = customNginxConfig;
+
+                if (app.forceSsl) {
+                    let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;
+                    let customDomainArray = app.customDomain;
+                    if (customDomainArray && customDomainArray.length > 0) {
+                        for (let idx = 0; idx < customDomainArray.length; idx++) {
+                            if (customDomainArray[idx].hasSsl) {
+                                hasAtLeastOneSslDomain = true;
+                            }
+                        }
+                    }
+
+                    if (!hasAtLeastOneSslDomain) {
+                        throw new ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot force SSL without any SSL-enabled domain!");
+                    }
+
+                }
 
                 if (appPushWebhookRepoInfo) {
 
@@ -498,28 +534,46 @@ class DataStore {
 
                 if (volumes) {
 
-                    for (let i = 0; i < volumes.length; i++) {
-                        let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName) {
-                            if (!isNameAllowed(obj.volumeName)) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
-                            }
-                            if (!isValidPath(obj.containerPath)) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
-                            }
-                        }
-                    }
-
                     app.volumes = [];
 
                     for (let i = 0; i < volumes.length; i++) {
                         let obj = volumes[i];
-                        if (obj.containerPath && obj.volumeName) {
-                            app.volumes.push({
-                                containerPath: obj.containerPath,
-                                volumeName: obj.volumeName,
-                                type: 'volume'
-                            });
+                        if (obj.containerPath && (obj.volumeName || obj.hostPath)) {
+
+                            if (obj.volumeName && obj.hostPath) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot define both host path and volume name!");
+                            }
+
+                            if (!isValidPath(obj.containerPath)) {
+                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                            }
+
+                            let newVol = {
+                                containerPath: obj.containerPath
+                            };
+
+                            if (obj.hostPath) {
+
+                                if (!isValidPath(obj.hostPath)) {
+                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume host path: " + obj.hostPath);
+                                }
+
+                                newVol.hostPath = obj.hostPath;
+                                newVol.type = 'bind';
+
+                            }
+                            else {
+
+                                if (!isNameAllowed(obj.volumeName)) {
+                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                                }
+
+                                newVol.volumeName = obj.volumeName;
+                                newVol.type = 'volume';
+
+                            }
+
+                            app.volumes.push(newVol);
                         }
                     }
                 }
@@ -612,6 +666,46 @@ class DataStore {
             resolve();
 
         });
+    }
+
+    getDefaultAppNginxConfig() {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return DEFAULT_NGINX_CONFIG_FOR_APP;
+            });
+    }
+
+    getNginxConfig() {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return ({
+                    baseConfig: {
+                        byDefault: DEFAULT_NGINX_BASE_CONFIG,
+                        customValue: self.data.get(NGINX_BASE_CONFIG)
+                    },
+                    captainConfig: {
+                        byDefault: DEFAULT_NGINX_CAPTAIN_CONFIG,
+                        customValue: self.data.get(NGINX_CAPTAIN_CONFIG)
+                    }
+                });
+            });
+    }
+
+    setNginxConfig(baseConfig, captainConfig) {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                self.data.set(NGINX_BASE_CONFIG, baseConfig);
+                self.data.set(NGINX_CAPTAIN_CONFIG, captainConfig);
+            });
     }
 
     getHasRootSsl() {

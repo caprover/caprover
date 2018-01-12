@@ -37,6 +37,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         }
 
         $scope.rootDomain = data.rootDomain;
+        $scope.defaultNginxConfig = data.defaultNginxConfig;
         $scope.rootDomainWithProtocol = window.location.protocol + '//captain.' + data.rootDomain;
 
     });
@@ -120,6 +121,17 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
             if (!app.volumes)
                 app.volumes = [];
             app.volumes.push({ volumeName: '', containerPath: '' });
+        }
+
+        $scope.setHostPath = function (vol, path) {
+            vol.hostPath = path;
+            if (vol.hostPath) {
+                vol.volumeName = '';
+            }
+        }
+
+        $scope.onEditDefaultNginxConfigClicked = function (app) {
+            app.customNginxConfig = $scope.defaultNginxConfig;
         }
 
         $scope.onNewCustomDomainClicked = function (appName, newCustomDomain) {
@@ -259,7 +271,9 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                 ports: app.ports,
                 nodeId: app.nodeId,
                 notExposeAsWebApp: app.notExposeAsWebApp,
+                forceSsl: app.forceSsl,
                 appPushWebhook: app.appPushWebhook,
+                customNginxConfig: app.customNginxConfig,
                 volumes: app.volumes
             }
 

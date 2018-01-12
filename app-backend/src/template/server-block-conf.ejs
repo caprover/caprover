@@ -1,12 +1,38 @@
+<%
+if (s.forceSsl) {
+%>
+    server {
 
-<% for (var idx = 0; idx < servers.length; idx++) {
-    var s = servers[idx];
+        listen       80;
+
+        server_name  <%-s.publicDomain%>;
+
+        # Used by Let's Encrypt
+        location /.well-known/ {
+            root <%-s.staticWebRoot%>;
+        }
+
+        location / {
+            return 302 https://$http_host$request_uri$is_args$query_string;
+        }
+    }
+<%
+}
+%>
+
+
+<%
+if (!s.forceSsl || s.hasSsl) {
 %>
 
     server {
 
+    <%
+    if (!s.forceSsl) {
+    %>
         listen       80;
     <%
+    }
     if (s.hasSsl) {
     %>
         listen              443 ssl;
@@ -20,6 +46,9 @@
 
         server_name  <%-s.publicDomain%>;
 
+        # 127.0.0.11 is DNS set up by Docker, see:
+        # https://docs.docker.com/engine/userguide/networking/configure-dns/
+        # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
         set $upstream http://<%-s.localDomain%>;
 
@@ -31,11 +60,9 @@
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # change to this to allow the applications to serve well-known files as well https://stackoverflow.com/questions/869001/how-to-serve-all-existing-static-files-directly-with-nginx-but-proxy-the-rest-t
         location /.well-known/ {
             root <%-s.staticWebRoot%>;
         }
-
     }
 
 <%

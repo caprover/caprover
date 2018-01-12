@@ -6,6 +6,17 @@ const CaptainConstants = require('../utils/CaptainConstants');
 const Logger = require('../utils/Logger');
 const EnvVars = require('../utils/EnvVars');
 
+function safeParseChunk(chunk) {
+    try {
+        return JSON.parse(chunk);
+    }
+    catch (ignore) {
+        return {
+            stream: 'Cannot parse ' + chunk
+        }
+    }
+}
+
 class DockerApi {
 
     constructor(connectionParams) {
@@ -174,7 +185,7 @@ class DockerApi {
             });
     }
 
-    buildImageFromDockerFile(imageName, newVersion, tarballFilePath) {
+    buildImageFromDockerFile(imageName, newVersion, tarballFilePath, buildLogs) {
 
         const self = this;
 
@@ -191,10 +202,6 @@ class DockerApi {
                 return new Promise(function (resolve, reject) {
 
                     let errorMessage = '';
-                    let logsBeforeError = [];
-                    for (let i = 0; i < 20; i++) {
-                        logsBeforeError.push('');
-                    }
 
                     stream.setEncoding('utf8');
 
@@ -202,20 +209,22 @@ class DockerApi {
                     stream.on('data', function (chunk) {
 
                         Logger.dev('stream data ' + chunk);
-                        chunk = JSON.parse(chunk);
+                        chunk = safeParseChunk(chunk);
 
                         let chuckStream = chunk.stream;
                         if (chuckStream) {
                             // Logger.dev('stream data ' + chuckStream);
-                            logsBeforeError.shift();
-                            logsBeforeError.push(chuckStream);
+                            buildLogs.log(chuckStream);
                         }
 
                         if (chunk.error) {
                             Logger.e(chunk.error);
-                            Logger.e(JSON.stringify(chunk.errorDetail));
-                            errorMessage += '\n [truncated] \n';
-                            errorMessage += logsBeforeError.join('');
+                            let errorDetails = JSON.stringify(chunk.errorDetail);
+                            Logger.e(errorDetails);
+                            buildLogs.log(errorDetails);
+                            buildLogs.log(chunk.error);
+                            errorMessage += '\n';
+                            errorMessage += errorDetails;
                             errorMessage += '\n';
                             errorMessage += chunk.error;
                         }
@@ -262,6 +271,60 @@ class DockerApi {
                     fromImage: imageName,
                     tag: tag
                 });
+            })
+            .then(function (stream) {
+
+                return new Promise(function (resolve, reject) {
+
+                    let errorMessage = '';
+                    let logsBeforeError = [];
+                    for (let i = 0; i < 20; i++) {
+                        logsBeforeError.push('');
+                    }
+
+                    stream.setEncoding('utf8');
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
+                    stream.on('data', function (chunk) {
+
+                        Logger.dev('stream data ' + chunk);
+                        chunk = safeParseChunk(chunk);
+
+                        let chuckStream = chunk.stream;
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            logsBeforeError.shift();
+                            logsBeforeError.push(chuckStream);
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error);
+                            Logger.e(JSON.stringify(chunk.errorDetail));
+                            errorMessage += '\n [truncated] \n';
+                            errorMessage += logsBeforeError.join('');
+                            errorMessage += '\n';
+                            errorMessage += chunk.error;
+                        }
+                    });
+
+                    // stream.pipe(process.stdout, {end: true});
+                    // IncomingMessage
+                    // https://nodejs.org/api/stream.html#stream_event_end
+
+                    stream.on('end', function () {
+                        if (errorMessage) {
+                            reject(errorMessage);
+                            return;
+                        }
+                        resolve();
+                    });
+
+                    stream.on('error', function (chunk) {
+                        errorMessage += chunk;
+                    });
+
+                });
+
             });
     }
 
@@ -358,7 +421,16 @@ class DockerApi {
                     HostConfig: {
                         Binds: volumesMapped,
                         CapAdd: addedCapabilities,
-                        NetworkMode: network
+                        NetworkMode: network,
+                        LogConfig: {
+                            Type: 'json-file',
+                            Config: {
+                                'max-size': CaptainConstants.defaultMaxLogSize
+                            }
+                        },
+                        RestartPolicy: {
+                            Name: 'always'
+                        }
                     }
                 });
             })
@@ -369,15 +441,15 @@ class DockerApi {
             });
     }
 
-    pushImage(imageName, newVersion, authObj) {
+    pushImage(imageName, newVersion, authObj, buildLogs) {
 
         const self = this;
 
         newVersion = '' + newVersion;
 
-        Logger.d('Pushing to remote: ' + imageName + ':' + newVersion);
-        Logger.d('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
-        Logger.d('This might take a few minutes...');
+        buildLogs.log('Pushing to remote: ' + imageName + ':' + newVersion);
+        buildLogs.log('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
+        buildLogs.log('This might take a few minutes...');
 
         return Promise.resolve()
             .then(function () {
@@ -390,23 +462,53 @@ class DockerApi {
             })
             .then(function (stream) {
 
-                return new Promise(function (resolve) {
+                return new Promise(function (resolve, reject) {
 
+                    let errorMessage = '';
+
+                    stream.setEncoding('utf8');
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunk) {
-                        // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                        // ('stream data ' + chunk);
-                    });
 
+                        Logger.dev('stream data ' + chunk);
+                        chunk = safeParseChunk(chunk);
+
+                        let chuckStream = chunk.stream;
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            buildLogs.log(chuckStream);
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error);
+                            let errorDetails = JSON.stringify(chunk.errorDetail);
+                            Logger.e(errorDetails);
+                            buildLogs.log(errorDetails);
+                            buildLogs.log(chunk.error);
+                            errorMessage += '\n';
+                            errorMessage += errorDetails;
+                            errorMessage += chunk.error;
+                        }
+                    });
 
                     // stream.pipe(process.stdout, {end: true});
                     // IncomingMessage
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        if (errorMessage) {
+                            reject(errorMessage);
+                            return;
+                        }
                         resolve();
                     });
-                });
 
+                    stream.on('error', function (chunk) {
+                        errorMessage += chunk;
+                    });
+
+                });
             });
     }
 
@@ -440,11 +542,25 @@ class DockerApi {
         let ports = [];
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
-                ports.push({
-                    Protocol: 'tcp',
-                    TargetPort: portsToMap[i].containerPort,
-                    PublishedPort: portsToMap[i].hostPort
-                });
+                if (portsToMap[i].protocol) {
+                    ports.push({
+                        Protocol: portsToMap[i].protocol,
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                }
+                else {
+                    ports.push({
+                        Protocol: 'tcp',
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                    ports.push({
+                        Protocol: 'udp',
+                        TargetPort: portsToMap[i].containerPort,
+                        PublishedPort: portsToMap[i].hostPort
+                    });
+                }
             }
         }
 
@@ -457,6 +573,12 @@ class DockerApi {
                 Resources: resourcesObject,
                 Placement: {
                     Constraints: nodeId ? ['node.id == ' + nodeId] : []
+                },
+                LogDriver: {
+                    Name: 'json-file',
+                    Options: {
+                        'max-size': CaptainConstants.defaultMaxLogSize
+                    }
                 }
             },
             EndpointSpec: {
@@ -943,11 +1065,25 @@ class DockerApi {
                     updatedData.EndpointSpec.Ports = [];
                     for (let i = 0; i < ports.length; i++) {
                         let p = ports[i];
-                        updatedData.EndpointSpec.Ports.push({
-                            Protocol: 'tcp',
-                            TargetPort: p.containerPort,
-                            PublishedPort: p.hostPort
-                        });
+                        if (p.protocol) {
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: p.protocol,
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                        }
+                        else {
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: 'tcp',
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                            updatedData.EndpointSpec.Ports.push({
+                                Protocol: 'udp',
+                                TargetPort: p.containerPort,
+                                PublishedPort: p.hostPort
+                            });
+                        }
                     }
                 }
 
@@ -1060,6 +1196,28 @@ class DockerApi {
                 return self.dockerode.getService(serviceName)
                     .update(updatedData);
             })
+            .then(function (serviceData) {
+
+                // give some time such that the new container is updated.
+                // also we don't want to fail the update just because prune failed.
+                setTimeout(function () {
+
+                    self.pruneContainers()
+                        .catch(function (err) {
+                            Logger.d('Prune Containers Failed!');
+                            Logger.e(err);
+                        });
+
+                }, 5000);
+
+                return serviceData;
+            })
+    }
+
+    pruneContainers() {
+        const self = this;
+        return self.dockerode
+            .pruneContainers();
     }
 
     isNodeManager(nodeId) {

@@ -1,15 +1,17 @@
 
+# Default catch-all page. e.g. if you enter SOME-RANDOM-CHARS.captainroot.domain.com
     server {
+
         listen       80;
         server_name  _;
 
-	location /nginx_status {
-		stub_status on;
+        location /nginx_status {
+            stub_status on;
 
-		access_log off;
-		allow 10.0.0.0/24; # This can be improved by adding authentication as well.
-		deny all;
-	}
+            access_log off;
+            allow 10.0.0.0/24; # This can be improved by adding authentication as well.
+            deny all;
+        }
 
         location / {
             root   <%-captain.defaultHtmlDir%>;
@@ -17,12 +19,12 @@
         }
 
         error_page 404 500 502 503 504 /error.html;
-
     }
 
 
-
+# Captain dashboard at captain.captainroot.domain.com
     server {
+
         listen       80;
         client_max_body_size 300m;
 
@@ -38,6 +40,9 @@
 
         server_name  <%-captain.domain%>;
 
+        # 127.0.0.11 is DNS set up by Docker, see:
+        # https://docs.docker.com/engine/userguide/networking/configure-dns/
+        # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
         set $upstream http://<%-captain.serviceName%>:<%-captain.serviceExposedPort%>;
 
@@ -61,7 +66,7 @@
             proxy_read_timeout 120s;
         }
 
-        # change to this to allow the applications to serve well-known files as well https://stackoverflow.com/questions/869001/how-to-serve-all-existing-static-files-directly-with-nginx-but-proxy-the-rest-t
+        # Used by Let's Encrypt and CaptainDuckDuck self health monitoring
         location /.well-known/ {
             root <%-captain.staticWebRoot%>;
         }
@@ -69,9 +74,14 @@
 
 
 
+# Built-in Docker Registry at registry.captainroot.domain.com
+# Port 80/443 is used by Let's Encrypt to support HTTPS
+# But the Registry engine runs on port 996
     server {
+
         listen       80;
         client_max_body_size 300m;
+
     <%
         if (registry.hasRootSsl) {
     %>
