@@ -71,8 +71,6 @@ function checkSystemReq() {
         });
 }
 
-checkSystemReq();
-
 module.exports.install = function () {
     Promise.resolve()
         .then(function () {
