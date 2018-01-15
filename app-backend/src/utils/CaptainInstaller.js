@@ -6,8 +6,113 @@ const EnvVar = require('./EnvVars');
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
 
+function checkSystemReq() {
+
+    return Promise.resolve()
+        .then(function () {
+
+            return DockerApi.get().getDockerVersion();
+
+        })
+        .then(function (output) {
+
+            /*
+                {
+                  "Platform": {
+                    "Name": ""
+                  },
+                  "Components": [
+                    {
+                      "Name": "Engine",
+                      "Version": "17.12.0-ce",
+                      "Details": {
+                        "ApiVersion": "1.35",
+                        "Arch": "amd64",
+                        "BuildTime": "2017-12-27T20:09:53.000000000+00:00",
+                        "Experimental": "false",
+                        "GitCommit": "c97c6d6",
+                        "GoVersion": "go1.9.2",
+                        "KernelVersion": "4.4.0-104-generic",
+                        "MinAPIVersion": "1.12",
+                        "Os": "linux"
+                      }
+                    }
+                  ],
+                  "Version": "17.12.0-ce",
+                  "ApiVersion": "1.35",
+                  "MinAPIVersion": "1.12",
+                  "GitCommit": "c97c6d6",
+                  "GoVersion": "go1.9.2",
+                  "Os": "linux",
+                  "Arch": "amd64",
+                  "KernelVersion": "4.4.0-104-generic",
+                  "BuildTime": "2017-12-27T20:09:53.000000000+00:00"
+                }
+            */
+
+            let ver = output.Components[0].Version.split('.');
+            let maj = Number(ver[0]);
+            let min = Number(ver[1]);
+
+            let versionOk = false;
+
+            if (maj > 17) {
+                versionOk = true;
+            }
+            else if (maj === 17 && min >= 6) {
+                versionOk = true;
+            }
+
+            if (versionOk) {
+                console.log('   Docker Version passed.');
+            }
+            else {
+                console.log('Warning!! Minimum Docker version is 17.06.x CaptainDuckDuck may not run properly on your Docker version.');
+            }
+
+            return DockerApi.get().getDockerInfo();
+
+        })
+        .then(function (output) {
+
+            if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
+                console.log('Warning!!    CaptainDuckDuck and Docker work best on Ubuntu - specially when it comes to storage drivers.');
+            }
+            else {
+                console.log('   Ubuntu detected.');
+            }
+
+            if (output.Architecture.toLowerCase().indexOf('x86') < 0) {
+                console.log('Warning!!    Default CaptainDuckDuck is compiled for X86 CPU. To use CaptainDuckDuck on other CPUs you can build from the source code');
+            }
+            else {
+                console.log('   X86 CPU detected.')
+            }
+
+            let totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0);
+
+            if (totalMemInMb < 1000) {
+                console.log('Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CaptainDuckDuck system requirements.');
+            }
+            else {
+                console.log('   Total RAM ' + totalMemInMb + ' MB');
+            }
+
+        })
+        .catch(function (error) {
+            console.log('**** WARNING!!!! System requirement check failed!  *****');
+            console.error(error);
+        });
+}
+
+
 module.exports.install = function () {
     Promise.resolve()
+        .then(function () {
+
+            return checkSystemReq();
+
+        })
         .then(function () {
 
             if (EnvVar.MAIN_NODE_IP_ADDRESS) {
