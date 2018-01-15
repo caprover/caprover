@@ -16,41 +16,7 @@ function checkSystemReq() {
         })
         .then(function (output) {
 
-            /*
-                {
-                  "Platform": {
-                    "Name": ""
-                  },
-                  "Components": [
-                    {
-                      "Name": "Engine",
-                      "Version": "17.12.0-ce",
-                      "Details": {
-                        "ApiVersion": "1.35",
-                        "Arch": "amd64",
-                        "BuildTime": "2017-12-27T20:09:53.000000000+00:00",
-                        "Experimental": "false",
-                        "GitCommit": "c97c6d6",
-                        "GoVersion": "go1.9.2",
-                        "KernelVersion": "4.4.0-104-generic",
-                        "MinAPIVersion": "1.12",
-                        "Os": "linux"
-                      }
-                    }
-                  ],
-                  "Version": "17.12.0-ce",
-                  "ApiVersion": "1.35",
-                  "MinAPIVersion": "1.12",
-                  "GitCommit": "c97c6d6",
-                  "GoVersion": "go1.9.2",
-                  "Os": "linux",
-                  "Arch": "amd64",
-                  "KernelVersion": "4.4.0-104-generic",
-                  "BuildTime": "2017-12-27T20:09:53.000000000+00:00"
-                }
-            */
-
-            let ver = output.Components[0].Version.split('.');
+            let ver = output.Version.split('.');
             let maj = Number(ver[0]);
             let min = Number(ver[1]);
 
@@ -105,6 +71,7 @@ function checkSystemReq() {
         });
 }
 
+checkSystemReq();
 
 module.exports.install = function () {
     Promise.resolve()
