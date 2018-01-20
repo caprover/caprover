@@ -28,6 +28,11 @@ console.log(' ');
 program
     .description('Deploy current directory to a Captain machine.')
     .option('-d, --default', 'Run with default options')
+    .option('-s, --stateless', 'Run deploy stateless')
+    .option('-h, --host <value>', 'Host of the captain machine')
+    .option('-a, --appName <value>', 'Name of the app')
+    .option('-p, --pass <value>', 'Password for captain')
+    .option('-b, --branch [value]', 'Branch name (default master)')
     .parse(process.argv);
 
 
@@ -55,8 +60,8 @@ if (!fs.pathExistsSync('./captain-definition')) {
     printErrorAndExit('**** ERROR: captain-definition file cannot be found. Please see docs! ****');
 }
 
-var contents = fs.readFileSync('./captain-definition', 'utf8');
-var contentsJson = null;
+const contents = fs.readFileSync('./captain-definition', 'utf8');
+let contentsJson = null;
 
 try {
     contentsJson = JSON.parse(contents);
@@ -193,7 +198,22 @@ if (program.default) {
 
 }
 
-if (!program.default || defaultInvalid) {
+const isStateless = program.stateless && program.host && program.appName && program.pass;
+
+if (isStateless) {
+    // login first
+  console.log('Trying to login to', program.host)
+  requestLoginAuth(program.host, program.pass, function(authToken) {
+    // deploy
+    console.log('Starting stateless deploy to', program.host, program.branch, program.appName);
+    deployTo({
+      baseUrl: program.host,
+      authToken,
+    }, program.branch || 'master', program.appName);
+  });
+}
+
+if (!isStateless && (!program.default || defaultInvalid)) {
 
     inquirer.prompt(questions).then(function (answers) {
 
@@ -478,6 +498,68 @@ function startFetchingBuildLogs(machineToDeploy, appName) {
     }
 
     request(options, callback);
+}
+
+function requestLoginAuth (serverAddress, password, authCallback) {
+      let options = {
+        url: serverAddress + '/api/v1/login',
+        headers: {
+          'x-namespace': 'captain'
+        },
+        method: 'POST',
+        form: {
+          password: password
+        }
+      };
+
+      function callback(error, response, body) {
+
+        try {
+
+          if (!error && response.statusCode === 200) {
+
+            let data = JSON.parse(body);
+
+            if (data.status !== 100) {
+              throw new Error(JSON.stringify(data, null, 2));
+            }
+
+            authCallback(data.token);
+
+            return;
+          }
+
+          if (error) {
+            throw new Error(error)
+          }
+
+          throw new Error(response ? JSON.stringify(response, null, 2) : 'Response NULL');
+
+        } catch (error) {
+
+          if (error.message) {
+            try {
+              var errorObj = JSON.parse(error.message);
+              if (errorObj.status) {
+                console.error(chalk.red('\nError code: ' + errorObj.status));
+                console.error(chalk.red('\nError message:\n\n ' + errorObj.description));
+              } else {
+                throw new Error("NOT API ERROR");
+              }
+            } catch (ignoreError) {
+              console.error(chalk.red(error.message));
+            }
+          } else {
+            console.error(chalk.red(error));
+          }
+          console.log(' ');
+
+        }
+
+        process.exit(0);
+      }
+
+      request(options, callback);
 }
 
 function requestLogin(serverName, serverAddress, loginCallback) {

@@ -67,6 +67,13 @@ captainduckduck deploy
 
 You will then see your application being uploaded, after that, your application getting built. Note that the build process takes multiple minutes, please be patient!
 
+You can also deploy directly with one command:
+```bash
+captainduckduck deploy -s -h https://your.captain.control.panel.domain -a app-name -p password -b branchName
+```
+
+This can be useful if you want to integrate CI/CD pipeline.
+
 
 ### List logged in servers
 
