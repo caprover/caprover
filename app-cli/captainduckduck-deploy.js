@@ -29,10 +29,10 @@ program
     .description('Deploy current directory to a Captain machine.')
     .option('-d, --default', 'Run with default options')
     .option('-s, --stateless', 'Run deploy stateless')
-    .option('-h, --host <value>', 'Host of the captain machine')
-    .option('-a, --appName <value>', 'Name of the app')
-    .option('-p, --pass <value>', 'Password for captain')
-    .option('-b, --branch [value]', 'Branch name (default master)')
+    .option('-h, --host <value>', 'Only for stateless mode: Host of the captain machine')
+    .option('-a, --appName <value>', 'Only for stateless mode: Name of the app')
+    .option('-p, --pass <value>', 'Only for stateless mode: Password for Captain')
+    .option('-b, --branch [value]', 'Only for stateless mode: Branch name (default master)')
     .parse(process.argv);
 
 
