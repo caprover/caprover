@@ -1230,6 +1230,26 @@ class DockerApi {
             })
     }
 
+    getDockerVersion(){
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.version();
+            })
+    }
+
+    getDockerInfo(){
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.info();
+            })
+    }
+
     getNodeLables(nodeId) {
         const self = this;
         return self.dockerode

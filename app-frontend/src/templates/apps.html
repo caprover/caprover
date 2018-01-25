@@ -125,7 +125,7 @@
             <h4>Access your app</h4>
             <div class="row">
               <div class="col-lg-12">
-                <p>Your app is interally avilable as
+                <p>Your app is internally available as
                   <code>srv-captain--{{app.appName}}</code> to other Captain apps. In case of web-app, it is accessible via
                   <code>http://srv-captain--{{app.appName}}</code> from other apps.</p>
 
@@ -263,7 +263,7 @@
                   <b> Method 2: Tarball</b>
                 </h5>
                 <p>
-                  You can simiply create a tarball (
+                  You can simply create a tarball (
                   <code>.tar</code>) of your project and upload it here via upload button.
                 </p>
                 <div class="row">
@@ -291,7 +291,7 @@
                       Method 3: Deploy from Github/Bitbucket/Gitlab</b>
                   </h5>
                   <p>
-                    Enter your repository information in the form and save. Then copy the URL in the box as a webhook on Github, Bitbuck, Gitlab
+                    Enter your repository information in the form and save. Then copy the URL in the box as a webhook on Github, Bitbucket, Gitlab
                     and etc. Once you push a commit, CaptainDuckDuck starts a new build.
                     <br>
                     <pre>{{app.appPushWebhook.pushWebhookToken?(rootDomainWithProtocol+'/api/v1/user/webhooks/triggerbuild?namespace=captain&token='+app.appPushWebhook.pushWebhookToken):

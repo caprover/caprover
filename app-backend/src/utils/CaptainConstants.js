@@ -26,7 +26,7 @@ let data = {
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
-    version: '0.5.3',
+    version: '0.5.4',
 
     captainSaltSecretKey: 'captain-salt',
 
