@@ -448,13 +448,9 @@ class ServiceManager {
             .then(function () {
 
                 let rootDomain = self.dataStore.getRootDomain();
-                let isAllowed = (!!customDomain)
-                    && (customDomain.length < 80)
-                    && /^[a-z0-9\-\.]+$/.test(customDomain)
-                    && (customDomain.indexOf('..') < 0)
-                    && (customDomain.indexOf("."+rootDomain) < 0 || (customDomain === rootDomain) || ((customDomain.indexOf(rootDomain) + rootDomain.length) !== customDomain.length));
-
-                if (!customDomain) {
+                let dotRootDomain = "." + rootDomain;
+                
+                if (!(customDomain || /^[a-z0-9\-\.]+$/.test(customDomain))) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. Please use alphanumerical domains such as myapp.google123.ca');
                 }
@@ -462,11 +458,11 @@ class ServiceManager {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. Please use alphanumerical domains less than 80 characters in length.');
                 }
-                if (customDomain.indexOf('..') > 0) {
+                if (customDomain.indexOf('..') >= 0) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. You cannot have two consecutive periods ".." inside a domain name. Please use alphanumerical domains such as myapp.google123.ca');
                 }
-                if (!(customDomain.indexOf("."+rootDomain) < 0 || (customDomain === rootDomain) || ((customDomain.indexOf(rootDomain) + rootDomain.length) !== customDomain.length))) {
+                if (!(customDomain.indexOf(dotRootDomain) < 0 || (customDomain === rootDomain) || ((customDomain.indexOf(rootDomain) + rootDomain.length) !== customDomain.length))) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. Custom domain cannot be subdomain of root domain.');
                 }
