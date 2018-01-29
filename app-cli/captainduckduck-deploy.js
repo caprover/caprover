@@ -369,7 +369,7 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
                 savePropForDirectory(MACHINE_TO_DEPLOY, machineToDeploy);
 
                 if (data.status === 100) {
-                    console.log(chalk.green('Deployed successful: ') + appName);
+                    console.log(chalk.green('Deployed successfully: ') + appName);
                     console.log(' ');
                 } else if (data.status === 101) {
                     console.log(chalk.green('Building started: ') + appName);
@@ -455,7 +455,7 @@ function startFetchingBuildLogs(machineToDeploy, appName) {
         if (data && !data.isAppBuilding) {
             console.log(' ');
             if (!data.isBuildFailed) {
-                console.log(chalk.green('Deployed successful: ') + appName);
+                console.log(chalk.green('Deployed successfully: ') + appName);
                 console.log(chalk.magenta('App is available at ') + (machineToDeploy.baseUrl.replace('//captain.', '//' + appName + '.')));
             } else {
                 console.error(chalk.red('\nSomething bad happened. Cannot deploy "' + appName + '"\n'));
