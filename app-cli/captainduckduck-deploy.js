@@ -139,7 +139,7 @@ function getDefaultMachine() {
     if (machine) {
         return machine.name;
     }
-    if(listOfMachines.length == 2){
+    if (listOfMachines.length == 2) {
         return 1;
     }
     return EMPTY_STRING;
@@ -456,7 +456,9 @@ function startFetchingBuildLogs(machineToDeploy, appName) {
             console.log(' ');
             if (!data.isBuildFailed) {
                 console.log(chalk.green('Deployed successfully: ') + appName);
-                console.log(chalk.magenta('App is available at ') + (machineToDeploy.baseUrl.replace('//captain.', '//' + appName + '.')));
+                console.log(chalk.magenta('App is available at ')
+                    + (machineToDeploy.baseUrl.replace('//captain.', '//' + appName + '.').replace('https://', 'http://'))
+                );
             } else {
                 console.error(chalk.red('\nSomething bad happened. Cannot deploy "' + appName + '"\n'));
             }
