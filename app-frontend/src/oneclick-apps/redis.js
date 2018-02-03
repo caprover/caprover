@@ -36,7 +36,7 @@
 
                 var nodejsCode = 'const client = redis.createClient(6379, "srv-captain--' + data[CONTAINER_NAME] + ')';
                 if (data[REDIS_PASSWORD]) {
-                 nodejsCode = 'const client = redis.createClient(6379, "srv-captain--' + data[CONTAINER_NAME] + ', {password: "'+data[REDIS_PASSWORD]+'"})';
+                    nodejsCode = 'const client = redis.createClient(6379, "srv-captain--' + data[CONTAINER_NAME] + ', {password: "' + data[REDIS_PASSWORD] + '"})';
                 }
 
                 step1Callback({
@@ -79,6 +79,13 @@
                 volumeName: appName + '-redis-data',
                 containerPath: '/data'
             }];
+
+            if (data[REDIS_PASSWORD]) {
+                envVars.push({
+                    key: REDIS_PASSWORD,
+                    value: data[REDIS_PASSWORD]
+                });
+            }
 
             function createContainer() {
 
@@ -123,8 +130,7 @@
                 }
 
                 if (data[REDIS_PASSWORD]) {
-                    captainDefinitionContent.dockerfileLines.push('ENV REDIS_PASSWORD ' + data[REDIS_PASSWORD])
-                    captainDefinitionContent.dockerfileLines.push('CMD exec redis-server --requirepass \"$REDIS_PASSWORD\"')
+                    captainDefinitionContent.dockerfileLines.push('CMD exec redis-server --requirepass \"$REDIS_PASSWORD\"');
                 }
 
                 apiManager.uploadCaptainDefinitionContent(appName,
