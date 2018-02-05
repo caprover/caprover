@@ -8,6 +8,10 @@
     margin-top: 100px;
 }
 
+textarea {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+
 .allow-linebreaks-spans span {
     white-space: pre-line;
 }

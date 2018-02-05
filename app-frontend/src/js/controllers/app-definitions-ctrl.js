@@ -1,10 +1,10 @@
 angular.module('RDash')
     .controller('AppDefinitionCtrl', ['$scope', '$cookieStore',
         '$rootScope', 'pageDefinitions', 'apiManager', 'captainToast',
-        '$uibModal', '$state', '$location', AppDefinitionCtrl]);
+        '$uibModal', '$state', '$location', '$interval', AppDefinitionCtrl]);
 
 function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
-    apiManager, captainToast, $uibModal, $state, $location) {
+    apiManager, captainToast, $uibModal, $state, $location, $interval) {
 
     $scope.rootDomainWithProtocol = '';
     $scope.loadingState = {};
@@ -42,9 +42,87 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
 
     });
 
+    // it is called via interval and it is also called directly
+    function fetchBuildLogs() {
+
+        if (!$scope.editContent.appsToEdit.length) {
+            return;
+        }
+
+        var app = $scope.editContent.appsToEdit[0];
+
+        apiManager.fetchBuildLogs(app.appName, function (data) {
+
+            if (captainToast.showErrorToastIfNeeded(data)) {
+                return;
+            }
+            var logInfo = data.data;
+
+            app.isAppBuilding = logInfo.isAppBuilding;
+
+            if (app.isAppBuilding) {
+                // forcefully expanding the view such that when building finishes it doesn't collapses automatically
+                app.expandedLogs = true;
+            }
+
+            if (!app.buildLogs) {
+                app.buildLogs = '';
+            }
+
+            if (app.lastLineNumberPrinted === undefined) {
+                app.lastLineNumberPrinted = -10000;
+            }
+
+            var lines = logInfo.logs.lines;
+            var firstLineNumberOfLogs = logInfo.logs.firstLineNumber;
+            var firstLinesToPrint = 0;
+            if (firstLineNumberOfLogs > app.lastLineNumberPrinted) {
+
+                if (firstLineNumberOfLogs < 0) {
+                    // This is the very first fetch, probably firstLineNumberOfLogs is around -50
+                    firstLinesToPrint = -firstLineNumberOfLogs;
+                } else {
+                    app.buildLogs += '[[ TRUNCATED ]]\n';
+                }
+
+            } else {
+                firstLinesToPrint = app.lastLineNumberPrinted - firstLineNumberOfLogs;
+            }
+
+            app.lastLineNumberPrinted = firstLineNumberOfLogs + lines.length;
+
+            var lineAdded = false;
+
+            for (var i = firstLinesToPrint; i < lines.length; i++) {
+
+                app.buildLogs += ((lines[i] || '').trim() + '\n');
+
+                lineAdded = true;
+
+            }
+
+            if (lineAdded) {
+                setTimeout(function () {
+                    var textarea = document.getElementById('buildlog-text-id');
+                    textarea.scrollTop = textarea.scrollHeight;
+                }, 500);
+            }
+
+        });
+    }
+
+    var promise = $interval(fetchBuildLogs, 2000);
+    $scope.$on('$destroy', function () {
+        $interval.cancel(promise);
+    });
+
     (function AppDefinitionsContentCtrl() {
 
         $scope.newAppData = {};
+
+        $scope.onExpandLogClicked = function (app) {
+            app.expandedLogs = !app.expandedLogs;
+        };
 
         $scope.onEnableBaseDomainSsl = function (appName) {
             $scope.loadingState.enabled = true;
@@ -92,6 +170,7 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
         $scope.openAppEdit = function (app) {
             // Make a copy of app object to avoid showing the unsaved data in the table
             $scope.editContent.appsToEdit.push(JSON.parse(JSON.stringify(app)));
+            fetchBuildLogs();
         }
 
         $scope.closeAppEdit = function (app) {
@@ -223,9 +302,12 @@ function AppDefinitionCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
                     }
 
                     captainToast.showToastSuccess(
-                        app.appName + ' is successfully uploaded & updated.');
+                        app.appName + ' is successfully uploaded.');
 
-                    $state.reload();
+                    app.lastLineNumberPrinted = undefined;
+                    app.buildLogs = undefined;
+                    fetchBuildLogs();
+                    
                 });
             });
         };

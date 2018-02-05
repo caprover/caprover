@@ -69,7 +69,7 @@ angular.module('RDash')
                         showToastError('Please try again...');
                         return 99999;
                     }
-                    if (data && data.status != 100) {
+                    if (data && data.status != 100 && data.status != 101) {
                         // Avoid showing auth token failure errors if there's not token. i.e., fresh page load
                         if (apiManager.isLoggedIn() || data.status !== apiStatusCode.STATUS_AUTH_TOKEN_INVALID) {
                             showToastError(data.description);

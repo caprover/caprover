@@ -11,7 +11,7 @@
     // Uncomment the following line if you have dnsmasq installed
     // BASE_API = 'http://captain.captain.localhost/api/v1/';
     // Uncomment the following line if you don't have dnsmasq installed
-    // BASE_API = 'http://127.0.0.1:3000/api/v1/';
+    BASE_API = 'http://127.0.0.1:3000/api/v1/';
 
     function ApiManager(captainLogger, $http, $timeout) {
 
@@ -294,7 +294,7 @@
 
                 $http({
                     method: 'POST',
-                    url: BASE_API + 'user/appData/' + appName,
+                    url: BASE_API + 'user/appData/' + appName + '?detached=1',
                     headers: headers,
                     data: {
                         sourceFile: file
@@ -336,6 +336,17 @@
                     .post(BASE_API + 'user/appDefinitions/delete', {
                         appName: appName
                     }, createConfig())
+                    .then(
+                    function (response) {
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
+            fetchBuildLogs: function (appName, callback) {
+                $http
+                    .get(BASE_API + 'user/appData/' + appName, createConfig())
                     .then(
                     function (response) {
                         callback(response.data);
