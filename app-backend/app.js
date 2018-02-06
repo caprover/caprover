@@ -4,6 +4,7 @@ let favicon = require('serve-favicon');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
+let helmet = require('helmet');
 let httpProxy = require('http-proxy').createProxyServer({});
 
 let CaptainManager = require('./src/user/CaptainManager');
@@ -21,6 +22,7 @@ let app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(helmet());
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
