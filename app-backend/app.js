@@ -4,6 +4,7 @@ let favicon = require('serve-favicon');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
+let helmet = require('helmet');
 let httpProxy = require('http-proxy').createProxyServer({});
 
 let CaptainManager = require('./src/user/CaptainManager');
@@ -17,6 +18,8 @@ let LoginRouter = require('./src/routes/LoginRouter');
 let UserRouter = require('./src/routes/UserRouter');
 
 let app = express();
+
+app.use(helmet());
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
