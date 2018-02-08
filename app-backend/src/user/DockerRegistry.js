@@ -39,7 +39,7 @@ class DockerRegistry {
             .then(function (rootHasSsl) {
 
                 if (!rootHasSsl) {
-                    throw new Error('Root must have SSL before enabling ssl for docker registry.');
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Root must have SSL before enabling ssl for docker registry.');
                 }
 
                 return self.certbotManager.enableSsl(CaptainConstants.registrySubDomain + '.' + self.dataStore.getRootDomain());

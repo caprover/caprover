@@ -165,11 +165,16 @@ function DashboardController($scope, $cookieStore, $rootScope, pageDefinitions,
                     templateUrl: 'templates/modals/simple.html',
                     size: null,
                     controller: function ($scope) {
-                        $scope.message = 'Docker Registry has successfully been updated. IMPORTANT NOTE: it will take up to a minute for you to see this change! Please be patient!';
+                        $scope.message = 'Docker Registry has successfully been updated. ' +
+                            'IMPORTANT NOTE: this takes a few minutes. You might see error meanwhile, ' +
+                            'do not worry about the errors as your server is being set up! Please be patient!';
                         $scope.title = 'Success!';
                     }
                 }).result.then(function () {
                     $state.reload();
+                    setTimeout(function () {
+                        window.location.reload(true);
+                    }, 6000);
                 });
 
             });
