@@ -75,6 +75,10 @@ Start the debug build for the backend service as explained above. To see any cha
 first save the changes, then you need to restart the service either by sending a request to `/force-exit` endpoint,
 or by running `./dev-reset-service.sh` script which is available in `app-backend` directory.
 
+### Security Issues
+Security issues are high priority and they will be addressed immediately. If you find a security issue, please do not post as a public issue, instead, please email it to us: captainduckduck.github@gmail.com
+
+
 ## Code of Conduct
 
 ### Our Pledge
