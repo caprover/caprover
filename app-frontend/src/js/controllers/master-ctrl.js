@@ -8,6 +8,8 @@ angular.module('RDash')
 
 function MasterCtrl($scope, $cookieStore, $rootScope, pageDefinitions
     , $location, apiManager) {
+    
+    $scope.isFullPage = true;
 
     $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
         $scope.routePath = toState.url;
@@ -15,7 +17,7 @@ function MasterCtrl($scope, $cookieStore, $rootScope, pageDefinitions
         for (var count = 0; count < pageDefinitions.length; count++) {
             if (pageDefinitions[count].url == toState.url){
                 $scope.pageName = pageDefinitions[count].name;
-                $scope.isFullPage = pageDefinitions[count].isFullPage;
+                $scope.isFullPage = pageDefinitions[count].isFullPage || !apiManager.isLoggedIn();
             }
         }
     });
