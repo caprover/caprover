@@ -489,7 +489,8 @@ class CaptainManager {
         return Promise.resolve()
             .then(function () {
 
-                return dockerApi.ensureContainerStoppedAndRemoved(CaptainConstants.netDataContainerName);
+                return dockerApi.ensureContainerStoppedAndRemoved(CaptainConstants.netDataContainerName,
+                    CaptainConstants.captainNetworkName);
 
             })
             .then(function () {

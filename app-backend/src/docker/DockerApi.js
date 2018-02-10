@@ -328,7 +328,15 @@ class DockerApi {
             });
     }
 
-    ensureContainerStoppedAndRemoved(nameOrId) {
+    /**
+     * This method container a lot of hacks to workaround some Docker issues.
+     * See https://github.com/githubsaturn/captainduckduck/issues/176
+     *
+     * @param nameOrId
+     * @param networkIdOrName
+     * @returns {Promise<void>}
+     */
+    ensureContainerStoppedAndRemoved(nameOrId, networkIdOrName) {
 
         const self = this;
 
@@ -337,6 +345,8 @@ class DockerApi {
         return Promise.resolve()
             .then(function () {
 
+                Logger.d('Stopping ' + nameOrId);
+
                 return self.dockerode.getContainer(nameOrId)
                     .stop({
                         t: 2
@@ -344,8 +354,19 @@ class DockerApi {
             })
             .then(function () {
 
-                return self.dockerode.getContainer(nameOrId)
-                    .wait();
+                Logger.d('Waiting to stop ' + nameOrId);
+
+                return Promise.race([
+                    self.dockerode.getContainer(nameOrId)
+                        .wait()
+                    ,
+                    new Promise(function (resolve, reject) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 7000);
+                    })
+                ]);
+
             })
             .catch(function (error) {
                 if (error && error.statusCode === 304) {
@@ -356,8 +377,32 @@ class DockerApi {
             })
             .then(function () {
 
+                Logger.d('Removing ' + nameOrId);
+
                 return self.dockerode.getContainer(nameOrId)
                     .remove({force: true});
+
+            })
+            .then(function () {
+
+                Logger.d('Pruning containers...');
+
+                return self.pruneContainers()
+                    .catch(function (err) {
+                        Logger.d('Prune Containers Failed!');
+                        Logger.e(err);
+                    });
+
+            })
+            .then(function () {
+
+                Logger.d('Disconnecting from network: ' + nameOrId);
+
+                return self.dockerode.getNetwork(networkIdOrName)
+                    .disconnect({
+                        Force: true,
+                        Container: nameOrId
+                    });
 
             })
             .catch(function (error) {
@@ -1230,7 +1275,7 @@ class DockerApi {
             })
     }
 
-    getDockerVersion(){
+    getDockerVersion() {
 
         const self = this;
 
@@ -1240,7 +1285,7 @@ class DockerApi {
             })
     }
 
-    getDockerInfo(){
+    getDockerInfo() {
 
         const self = this;
 
