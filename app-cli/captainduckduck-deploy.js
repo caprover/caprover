@@ -262,6 +262,12 @@ function deployTo(machineToDeploy, branchToPush, appName) {
     console.log(zipFileFullPath);
     console.log(' ');
 
+    try {
+        fs.removeSync(zipFileFullPath);
+    } catch (ignoreError) {
+
+    }
+
     exec('git archive --format tar --output "' + zipFileFullPath + '" ' + branchToPush, function (err, stdout, stderr) {
         if (err) {
             console.log(chalk.red('TAR file failed'));
@@ -285,8 +291,21 @@ function deployTo(machineToDeploy, branchToPush, appName) {
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
 
+            function isAuthTokenValidCallback(isValid) {
+                if (isValid) {
+                    sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
+                }
+                else {
 
-            sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
+                    requestLogin(machineToDeploy.name, machineToDeploy.baseUrl, function callback(machineToDeployNew) {
+
+                        deployTo(machineToDeployNew, branchToPush, appName);
+
+                    });
+                }
+            }
+
+            isAuthTokenValid(machineToDeploy, appName, isAuthTokenValidCallback);
 
         });
     });
@@ -500,6 +519,43 @@ function startFetchingBuildLogs(machineToDeploy, appName) {
             console.error(chalk.red('\nSomething while retrieving app build logs.. "' + error + '"\n'));
 
             onLogRetrieved(null);
+        }
+    }
+
+    request(options, callback);
+}
+
+function isAuthTokenValid(machineToDeploy, appName, isAuthTokenValidCallback) {
+
+    let options = {
+        url: machineToDeploy.baseUrl + '/api/v1/user/appDefinitions/',
+        headers: {
+            'x-namespace': 'captain',
+            'x-captain-auth': machineToDeploy.authToken
+        },
+        method: 'GET'
+    };
+
+
+    function callback(error, response, body) {
+
+        try {
+
+            if (!error && response.statusCode === 200) {
+
+                let data = JSON.parse(body);
+
+                if (data.status === 1106 || data.status === 1105) {
+                    isAuthTokenValidCallback(false);
+                }
+                else {
+                    isAuthTokenValidCallback(true);
+                }
+            }
+
+        } catch (error) {
+            // This is just a sanity check. We only fire FALSE (i.e. expired) if we know it's expired or password is wrong
+            isAuthTokenValidCallback(true);
         }
     }
 
