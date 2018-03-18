@@ -57,7 +57,7 @@ Captain definition file for a nodejs application is:
 ```
 
 
-See https://github.com/githubsaturn/captainduckduck/blob/master/README.md for more details on Captain Definition file.
+See https://github.com/githubsaturn/captainduckduck/wiki/Captain-Definition-File for more details on Captain Definition file.
 
 After making sure that this file exists, run the following command and answers questions:
 
