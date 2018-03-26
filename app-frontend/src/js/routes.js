@@ -25,6 +25,12 @@
                 icon: 'code'
             },
             {
+                name: 'App details',
+                url: '/apps/:appName',
+                templateUrl: 'templates/app-details.html',
+                controller: 'AppDetailsCtrl',
+            },
+            {
                 name: 'Nodes',
                 url: '/nodes',
                 templateUrl: 'templates/nodes.html',
