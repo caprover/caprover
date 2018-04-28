@@ -876,7 +876,11 @@ class CaptainManager {
     changeCaptainRootDomain(requestedCustomDomain) {
 
         const self = this;
-        let url = uuid() + '.' + requestedCustomDomain + ':' +
+        // Some DNS servers do not allow wild cards. Therefore this line may fail.
+        // We still allow users to specify the domains in their DNS settings individually
+        // SubDomains that need to be added are "captain." "registry." "app-name."
+        let url = CaptainConstants.preCheckForWildCard ? uuid() : CaptainConstants.captainSubDomain +
+            '.' + requestedCustomDomain + ':' +
             CaptainConstants.nginxPortNumber;
 
         return self.verifyDomainResolvesToDefaultServerOnHost(url)

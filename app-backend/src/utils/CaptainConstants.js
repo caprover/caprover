@@ -45,6 +45,8 @@ let data = {
 
     netDataRelativePath: '/net-data-monitor',
 
+    preCheckForWildCard: true,
+
     captainSubDomain: 'captain',
 
     registrySubDomain: 'registry',
