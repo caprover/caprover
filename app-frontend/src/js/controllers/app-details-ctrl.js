@@ -1,8 +1,8 @@
 angular.module('RDash')
-    .controller('AppDetailsCtrl', ['$scope','apiManager', 'captainToast',
+    .controller('AppDetailsCtrl', ['$scope', 'apiManager', 'captainToast',
         '$uibModal', '$state', '$location', '$interval', '$stateParams', AppDetailsCtrl]);
 
-function AppDetailsCtrl($scope, 
+function AppDetailsCtrl($scope,
     apiManager, captainToast, $uibModal, $state, $location, $interval, $stateParams) {
     $scope.rootDomainWithProtocol = '';
     $scope.loadingState = {};
@@ -34,7 +34,7 @@ function AppDetailsCtrl($scope,
 
         const appNameInRoute = $stateParams.appName;
         const appToEdit = allApps.find(app => app.appName === appNameInRoute);
-        if(!appToEdit) {
+        if (!appToEdit) {
             $location.url('/apps'); // app not found
         }
         $scope.editContext.appToEdit = appToEdit;
@@ -107,7 +107,7 @@ function AppDetailsCtrl($scope,
             if (lineAdded) {
                 setTimeout(function () {
                     var textarea = document.getElementById('buildlog-text-id');
-                    if(textarea) textarea.scrollTop = textarea.scrollHeight;
+                    if (textarea) textarea.scrollTop = textarea.scrollHeight;
                 }, 500);
             }
 
@@ -115,7 +115,7 @@ function AppDetailsCtrl($scope,
     }
 
     // Fetch the build logs immediately...
-    fetchBuildLogs();   
+    fetchBuildLogs();
 
     // ... and every other second
     var promise = $interval(fetchBuildLogs, 2000);
@@ -212,9 +212,10 @@ function AppDetailsCtrl($scope,
         $scope.modalAppDelete = {};
         var modalAppDelete = $scope.modalAppDelete;
 
-        $scope.onDeleteAppClicked = function (appName) {
+        $scope.onDeleteAppClicked = function (appName, hasPersistentData) {
 
             $scope.modalAppDelete.appName = appName;
+            $scope.modalAppDelete.hasPersistentData = hasPersistentData;
             $scope.modalAppDelete.appNameConfirm = '';
 
             $uibModal.open({
@@ -286,7 +287,7 @@ function AppDetailsCtrl($scope,
                     app.lastLineNumberPrinted = undefined;
                     app.buildLogs = undefined;
                     fetchBuildLogs();
-                    
+
                 });
             });
         };

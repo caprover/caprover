@@ -4,8 +4,8 @@
 <div ng-show="!loadingState.enabled">
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
-      <br/>
-      <br/>
+      <br>
+      <br>
 
       <rd-widget>
         <rd-widget-header icon="fa-code" title="{{app.appName}}">
@@ -51,9 +51,8 @@
                       <div class="form-group">
                         <div class="input-group">
                           <input type="text" class="form-control" ng-model="app.newCustomDomain" id="customDomain" placeholder="www.the-best-app-in-the-world.com">
-                          <span class="input-group-btn ">
-                            <button type="submit" class="btn btn-primary" uib-tooltip="Make sure it points to this IP, otherwise verification will fail."
-                              ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
+                          <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary" uib-tooltip="Make sure it points to this IP, otherwise verification will fail." ng-click="onNewCustomDomainClicked(app.appName,app.newCustomDomain)">
                               Connect New Domain</button>
                           </span>
                         </div>
@@ -61,14 +60,14 @@
                     </form>
                   </div>
 
-                  <br/>
+                  <br>
 
                   <div ng-repeat="c in app.customDomain">
 
                     <div class="row">
 
                       <div style="margin-top: 5px" class="col-md-9">
-                        <a style="color: #777777;" href="http://{{c.publicDomain}}">{{c.publicDomain}}</a>
+                        <a style="color: #777777" href="http://{{c.publicDomain}}">{{c.publicDomain}}</a>
                       </div>
 
                       <div class="col-md-3">
@@ -77,7 +76,7 @@
                           <form class="col-md-3">
                             <div class="form-group">
                               <div class="input-group">
-                                <span class="input-group-btn ">
+                                <span class="input-group-btn">
                                   <button ng-disabled="c.hasSsl" ng-click="onEnableCustomDomainSslClicked(app.appName,c.publicDomain)" type="button" class="btn btn-success">Enable HTTPS</button>
                                   <button type="button" ng-click="onRemoveCustomDomainClicked(app.appName,c.publicDomain)" class="btn btn-default btn-with-icon">
                                     <i class="fa-minus-circle fa"></i> Remove
@@ -92,7 +91,7 @@
 
                     </div>
 
-                    <br/>
+                    <br>
 
                   </div>
 
@@ -111,8 +110,7 @@
                       <div class="row">
                         <div class="col-sm-12">
                           <div class="form-group">
-                            <textarea style="font-family: monospace;" rows="17" ng-model="app.customNginxConfig" placeholder="" class="form-control"
-                              id="textareaAppNginxConfig"></textarea>
+                            <textarea style="font-family: monospace" rows="17" ng-model="app.customNginxConfig" placeholder="" class="form-control" id="textareaAppNginxConfig"></textarea>
                           </div>
                         </div>
                       </div>
@@ -120,7 +118,7 @@
 
                   </div>
 
-                  <br/>
+                  <br>
 
                   <div class="checkbox">
                     <label>
@@ -134,18 +132,18 @@
               </div>
             </div>
 
-            <hr/>
+            <hr>
 
             <h4>Deployment</h4>
 
-            <hr/>
+            <hr>
             <div class="row alerts-container" ng-show="app.isAppBuilding">
               <uib-alert type="info">
-                <div style="padding-left: 20px; padding-top: 10px;" class="row">
+                <div style="padding-left: 20px; padding-top: 10px" class="row">
                   <div class="pull-left">
                     <div class="inline-loader"></div>
                   </div>
-                  <div style="margin-left: 15px;" class="pull-left">
+                  <div style="margin-left: 15px" class="pull-left">
                     Building the image. This might take a few minutes...
                   </div>
                 </div>
@@ -159,7 +157,7 @@
               </div>
 
               <div class="row" ng-show="app.isAppBuilding || app.expandedLogs">
-                <textarea id="buildlog-text-id" style="padding:10px; background: #eeeeee" rows="10" readonly class="col-sm-12">{{app.buildLogs}}</textarea>
+                <textarea id="buildlog-text-id" style="padding:10px; background: #eeeeee" rows="10" readonly="readonly" class="col-sm-12">{{app.buildLogs}}</textarea>
               </div>
 
             </div>
@@ -167,11 +165,11 @@
               <div class="col-lg-12">
                 <p>
                   <b>Current Version: </b>{{app.deployedVersion}}
-                  <br/>
+                  <br>
                   <b>Git Commit Hash: </b> {{app.deployedGitHash}}
-                  <br/>
+                  <br>
                   <b>Deployed at</b> {{app.deployedTimeStamp}}
-                  <br/>
+                  <br>
                 </p>
                 <p>Make sure that you have a 'captain-definition' file in your project. See
                   <a href="https://github.com/githubsaturn/captainduckduck/wiki/Captain-Definition-File" target="_blank">docs</a> for more details.</p>
@@ -194,12 +192,12 @@
 
                     <label class="btn btn-sm btn-default btn-file">
                       Select TAR source file
-                      <input type="file" style="display: none;" fileread="app.sourceToUpload">
+                      <input type="file" style="display: none" fileread="app.sourceToUpload">
                     </label>
 
                     <button type="button" class="btn btn-sm btn-primary pull-right" ng-disabled="!app.sourceToUpload" ng-click="onUploadSourceCodeClicked()">Upload &amp; Deploy</button>
 
-                    <p style="padding-top: 5px;">
+                    <p style="padding-top: 5px">
                       <i>{{app.sourceToUpload.name}}</i>
                     </p>
 
@@ -221,7 +219,7 @@
                       '** Add repo info and save for this webhook to appear **'}}</pre>
                   </p>
                 </div>
-                <br/>
+                <br>
                 <div class="row">
                   <div class="form-group col-sm-6">
                     <div class="input-group">
@@ -254,7 +252,7 @@
               </div>
             </div>
 
-            <hr/>
+            <hr>
 
             <div>
 
@@ -262,7 +260,7 @@
               <div ng-show="!app.envVars || !app.envVars.length">
                 <i>Currently, this app does not have any custom environmental variables yet.</i>
               </div>
-              <br/>
+              <br>
               <div class="row" ng-repeat="ev in app.envVars">
                 <div class="form-group col-sm-6">
                   <div class="input-group">
@@ -273,7 +271,7 @@
                 <div class="col-sm-6 form-group">
                   <div class="input-group">
                     <span class="input-group-addon">Value:</span>
-                    <textarea style="height:50px;padding-top:13px;" type="text" class="form-control" ng-model="ev.value" placeholder="Value"></textarea>
+                    <textarea style="height:50px;padding-top:13px" type="text" class="form-control" ng-model="ev.value" placeholder="Value"></textarea>
                   </div>
                 </div>
               </div>
@@ -284,7 +282,7 @@
               </div>
             </div>
 
-            <hr/>
+            <hr>
 
             <div>
 
@@ -297,7 +295,7 @@
                 <i>Currently, this app does not have any custom port mapping.
                 </i>
               </div>
-              <br/>
+              <br>
               <div class="row" ng-repeat="pt in app.ports">
                 <div class="form-group col-sm-6">
                   <div class="input-group" uib-tooltip="Make sure the port is not used!">
@@ -308,7 +306,7 @@
                 <div class="col-sm-6 form-group">
                   <div class="input-group">
                     <span class="input-group-addon">Container Port:</span>
-                    <textarea style="height:50px;padding-top:13px;" type="text" class="form-control" ng-model="pt.containerPort" placeholder="80"></textarea>
+                    <textarea style="height:50px;padding-top:13px" type="text" class="form-control" ng-model="pt.containerPort" placeholder="80"></textarea>
                   </div>
                 </div>
               </div>
@@ -319,7 +317,7 @@
               </div>
             </div>
 
-            <hr/>
+            <hr>
 
             <div ng-show="app.hasPersistentData">
               <h4>Persistent Directories &nbsp;
@@ -332,7 +330,7 @@
               <div ng-show="!app.volumes || !app.volumes.length">
                 <i>Currently, this app does not have any persistent directories.</i>
               </div>
-              <br/>
+              <br>
               <div class="row" ng-repeat="vol in app.volumes">
                 <div class="form-group col-sm-4">
                   <div class="input-group">
@@ -363,7 +361,7 @@
                 </div>
               </div>
 
-              <hr/>
+              <hr>
 
               <div class="row">
                 <div class="form-group col-md-6">
@@ -376,8 +374,7 @@
                       </a>
 
                     </span>
-                    <input uib-tooltip="Leave empty for automatic placement" type="text" class="form-control" ng-disabled="!app.unlockNodeIdForEdit"
-                      ng-model="app.nodeId">
+                    <input uib-tooltip="Leave empty for automatic placement" type="text" class="form-control" ng-disabled="!app.unlockNodeIdForEdit" ng-model="app.nodeId">
                   </div>
                   <div class="input-group">
                   </div>
@@ -391,7 +388,7 @@
 
             </div>
 
-            <hr/>
+            <hr>
 
             <div class="form-group col-xs-6">
               <div class="input-group" uib-tooltip="{{app.hasPersistentData?'Cannot change instances of an app with persistent data':'Number of running instances of this app'}}">

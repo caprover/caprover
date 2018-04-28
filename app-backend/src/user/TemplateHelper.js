@@ -22,7 +22,12 @@ function getTagsForImage(imageBaseName, url, allTags) {
                     return;
                 }
 
-                body = JSON.parse(body);
+                try {
+                    // Sometimes Docker server is down and it crashes Captain!
+                    body = JSON.parse(body);
+                } catch (e) {
+                    Logger.e(e);
+                }
 
                 let results = null;
 
