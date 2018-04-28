@@ -588,23 +588,35 @@ class DockerApi {
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
                 if (portsToMap[i].protocol) {
-                    ports.push({
+                    let item = {
                         Protocol: portsToMap[i].protocol,
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
-                    });
+                    };
+
+                    if (portsToMap[i].publishMode) {
+                        item.PublishMode = portsToMap[i].publishMode;
+                    }
+
+                    ports.push(item);
                 }
                 else {
-                    ports.push({
+                    let tcpItem = {
                         Protocol: 'tcp',
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
-                    });
-                    ports.push({
+                    };
+                    let udpItem = {
                         Protocol: 'udp',
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
-                    });
+                    };
+                    if (portsToMap[i].publishMode) {
+                        tcpItem.PublishMode = portsToMap[i].publishMode;
+                        udpItem.PublishMode = portsToMap[i].publishMode;
+                    }
+                    ports.push(tcpItem);
+                    ports.push(udpItem);
                 }
             }
         }

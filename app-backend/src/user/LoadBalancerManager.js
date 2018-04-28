@@ -308,10 +308,12 @@ class LoadBalancerManager {
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.nginxImageName, CaptainConstants.nginxServiceName, [{
                 protocol: 'tcp',
+                publishMode: 'host',
                 containerPort: 80,
                 hostPort: CaptainConstants.nginxPortNumber
             }, {
                 protocol: 'tcp',
+                publishMode: 'host',
                 containerPort: 443,
                 hostPort: 443
             }], nodeId, null, null, {
