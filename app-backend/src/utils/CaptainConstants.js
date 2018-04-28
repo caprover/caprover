@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const EnvVars = require('./EnvVars');
 
 const CAPTAIN_ROOT_DIRECTORY = '/captain';
+const CONSTAnT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp';
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated';
 
@@ -119,6 +120,23 @@ let data = {
     perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d'
 
 };
+
+let overridingValues = fs.readJsonSync(CONSTAnT_FILE_OVERRIDE, {throws: false});
+
+if (!!overridingValues) {
+
+    for (let prop in overridingValues) {
+
+        if (!overridingValues.hasOwnProperty(prop)) {
+            continue;
+        }
+
+        console.log('Overriding ' + prop);
+
+        data[prop] = overridingValues[prop];
+    }
+}
+
 
 if (data.isDebug) {
 
