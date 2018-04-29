@@ -1,10 +1,11 @@
 <rd-loading ng-show="loadingState.enabled">
 </rd-loading>
 
-<div ng-show="!loadingState.enabled">
+<div ng-show="!loadingState.enabled" style="padding-bottom: 100px!important;">
+
+
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
-      <br/>
 
       <rd-widget>
         <rd-widget-header icon="fa-code" title="{{app.appName}}">
@@ -227,7 +228,7 @@
                             and etc. Once you push a commit, CaptainDuckDuck starts a new build.
                             <br>
                             <pre>{{app.appPushWebhook.pushWebhookToken?(rootDomainWithProtocol+'/api/v1/user/webhooks/triggerbuild?namespace=captain&token='+app.appPushWebhook.pushWebhookToken):
-                      '** Add repo info and save for this webhook to appear **'}}</pre>
+                        '** Add repo info and save for this webhook to appear **'}}</pre>
                           </p>
                         </div>
                         <br/>
@@ -423,17 +424,23 @@
               </div>
             </div>
 
-            <div class="col-md-12" style="margin-top: 50px">
-              <button type="button" class="btn btn-danger" ng-click="onDeleteAppClicked(app.appName,app.hasPersistentData)">Delete App</button>
-              <div class="pull-right">
-                <button type="button" class="btn btn-primary" ng-click="onUpdateConfigAndSave()">Save &amp; Update Configuration</button>
-              </div>
-            </div>
-
           </div>
 
         </rd-widget-body>
       </rd-widget>
+
+      <nav class="navbar navbar-fixed-bottom panel-footer">
+        <div class="row">
+          <br/>
+          <div class="col-xs-6 col-xs-offset-4">
+            <button style="margin-bottom: 10px" type="button" class="btn btn-danger" ng-click="onDeleteAppClicked(app.appName,app.hasPersistentData)">Delete App</button>
+            <div class="pull-right">
+              <button style="margin-bottom: 10px" type="button" class="btn btn-primary" ng-click="onUpdateConfigAndSave()">Save &amp; Update Configuration</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
     </div>
   </div>
 </div>

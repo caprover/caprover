@@ -12,6 +12,12 @@ textarea {
 .allow-linebreaks-spans span {
   white-space: pre-line;
 }
+.panel-footer {
+  background-color: white!important;
+  border-color: #589fce;
+  border-top-width: 2px;
+  min-height: 80px;
+}
 .inline-loader {
   border: 1px solid #f3f3f3;
   border-radius: 50%;
