@@ -95,6 +95,7 @@ app.use(CaptainConstants.netDataRelativePath, Injector.injectUserUsingCookieData
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 
     if (!res.locals.user) {
+        Logger.e('User not logged in for NetData');
         res.sendStatus(500);
     }
     else {
@@ -109,12 +110,17 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
         if (res.locals.errorProxyHandled) {
             return;
         }
+
+        if (err) {
+            Logger.e(err);
+        }
+
         res.locals.errorProxyHandled = true;
         res.writeHead(500, {
             'Content-Type': 'text/plain'
         });
 
-        res.end('Something went wrong...');
+        res.end('Something went wrong... err: \n ' + (err ? err : 'NULL'));
     });
 
 });
