@@ -11,18 +11,18 @@
                 icon: 'desktop'
             },
             {
-                name: 'Monitoring',
-                url: '/monitoring',
-                templateUrl: 'templates/monitoring.html',
-                controller: 'MonitoringCtrl',
-                icon: 'tachometer'
-            },
-            {
                 name: 'Apps',
                 url: '/apps',
                 templateUrl: 'templates/apps.html',
                 controller: 'AppDefinitionCtrl',
                 icon: 'code'
+            },
+            {
+                name: 'Monitoring',
+                url: '/monitoring',
+                templateUrl: 'templates/monitoring.html',
+                controller: 'MonitoringCtrl',
+                icon: 'tachometer'
             },
             {
                 name: 'App details',
