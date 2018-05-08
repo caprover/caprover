@@ -3,7 +3,7 @@ angular.module('RDash')
         '$uibModal', '$state', '$location', '$interval', '$stateParams', AppDetailsCtrl]);
 
 function AppDetailsCtrl($scope,
-    apiManager, captainToast, $uibModal, $state, $location, $interval, $stateParams) {
+                        apiManager, captainToast, $uibModal, $state, $location, $interval, $stateParams) {
     $scope.rootDomainWithProtocol = '';
     $scope.loadingState = {};
     $scope.loadingState.enabled = true;
@@ -38,6 +38,7 @@ function AppDetailsCtrl($scope,
             $location.url('/apps'); // app not found
         }
         $scope.editContext.appToEdit = appToEdit;
+        appToEdit.hasPostDeployScript = !!appToEdit.postDeployScript;
         $scope.app = $scope.editContext.appToEdit;
 
         $scope.rootDomain = data.rootDomain;
@@ -130,6 +131,11 @@ function AppDetailsCtrl($scope,
             app.expandedLogs = !app.expandedLogs;
         };
 
+        $scope.onPostDeployScriptToggled = function () {
+            const app = $scope.editContext.appToEdit;
+            app.hasPostDeployScript = !app.hasPostDeployScript;
+        };
+
         $scope.onEnableBaseDomainSsl = function (appName) {
             $scope.loadingState.enabled = true;
 
@@ -163,21 +169,21 @@ function AppDetailsCtrl($scope,
             const app = $scope.editContext.appToEdit;
             if (!app.ports)
                 app.ports = [];
-            app.ports.push({ containerPort: '', hostPort: '' });
+            app.ports.push({containerPort: '', hostPort: ''});
         }
 
         $scope.addEnvVarClicked = function () {
             const app = $scope.editContext.appToEdit;
             if (!app.envVars)
                 app.envVars = [];
-            app.envVars.push({ key: '', value: '' });
+            app.envVars.push({key: '', value: ''});
         }
 
         $scope.addVolumeClicked = function () {
             const app = $scope.editContext.appToEdit;
             if (!app.volumes)
                 app.volumes = [];
-            app.volumes.push({ volumeName: '', containerPath: '' });
+            app.volumes.push({volumeName: '', containerPath: ''});
         }
 
         $scope.setHostPath = function (vol, path) {
@@ -337,6 +343,7 @@ function AppDetailsCtrl($scope,
                 forceSsl: app.forceSsl,
                 appPushWebhook: app.appPushWebhook,
                 customNginxConfig: app.customNginxConfig,
+                postDeployScript: app.hasPostDeployScript ? app.postDeployScript : null,
                 volumes: app.volumes
             }
 
