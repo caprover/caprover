@@ -17,6 +17,7 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var ME_CONFIG_MONGODB_SERVER = 'ME_CONFIG_MONGODB_SERVER';
+        var DOCKER_TAG = 'DOCKER_TAG';
         var ME_CONFIG_MONGODB_ADMINUSERNAME = 'ME_CONFIG_MONGODB_ADMINUSERNAME';
         var ME_CONFIG_MONGODB_ADMINPASSWORD = 'ME_CONFIG_MONGODB_ADMINPASSWORD';
 
@@ -33,6 +34,13 @@
         step1next.data.push({
             label: 'Container Name',
             id: CONTAINER_NAME,
+            type: 'text'
+        });
+
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "0.45")',
+            labelDesc: 'https://hub.docker.com/r/library/mongo-express/tags/',
+            id: DOCKER_TAG,
             type: 'text'
         });
 
@@ -128,6 +136,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '0.45';
             var envVars = [{
                 key: ME_CONFIG_MONGODB_SERVER,
                 value: data[ME_CONFIG_MONGODB_SERVER]
@@ -193,7 +202,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM mongo-express",
+                        "FROM mongo-express:" + dockerTag,
                         'ENV VCAP_APP_PORT=80',
                         'EXPOSE 80'
                     ]

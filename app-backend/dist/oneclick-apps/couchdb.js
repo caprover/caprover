@@ -10,6 +10,7 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var COUCHDB_CONTAINER_NAME = 'COUCHDB_CONTAINER_NAME';
+        var DOCKER_TAG = 'DOCKER_TAG';
         var COUCHDB_PASSWORD = 'COUCHDB_PASSWORD';
         var COUCHDB_USER = 'COUCHDB_USER';
 
@@ -19,6 +20,12 @@
         step1next.data.push({
             label: 'Container Name',
             id: COUCHDB_CONTAINER_NAME,
+            type: 'text'
+        });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "2")',
+            labelDesc: 'https://hub.docker.com/r/library/couchdb/tags/',
+            id: DOCKER_TAG,
             type: 'text'
         });
         step1next.data.push({
@@ -77,17 +84,18 @@
             }
 
             var appName = data[COUCHDB_CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '2';
             var envVars = [{
                 key: COUCHDB_PASSWORD,
                 value: data[COUCHDB_PASSWORD]
-            },{
+            }, {
                 key: COUCHDB_USER,
                 value: data[COUCHDB_USER]
             }];
             var volumes = [{
                 volumeName: appName + '-data',
                 containerPath: '/opt/couchdb/data'
-            },{
+            }, {
                 volumeName: appName + '-config',
                 containerPath: '/opt/couchdb/etc'
             }];
@@ -130,7 +138,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM couchdb:2"
+                        "FROM couchdb:" + dockerTag
                     ]
                 }
 
@@ -153,9 +161,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'CouchDB is a database that uses JSON for documents, an HTTP API, & JavaScript/declarative indexing.'+
-            '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 5984 to other CaptainDuckDuck apps.' +            
-            '\n\nEnter your CouchDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'CouchDB is a database that uses JSON for documents, an HTTP API, & JavaScript/declarative indexing.' +
+                '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 5984 to other CaptainDuckDuck apps.' +
+                '\n\nEnter your CouchDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;

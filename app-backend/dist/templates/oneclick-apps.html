@@ -82,11 +82,13 @@
 
             <div ng-repeat="param in selectedTemplate.currentStep.next.data">
               <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-10">
-
-                  <label> {{param.label}}</label>
-                  <p ng-show="!!param.labelDesc">{{param.labelDesc}}</p>
+                <div class="col-sm-12">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <label> {{param.label}}</label>
+                      <p ng-show="!!param.labelDesc" class="allow-linebreaks-spans"> {{param.labelDesc}}</p>
+                    </div>
+                  </div>
                   <div class="row">
                     <div class="col-sm-6">
                       <input ng-show="param.type==='text'" class="form-control" ng-model="param.value">

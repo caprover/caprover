@@ -15,6 +15,7 @@
         var POSTGRES_INITDB_ARGS = 'POSTGRES_INITDB_ARGS';
 
         var CONTAINER_NAME = 'CONTAINER_NAME';
+        var DOCKER_TAG = 'DOCKER_TAG';
 
         var step1next = {};
 
@@ -24,6 +25,14 @@
             id: CONTAINER_NAME,
             type: 'text'
         });
+
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "9.6")',
+            labelDesc: 'https://hub.docker.com/r/library/postgres/tags/',
+            id: DOCKER_TAG,
+            type: 'text'
+        });
+
         step1next.data.push({
             label: 'Postgres Root Username',
             id: POSTGRES_USER,
@@ -100,6 +109,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '9.6';
             var envVars = [{
                 key: POSTGRES_USER,
                 value: data[POSTGRES_USER]
@@ -156,7 +166,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM postgres:latest"
+                        "FROM postgres:" + dockerTag
                     ]
                 }
 

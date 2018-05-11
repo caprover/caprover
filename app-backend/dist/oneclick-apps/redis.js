@@ -11,6 +11,7 @@
 
         var REDIS_PASSWORD = 'REDIS_PASSWORD';
         var CONTAINER_NAME = 'CONTAINER_NAME';
+        var DOCKER_TAG = 'DOCKER_TAG';
 
         var step1next = {};
 
@@ -20,6 +21,14 @@
             id: CONTAINER_NAME,
             type: 'text'
         });
+
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "4")',
+            labelDesc: 'https://hub.docker.com/r/library/redis/tags/',
+            id: DOCKER_TAG,
+            type: 'text'
+        });
+
         step1next.data.push({
             label: 'OPTIONAL: Redis password',
             id: REDIS_PASSWORD,
@@ -74,6 +83,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '4';
             var envVars = [];
             var volumes = [{
                 volumeName: appName + '-redis-data',
@@ -125,7 +135,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM redis:latest"
+                        "FROM redis:" + dockerTag
                     ]
                 }
 

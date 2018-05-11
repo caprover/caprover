@@ -10,6 +10,7 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var CONTAINER_NAME = 'CONTAINER_NAME';
+        var DOCKER_TAG = 'DOCKER_TAG';
 
         var step1next = {};
 
@@ -19,6 +20,14 @@
             id: CONTAINER_NAME,
             type: 'text'
         });
+
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "6.4.2")',
+            labelDesc: 'https://hub.docker.com/r/apsl/thumbor/tags/',
+            id: DOCKER_TAG,
+            type: 'text'
+        });
+
 
         step1next.process = function (data, step1Callback) {
 
@@ -61,6 +70,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '6.4.2';
             var envVars = [{
                 key: 'THUMBOR_PORT',
                 value: 80
@@ -108,7 +118,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM apsl/thumbor:latest",
+                        "FROM apsl/thumbor:" + dockerTag,
                         "EXPOSE 80"
                     ]
                 }

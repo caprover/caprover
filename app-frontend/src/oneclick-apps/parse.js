@@ -17,6 +17,8 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var PARSE_NAME = 'PARSE_NAME';
+        var DOCKER_TAG_PARSE = 'DOCKER_TAG_PARSE';
+        var DOCKER_TAG_MONGO = 'DOCKER_TAG_MONGO';
         var MONGODB_ROOT_PASSWORD = 'MONGODB_ROOT_PASSWORD';
         var PARSE_SERVER_APPLICATION_ID = 'PARSE_SERVER_APPLICATION_ID';
         var PARSE_SERVER_MASTER_KEY = 'PARSE_SERVER_MASTER_KEY';
@@ -27,6 +29,18 @@
         step1next.data.push({
             label: 'Parser Server Name',
             id: PARSE_NAME,
+            type: 'text'
+        });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag for Parse (default "2.7.4")',
+            labelDesc: 'https://hub.docker.com/r/library/mongo-express/tags/',
+            id: DOCKER_TAG_PARSE,
+            type: 'text'
+        });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag for MongoDB (default "3.2")',
+            labelDesc: 'https://hub.docker.com/r/library/mongo-express/tags/',
+            id: DOCKER_TAG_MONGO,
             type: 'text'
         });
         step1next.data.push({
@@ -93,6 +107,9 @@
             }
 
             var appName = data[PARSE_NAME];
+            var dockerTagParse = data[DOCKER_TAG_PARSE] || '2.7.4';
+            var dockerTagMongo = data[DOCKER_TAG_MONGO] || '3.2';
+
             var mongoDbContainerName = data[PARSE_NAME] + '-mongodb';
 
             var envVarsMongo = [{
@@ -149,7 +166,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM mongo:latest"
+                        "FROM mongo:" + dockerTagMongo
                     ]
                 }
 
@@ -220,7 +237,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM parseplatform/parse-server:latest"
+                        "FROM parseplatform/parse-server:" + dockerTagParse
                     ]
                 }
 

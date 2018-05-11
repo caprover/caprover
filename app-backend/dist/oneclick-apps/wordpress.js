@@ -11,6 +11,8 @@
 
         var WORDPRESS_NAME = 'WORDPRESS_NAME';
         var MYSQL_ROOT_PASSWORD = 'MYSQL_ROOT_PASSWORD';
+        var DOCKER_TAG_WORDPRESS = 'DOCKER_TAG_WORDPRESS';
+        var DOCKER_TAG_MYSQL = 'DOCKER_TAG_MYSQL';
 
         var step1next = {};
 
@@ -25,6 +27,18 @@
             id: MYSQL_ROOT_PASSWORD,
             type: 'text'
         });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag for WordPress (default "4.9")',
+            labelDesc: 'https://hub.docker.com/r/library/wordpress/tags/',
+            id: DOCKER_TAG_WORDPRESS,
+            type: 'text'
+        });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag for MySQL (default "5.5")',
+            labelDesc: 'https://hub.docker.com/r/library/mysql/tags/',
+            id: DOCKER_TAG_MYSQL,
+            type: 'text'
+        });
 
         step1next.process = function (data, step1Callback) {
 
@@ -35,8 +49,8 @@
             function endWithSuccess() {
                 step1Callback({
                     message: {
-                        text: 'Wordpress is deployed and available as ' + data[WORDPRESS_NAME]+
-                        '\n\n IMPORTANT: It will take up to 2 minutes for wordpress to be ready. Before that, you might see 502 error page.\n ',
+                        text: 'Wordpress is deployed and available as ' + data[WORDPRESS_NAME] +
+                            '\n\n IMPORTANT: It will take up to 2 minutes for wordpress to be ready. Before that, you might see 502 error page.\n ',
                         type: SUCCESS
                     },
                     next: null // this can be similar to step1next, in that case the flow continues...
@@ -68,6 +82,8 @@
                 return;
             }
 
+            var dockerTagWordPress = data[DOCKER_TAG_WORDPRESS] || '4.9';
+            var dockerTagMySql = data[DOCKER_TAG_MYSQL] || '5.5';
             var mySqlAppName = data[WORDPRESS_NAME] + '-mysql';
             var envVarsMySql = [{
                 key: MYSQL_ROOT_PASSWORD,
@@ -116,7 +132,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM mysql:latest"
+                        "FROM mysql:" + dockerTagMySql
                     ]
                 }
 
@@ -183,7 +199,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM wordpress:latest"
+                        "FROM wordpress:" + dockerTagWordPress
                     ]
                 }
 

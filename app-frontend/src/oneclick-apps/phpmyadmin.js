@@ -10,6 +10,7 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var CONTAINER_NAME = 'CONTAINER_NAME';
+        var DOCKER_TAG = 'DOCKER_TAG';
 
         var step1next = {};
 
@@ -17,6 +18,12 @@
         step1next.data.push({
             label: 'Container Name',
             id: CONTAINER_NAME,
+            type: 'text'
+        });
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "4.8.0")',
+            labelDesc: 'https://hub.docker.com/r/phpmyadmin/phpmyadmin/tags/',
+            id: DOCKER_TAG,
             type: 'text'
         });
 
@@ -62,6 +69,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '4.8.0';
             var envVars = [{
                 key: "PMA_ARBITRARY",
                 value: "1"
@@ -106,7 +114,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM phpmyadmin/phpmyadmin"
+                        "FROM phpmyadmin/phpmyadmin:" + dockerTag
                     ]
                 }
 

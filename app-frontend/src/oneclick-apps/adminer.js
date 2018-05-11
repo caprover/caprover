@@ -10,6 +10,7 @@
         var getErrorMessageIfExists = apiManager.getErrorMessageIfExists;
 
         var ADMINER_DESIGN = 'ADMINER_DESIGN';
+        var DOCKER_TAG = 'DOCKER_TAG';
         var ADMINER_PLUGINS = 'ADMINER_PLUGINS';
 
         var CONTAINER_NAME = 'CONTAINER_NAME';
@@ -23,8 +24,14 @@
             type: 'text'
         });
         step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "4.3")',
+            labelDesc: 'https://hub.docker.com/r/library/adminer/tags/',
+            id: DOCKER_TAG,
+            type: 'text'
+        });
+        step1next.data.push({
             label: 'OPTIONAL: Adminer design',
-            labelDesc: 'List of designs: https://github.com/vrana/adminer/tree/master/designs',
+            labelDesc: 'List of designs:\n https://github.com/vrana/adminer/tree/master/designs',
             id: ADMINER_DESIGN,
             type: 'text'
         });
@@ -77,6 +84,7 @@
             }
 
             var appName = data[CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '4.3';
             var envVars = [{
                 key: ADMINER_PLUGINS,
                 value: data[ADMINER_PLUGINS]
@@ -124,7 +132,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM adminer:4.3",
+                        "FROM adminer:" + dockerTag,
                         'USER	root',
                         'CMD	[ "php", "-S", "[::]:80", "-t", "/var/www/html" ]',
                         'EXPOSE 80'
@@ -149,9 +157,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP.'+
+            text: 'Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP.' +
                 ' Conversely to phpMyAdmin, it consist of a single file ready to deploy to the target server. Adminer is available for MySQL, PostgreSQL, SQLite, MS SQL, Oracle, Firebird, SimpleDB, Elasticsearch and MongoDB. ' +
-                '\n\n For more details, see: https://github.com/vrana/adminer'+
+                '\n\n For more details, see: https://github.com/vrana/adminer' +
                 '\n\nEnter your Adminer Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;

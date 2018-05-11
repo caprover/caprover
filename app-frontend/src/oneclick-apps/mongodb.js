@@ -11,6 +11,7 @@
 
         var MONGO_INITDB_ROOT_USERNAME = 'MONGO_INITDB_ROOT_USERNAME';
         var MONGO_INITDB_ROOT_PASSWORD = 'MONGO_INITDB_ROOT_PASSWORD';
+        var ME_CONFIG_MONGODB_SERVER = 'ME_CONFIG_MONGODB_SERVER';
         var MONGO_CONTAINER_NAME = 'MONGO_CONTAINER_NAME';
 
         var step1next = {};
@@ -21,6 +22,14 @@
             id: MONGO_CONTAINER_NAME,
             type: 'text'
         });
+
+        step1next.data.push({
+            label: 'OPTIONAL: Docker Tag (default "3.2")',
+            labelDesc: 'https://hub.docker.com/r/library/mongo/tags/',
+            id: DOCKER_TAG,
+            type: 'text'
+        });
+
         step1next.data.push({
             label: 'MongoDB Root Username',
             id: MONGO_INITDB_ROOT_USERNAME,
@@ -78,6 +87,7 @@
             }
 
             var appName = data[MONGO_CONTAINER_NAME];
+            var dockerTag = data[DOCKER_TAG] || '3.2';
             var envVars = [{
                 key: MONGO_INITDB_ROOT_USERNAME,
                 value: data[MONGO_INITDB_ROOT_USERNAME]
@@ -131,7 +141,7 @@
                 var captainDefinitionContent = {
                     schemaVersion: 1,
                     dockerfileLines: [
-                        "FROM mongo:latest"
+                        "FROM mongo:" + dockerTag
                     ]
                 }
 
@@ -153,9 +163,9 @@
         var step1 = {};
         step1.message = {
             type: INFO,
-            text: 'MongoDB is a cross-platform document-oriented database. Classified as a NoSQL database program, MongoDB uses JSON-like documents with schemas. '+
-            '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 27017 to other CaptainDuckDuck apps.' +
-            '\n\n Enter your MongoDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
+            text: 'MongoDB is a cross-platform document-oriented database. Classified as a NoSQL database program, MongoDB uses JSON-like documents with schemas. ' +
+                '\n\n After installation on CaptainDuckDuck, it will be available as srv-captain--YOUR_CONTAINER_NAME at port 27017 to other CaptainDuckDuck apps.' +
+                '\n\n Enter your MongoDB Configuration parameters and click on next. It will take about a minute for the process to finish.'
         }
         step1.next = step1next;
         return step1;
