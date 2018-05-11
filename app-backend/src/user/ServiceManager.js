@@ -733,7 +733,7 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, postDeployScript) {
 
         const self = this;
         const dataStore = this.dataStore;
@@ -825,7 +825,8 @@ class ServiceManager {
             .then(function () {
 
                 return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId,
-                    notExposeAsWebApp, forceSsl, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()), customNginxConfig);
+                    notExposeAsWebApp, forceSsl, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()),
+                    customNginxConfig, postDeployScript);
 
             })
             .then(function () {
