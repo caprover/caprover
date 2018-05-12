@@ -13,8 +13,8 @@ textarea {
   white-space: pre-wrap;
 }
 .panel-footer {
-  background-color: white!important;
-  border-color: #589fce;
+  background-color: rgba(240, 240, 240, 0.88) !important;
+  border-color: #cccccc;
   border-top-width: 2px;
   min-height: 80px;
 }
