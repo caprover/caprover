@@ -331,6 +331,30 @@
                         callback(null);
                     });
             },
+            getUnusedImages: function (mostRecentLimit, callback) {
+                $http
+                    .get(BASE_API + 'user/appDefinitions/unusedImages/?mostRecentLimit=' + (mostRecentLimit || '0'), createConfig())
+                    .then(
+                    function (response) {
+                        callback(response.data);
+                    },
+                    function () {
+                        callback(null);
+                    });
+            },
+            deleteImages: function (imageIds, callback) {
+                $http
+                    .post(BASE_API + 'user/appDefinitions/deleteImages', {
+                        imageIds: imageIds
+                    }, createConfig())
+                    .then(
+                        function (response) {
+                            callback(response.data);
+                        },
+                        function () {
+                            callback(null);
+                        });
+            },
             deleteApp: function (appName, callback) {
                 $http
                     .post(BASE_API + 'user/appDefinitions/delete', {

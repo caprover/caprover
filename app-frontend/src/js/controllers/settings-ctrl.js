@@ -4,13 +4,17 @@ angular.module('RDash')
         '$uibModal', '$state', SettingsCtrl]);
 
 function SettingsCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
-    apiManager, captainToast, $uibModal, $state) {
+                      apiManager, captainToast, $uibModal, $state) {
 
     $scope.loadingState = {
         changePassword: {},
         versionCheck: {},
+        cleanUp: {},
         nginxConfig: {}
     };
+
+    $scope.cleanUp = {};
+    $scope.cleanUp.mostRecentLimit = 2;
 
     $scope.passwords = {};
 
@@ -73,6 +77,52 @@ function SettingsCtrl($scope, $cookieStore, $rootScope, pageDefinitions,
 
             });
         }
+
+    }());
+
+    (function cleanUpCtrl() {
+        $scope.onGetOldImagesClicked = function () {
+            $scope.loadingState.cleanUp.enabled = true;
+            apiManager.getUnusedImages($scope.cleanUp.mostRecentLimit, function (data) {
+
+                if (captainToast.showErrorToastIfNeeded(data)) {
+                    return;
+                }
+
+                $scope.loadingState.cleanUp.enabled = false;
+                var unusedImages = data.data.unusedImages;
+                for (var i = 0; i < unusedImages.length; i++) {
+                    unusedImages[i].remove = true;
+                }
+                $scope.cleanUp.unusedImages = unusedImages;
+            });
+        }
+
+        $scope.onRemoveImagesClicked = function () {
+
+            $scope.loadingState.cleanUp.enabled = true;
+
+            var imageIds = [];
+            for (var i = 0; i < $scope.cleanUp.unusedImages.length; i++) {
+                if ($scope.cleanUp.unusedImages[i].remove) {
+                    imageIds.push($scope.cleanUp.unusedImages[i].id);
+                }
+            }
+
+            apiManager.deleteImages(imageIds, function (data) {
+
+                if (captainToast.showErrorToastIfNeeded(data)) {
+                    return;
+                }
+
+                $scope.loadingState.cleanUp.enabled = false;
+
+                // forcing a refresh
+                $scope.onGetOldImagesClicked();
+
+            });
+        }
+
 
     }());
 

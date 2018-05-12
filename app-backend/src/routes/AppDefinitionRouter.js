@@ -32,6 +32,71 @@ router.get('/oneclickapps', function (req, res, next) {
     });
 });
 
+// unused iamges
+router.get('/unusedImages', function (req, res, next) {
+
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+
+    Promise.resolve()
+        .then(function () {
+            let mostRecentLimit = Number(req.query.mostRecentLimit || '0');
+            return serviceManager.getUnusedImages(mostRecentLimit);
+        })
+        .then(function (unusedImages) {
+
+            let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Unused images retrieved.");
+            baseApi.data = {};
+            baseApi.data.unusedImages = unusedImages;
+
+            res.send(baseApi);
+
+        })
+        .catch(function (error) {
+
+            Logger.e(error);
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+
+            res.sendStatus(500);
+
+        });
+});
+
+// unused iamges
+router.post('/deleteImages', function (req, res, next) {
+
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let imageIds = req.body.imageIds || [];
+
+    Promise.resolve()
+        .then(function () {
+            return serviceManager.deleteImages(imageIds);
+        })
+        .then(function () {
+
+            let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Images Deleted.");
+            res.send(baseApi);
+
+        })
+        .catch(function (error) {
+
+            Logger.e(error);
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+
+            res.sendStatus(500);
+
+        });
+});
+
 // Get All App Definitions
 router.get('/', function (req, res, next) {
 

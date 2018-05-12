@@ -670,6 +670,76 @@ class ServiceManager {
             });
     }
 
+    getUnusedImages(mostRecentLimit) {
+        Logger.d('Getting unused images, excluding most recent ones: ' + mostRecentLimit);
+        const self = this;
+
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let allImages = null;
+
+        return Promise.resolve()
+            .then(function () {
+
+                return dockerApi
+                    .getImages();
+            })
+            .then(function (images) {
+
+                allImages = images;
+
+                return dataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+
+                let unusedImages = [];
+
+                for (let i = 0; i < allImages.length; i++) {
+                    const img = allImages[i];
+                    let imageInUse = false;
+                    for (let j = 0; j < img.RepoTags.length; j++) {
+                        const repoTag = img.RepoTags[j];
+                        Object.keys(apps).forEach(function (key, index) {
+                            let app = apps[key];
+                            app.appName = key;
+                            for (let k = 0; k < (mostRecentLimit + 1); k++) {
+                                if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(app.appName, Number(app.deployedVersion) - k)) >= 0) {
+                                    imageInUse = true;
+                                }
+                            }
+                        });
+                    }
+
+                    if (!imageInUse) {
+                        unusedImages.push({
+                            id: img.Id,
+                            description: (img.RepoTags && img.RepoTags.length) ? img.RepoTags[0] : 'untagged'
+                        })
+                    }
+                }
+
+                return unusedImages;
+
+            });
+    }
+
+    deleteImages(imageIds){
+
+        Logger.d('Deleting images...');
+        const self = this;
+
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let allImages = null;
+
+        return Promise.resolve()
+            .then(function () {
+
+                return dockerApi
+                    .deleteImages(imageIds);
+            });
+    }
+
     ensureServiceInitedAndUpdated(appName, version) {
 
         Logger.d('Ensure service inited and Updated for: ' + appName);

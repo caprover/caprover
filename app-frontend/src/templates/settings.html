@@ -91,7 +91,7 @@
 <hr/>
 
 <div class="row">
-	<div class="col-md-6 col-md-offset-3">
+	<div class="col-lg-6">
 
 		<rd-widget>
 
@@ -155,6 +155,77 @@
 					</div>
 
 				</div>
+			</rd-widget-body>
+		</rd-widget>
+	</div>
+	<div class="col-lg-6">
+
+		<rd-widget>
+
+			<rd-widget-header icon="fa-cloud-download" title="Disk Cleanup">
+			</rd-widget-header>
+
+			<rd-widget-body loading="loadingState.cleanUp.enabled">
+
+				<div class="row">
+
+					<div class="col-md-6">
+						<div class="input-group"
+							 uib-tooltip="for example, enter 2 in order to exclude 2 most recent builds during clean-up">
+							<span class="input-group-addon">Keep Most Recent:</span>
+							<input type="number" class="form-control"
+								   ng-model="cleanUp.mostRecentLimit">
+						</div>
+					</div>
+
+					<div class="pull-right">
+						<button type="button" class="btn btn-default"
+								ng-click="onGetOldImagesClicked()">
+								<span>
+									<i class="fa fa-refresh"></i>
+								</span> &nbsp; Fetch Old Images</button>
+					</div>
+
+				</div>
+
+
+				<div class="row" ng-show="cleanUp.unusedImages">
+
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+							<tr>
+								<th style="padding-left: 35px;">Remove?</th>
+								<th class="text-center">Image Name</th>
+								<th class="text-center">ID</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr ng-repeat="img in cleanUp.unusedImages">
+								<td class="text-center">
+									<input type="checkbox" ng-model="img.remove">
+								</td>
+								<td class="text-center">{{img.description}}</td>
+								<td class="text-center">{{img.id}}</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" ng-show="cleanUp.unusedImages">
+
+					<div class="pull-right">
+						<button type="button" class="btn btn-primary"
+								ng-click="onRemoveImagesClicked()">
+								<span>
+									<i class="fa fa-trash"></i>
+								</span> &nbsp; Remove Images</button>
+					</div>
+
+				</div>
+
+
 			</rd-widget-body>
 		</rd-widget>
 	</div>

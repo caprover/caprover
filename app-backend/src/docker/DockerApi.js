@@ -1318,6 +1318,37 @@ class DockerApi {
             })
     }
 
+    deleteImages(imageIds) {
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+
+                let promises = [];
+
+                for (let i = 0; i < imageIds.length; i++) {
+                    const imageId = imageIds[i];
+                    let p = self.dockerode.getImage(imageId).remove()
+                        .catch(function (err) {
+                            Logger.e(err);
+                        });
+
+                    promises.push(p);
+                }
+
+                return Promise.all(promises);
+            })
+    }
+
+    getImages() {
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.listImages();
+            })
+    }
+
     getNodeLables(nodeId) {
         const self = this;
         return self.dockerode

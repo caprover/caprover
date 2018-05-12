@@ -130,17 +130,26 @@ class DataStore {
 
     getImageName(authObj, appName, version) {
 
-        if (version === 0) {
-            version = '0';
-        }
-
         let authPrefix = '';
 
         if (authObj) {
             authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
         }
 
-        return authPrefix + 'img-' + this.getNameSpace() + '--' + appName + (version ? (':' + version) : '');
+        return authPrefix + this.getImageNameWithoutAuthObj(appName, version);
+    }
+
+    getImageNameWithoutAuthObj(appName, version) {
+
+        if (version === 0) {
+            version = '0';
+        }
+
+        return this.getImageNameBase() + appName + (version ? (':' + version) : '');
+    }
+
+    getImageNameBase() {
+        return 'img-' + this.getNameSpace() + '--';
     }
 
     getRootDomain() {
