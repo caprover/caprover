@@ -1,116 +1,94 @@
+<div class="row" ng-hide="captaininfo.hasRootSsl">
+    <div class="col-lg-8 col-lg-offset-2">
+        <rd-widget>
+            <rd-widget-header icon="fa-tasks" title="Captain Initial Setup">
+            </rd-widget-header>
+            <rd-widget-body loading="loadingState.enabled">
+                <div>
+                    <h3>Congratulations! </h3>
+                    <p>
+                        <b></b> You have installed CaptainDuckDuck successfully! You can set up your CaptainDuckDuck
+                        instance in two ways:
+                    </p>
+
+                    <p>
+                    <ul>
+                        <li>
+                            <b>Command Line Tool (RECOMMENDED): </b> just run <code>npm i -g captainduckduck</code>
+                            followed by <code>captainduckduck serversetup</code>. Then follow the guide.
+                        </li>
+                        <li>
+                            <b>Use the panel below: </b> This is a non-guided version of the Command Line method. Use
+                            this method
+                            only for the purpose of experimentation.
+                        </li>
+                    </ul>
+                    </p>
+                </div>
+
+
+            </rd-widget-body>
+        </rd-widget>
+    </div>
+</div>
+
 <div class="row">
-	<div class="col-lg-8 col-lg-offset-2">
-		<rd-widget>
-			<rd-widget-header icon="fa-tasks" title="Captain Root Domain Configurations">
-			</rd-widget-header>
-			<rd-widget-body loading="loadingState.enabled">
-				<div>
-					<p>
-						The very first thing that Captain needs is a root domain. For example, if you own <i>myawesomecompany.com</i>, you
-						can use <i>captain.myawesomecompany.com</i> or <i>foo.bar.myawesomecompany.com</i> as your root domain. First, you
-						need to make sure that the ip address for all subdomains of the root domain resolve to the Captain ip address. To do
-						this, go to the DNS settings in your domain provider website, and set a wild card A entry.
-						<br> For example: <b> Type:</b> <i><u>A</u></i>, <b>Name (or host):</b> <i><u>*.captain</u></i>, <b>IP (or Points to):</b>						<i><u>110.120.130.140</u></i> where this is the IP address of your captain machine.
-					</p>
-					<p><i>NOTE: DNS settings might take several hours to take into effect. See <a href="https://ca.godaddy.com/help/what-factors-affect-dns-propagation-time-1746" target="_blank" rel="noopener noreferrer"> here</a> for more details.</i></p>
-				</div>
+    <div class="col-lg-8 col-lg-offset-2">
+        <rd-widget>
+            <rd-widget-header icon="fa-tasks" title="Captain Root Domain Configurations">
+            </rd-widget-header>
+            <rd-widget-body loading="loadingState.enabled">
+                <div>
+                    <p>
+                        The very first thing that Captain needs is a root domain. For example, if you own <i>myawesomecompany.com</i>,
+                        you
+                        can use <i>captain.myawesomecompany.com</i> or <i>foo.bar.myawesomecompany.com</i> as your root
+                        domain. First, you
+                        need to make sure that the ip address for all subdomains of the root domain resolve to the
+                        Captain ip address. To do
+                        this, go to the DNS settings in your domain provider website, and set a wild card A entry.
+                        <br> For example: <b> Type:</b> <i><u>A</u></i>, <b>Name (or host):</b> <i><u>*.captain</u></i>,
+                        <b>IP (or Points to):</b> <i><u>110.120.130.140</u></i> where this is the IP address of your
+                        captain machine.
+                    </p>
+                    <p><i>NOTE: DNS settings might take several hours to take into effect. See <a href="https://ca.godaddy.com/help/what-factors-affect-dns-propagation-time-1746" target="_blank" rel="noopener noreferrer"> here</a> for more details.</i></p>
+                </div>
 
-				<hr>
+                <hr>
 
-				<div class="row">
-					<div class="col-lg-10 col-lg-offset-1">
-						<form class="row">
-							<div class="form-group col-md-12">
-								<label for="rootDomainId">Captain Root Domain</label>
-								<div class="input-group">
-									<span class="input-group-addon">[wildcard]&nbsp;.</span>
-									<input type="text" class="form-control" id="rootDomainId" ng-disabled="captaininfo.hasRootSsl" placeholder="captainroot.example.com" ng-model="captaininfo.rootDomain">
-									<span class="input-group-btn">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <form class="row">
+                            <div class="form-group col-md-12">
+                                <label for="rootDomainId">Captain Root Domain</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">[wildcard]&nbsp;.</span>
+                                    <input type="text" class="form-control" id="rootDomainId" ng-disabled="captaininfo.hasRootSsl" placeholder="captainroot.example.com" ng-model="captaininfo.rootDomain">
+                                    <span class="input-group-btn">
 									<button class="btn btn-primary" ng-disabled="captaininfo.hasRootSsl" ng-click="onUpdateDomainClicked()" type="submit">Update Domain</button>
 								</span>
-								</div>
-							</div>
-						</form>
-						<div class="row">
-								<div class="pull-right col-md-4">
-									<button type="button" uib-tooltip="Using Let's Encrypt Free Service" class="btn btn-block btn-primary" ng-click="onEnableSslClicked()" ng-disabled="captaininfo.hasRootSsl || !captaininfo.hasCustomDomain">Enable HTTPS</button>
-								</div>
-							</div>
-							<div class="row">
-								<div class="pull-right col-md-4">
-									<button type="button" class="btn btn-block btn-primary" uib-tooltip="Redirects all regular HTTP requests to HTTPS" ng-click="onForceSslClicked()" ng-disabled="!captaininfo.hasRootSsl || captaininfo.forceSsl">Force HTTPS</button>
-								</div>
-							</div>
-					</div>
-				</div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="row">
+                            <div class="pull-right col-md-4">
+                                <button type="button" uib-tooltip="Using Let's Encrypt Free Service" class="btn btn-block btn-primary" ng-click="onEnableSslClicked()" ng-disabled="captaininfo.hasRootSsl || !captaininfo.hasCustomDomain">Enable
+                                    HTTPS
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="pull-right col-md-4">
+                                <button type="button" class="btn btn-block btn-primary" uib-tooltip="Redirects all regular HTTP requests to HTTPS" ng-click="onForceSslClicked()" ng-disabled="!captaininfo.hasRootSsl || captaininfo.forceSsl">Force HTTPS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-			</rd-widget-body>
-		</rd-widget>
-	</div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
 </div>
 
 <hr>
-
-<div class="row">
-	<div class="col-lg-8 col-lg-offset-2">
-		<rd-widget>
-			<rd-widget-header icon="fa-tasks" title="Docker Registry Configuration">
-			</rd-widget-header>
-			<rd-widget-body loading="loadingState.enabled">
-				<p>
-					Setting up Docker Registry is only required if you plan to run your Captain on a cluster. For single node Captain deployments,
-					Docker Registry is optional. Captain provides two methods for you to setup your docker registry:
-				</p>
-				<ul>
-					<li style="margin-bottom: 10px"><b>Self hosted Docker Registry:</b> This is the simplest way to setup a docker registry. Captain creates an instance of
-						Docker Registry on the main machine and it manages the registry for you. However, it has its own limitation. If your main machine is destroyed, your local
-						images will be lost. In most cases, this is not a disaster as you can re-deploy your apps from your source code.</li>
-					<li style="margin-bottom: 20px"><b>Remote Docker Registry:</b> This approach relies on a remote service to act as your Docker Registry. Using this approach,
-						you'll have a more reliable cluster, assuming the third party service you use is reliable! There are multiple private
-						Docker Registry services available: Google Container Registry, Amazon EC2 Container Registry, Quay and etc. Note that
-						this approach costs you money.</li>
-				</ul>
-				<p><i>You can switch between the two approaches, but you'll have to re-deploy your apps to Captain again such that your images get created on your new Docker Registry. Unless you lost access to the source code, this is a relatively easy task.</i></p>
-				<div ng-show="!!captaininfo.dockerRegistryDomain">
-					<hr>
-					<br>
-					<p><b>Current Docker Registry:</b> {{captaininfo.isRegistryLocal?'Local at ':'Remote at'}} <u> {{captaininfo.dockerRegistryDomain}}</u></p>
-					<br>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<hr>
-						<h5>Self Hosted Registry</h5>
-						<br>
-						<button type="button" ng-disabled="captaininfo.isRegistryLocal" ng-click="onLocalRegistryClicked()" class="btn btn-primary">Enable Self Hosted Registry</button>
-					</div>
-					<div class="col-md-6">
-						<hr>
-						<h5>Remote Registry</h5>
-						<br>
-						<form>
-							<div class="row">
-								<div class="col-md-8">
-									<div class="form-group">
-										<label for="registryDomain">Registry Domain</label>
-										<input type="text" class="form-control" id="registryDomain" placeholder="captainroot.example.com" ng-model="remote.domain">
-									</div>
-									<div class="form-group">
-										<label for="registryUsername">Registry Username</label>
-										<input type="text" class="form-control" id="registryUsername" placeholder="myusername" ng-model="remote.username">
-									</div>
-									<div class="form-group">
-										<label for="registryPassword">Registry Password</label>
-										<input type="password" class="form-control" id="registryPassword" placeholder="password" ng-model="remote.password">
-									</div>
-									<button type="button" ng-click="onRemoteRegistryClicked()" class="btn btn-primary">Connect to Remote Registry</button>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-
-			</rd-widget-body>
-		</rd-widget>
-	</div>
-</div>
