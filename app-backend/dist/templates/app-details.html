@@ -420,8 +420,8 @@
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="row">
-                          <a href="" ng-click="onPostDeployScriptToggled()">
-                            <h5>{{!!app.hasPostDeployScript? 'Remove':'Add'}} Post-Deploy Script
+                          <a href="" ng-click="onPreDeployFunctionToggled()">
+                            <h5>{{!!app.hasPreDeployFunction? 'Remove':'Add'}} Pre-Deploy Script
                               &nbsp;
                               <a href="https://github.com/githubsaturn/captainduckduck/wiki/Deployment-Methods#post-deploy-script" target="_blank" rel="noopener noreferrer">
                                 &nbsp; <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -431,8 +431,8 @@
                           </a>
                         </div>
 
-                        <div class="row" ng-show="!!app.hasPostDeployScript">
-                              <textarea id="post-deploy-text-id" style="padding:10px; background: #f9f9f9" rows="10" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ng-model="app.postDeployScript" class="col-sm-12"></textarea>
+                        <div class="row" ng-show="!!app.hasPreDeployFunction">
+                              <textarea id="post-deploy-text-id" style="padding:10px; background: #f9f9f9" rows="10" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ng-model="app.preDeployFunction" class="col-sm-12"></textarea>
                         </div>
 
                       </div>

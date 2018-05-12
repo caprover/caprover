@@ -358,7 +358,7 @@ router.post('/update/', function (req, res, next) {
     let volumes = req.body.volumes || [];
     let ports = req.body.ports || [];
     let instanceCount = req.body.instanceCount || '0';
-    let postDeployScript = req.body.postDeployScript || '';
+    let preDeployFunction = req.body.preDeployFunction || '';
 
     if (appPushWebhook.repoInfo) {
         if (appPushWebhook.repoInfo.user) {
@@ -374,7 +374,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d('Updating app started: ' + appName);
 
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, postDeployScript)
+    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction)
         .then(function () {
 
             Logger.d('AppName is updated: ' + appName);

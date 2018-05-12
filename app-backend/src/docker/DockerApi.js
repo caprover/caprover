@@ -1076,7 +1076,8 @@ class DockerApi {
      * @param namespace: String 'captain' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace, ports) {
+    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount,
+                  nodeId, namespace, ports, appObject, preDeployFunction) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -1249,6 +1250,16 @@ class DockerApi {
                     }
                     updatedData.Mode.Replicated.Replicas = instanceCount;
                 }
+
+                if (preDeployFunction) {
+                    Logger.d('Running preDeployFunction');
+                    return preDeployFunction(appObject, updatedData);
+                }
+
+                return updatedData;
+
+            })
+            .then(function (updatedData) {
 
                 return self.dockerode.getService(serviceName)
                     .update(updatedData);

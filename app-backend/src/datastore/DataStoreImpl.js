@@ -415,7 +415,7 @@ class DataStore {
     }
 
     updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports,
-                            appPushWebhook, authenticator, customNginxConfig, postDeployScript) {
+                            appPushWebhook, authenticator, customNginxConfig, preDeployFunction) {
         const self = this;
 
         let app;
@@ -460,7 +460,7 @@ class DataStore {
                 app.forceSsl = !!forceSsl;
                 app.nodeId = nodeId;
                 app.customNginxConfig = customNginxConfig;
-                app.postDeployScript = postDeployScript;
+                app.preDeployFunction = preDeployFunction;
 
                 if (app.forceSsl) {
                     let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;

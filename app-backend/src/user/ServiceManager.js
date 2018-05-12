@@ -9,6 +9,7 @@ const TemplateHelper = require('./TemplateHelper');
 const Authenticator = require('./Authenticator');
 const GitHelper = require('../utils/GitHelper');
 const uuid = require('uuid/v4');
+const requireFromString = require('require-from-string');
 
 const BUILD_LOG_SIZE = 50;
 const SOURCE_FOLDER_NAME = 'src';
@@ -470,7 +471,7 @@ class ServiceManager {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. Custom domain cannot be subdomain of root domain.');
                 }
-                
+
 
             })
             .then(function () {
@@ -715,10 +716,17 @@ class ServiceManager {
             })
             .then(function () {
 
+                return self.createPreDeployFunctionIfExist(app);
+
+            })
+            .then(function (preDeployFunction) {
+
                 Logger.d('Updating service: ' + serviceName + ' with image: ' + imageName);
 
                 return dockerApi
-                    .updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, null, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace());
+                    .updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, null,
+                        dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace(),
+                        app, preDeployFunction);
 
             })
             .then(function () {
@@ -733,7 +741,35 @@ class ServiceManager {
             });
     }
 
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, postDeployScript) {
+    createPreDeployFunctionIfExist(app) {
+
+        let preDeployFunction = app.preDeployFunction;
+
+        if (!preDeployFunction) {
+            return null;
+        }
+
+        /*
+        ////////////////////////////////// Expected content of the file //////////////////////////
+
+            const uuid = require('uuid/v4');
+            console.log('-------------------------------'+uuid());
+
+            preDeployFunction = function (captainAppObj, dockerUpdateObject) {
+                return Promise.resolve()
+                        .then(function(){
+                            console.log(JSON.stringify(dockerUpdateObject));
+                            return dockerUpdateObject;
+                        });
+            };
+         */
+
+        preDeployFunction = preDeployFunction + '\n\n module.exports = preDeployFunction';
+
+        return requireFromString(preDeployFunction);
+    }
+
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction) {
 
         const self = this;
         const dataStore = this.dataStore;
@@ -826,7 +862,7 @@ class ServiceManager {
 
                 return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId,
                     notExposeAsWebApp, forceSsl, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()),
-                    customNginxConfig, postDeployScript);
+                    customNginxConfig, preDeployFunction);
 
             })
             .then(function () {
@@ -877,17 +913,30 @@ class ServiceManager {
 
     updateServiceOnDefinitionUpdate(appName) {
 
+        const self = this;
         let serviceName = this.dataStore.getServiceName(appName);
         const dockerAuthObject = CaptainManager.get().getDockerAuthObject();
 
         const dataStore = this.dataStore;
         const dockerApi = this.dockerApi;
+        let appFound = null;
 
         return Promise.resolve()
             .then(function () {
                 return dataStore.getAppDefinition(appName);
             })
-            .then(function (appFound) {
+            .then(function (app) {
+
+                appFound = app;
+
+                if (!appFound) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name not found!');
+                }
+
+                return self.createPreDeployFunctionIfExist(app);
+
+            })
+            .then(function (preDeployFunction) {
 
                 if (!appFound) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name not found!');
@@ -896,7 +945,7 @@ class ServiceManager {
                 return dockerApi
                     .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null,
                         dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId, dataStore.getNameSpace(),
-                        appFound.ports);
+                        appFound.ports, appFound, preDeployFunction);
             });
 
     }

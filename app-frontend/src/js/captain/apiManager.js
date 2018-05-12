@@ -422,7 +422,7 @@
                 var nodeId = appDefinition.nodeId;
                 var appPushWebhook = appDefinition.appPushWebhook;
                 var customNginxConfig = appDefinition.customNginxConfig;
-                var postDeployScript = appDefinition.postDeployScript;
+                var preDeployFunction = appDefinition.preDeployFunction;
 
                 $http
                     .post(BASE_API + 'user/appDefinitions/update', {
@@ -435,7 +435,7 @@
                         customNginxConfig: customNginxConfig,
                         appPushWebhook: appPushWebhook,
                         nodeId: nodeId,
-                        postDeployScript: postDeployScript,
+                        preDeployFunction: preDeployFunction,
                         envVars: envVars
                     }, createConfig())
                     .then(

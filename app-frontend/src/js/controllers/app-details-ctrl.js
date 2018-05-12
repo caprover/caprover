@@ -38,7 +38,7 @@ function AppDetailsCtrl($scope,
             $location.url('/apps'); // app not found
         }
         $scope.editContext.appToEdit = appToEdit;
-        appToEdit.hasPostDeployScript = !!appToEdit.postDeployScript;
+        appToEdit.hasPreDeployFunction = !!appToEdit.preDeployFunction;
         $scope.app = $scope.editContext.appToEdit;
 
         $scope.rootDomain = data.rootDomain;
@@ -131,9 +131,9 @@ function AppDetailsCtrl($scope,
             app.expandedLogs = !app.expandedLogs;
         };
 
-        $scope.onPostDeployScriptToggled = function () {
+        $scope.onPreDeployFunctionToggled = function () {
             const app = $scope.editContext.appToEdit;
-            app.hasPostDeployScript = !app.hasPostDeployScript;
+            app.hasPreDeployFunction = !app.hasPreDeployFunction;
         };
 
         $scope.onEnableBaseDomainSsl = function (appName) {
@@ -343,7 +343,7 @@ function AppDetailsCtrl($scope,
                 forceSsl: app.forceSsl,
                 appPushWebhook: app.appPushWebhook,
                 customNginxConfig: app.customNginxConfig,
-                postDeployScript: app.hasPostDeployScript ? app.postDeployScript : null,
+                preDeployFunction: app.hasPreDeployFunction ? app.preDeployFunction : null,
                 volumes: app.volumes
             }
 
