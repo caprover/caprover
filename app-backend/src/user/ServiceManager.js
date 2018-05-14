@@ -697,17 +697,19 @@ class ServiceManager {
                 for (let i = 0; i < allImages.length; i++) {
                     const img = allImages[i];
                     let imageInUse = false;
-                    for (let j = 0; j < img.RepoTags.length; j++) {
-                        const repoTag = img.RepoTags[j];
-                        Object.keys(apps).forEach(function (key, index) {
-                            let app = apps[key];
-                            app.appName = key;
-                            for (let k = 0; k < (mostRecentLimit + 1); k++) {
-                                if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(app.appName, Number(app.deployedVersion) - k)) >= 0) {
-                                    imageInUse = true;
+                    if (img.RepoTags) {
+                        for (let j = 0; j < img.RepoTags.length; j++) {
+                            const repoTag = img.RepoTags[j];
+                            Object.keys(apps).forEach(function (key, index) {
+                                let app = apps[key];
+                                app.appName = key;
+                                for (let k = 0; k < (mostRecentLimit + 1); k++) {
+                                    if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(app.appName, Number(app.deployedVersion) - k)) >= 0) {
+                                        imageInUse = true;
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
 
                     if (!imageInUse) {
@@ -723,7 +725,7 @@ class ServiceManager {
             });
     }
 
-    deleteImages(imageIds){
+    deleteImages(imageIds) {
 
         Logger.d('Deleting images...');
         const self = this;
