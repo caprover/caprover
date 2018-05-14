@@ -18,7 +18,7 @@ exec('git status', function (err, stdout, stderr) {
     }
 
     var l1 = 'On branch master';
-    var l2 = 'Your branch is up-to-date with \'origin/master\'';
+    var l2 = 'Your branch is up to date with \'origin/master\'';
     var l3 = 'nothing to commit, working tree clean';
 
     if (stdout.indexOf(l1) < 0 || stdout.indexOf(l2) < 0 || stdout.indexOf(l3) < 0) {
