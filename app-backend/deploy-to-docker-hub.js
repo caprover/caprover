@@ -19,7 +19,7 @@ exec('git status', function (err, stdout, stderr) {
 
     var l1 = 'On branch master';
     var l2 = 'Your branch is up-to-date with \'origin/master\'';
-    var l3 = 'nothing to commit, working directory clean';
+    var l3 = 'nothing to commit, working tree clean';
 
     if (stdout.indexOf(l1) < 0 || stdout.indexOf(l2) < 0 || stdout.indexOf(l3) < 0) {
         console.log('Make sure you are on master branch, in sync with remote, and your working directory is clean');
