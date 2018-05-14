@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const EnvVars = require('./EnvVars');
 
 const CAPTAIN_ROOT_DIRECTORY = '/captain';
-const CONSTAnT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
+const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp';
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated';
 
@@ -27,7 +27,7 @@ let data = {
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
-    version: '0.6.0',
+    version: '0.7.0',
 
     captainSaltSecretKey: 'captain-salt',
 
@@ -123,7 +123,7 @@ let data = {
 
 };
 
-let overridingValues = fs.readJsonSync(CONSTAnT_FILE_OVERRIDE, {throws: false});
+let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {throws: false});
 
 if (!!overridingValues) {
 
