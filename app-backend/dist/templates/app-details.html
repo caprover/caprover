@@ -408,10 +408,13 @@
 
                     <div class="row">
                       <div class="form-group col-xs-6">
-                        <div class="input-group" uib-tooltip="{{app.hasPersistentData?'Cannot change instances of an app with persistent data':'Number of running instances of this app'}}">
+                        <div class="input-group" uib-tooltip="{{'Number of running instances of this app'}}">
                           <span class="input-group-addon">Instance Count:</span>
-                          <input type="number" class="form-control" ng-disabled="app.hasPersistentData" ng-model="app.instanceCount">
+                          <input type="number" class="form-control" ng-disabled="app.hasPersistentData && !app.forceEditableInstanceCount" ng-model="app.instanceCount">
                         </div>
+                      </div>
+                      <div class="col-xs-6" ng-show="app.hasPersistentData">
+                        <button type="button" class="btn btn-sm btn-default" uib-tooltip="{{'Multiple instances of apps with persistent data can be very dangerous and bug prone as they can be accessing the same file on the disk resulting in data corruption. Edit the instance count only if you understand the risk.'}}" ng-disabled="app.forceEditableInstanceCount" ng-click="app.forceEditableInstanceCount=true;">Edit Instance Count</button>
                       </div>
                     </div>
 

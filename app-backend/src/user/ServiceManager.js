@@ -876,10 +876,6 @@ class ServiceManager {
                 // After leaving this block, nodeId will be guaranteed to be NonNull
                 if (app.hasPersistentData) {
 
-                    if (instanceCount !== 1) {
-                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, ('App with persistent data can only have 1 instance: ' + appName));
-                    }
-
                     if (nodeId) {
 
                         return checkIfNodeIdExists(nodeId);

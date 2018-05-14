@@ -67,7 +67,7 @@ class DockerApi {
             .then(function (data) {
                 let nodeID = null;
 
-                if (data.length === 1) {
+                if (data.length > 0) {
                     nodeID = data[0].NodeID;
                 }
 
