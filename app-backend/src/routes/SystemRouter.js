@@ -9,7 +9,7 @@ const CaptainConstants = require('../utils/CaptainConstants');
 
 router.post('/changerootdomain/', function (req, res, next) {
 
-    let requestedCustomDomain = req.body.rootDomain || '';
+    let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
 
     function replaceAll(target, search, replacement) {
         return target.replace(new RegExp(search, 'g'), replacement);
