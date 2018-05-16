@@ -117,6 +117,19 @@ function checkPortOrThrow(ipAddr, portToTest) {
         return;
     }
 
+    function printError() {
+        console.log(' ');
+        console.log(' ');
+        console.log('Your firewall may have been blocking an in-use port: ' + portToTest);
+        console.log('A simple solution on Ubuntu systems is to run: ufw disable');
+        console.log('See docs for more details on how to fix firewall issues');
+        console.log(' ');
+        console.log('If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),');
+        console.log('you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK=\'TRUE\'');
+        console.log(' ');
+        console.log(' ');
+    }
+
     return new Promise(function (resolve, reject) {
 
         let finished = false;
@@ -128,6 +141,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
 
             finished = true;
 
+            printError();
             reject(new Error("Port timed out: " + portToTest));
 
         }, 5000);
@@ -144,14 +158,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
                 resolve();
             }
             else {
-                console.log('Your firewall may have been blocking an in-use port: ' + portToTest);
-                console.log('A simple solution on Ubuntu systems is to run: ufw disable');
-                console.log('See docs for more details on how to fix firewall issues');
-                console.log(' ');
-                console.log('If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),');
-                console.log('you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK=\'TRUE\'');
-                console.log(' ');
-                console.log(' ');
+                printError();
                 reject(new Error("Port seems to be closed: " + portToTest));
             }
         });
