@@ -320,6 +320,8 @@ module.exports.install = function () {
         .catch(function (error) {
             console.log('Installation failed.');
             console.error(error);
+        })
+        .then(function () {
             process.exit();
         });
 };
