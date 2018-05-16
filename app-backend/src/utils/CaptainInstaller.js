@@ -119,6 +119,10 @@ function checkPortOrThrow(ipAddr, portToTest) {
 
     function printError() {
         console.log(' ');
+        console.log('Installation script of CaptainDuckDuck has recently changed.');
+        console.log('Did your install script contain -p 80:80 -p 443:443 ? If not, read "Getting Started" part of the docs!');
+        console.log('If you are using the new script, and still seeing this message, read below!');
+        console.log(' ');
         console.log(' ');
         console.log('Your firewall may have been blocking an in-use port: ' + portToTest);
         console.log('A simple solution on Ubuntu systems is to run: ufw disable');
