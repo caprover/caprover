@@ -84,7 +84,7 @@ function checkSystemReq() {
 
 const FIREWALL_PASSED = 'firewall-passed';
 
-function startServerOnPort_80_443() {
+function startServerOnPort_80_443_3000() {
 
     return Promise.resolve()
         .then(function () {
@@ -101,6 +101,12 @@ function startServerOnPort_80_443() {
                 res.end();
             }).listen(443);
 
+
+            http.createServer(function (req, res) {
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.write(FIREWALL_PASSED);
+                res.end();
+            }).listen(3000);
 
             return new Promise(function (resolve) {
                 setTimeout(function () {
@@ -120,7 +126,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
     function printError() {
         console.log(' ');
         console.log('Installation script of CaptainDuckDuck has recently changed.');
-        console.log('Did your install script contain -p 80:80 -p 443:443 ? If not, read "Getting Started" part of the docs!');
+        console.log('Did your install script contain -p 80:80 -p 443:443 -p 3000:3000 ? If not, read "Getting Started" part of the docs!');
         console.log('If you are using the new script, and still seeing this message, read below!');
         console.log(' ');
         console.log(' ');
@@ -219,7 +225,7 @@ module.exports.install = function () {
 
             myIp4 = ip4;
 
-            return startServerOnPort_80_443();
+            return startServerOnPort_80_443_3000();
 
         })
         .then(function () {
@@ -230,6 +236,11 @@ module.exports.install = function () {
         .then(function () {
 
             return checkPortOrThrow(myIp4, 443);
+
+        })
+        .then(function () {
+
+            return checkPortOrThrow(myIp4, 3000);
 
         })
         .then(function () {
