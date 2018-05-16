@@ -1,227 +1,271 @@
 <div class="row">
-	<div class="col-md-6">
+    <div class="col-md-6">
 
-		<rd-widget>
-			<rd-widget-header icon="fa-key" title="Change Password">
-			</rd-widget-header>
-			<rd-widget-body loading="loadingState.changePassword.enabled">
+        <rd-widget>
+            <rd-widget-header icon="fa-key" title="Change Password">
+            </rd-widget-header>
+            <rd-widget-body loading="loadingState.changePassword.enabled">
 
-				<div class="row">
+                <div class="row">
 
-					<div>
-						<label>Old Password</label>
-						<input type="password" class="form-control" ng-model="passwords.oldPass">
-					</div>
-					<hr>
-					<div>
-						<label>New Password</label>
-						<input type="password" class="form-control" ng-model="passwords.newPass">
-					</div>
-					<div>
-						<label>Confirm New Password</label>
-						<input type="password" class="form-control" ng-model="passwords.newPassConfirm">
-					</div>
-					<div>
-						<p class="text-danger">
-							{{ ((!!passwords.newPass || !!passwords.newPassConfirm) && (passwords.newPass!==passwords.newPassConfirm))? 'Passwords should
-							match':'&nbsp;'}}
-						</p>
-					</div>
+                    <div>
+                        <label>Old Password</label>
+                        <input type="password" class="form-control" ng-model="passwords.oldPass">
+                    </div>
+                    <hr>
+                    <div>
+                        <label>New Password</label>
+                        <input type="password" class="form-control" ng-model="passwords.newPass">
+                    </div>
+                    <div>
+                        <label>Confirm New Password</label>
+                        <input type="password" class="form-control" ng-model="passwords.newPassConfirm">
+                    </div>
+                    <div>
+                        <p class="text-danger">
+                            {{ ((!!passwords.newPass || !!passwords.newPassConfirm) &&
+                            (passwords.newPass!==passwords.newPassConfirm))? 'Passwords should
+                            match':'&nbsp;'}}
+                        </p>
+                    </div>
 
-					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" ng-disabled="((!passwords.newPass || !passwords.newPassConfirm) || (passwords.newPass!==passwords.newPassConfirm))" ng-click="onChangePasswordClicked()">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-primary" ng-disabled="((!passwords.newPass || !passwords.newPassConfirm) || (passwords.newPass!==passwords.newPassConfirm))" ng-click="onChangePasswordClicked()">
 							<span>
 								<i class="fa fa-sign-in"></i>
-							</span> &nbsp; Change</button>
-					</div>
+							</span> &nbsp; Change
+                        </button>
+                    </div>
 
-				</div>
-			</rd-widget-body>
-		</rd-widget>
+                </div>
+            </rd-widget-body>
+        </rd-widget>
 
-	</div>
-	<div class="col-md-6">
+    </div>
+    <div class="col-md-6">
 
-		<rd-widget>
+        <rd-widget>
 
-			<rd-widget-header icon="fa-cloud-download" title="Check for Updates">
-			</rd-widget-header>
+            <rd-widget-header icon="fa-cloud-download" title="Check for Updates">
+            </rd-widget-header>
 
-			<rd-widget-body loading="loadingState.versionCheck.enabled">
+            <rd-widget-body loading="loadingState.versionCheck.enabled">
 
-				<div class="row">
+                <div class="row">
 
-					<p>
-						Captain allows in-place updates to be installed. However, always read the change logs before updating your Captain. There
-						might be breaking changes that you need to be aware of. The update might take several minutes and your Captain may
-						become unresponsive until the update process is finished.
-					</p>
+                    <p>
+                        Captain allows in-place updates to be installed. However, always read the change logs before
+                        updating your Captain. There
+                        might be breaking changes that you need to be aware of. The update might take several minutes
+                        and your Captain may
+                        become unresponsive until the update process is finished.
+                    </p>
 
-					<br>
+                    <br>
 
-					<p>
-						<b>Current Version</b>: {{versionInfo.currentVersion}}
-					</p>
+                    <p>
+                        <b>Current Version</b>: {{versionInfo.currentVersion}}
+                    </p>
 
-					<p>
-						<b>Latest Stable Version</b>: {{versionInfo.latestVersion}}
-					</p>
+                    <p>
+                        <b>Latest Stable Version</b>: {{versionInfo.latestVersion}}
+                    </p>
 
-					<div>
-						<button ng-show="versionInfo.canUpdate" type="submit" class="btn btn-success" ng-click="onPerformUpdateClicked()">
+                    <div>
+                        <button ng-show="versionInfo.canUpdate" type="submit" class="btn btn-success" ng-click="onPerformUpdateClicked()">
 							<span>
 								<i class="fa fa-download"></i>
-							</span> &nbsp; Install Update</button>
-					</div>
+							</span> &nbsp; Install Update
+                        </button>
+                    </div>
 
-					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" ng-click="onCheckForUpdatesClicked()">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-primary" ng-click="onCheckForUpdatesClicked()">
 							<span>
 								<i class="fa fa-refresh"></i>
-							</span> &nbsp; Check for Updates</button>
-					</div>
-				</div>
-			</rd-widget-body>
-		</rd-widget>
-	</div>
+							</span> &nbsp; Check for Updates
+                        </button>
+                    </div>
+                </div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
 </div>
 
 
 <hr>
 
 <div class="row">
-	<div class="col-lg-6">
+    <div class="col-lg-6">
 
-		<rd-widget>
+        <rd-widget>
 
-			<rd-widget-header icon="fa-cloud-download" title="NGINX Configurations">
-			</rd-widget-header>
+            <rd-widget-header icon="fa-cloud-download" title="NGINX Configurations">
+            </rd-widget-header>
 
-			<rd-widget-body loading="loadingState.nginxConfig.enabled">
+            <rd-widget-body loading="loadingState.nginxConfig.enabled">
 
-				<div class="row">
+                <div class="row">
 
-					<p>
-						Captain allows you to set custom configurations for your nginx router. This will allow high customization level in terms
-						of caching, special routing, http2 and etc.
-					</p>
-					<p>
-						Note that templates are build using EJS template pattern. Do not change the areas beween &lt;&percnt; and &percnt;&gt; unless you really know what you're doing!
-					</p>
+                    <p>
+                        Captain allows you to set custom configurations for your nginx router. This will allow high
+                        customization level in terms
+                        of caching, special routing, http2 and etc.
+                    </p>
+                    <p>
+                        Note that templates are build using EJS template pattern. Do not change the areas beween &lt;&percnt;
+                        and &percnt;&gt; unless you really know what you're doing!
+                    </p>
 
-					<br>
+                    <br>
 
-					<p>
-						<b>Base Config Located at</b>: /etc/nginx/nginx.conf
-					</p>
+                    <p>
+                        <b>Base Config Located at</b>: /etc/nginx/nginx.conf
+                    </p>
 
-					<div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
-						<div class="col-sm-12">
-							<div class="form-group">
+                    <div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
+                        <div class="col-sm-12">
+                            <div class="form-group">
 								<textarea style="font-family: monospace" rows="17" ng-model="nginxConfig.baseConfig.customValue" placeholder="" class="form-control" id="textareabaseconfig"></textarea>
-							</div>
-						</div>
-					</div>
+                            </div>
+                        </div>
+                    </div>
 
-					<p>
-						<b>Captain Config Located at</b>: /etc/nginx/conf.d/captain-root.conf
-					</p>
+                    <p>
+                        <b>Captain Config Located at</b>: /etc/nginx/conf.d/captain-root.conf
+                    </p>
 
-					<div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
-						<div class="col-sm-12">
-							<div class="form-group">
+                    <div class="row" ng-show="nginxConfig.baseConfig.customValue || nginxConfig.captainConfig.customValue">
+                        <div class="col-sm-12">
+                            <div class="form-group">
 								<textarea style="font-family: monospace" rows="17" ng-model="nginxConfig.captainConfig.customValue" placeholder="" class="form-control" id="textareacaptainConfig"></textarea>
-							</div>
-						</div>
-					</div>
+                            </div>
+                        </div>
+                    </div>
 
 
-					<br>
+                    <br>
 
-					<div>
-						<button class="btn btn-info" ng-click="onLoadDefaultNginxConfigClicked()">
-							Load Default and Edit</button>
+                    <div>
+                        <button class="btn btn-info" ng-click="onLoadDefaultNginxConfigClicked()">
+                            Load Default and Edit
+                        </button>
 
-						<div class="pull-right">
-							<button type="button" class="btn btn-primary" ng-click="onUpdateNginxConfigClicked()">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" ng-click="onUpdateNginxConfigClicked()">
 								<span>
 									<i class="fa fa-refresh"></i>
-								</span> &nbsp; Save and Update</button>
-						</div>
-					</div>
+								</span> &nbsp; Save and Update
+                            </button>
+                        </div>
+                    </div>
 
-				</div>
-			</rd-widget-body>
-		</rd-widget>
-	</div>
-	<div class="col-lg-6">
+                </div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
+    <div class="col-lg-6">
 
-		<rd-widget>
+        <rd-widget>
 
-			<rd-widget-header icon="fa-cloud-download" title="Disk Cleanup">
-			</rd-widget-header>
+            <rd-widget-header icon="fa-cloud-download" title="Disk Cleanup">
+            </rd-widget-header>
 
-			<rd-widget-body loading="loadingState.cleanUp.enabled">
+            <rd-widget-body loading="loadingState.cleanUp.enabled">
 
-				<div class="row">
 
-					<div class="col-md-6">
-						<div class="input-group" uib-tooltip="for example, enter 2 in order to exclude 2 most recent builds during clean-up">
-							<span class="input-group-addon">Keep Most Recent:</span>
-							<input type="number" class="form-control" ng-model="cleanUp.mostRecentLimit">
-						</div>
-					</div>
+                <div class="row">
+                    <p>
+                        Every time you deploy a new build, Docker builds a new image for you. Typically, a large part of
+                        this image is shared between the old version and the new version, but a small chunk is added to
+                        your
+                        disk with each build. You can read more about disk cleanup in the docs, but as a simple
+                        interface,
+                        this widget gives
+                        you the ability to perform image cleanups on demand.
+                    </p>
+                    <p>
+                        You can perform this action, after each deploy. But it's typically not needed with that frequency. For
+                        typical
+                        mid-sized projects, it's recommended to perform this cleanup after every ~20 builds.
+                    </p>
+                    <p>
+                        With default parameter, it keeps the last two recent builds of all current apps,
+                        and creates a list of images that can be deleted (by clicking on Get List button). You can
+                        select
+                        which images you want to delete and click on Remove Images button. You might noticed that some
+                        images
+                        are not deleted even though you clicked on Remove Images, it means they are being directly or
+                        indirectly in-use by Docker.
+                        A common example For indirect usage is an image whose child image is being used by an alive
+                        container.
+                    </p>
+                    <p>
+                        <i>In future versions, this cleanup will be automatically done after each build.</i>
+                    </p>
+                    <br>
+                </div>
 
-					<div class="pull-right">
-						<button type="button" class="btn btn-default" ng-click="onGetOldImagesClicked()">
+                <div class="row">
+
+                    <div class="col-md-8 col-sm-8">
+                        <div class="input-group" uib-tooltip="for example, enter 2 in order to exclude 2 most recent builds during clean-up">
+                            <span class="input-group-addon">Keep Most Recent:</span>
+                            <input type="number" class="form-control" ng-model="cleanUp.mostRecentLimit">
+                        </div>
+                    </div>
+
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" ng-click="onGetOldImagesClicked()">
 								<span>
 									<i class="fa fa-refresh"></i>
-								</span> &nbsp; Fetch Old Images</button>
-					</div>
+								</span> &nbsp; Get List
+                        </button>
+                    </div>
 
-				</div>
+                </div>
 
+                <div class="row" ng-show="cleanUp.unusedImages">
 
-				<div class="row" ng-show="cleanUp.unusedImages">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th style="padding-left: 35px">Remove?</th>
+                                <th class="text-center">Image Name</th>
+                                <th class="text-center">ID</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="img in cleanUp.unusedImages">
+                                <td class="text-center">
+                                    <input type="checkbox" ng-model="img.remove">
+                                </td>
+                                <td class="text-center">{{img.description}}</td>
+                                <td class="text-center">{{img.id}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <b>NOTE: </b> Images that are being used (directly or indirectly) will not be deleted.
+                    </div>
+                </div>
 
-					<div class="table-responsive">
-						<table class="table">
-							<thead>
-							<tr>
-								<th style="padding-left: 35px">Remove?</th>
-								<th class="text-center">Image Name</th>
-								<th class="text-center">ID</th>
-							</tr>
-							</thead>
-							<tbody>
-							<tr ng-repeat="img in cleanUp.unusedImages">
-								<td class="text-center">
-									<input type="checkbox" ng-model="img.remove">
-								</td>
-								<td class="text-center">{{img.description}}</td>
-								<td class="text-center">{{img.id}}</td>
-							</tr>
-							</tbody>
-						</table>
-					</div>
-					<div class="row">
-						<b>NOTE: </b> Images that are being used (directly or indirectly) will not be deleted.
-					</div>
-				</div>
+                <div class="row" ng-show="cleanUp.unusedImages">
 
-				<div class="row" ng-show="cleanUp.unusedImages">
-
-					<div class="pull-right">
-						<button type="button" class="btn btn-primary" ng-click="onRemoveImagesClicked()">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-primary" ng-click="onRemoveImagesClicked()">
 								<span>
 									<i class="fa fa-trash"></i>
-								</span> &nbsp; Remove Images</button>
-					</div>
+								</span> &nbsp; Remove Images
+                        </button>
+                    </div>
 
-				</div>
+                </div>
 
 
-			</rd-widget-body>
-		</rd-widget>
-	</div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
 </div>
