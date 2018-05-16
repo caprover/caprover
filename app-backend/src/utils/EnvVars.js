@@ -7,6 +7,8 @@ module.exports =
             IS_CAPTAIN_INSTANCE: 'IS_CAPTAIN_INSTANCE'
         },
 
+        BY_PASS_PROXY_CHECK: process.env.BY_PASS_PROXY_CHECK,
+
         CAPTAIN_DOCKER_API: process.env.CAPTAIN_DOCKER_API,
 
         CAPTAIN_IS_DEBUG: !!process.env.CAPTAIN_IS_DEBUG,

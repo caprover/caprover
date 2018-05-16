@@ -2,6 +2,8 @@ const externalIp = require('public-ip');
 const DockerApi = require('../docker/DockerApi');
 const CaptainConstants = require('./CaptainConstants');
 const EnvVar = require('./EnvVars');
+const http = require('http');
+const request = require('request');
 
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
@@ -15,6 +17,11 @@ function checkSystemReq() {
 
         })
         .then(function (output) {
+
+            console.log(' ');
+            console.log(' ');
+            console.log(' ');
+            console.log(' >>>> Checking System Compatibility <<<<');
 
             let ver = output.Version.split('.');
             let maj = Number(ver[0]);
@@ -66,10 +73,94 @@ function checkSystemReq() {
 
         })
         .catch(function (error) {
+            console.log(' ');
+            console.log(' ');
             console.log('**** WARNING!!!! System requirement check failed!  *****');
+            console.log(' ');
+            console.log(' ');
             console.error(error);
         });
 }
+
+const FIREWALL_PASSED = 'firewall-passed';
+
+function startServerOnPort_80_443() {
+
+    return Promise.resolve()
+        .then(function () {
+
+            http.createServer(function (req, res) {
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.write(FIREWALL_PASSED);
+                res.end();
+            }).listen(80);
+
+            http.createServer(function (req, res) {
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.write(FIREWALL_PASSED);
+                res.end();
+            }).listen(443);
+
+
+            return new Promise(function (resolve) {
+                setTimeout(function () {
+                    resolve();
+                }, 4000);
+            })
+
+        })
+}
+
+function checkPortOrThrow(ipAddr, portToTest) {
+
+    if (CaptainConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
+        return;
+    }
+
+    return new Promise(function (resolve, reject) {
+
+        let finished = false;
+
+        setTimeout(function () {
+            if (finished) {
+                return;
+            }
+
+            finished = true;
+
+            reject(new Error("Port timed out: " + portToTest));
+
+        }, 5000);
+
+        request('http://' + ipAddr + ':' + portToTest, function (error, response, body) {
+
+            if (finished) {
+                return;
+            }
+
+            finished = true;
+
+            if ((body + '') === FIREWALL_PASSED) {
+                resolve();
+            }
+            else {
+                console.log('Your firewall may have been blocking an in-use port: ' + portToTest);
+                console.log('A simple solution on Ubuntu systems is to run: ufw disable');
+                console.log('See docs for more details on how to fix firewall issues');
+                console.log(' ');
+                console.log('If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),');
+                console.log('you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK=\'TRUE\'');
+                console.log(' ');
+                console.log(' ');
+                reject(new Error("Port seems to be closed: " + portToTest));
+            }
+        });
+    });
+
+}
+
+
+let myIp4 = null;
 
 module.exports.install = function () {
     Promise.resolve()
@@ -114,7 +205,26 @@ module.exports.install = function () {
             }
         })
         .then(function (ip4) {
-            return DockerApi.get().initSwarm(ip4);
+
+            myIp4 = ip4;
+
+            return startServerOnPort_80_443();
+
+        })
+        .then(function () {
+
+            return checkPortOrThrow(myIp4, 80);
+
+        })
+        .then(function () {
+
+            return checkPortOrThrow(myIp4, 443);
+
+        })
+        .then(function () {
+
+            return DockerApi.get().initSwarm(myIp4);
+
         })
         .then(function (swarmId) {
 
