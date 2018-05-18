@@ -105,19 +105,19 @@ const FeaturesTop = props => (
                 content: 'does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.\n',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'A [web] developer who...',
+                title: 'A developer who...'
             },
             {
-                content: 'expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 4x (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on vultr!!)',
+                content: 'uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 4x (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on DigitalOcean!!)',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'A developer who uses...',
+                title: 'A developer who... ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
             {
-                content: 'write more of `showResults(getUserList())` and not much of `$ apt-get install libstdc++6 > /dev/null`',
+                content: 'prefers to write more of `showResults(getUserList())` and not much of `apt-get install libstdc++6 > /dev/null`',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'Someone who prefers to...',
+                title: 'A developer who...  ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
         ]}
     </Block>
@@ -127,22 +127,22 @@ const FeaturesBottom = props => (
     <Block layout="threeColumn">
         {[
             {
-                content: 'a platform where installing MySQL, MongoDB and etc on their server is done by selecting from a dropdown and clicking on install!',
+                content: 'enjoys a platform where installing MySQL, MongoDB and etc on their server is done by selecting from a dropdown and clicking on install!',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'Someone who enjoys...',
+                title: 'A developer who...'
             },
             {
-                content: 'enjoying the power of Docker and nginx without having to learn them or deal with their settings scripts to make things work!!',
+                content: 'likes to enjoy the power of Docker and nginx without having to learn them or deal with their settings scripts to make things work!!',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'Someone who is likes...',
+                title: 'A developer who... ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
             {
                 content: 'knows Docker and nginx inside out, and enjoys a platform where basic operations are done, yet allowing them to customize any specific settings if they need to',
                 image: imgUrl('captainduckduck.png'),
                 imageAlign: 'top',
-                title: 'A developer who...',
+                title: 'A developer who...  ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
         ]}
     </Block>
@@ -155,55 +155,72 @@ const FeatureCallout = props => (
         <h2>What's this?</h2>
         <MarkdownBlock>
             Captain is an extremely easy to use app/database deployment & web server manager for your NodeJS,
-            Python, PHP, Ruby, MySQL, MongoDB, Postgres, WordPress (and etc) applications. It's blazingly fast and very robust as
-            it uses Docker, nginx, LetsEncrypt, NetData under the hood behind its simple-to-use interface.
+            Python, PHP, Ruby, MySQL, MongoDB, Postgres, WordPress (and etc) applications. It's blazingly fast and very
+            robust as
+            it uses Docker, nginx, LetsEncrypt and NetData under the hood behind its simple-to-use interface.
         </MarkdownBlock>
     </div>
 );
 
 const LearnHow = props => (
-    <Block background="light">
-        {[
-            {
-                content: 'Talk about learning how to use this',
-                image: imgUrl('captainduckduck.png'),
-                imageAlign: 'right',
-                title: 'Learn How',
-            },
-        ]}
-    </Block>
-);
-
-const TryOut = props => (
-    <Block id="try">
-        {[
-            {
-                content: 'Talk about trying this out',
-                image: imgUrl('captainduckduck.png'),
-                imageAlign: 'left',
-                title: 'Try it Out',
-            },
-        ]}
-    </Block>
-);
-
-const Description = props => (
     <Block background="dark">
         {[
             {
-                content: 'This is another description of how this project is useful',
-                image: imgUrl('captainduckduck.png'),
-                imageAlign: 'right',
-                title: 'Description',
+                /*
+                                //image: imgUrl('captainduckduck.png'),
+                                imageAlign: 'bottom',
+                                title: 'CaptainDuckDuck in Action',*/
+                content:
+                '<script src="https://asciinema.org/a/u1v8WDqHIHhRD8Uk2hzrjNz14.js" ' +
+                'id="asciicast-u1v8WDqHIHhRD8Uk2hzrjNz14" async></script>',
+                imageAlign: 'bottom',
+                title: 'Installation + Setup + Deploy in 1 minute!',
+
             },
         ]}
     </Block>
+);
+
+const QuickDemo = props => (
+    <Block id="try" background="light">
+        {[
+            {
+                content:
+                '<script src="https://asciinema.org/a/u1v8WDqHIHhRD8Uk2hzrjNz14.js" ' +
+                'id="asciicast-u1v8WDqHIHhRD8Uk2hzrjNz14" async></script>',
+                imageAlign: 'left',
+                title: 'Installation + Setup + Deploy in 1 minute!',
+            },
+        ]}
+    </Block>
+);
+
+const FullTutorial = props => (
+
+        <div
+            className="productShowcaseSection paddingBottom"
+            style={{textAlign: 'center'}}>
+            <Block id="tutorial">
+                {[
+                    {
+                        content: '<a ' +
+                        'href="https://www.youtube.com/watch?v=XDrTmGSDW3s"' +
+                        ' target="_blank" ' +
+                        ' rel="noreferrer noopener">' +
+                        '<img src="/img/screenshots.gif"/></a>',
+                        imageAlign: 'left',
+                        title: 'Full Video Tutorial',
+                    },
+                ]}
+            </Block>
+        </div>
 );
 
 const Showcase = props => {
     if ((siteConfig.users || []).length === 0) {
         return null;
     }
+    let language = props.language || '';
     const showcase = siteConfig.users
         .filter(user => {
             return user.pinned;
@@ -218,14 +235,9 @@ const Showcase = props => {
 
     return (
         <div className="productShowcaseSection paddingBottom">
-            <h2>{"Who's Using This?"}</h2>
-            <p>This project is used by all these people</p>
-            <div className="logos">{showcase}</div>
-            <div className="more-users">
-                <a className="button" href={pageUrl('users.html', props.language)}>
-                    More {siteConfig.title} Users
-                </a>
-            </div>
+            <h2>{"Ready to give it a shot?"}</h2>
+            <p>Setting up and playing with CaptainDuckDuck takes around 10 minutes on the first try</p>
+            <Button href={docUrl('get-started.html', language)}>Get Started Now</Button>
         </div>
     );
 };
@@ -238,6 +250,8 @@ class Index extends React.Component {
             <div>
                 <HomeSplash language={language}/>
                 <div className="mainContainer">
+                    <QuickDemo/>
+                    <FullTutorial/>
                     <div>
                         <div
                             className="productShowcaseSection"
@@ -249,8 +263,6 @@ class Index extends React.Component {
                     <FeaturesBottom/>
                     <FeatureCallout/>
                     <LearnHow/>
-                    <TryOut/>
-                    <Description/>
                     <Showcase language={language}/>
                 </div>
             </div>
