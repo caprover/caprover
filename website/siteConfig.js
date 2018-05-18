@@ -38,7 +38,7 @@ const siteConfig = {
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-      {doc: 'doc1', label: 'Docs'},
+      {doc: 'get-started', label: 'Docs'},
       {
           href: 'https://github.com/githubsaturn/captainduckduck',
           label: 'GitHub',
