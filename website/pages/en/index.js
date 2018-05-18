@@ -103,19 +103,19 @@ const FeaturesTop = props => (
         {[
             {
                 content: 'does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.\n',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/time.png'),
                 imageAlign: 'top',
                 title: 'A developer who...'
             },
             {
                 content: 'uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 4x (Heroku charges 25$/month for their 1gb instance, the same server is 5$ on DigitalOcean!!)',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/money.png'),
                 imageAlign: 'top',
                 title: 'A developer who... ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
             {
                 content: 'prefers to write more of `showResults(getUserList())` and not much of `apt-get install libstdc++6 > /dev/null`',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/dev.png'),
                 imageAlign: 'top',
                 title: 'A developer who...  ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
@@ -128,19 +128,19 @@ const FeaturesBottom = props => (
         {[
             {
                 content: 'enjoys a platform where installing MySQL, MongoDB and etc on their server is done by selecting from a dropdown and clicking on install!',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/setup.png'),
                 imageAlign: 'top',
                 title: 'A developer who...'
             },
             {
                 content: 'likes to enjoy the power of Docker and nginx without having to learn them or deal with their settings scripts to make things work!!',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/server.png'),
                 imageAlign: 'top',
                 title: 'A developer who... ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
             {
                 content: 'knows Docker and nginx inside out, and enjoys a platform where basic operations are done, yet allowing them to customize any specific settings if they need to',
-                image: imgUrl('captainduckduck.png'),
+                image: imgUrl('icon/customize.png'),
                 imageAlign: 'top',
                 title: 'A developer who...  ' // extra spaces necessary as Docusaurus doesn't like repeated keys
             },
@@ -162,27 +162,45 @@ const FeatureCallout = props => (
     </div>
 );
 
-const LearnHow = props => (
-    <Block background="dark">
+const CaptainInOnePhoto = props => (
+
+    <div>
+        <Block>
+            {[
+                {
+                    image: imgUrl('captain-in-one-picture.png'),
+                    imageAlign: 'bottom',
+                },
+            ]}
+        </Block>
+        <Block background="light">
+            {[
+                {
+                    title: 'Captain Architecture in a Glace',
+                    image: imgUrl('captain-architecture.png'),
+                    imageAlign: 'bottom',
+                },
+            ]}
+        </Block>
+    </div>
+);
+
+const QuickDemo = props => (
+    <Block background="light">
         {[
             {
-                /*
-                                //image: imgUrl('captainduckduck.png'),
-                                imageAlign: 'bottom',
-                                title: 'CaptainDuckDuck in Action',*/
                 content:
-                '<script src="https://asciinema.org/a/u1v8WDqHIHhRD8Uk2hzrjNz14.js" ' +
-                'id="asciicast-u1v8WDqHIHhRD8Uk2hzrjNz14" async></script>',
-                imageAlign: 'bottom',
-                title: 'Installation + Setup + Deploy in 1 minute!',
-
+                    'From `http://localhost:3000` to `https://www.awesome.com` in seconds',
+                imageAlign: 'right',
+                title: 'App Deployment Made Easy',
+                image: imgUrl('screenshot.png')
             },
         ]}
     </Block>
 );
 
-const QuickDemo = props => (
-    <Block id="try" background="light">
+const TerminalDemo = props => (
+    <Block id="try" background="dark">
         {[
             {
                 content:
@@ -197,23 +215,23 @@ const QuickDemo = props => (
 
 const FullTutorial = props => (
 
-        <div
-            className="productShowcaseSection paddingBottom"
-            style={{textAlign: 'center'}}>
-            <Block id="tutorial">
-                {[
-                    {
-                        content: '<a ' +
-                        'href="https://www.youtube.com/watch?v=XDrTmGSDW3s"' +
-                        ' target="_blank" ' +
-                        ' rel="noreferrer noopener">' +
-                        '<img src="/img/screenshots.gif"/></a>',
-                        imageAlign: 'left',
-                        title: 'Full Video Tutorial',
-                    },
-                ]}
-            </Block>
-        </div>
+    <div
+        className="productShowcaseSection paddingBottom"
+        style={{textAlign: 'center'}}>
+        <Block id="tutorial" background="light">
+            {[
+                {
+                    content: '<a ' +
+                    'href="https://www.youtube.com/watch?v=XDrTmGSDW3s"' +
+                    ' target="_blank" ' +
+                    ' rel="noreferrer noopener">' +
+                    '<img src="/img/screenshots.gif"/></a>',
+                    imageAlign: 'left',
+                    title: 'Full Video Tutorial',
+                },
+            ]}
+        </Block>
+    </div>
 );
 
 const Showcase = props => {
@@ -250,8 +268,8 @@ class Index extends React.Component {
             <div>
                 <HomeSplash language={language}/>
                 <div className="mainContainer">
+                    <FeatureCallout/>
                     <QuickDemo/>
-                    <FullTutorial/>
                     <div>
                         <div
                             className="productShowcaseSection"
@@ -261,8 +279,8 @@ class Index extends React.Component {
                     </div>
                     <FeaturesTop/>
                     <FeaturesBottom/>
-                    <FeatureCallout/>
-                    <LearnHow/>
+                    <FullTutorial/>
+                    <CaptainInOnePhoto/>
                     <Showcase language={language}/>
                 </div>
             </div>
