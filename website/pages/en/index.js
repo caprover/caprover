@@ -82,6 +82,10 @@ class HomeSplash extends React.Component {
                     <ProjectTitle/>
                     <PromoSection>
                         <Button href={docUrl('get-started.html', language)}>Get Started Now</Button>
+                        <Button href="https://github.com/githubsaturn/captainduckduck"
+                                target="_blank"
+                                rel="noreferrer noopener">
+                            View on Github</Button>
                     </PromoSection>
                 </div>
             </SplashContainer>
@@ -165,9 +169,10 @@ const FeatureCallout = props => (
 const CaptainInOnePhoto = props => (
 
     <div>
-        <Block>
+        <Block background="light">
             {[
                 {
+                    title: 'CaptainDuckDuck Workflow in a Glance',
                     image: imgUrl('captain-in-one-picture.png'),
                     imageAlign: 'bottom',
                 },
@@ -176,7 +181,7 @@ const CaptainInOnePhoto = props => (
         <Block background="light">
             {[
                 {
-                    title: 'Captain Architecture in a Glace',
+                    title: 'Captain Architecture in a Glance',
                     image: imgUrl('captain-architecture.png'),
                     imageAlign: 'bottom',
                 },
@@ -186,31 +191,73 @@ const CaptainInOnePhoto = props => (
 );
 
 const QuickDemo = props => (
-    <Block background="light">
-        {[
-            {
-                content:
-                    'From `http://localhost:3000` to `https://www.awesome.com` in seconds',
-                imageAlign: 'right',
-                title: 'App Deployment Made Easy',
-                image: imgUrl('screenshot.png')
-            },
-        ]}
-    </Block>
+    <div>
+        <Block background="light">
+            {[
+                {
+                    content:
+                        'From `http://localhost:3000` to `https://www.awesome.com` in seconds',
+                    imageAlign: 'right',
+                    title: 'App Deployment Made Easy',
+                    image: imgUrl('screenshot.png')
+                },
+            ]}
+        </Block>
+    </div>
 );
 
-const TerminalDemo = props => (
-    <Block id="try" background="dark">
-        {[
-            {
-                content:
-                '<script src="https://asciinema.org/a/u1v8WDqHIHhRD8Uk2hzrjNz14.js" ' +
-                'id="asciicast-u1v8WDqHIHhRD8Uk2hzrjNz14" async></script>',
-                imageAlign: 'left',
-                title: 'Installation + Setup + Deploy in 1 minute!',
-            },
-        ]}
-    </Block>
+const MainFeatures = props => (
+
+    <div>
+        <Block layout="fourColumn">
+            {[
+                {
+                    content:
+                        'Deploy apps in your own space (Node js, PHP, Python, Java literally any language!)',
+                    title: 'Any Language',
+                },
+                {
+                    content:
+                        'Ability to secure your services over HTTPS for FREE, ability to automatically redirect HTTP to HTTPS.',
+                    title: 'SSL',
+                },
+                {
+                    content:
+                        'Deploying one-click apps is a matter of seconds! MongoDB, Parse, MySQL, WordPress, Postgres and many more.',
+                    title: 'One-Click Apps',
+                },
+                {
+                    content:
+                        'Many ways to deploy: upload your source from dashboard, use command line `captainduckduck deploy`, use webhooks and build upon `git push`',
+                    title: 'Easy Deploy',
+                },
+            ]}
+        </Block>
+        <Block layout="fourColumn">
+            {[
+                {
+                    content:
+                        'Simple interface for many docker operations: exposing container ports to host, setting up persistent directories, instance count and etc.\n',
+                    title: 'Simple Interface',
+                },
+                {
+                    content:
+                        'Optionally fully customizable nginx config allowing you to enable HTTP2, specific caching logic, custom SSL certs and etc.',
+                    title: 'Fully Customizable',
+                },
+                {
+                    content:
+                        'Attach more nodes and create a cluster in seconds! Captain automatically configures nginx to load balance.',
+                    title: 'Cluster Ready',
+                },
+                {
+                    content:
+                        'Focus on your apps! Not the bells and whistles just to run your apps!',
+                    title: 'Increase Productivity',
+                },
+            ]}
+        </Block>
+    </div>
 );
 
 const FullTutorial = props => (
@@ -239,17 +286,6 @@ const Showcase = props => {
         return null;
     }
     let language = props.language || '';
-    const showcase = siteConfig.users
-        .filter(user => {
-            return user.pinned;
-        })
-        .map((user, i) => {
-            return (
-                <a href={user.infoLink} key={i}>
-                    <img src={user.image} alt={user.caption} title={user.caption}/>
-                </a>
-            );
-        });
 
     return (
         <div className="productShowcaseSection paddingBottom">
@@ -280,6 +316,7 @@ class Index extends React.Component {
                     <FeaturesTop/>
                     <FeaturesBottom/>
                     <FullTutorial/>
+                    <MainFeatures/>
                     <CaptainInOnePhoto/>
                     <Showcase language={language}/>
                 </div>
