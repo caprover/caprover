@@ -1,4 +1,11 @@
-## One-Click Apps
+---
+id: one-click-apps
+title: One-Click Apps
+sidebar_label: One-Click Apps
+---
+
+<br/>
+
 CaptainDuckDuck has built-in support for several popular apps that can be deployed as is. These include WordPress, MySQL, MongoDB and etc.
 
 ![OneClickAppsCaptainDuckDuck](https://i.imgur.com/Tlgbkmy.png)
@@ -17,4 +24,4 @@ However, if you want to connect to your database from a remote machine (e.g. you
 - Port 1001 of the server goes to mysql-1 port 3306
 - Port 1002 of the server goes to mysql-2 port 3306
 
-Port mapping is needed if you want to connect to a database from a remote machine. You can read more about it [here](https://github.com/githubsaturn/captainduckduck/wiki/App-Configuration#port-mapping).
+Port mapping is needed if you want to connect to a database from a remote machine. You can read more about it [Captain Configuration - Port Mapping](app-configuration.md#port-mapping).

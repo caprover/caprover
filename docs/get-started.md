@@ -38,7 +38,6 @@ ufw disable
 
 <br/>
 <br/>
-<br/>
 
 # Captain Setup
 
@@ -93,4 +92,4 @@ You can connect multiple custom domains (like `www.my-app.com`) to a single app 
 
 Note that when you run `captainduckduck deploy`, the current git commit will be sent over to your server. **IMPORTANT:** uncommited files and files in `gitignore` WILL NOT get pushed to the server.
 
-You can visit Captain in the browser and set custom parameters for your app such as environment variables, and do much more! For more details regarding deployment, please see CLI docs. For details on `captain-definition` file, see [Captain Definition File](https://github.com/githubsaturn/captainduckduck/wiki/Captain-Definition-File) in wiki.
+You can visit Captain in the browser and set custom parameters for your app such as environment variables, and do much more! For more details regarding deployment, please see CLI docs. For details on `captain-definition` file, see [Captain Definition File](captain-definition-file.md).

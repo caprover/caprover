@@ -1,8 +1,18 @@
-### Run Multiple Instances of App:
+---
+id: app-scaling-and-cluster
+title: App Scaling & Cluster
+sidebar_label: App Scaling & Cluster
+---
+
+<br/>
+
+Captain offers you multiple ways to scale up your app, running it on multiple processes and benefit from all resources on your server.
+
+## Run Multiple Instances of App:
 
 Your Pizza app is doing great and you are getting thousands of hits on your website. Having one instance of your app is not good enough. Your latency has gone up. Next thing you want is to consider to run multiple instances of your app on your Captain. You can do this from the Apps section of Captain web. Let's say you change your instance count to 3. Captain creates 3 instances of your app running at the same time. If any of them dies (crashes), it automatically spins off a new one! You always have 3 instances of your Pizza app running! The best part? Captain automatically spreads the requests between different instances of your app. 
 
-### Run Multiple Servers:
+## Run Multiple Servers:
 
 Wow! Your Pizza app is really popular! You have 3 instances of your app running on the same server, RAM and CPU are almost maxed out. You need to get a second server. How do you connect the servers? Captain does that for you ;-) You simply get a server with Docker installed on it, similar to what you did for the original Captain server.
 

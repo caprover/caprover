@@ -1,4 +1,11 @@
-### Firewall & Port Forwarding
+---
+id: firewall
+title: Firewall & Port Forwarding
+sidebar_label: Firewall & Port Forwarding
+---
+
+<br/>
+
 
 Captain uses:
 - 80   TCP for regular HTTP connections

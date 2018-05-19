@@ -16,9 +16,9 @@ One of the key components of CaptainDuckDuck is the `captain-definition` file th
  }
 ```
 
-`schemaVersion` is always 1. And `templateId` is the piece which defines the what sort of base you need in order to run your app. It is in LANGUAGE/VERSION format. LANGUAGE can be one of these: `node`, `php`, `python-django`, `ruby-rack`. See supported versions below for the versions.
+`schemaVersion` is always 1. And `templateId` is the piece which defines the what sort of base you need in order to run your app. It is in `LANGUAGE/VERSION` format. LANGUAGE can be one of these: `node`, `php`, `python-django`, `ruby-rack`. See supported versions below for the versions.
 
-Note that although the current version of CaptainDuckDuck comes with 3 most popular web app languages: NodeJS, PHP and Python/Django, Ruby/Rack. It gives you the advanced option of defining your own Dockerfile. For example, the two captain-definition files below generate the exact same result.
+Note that although the current version of CaptainDuckDuck comes with 4 most popular web app languages: NodeJS, PHP and Python/Django, Ruby/Rack. It gives you the advanced option of defining your own Dockerfile. With a customized Dockerfile, you can deploy any laguage, Go, Java, .NET, you name it! Dockerfiles are quite easy to write. For example, the two captain-definition files below generate <b>the exact same result</b>.
 
 ### Simple version
 
@@ -53,17 +53,14 @@ Note that although the current version of CaptainDuckDuck comes with 3 most popu
 
 You can use [this tool](https://githubsaturn.github.io/dockerfile-to-captain/) to convert your `Dockerfile` to `captain-definition` file easily. This [NodeJS script](https://github.com/githubsaturn/captainduckduck/issues/214)  is also for the same purpose, except, it automatically adds `.src/` to the `COPY` lines.
 
-Even if you don't know anything about Docker, you can get an idea what this does. Some examples of advanced methods:
-- PHP Composer: https://github.com/githubsaturn/captainduckduck/issues/94
-- Meteor: https://github.com/githubsaturn/meteor-captainduckduck/blob/master/captain-definition
+Even if you don't know anything about Docker, you can get an idea what this does. Some examples of advanced methods: [PHP Composer](https://github.com/githubsaturn/captainduckduck/issues/94) and [Meteor](https://github.com/githubsaturn/meteor-captainduckduck/blob/master/captain-definition)
 
-**IMPORANT NOTE:** Captain generates a dockerfile and puts it besides a directory named `src` where your source code sits. So if in your normal dockerfile, you have `COPY ./somefile /usr/app`, you will have to change it to `COPY ./src/somefile /usr/app` otherwise deploy would fail.
 
-Using this approach you can deploy Ruby, Java, Scala, literally everything! As Captain becomes more mature, more and more languages will be added to the built-in template, so you don't have to create the dockerfile manually like above. If you need more details on dockerfile, please see:
+**IMPORANT NOTE:** 
+<br/>
+Captain generates a dockerfile and puts it besides a directory named `src` where your source code sits. So if in your normal dockerfile, you have `COPY ./somefile /usr/app`, you will have to change it to `COPY ./src/somefile /usr/app` otherwise deploy would fail.
 
-https://docs.docker.com/engine/reference/builder/
-and
-https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/
+Using this approach you can deploy Ruby, Java, Scala, literally everything! If you need more details on dockerfile, please see [Dockerfile Help](https://docs.docker.com/engine/reference/builder) and [Best Practices](https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices).
 
 
 ## Supported versions for simple version:

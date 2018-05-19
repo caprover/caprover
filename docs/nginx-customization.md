@@ -1,3 +1,9 @@
+---
+id: nginx-customization
+title: NGINX Config
+sidebar_label: NGINX Config
+---
+
 ## Config Customization
 Although CaptainDuckDuck automatically manages everything about routing HTTP requests to your apps, there might still be some special config values that you want to manually tweak. It can be special caching logic for special file type or route, timeout customization, max body size and many more parameters that you can manually adjust via nginx.
 

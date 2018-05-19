@@ -1,12 +1,26 @@
 {
   "docs": {
-    "Basics": ["get-started"],
-    "Details":[
+    "Basics": [
+      "get-started",
+      "captain-definition-file",
+      "deployment-methods",
       "app-configuration",
-      "captain-definition-file"
+      "complete-webapp-tutorial"
     ],
-    "Help":[
-      "server-purchase"
+    "Do More": [
+      "enabling-https",
+      "one-click-apps",
+      "resource-monitoring",
+      "nginx-customization",
+      "app-scaling-and-cluster",
+      "pre-deploy-script",
+      "run-locally"
+    ],
+    "Help": [
+      "server-purchase",
+      "disk-cleanup",
+      "firewall",
+      "troubleshooting"
     ]
   }
 }
