@@ -18,7 +18,7 @@ Captain has to be installed on a machine with a public IP address. If you need h
 
 _**CPU Architecture**:_ Although CaptainDuckDuck source code is compatible with any CPU architecture, the Docker build available on Docker Hub is built for x86 CPU. Therefore, If your CPU is ARM, you can download the source code and build it on your ARM architecture in order to run it.
 
-_**Recommended Stack**:_ CaptainDuckDuck is tested on Ubuntu 16.04 and Docker 17.06. If you're using CaptainDuckDuck on a different OS, you might want to look at https://docs.docker.com/engine/userguide/storagedriver/selectadriver/#supported-storage-drivers-per-linux-distribution.
+_**Recommended Stack**:_ CaptainDuckDuck is tested on Ubuntu 16.04 and Docker 17.06. If you're using CaptainDuckDuck on a different OS, you might want to look at [Docker Docs](https://docs.docker.com/engine/userguide/storagedriver/selectadriver/#supported-storage-drivers-per-linux-distribution).
 
 _**Minimum RAM**:_ Note that the build process sometimes consumes too much RAM, and 512MB RAM might not be enough (see https://github.com/githubsaturn/captainduckduck/issues/28). Most providers offer a minimum of 1GB RAM on $5 instance including DigitalOcean, Vultr, Scaleway, Linode, SSD Nodes and etc.
 

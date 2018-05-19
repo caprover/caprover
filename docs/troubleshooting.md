@@ -11,7 +11,7 @@ This section covers most frequent issues that uses may encounter.
 ## Cannot connect <ip_server>:3000?
 There is a whole set of reasons for this.
 
-First you need to make sure that CaptainDuckDuck is running on your server. To check this, ssh to your server and run `docker service ps captain-captain --no-trunc`. You might see Captain is getting restarted constantly due to an error. Fix the issue and retry. See here for example: https://github.com/githubsaturn/captainduckduck/issues/14
+First you need to make sure that CaptainDuckDuck is running on your server. To check this, ssh to your server and run `docker service ps captain-captain --no-trunc`. You might see Captain is getting restarted constantly due to an error. Fix the issue and retry. For example, see [here](https://github.com/githubsaturn/captainduckduck/issues/14#issuecomment-345447689)
 
 Linode for example is notorious for [this kind of problem](https://github.com/docker/machine/issues/2753#issuecomment-171822791) and [this](https://github.com/docker/machine/issues/2753#issuecomment-188353704)
 
