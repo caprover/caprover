@@ -1,7 +1,7 @@
 ---
 id: get-started
-title: Get Started
-sidebar_label: Get Started
+title: Getting Started
+sidebar_label: Getting Started
 ---
 
 <br/>
