@@ -6,9 +6,9 @@ sidebar_label: Complete Webapp Tutorial
 
 
 <br/>
-We want to make a webapp version of HOTDOG or NOT HOTDOG:
+We want to make a webapp version of [HOTDOG or NOT HOTDOG](https://www.theverge.com/2017/6/26/15876006/hot-dog-app-android-silicon-valley)!
 
-https://www.theverge.com/2017/6/26/15876006/hot-dog-app-android-silicon-valley
+
 
 ## App Description
 Assume we want to create a webapp that shows a list of photos with a line describing whether the image is a hotdog or not hotdog, something like this:
@@ -65,7 +65,6 @@ In order for your web-app to work. It needs to be able to talk to MongoDB instan
 ```
 mongoose.connect("mongodb://srv-captain--my-mongodb/mydatabase", { useMongoClient: true });
 ```
-Of course, you can add username and password to the URI, see here for example:
-https://stackoverflow.com/questions/7486623/mongodb-password-with-in-it
+Of course, you can add username and password to the URI, see [here for example](https://stackoverflow.com/questions/7486623/mongodb-password-with-in-it).
 
 This is the same for other services; if you want to upload an image to your image uploader service you can just access it via `http://srv-captain--imageuploader`

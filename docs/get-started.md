@@ -26,8 +26,8 @@ You can install Captain on your laptop which is behind NAT (your router) for tes
 
 #### C) Install Docker on Server (at least, version 17.06.x)
 
-If you get your server from DigitalOcean, you can select a server with "pre-installed Docker". This will be the easiest option. Otherwise, you can install Docker CE by following this instruction:
-https://docs.docker.com/engine/installation
+If you get your server from DigitalOcean, you can select a server with "pre-installed Docker". This will be the easiest option. Otherwise, you can install Docker CE by following [this instruction](https://docs.docker.com/engine/installation)
+
 
 
 #### D) Disable Firewall
