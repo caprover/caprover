@@ -20,7 +20,7 @@ _**CPU Architecture**:_ Although CaptainDuckDuck source code is compatible with 
 
 _**Recommended Stack**:_ CaptainDuckDuck is tested on Ubuntu 16.04 and Docker 17.06. If you're using CaptainDuckDuck on a different OS, you might want to look at [Docker Docs](https://docs.docker.com/engine/userguide/storagedriver/selectadriver/#supported-storage-drivers-per-linux-distribution).
 
-_**Minimum RAM**:_ Note that the build process sometimes consumes too much RAM, and 512MB RAM might not be enough (see https://github.com/githubsaturn/captainduckduck/issues/28). Most providers offer a minimum of 1GB RAM on $5 instance including DigitalOcean, Vultr, Scaleway, Linode, SSD Nodes and etc.
+_**Minimum RAM**:_ Note that the build process sometimes consumes too much RAM, and 512MB RAM might not be enough (see [this issue](https://github.com/githubsaturn/captainduckduck/issues/28)). Most providers offer a minimum of 1GB RAM on $5 instance including DigitalOcean, Vultr, Scaleway, Linode, SSD Nodes and etc.
 
 You can install Captain on your laptop which is behind NAT (your router) for testing purposes, but it requires some special setup, like port forwarding. 
 
