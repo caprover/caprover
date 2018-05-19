@@ -23,6 +23,7 @@ const users = [
 const siteConfig = {
   title: 'CaptainDuckDuck' /* title for your website */,
   tagline: 'Build your own PaaS in a few minutes!',
+  cname: 'captainduckduck.com',
   url: 'https://www.captainduckduck.com' /* your website url */,
   baseUrl: '/' /* base url for your project */,
   // For github.io type URLs, you would set the url and baseUrl like:
