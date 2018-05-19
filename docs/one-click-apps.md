@@ -18,7 +18,7 @@ It is important to mention that some of these configuration parameters, might sh
 
 ## Connecting to Databases
 
-Note that since all these applications are Docker containers, you can have multiple MySQL databases on running on port 3306 without having any conflict. 
+Note that since all these applications are Docker containers, you can have multiple MySQL databases on running on port 3306 without having any conflict. If you want to connect to two different MySQL databases, from a PHP app, where both PHP and MySQLs are under the same instance of CaptainDuckDuck, you can use `srv-captain--mysqlappname1:3306` `srv-captain--mysqlappname2:3306`.
 
 However, if you want to connect to your database from a remote machine (e.g. your laptop) you need to map a container port to a server port. In that case, you have to map two different ports on the server, for example:
 - Port 1001 of the server goes to mysql-1 port 3306
