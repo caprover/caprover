@@ -543,9 +543,11 @@ class DockerApi {
 
                     stream.on('end', function () {
                         if (errorMessage) {
+                            buildLogs.log('Push failed...');
                             reject(errorMessage);
                             return;
                         }
+                        buildLogs.log('Push succeeded...');
                         resolve();
                     });
 
