@@ -33,6 +33,7 @@ module.exports = {
             git().silent(true)
                 .raw([
                     'clone',
+                    '--recursive',
                     '-b',
                     branch,
                     remote,
