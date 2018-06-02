@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const program = require('commander');
 const fs = require('fs-extra');
 const path = require('path');
@@ -8,7 +9,7 @@ const request = require('request');
 const commandExistsSync = require('command-exists').sync;
 const ProgressBar = require('progress');
 const ora = require('ora');
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 
 const packagejson = require('./package.json');
 
@@ -27,12 +28,13 @@ console.log(' ');
 
 program
     .description('Deploy current directory to a Captain machine.')
+    .option('-t, --tarFile <value>', 'Specify file to be uploaded (rather than using git archive)')
     .option('-d, --default', 'Run with default options')
     .option('-s, --stateless', 'Run deploy stateless')
     .option('-h, --host <value>', 'Only for stateless mode: Host of the captain machine')
     .option('-a, --appName <value>', 'Only for stateless mode: Name of the app')
     .option('-p, --pass <value>', 'Only for stateless mode: Password for Captain')
-    .option('-b, --branch [value]', 'Only for stateless mode: Branch name (default master)')
+    .option('-b, --branch <value>', 'Only for stateless mode: Branch name (default master)')
     .parse(process.argv);
 
 
@@ -52,35 +54,42 @@ function printErrorAndExit(error) {
     process.exit(0);
 }
 
-if (!fs.pathExistsSync('./.git')) {
-    printErrorAndExit('**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****');
+function getSuppliedTarFile() {
+    return program.tarFile;
 }
 
-if (!fs.pathExistsSync('./captain-definition')) {
-    printErrorAndExit('**** ERROR: captain-definition file cannot be found. Please see docs! ****');
-}
+if (!getSuppliedTarFile()) {
 
-const contents = fs.readFileSync('./captain-definition', 'utf8');
-let contentsJson = null;
+    if (!fs.pathExistsSync('./.git')) {
+        printErrorAndExit('**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****');
+    }
 
-try {
-    contentsJson = JSON.parse(contents);
-} catch (e) {
-    console.log(e);
-    console.log('');
-    printErrorAndExit('**** ERROR: captain-definition file is not a valid JSON! ****');
-}
+    if (!fs.pathExistsSync('./captain-definition')) {
+        printErrorAndExit('**** ERROR: captain-definition file cannot be found. Please see docs! ****');
+    }
 
-if (!contentsJson.schemaVersion) {
-    printErrorAndExit('**** ERROR: captain-definition needs schemaVersion. Please see docs! ****');
-}
+    const contents = fs.readFileSync('./captain-definition', 'utf8');
+    let contentsJson = null;
 
-if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
-    printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****');
-}
+    try {
+        contentsJson = JSON.parse(contents);
+    } catch (e) {
+        console.log(e);
+        console.log('');
+        printErrorAndExit('**** ERROR: captain-definition file is not a valid JSON! ****');
+    }
 
-if (contentsJson.templateId && contentsJson.dockerfileLines) {
-    printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****');
+    if (!contentsJson.schemaVersion) {
+        printErrorAndExit('**** ERROR: captain-definition needs schemaVersion. Please see docs! ****');
+    }
+
+    if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
+        printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****');
+    }
+
+    if (contentsJson.templateId && contentsJson.dockerfileLines) {
+        printErrorAndExit('**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****');
+    }
 }
 
 let listOfMachines = [{
@@ -245,9 +254,31 @@ else if (!program.default || defaultInvalid) {
 
 }
 
-
-
 function deployTo(machineToDeploy, branchToPush, appName) {
+
+    function checkAuthAndSendFile(zipFileFullPath, gitHash) {
+        function isAuthTokenValidCallback(isValid) {
+            if (isValid) {
+                sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
+            }
+            else {
+
+                requestLogin(machineToDeploy.name, machineToDeploy.baseUrl, function callback(machineToDeployNew) {
+
+                    deployTo(machineToDeployNew, branchToPush, appName);
+
+                });
+            }
+        }
+
+        isAuthTokenValid(machineToDeploy, appName, isAuthTokenValidCallback);
+    }
+
+    if (getSuppliedTarFile()) {
+        checkAuthAndSendFile(path.join(process.cwd(), getSuppliedTarFile()), 'sendviatarfile');
+        return;
+    }
+
     if (!commandExistsSync('git')) {
         console.log(chalk.red('"git" command not found...'));
         console.log(chalk.red('Captain needs "git" to create tar file of your source files...'));
@@ -291,21 +322,7 @@ function deployTo(machineToDeploy, branchToPush, appName) {
 
             console.log('Pushing last commit on ' + branchToPush + ': ' + gitHash);
 
-            function isAuthTokenValidCallback(isValid) {
-                if (isValid) {
-                    sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, branchToPush);
-                }
-                else {
-
-                    requestLogin(machineToDeploy.name, machineToDeploy.baseUrl, function callback(machineToDeployNew) {
-
-                        deployTo(machineToDeployNew, branchToPush, appName);
-
-                    });
-                }
-            }
-
-            isAuthTokenValid(machineToDeploy, appName, isAuthTokenValidCallback);
+            checkAuthAndSendFile(zipFileFullPath, gitHash);
 
         });
     });
@@ -359,7 +376,9 @@ function sendFileToCaptain(machineToDeploy, zipFileFullPath, appName, gitHash, b
         }
 
         if (fs.pathExistsSync(zipFileFullPath)) {
-            fs.removeSync(zipFileFullPath);
+            if (!getSuppliedTarFile()) {
+                fs.removeSync(zipFileFullPath);
+            }
         }
 
         try {
