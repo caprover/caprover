@@ -14,6 +14,4 @@
 For more details and documentation, please visit https://captainduckduck.com/
 
 ## Community
-Find [CaptainDuckDuck on Slack.com](https://captainduckduck.slack.com).
-
-[Invitation Link](https://join.slack.com/t/captainduckduck/shared_invite/enQtMzc0NDIzODI2ODY1LWY2NzQyYzMwNTVmYTllMDM4YjE3ZDA4NWQ1ZjI1M2Y5ZTVmZDc1NDRkZWMxMTYzYjkxNzY0OWUyNDRkZmZiOTc)
+Find [CaptainDuckDuck on Slack.com](https://join.slack.com/t/captainduckduck/shared_invite/enQtMzc0NDIzODI2ODY1LWY2NzQyYzMwNTVmYTllMDM4YjE3ZDA4NWQ1ZjI1M2Y5ZTVmZDc1NDRkZWMxMTYzYjkxNzY0OWUyNDRkZmZiOTc).
