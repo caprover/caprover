@@ -1,3 +1,3 @@
 
 ## MOVED TO WIKI:
-https://github.com/githubsaturn/captainduckduck/wiki
+https://captainduckduck.com/
