@@ -14,6 +14,7 @@
       "nginx-customization",
       "app-scaling-and-cluster",
       "pre-deploy-script",
+      "cli-commands",
       "run-locally"
     ],
     "Help": [
