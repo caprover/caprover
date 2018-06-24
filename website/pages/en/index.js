@@ -302,20 +302,6 @@ class Index extends React.Component {
 
         return (
             <div>
-                <script
-                    async
-                    src={`https://www.googletagmanager.com/gtag/js?id=UA-121064489-1`}
-                />
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                          window.dataLayer = window.dataLayer || [];
-                          function gtag(){dataLayer.push(arguments);}
-                          gtag('js', new Date());
-                          gtag('config', 'UA-121064489-1');
-                            `
-                    }}/>
-
                 <HomeSplash language={language}/>
                 <div className="mainContainer">
                     <FeatureCallout/>
