@@ -12,7 +12,7 @@ Simply run `captainduckduck deploy` in your git repo and follow the steps. This 
  [Get Started - Step 4](get-started.md#step-4-deploy-the-test-app).
 
 ## Deploy via Web Dashboard
-Zip the content of your project into a tarball (`.tar`), go to your Captain web dashboard and upload the tar file.
+Zip the content of your project into a tarball (`.tar`), go to your Captain web dashboard and upload the tar file. This deployment method is typically used for testing purposes only.
 
 
 ## Deploy using Github, Bitbucket and etc.
@@ -31,4 +31,7 @@ Secret: <Leave empty>, Just the `push` event.
 On Bitbucket, webhooks can be added here:
 - Project > Settings > Webhooks > Add Webhook > Title: Captain Server, URL: Captain Webhook from your apps page.
 
+
+### Note: git submodules
+Sometimes git repositories contain git submodules. If these submodules are necessary for your application to be built, you need to know that currently they are being supported by CLI, however, the support for WebHooks will be available starting version 0.8.0.
 
