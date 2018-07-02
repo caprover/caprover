@@ -172,7 +172,7 @@ const CaptainInOnePhoto = props => (
         <Block background="light">
             {[
                 {
-                    title: 'CaptainDuckDuck Workflow in a Glance',
+                    title: 'CaptainDuckDuck Workflow at a Glance',
                     image: imgUrl('captain-in-one-picture.png'),
                     imageAlign: 'bottom',
                 },
@@ -181,7 +181,7 @@ const CaptainInOnePhoto = props => (
         <Block background="light">
             {[
                 {
-                    title: 'Captain Architecture in a Glance',
+                    title: 'Captain Architecture at a Glance',
                     image: imgUrl('captain-architecture.png'),
                     imageAlign: 'bottom',
                 },
