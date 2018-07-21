@@ -280,7 +280,7 @@ body {
 }
 #page-wrapper,
 #sidebar-wrapper {
-  transition: all .4s ease 0s;
+  transition: all 0.4s ease 0s;
 }
 .green {
   background: #23ae89 !important;
@@ -362,7 +362,7 @@ ul.sidebar .sidebar-title {
   height: 35px;
   line-height: 40px;
   text-transform: uppercase;
-  transition: all .6s ease 0s;
+  transition: all 0.6s ease 0s;
 }
 ul.sidebar .sidebar-list {
   height: 40px;
@@ -414,7 +414,7 @@ ul.sidebar .sidebar-list .menu-icon {
   width: 100%;
   padding-top: 8px;
   margin: 0;
-  transition: all .6s ease 0s;
+  transition: all 0.6s ease 0s;
   text-align: center;
 }
 .sidebar-footer div * {
