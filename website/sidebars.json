@@ -17,6 +17,9 @@
       "cli-commands",
       "run-locally"
     ],
+    "Recipes and Tips": [
+      "recipe-deploy-create-react-app"
+    ],
     "Help": [
       "server-purchase",
       "disk-cleanup",

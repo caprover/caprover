@@ -1,3 +1,10 @@
+---
+id: recipe-deploy-create-react-app
+title: Static React App
+sidebar_label: Static React App
+---
+<br/>
+
 # Deploying as `create-react-app` in a static container
 
 Here is a small step-by-step guide to deploy a `create-react-app` as a static site.
