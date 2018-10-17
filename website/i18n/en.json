@@ -30,6 +30,8 @@
     "One-Click Apps": "One-Click Apps",
     "pre-deploy-script": "Pre-deploy Script",
     "Pre-deploy Script": "Pre-deploy Script",
+    "recipe-deploy-create-react-app": "Static React App",
+    "Static React App": "Static React App",
     "resource-monitoring": "Resource Monitoring",
     "Resource Monitoring": "Resource Monitoring",
     "run-locally": "Run Locally",
@@ -42,6 +44,7 @@
     "GitHub": "GitHub",
     "Basics": "Basics",
     "Do More": "Do More",
+    "Recipes and Tips": "Recipes and Tips",
     "Help": "Help"
   },
   "pages-strings": {
