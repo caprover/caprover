@@ -1,24 +1,24 @@
-const ora = require('ora');
+const ora = require("ora")
 
 function start(message) {
-    return ora(message).start()
+  return ora(message).start()
 }
 
 function stop(spinner) {
-    spinner.stop();
+  spinner.stop()
 }
 
 function succeed(spinner) {
-    spinner.succeed();
+  spinner.succeed()
 }
 
 function fail(spinner) {
-    spinner.fail();
+  spinner.fail()
 }
 
 module.exports = {
-    start: start,
-    stop: stop,
-    succeed: succeed,
-    fail: fail,
+  start: start,
+  stop: stop,
+  succeed: succeed,
+  fail: fail
 }
