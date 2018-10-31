@@ -48,8 +48,8 @@ function generateQuestions() {
 function removeMachineFromLocalStorage(machineName) {
   const removedMachine = machines.filter(
     machine => machine.name === machineName
-  )
-  const newMachines = machines.filter(machine => machine !== machineName)
+  )[0]
+  const newMachines = machines.filter(machine => machine.name !== machineName)
 
   configs.set("captainMachines", newMachines)
 
@@ -66,13 +66,15 @@ function logout() {
   console.log("Logout from a Captain Machine and clear auth info")
 
   inquirer.prompt(questions).then(answers => {
-    if (!answers.captainNameToLogout) {
+    const { captainNameToLogout } = answers
+
+    if (!captainNameToLogout) {
       console.log("\nOperation cancelled by the user...\n")
 
       return
     }
 
-    removeMachineFromLocalStorage(answers.captainNameToLogout)
+    removeMachineFromLocalStorage(captainNameToLogout)
   })
 }
 
