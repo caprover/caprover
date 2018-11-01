@@ -1,4 +1,4 @@
-const chalk = require("chalk")
+const { printGreenMessage, printError } = require("../utils/messageHandler")
 const inquirer = require("inquirer")
 const configstore = require("configstore")
 const packagejson = require("../package.json")
@@ -7,6 +7,7 @@ const configs = new configstore(packagejson.name, {
 })
 const machines = configs.get("captainMachines")
 const { cleanUpUrl, findDefaultCaptainName } = require("../utils/loginHelpers")
+const { printMessage } = require("../utils/messageHandler")
 const { SAMPLE_DOMAIN } = require("../utils/constants")
 const LoginApi = require("../api/LoginApi")
 
@@ -19,7 +20,7 @@ function setCaptainMachine(newMachine) {
 }
 
 function login() {
-  console.log("Login to a Captain Machine")
+  printMessage("Login to a Captain Machine")
 
   const questions = [
     {
@@ -27,7 +28,7 @@ function login() {
       default: SAMPLE_DOMAIN,
       name: "captainAddress",
       message:
-        "Enter address of the Captain machine. \nIt is captain.[your-captain-root-domain] :",
+        "\nEnter address of the Captain machine. \nIt is captain.[your-captain-root-domain] :",
       validate: value => {
         if (value === SAMPLE_DOMAIN) {
           return "Enter a valid URL"
@@ -90,8 +91,6 @@ function login() {
   ]
 
   inquirer.prompt(questions).then(async answers => {
-    console.log("\n")
-
     const {
       captainHasRootSsl,
       captainPassword,
@@ -113,11 +112,9 @@ function login() {
         throw new Error(JSON.stringify(response, null, 2))
       }
 
-      console.log(`${chalk.green("Logged in successfully to ")}${baseUrl}`)
+      printGreenMessage(`Logged in successfully to ${baseUrl}`)
 
-      console.log(
-        chalk.green(`Authorization token is now saved as ${captainName} \n`)
-      )
+      printGreenMessage(`Authorization token is now saved as ${captainName} \n`)
 
       const newMachine = {
         authToken: response.token,
@@ -127,13 +124,11 @@ function login() {
 
       setCaptainMachine(newMachine)
     } catch (error) {
-      console.error(
-        chalk.red(`Something bad happened. Cannot save "${captainName}"`)
-      )
-
       const errorMessage = error.message ? error.message : error
 
-      console.error(`${chalk.red(errorMessage)} \n`)
+      printError(
+        `Something bad happened. Cannot save "${captainName}" \n${errorMessage}`
+      )
     }
   })
 }

@@ -1,18 +1,22 @@
 const fs = require("fs-extra")
-const printErrorAndExit = require("./errorHandler")
+const { printErrorAndExit } = require("./errorHandler")
 
 function validateIsGitRepository() {
-  if (!fs.pathExistsSync("./.git")) {
+  const gitFolderExists = fs.pathExistsSync("./.git")
+
+  if (!gitFolderExists) {
     printErrorAndExit(
-      "**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****"
+      "\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n"
     )
   }
 }
 
 function validateDefinitionFile() {
-  if (!fs.pathExistsSync("./captain-definition")) {
+  const captainDefinitionExists = fs.pathExistsSync("./captain-definition")
+
+  if (!captainDefinitionExists) {
     printErrorAndExit(
-      "**** ERROR: captain-definition file cannot be found. Please see docs! ****"
+      "\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n"
     )
   }
 }

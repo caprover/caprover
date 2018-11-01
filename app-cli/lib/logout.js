@@ -1,3 +1,4 @@
+const { printMessage } = require("../utils/messageHandler")
 const inquirer = require("inquirer")
 const configstore = require("configstore")
 const packagejson = require("../package.json")
@@ -53,7 +54,7 @@ function removeMachineFromLocalStorage(machineName) {
 
   configs.set("captainMachines", newMachines)
 
-  console.log(
+  printMessage(
     `You are now logged out from ${removedMachine.name} at ${
       removedMachine.baseUrl
     }...\n`
@@ -63,13 +64,13 @@ function removeMachineFromLocalStorage(machineName) {
 function logout() {
   const questions = generateQuestions()
 
-  console.log("Logout from a Captain Machine and clear auth info")
+  printMessage("Logout from a Captain Machine and clear auth info")
 
   inquirer.prompt(questions).then(answers => {
     const { captainNameToLogout } = answers
 
     if (!captainNameToLogout) {
-      console.log("\nOperation cancelled by the user...\n")
+      printMessage("\nOperation cancelled by the user...\n")
 
       return
     }
