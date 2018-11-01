@@ -1,33 +1,9 @@
+const MachineHelper = require("../helpers/MachineHelper")
 const { printMessage } = require("../utils/messageHandler")
 const inquirer = require("inquirer")
-const configstore = require("configstore")
-const packagejson = require("../package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: []
-})
-const machines = configs.get("captainMachines")
-
-function getMachineList() {
-  const firstItemInOption = [
-    {
-      name: "-- CANCEL --",
-      value: "",
-      short: ""
-    }
-  ]
-  const listOfMachines = machines.map(machine => {
-    return {
-      name: `${machine.name} at ${machine.baseUrl}`,
-      value: `${machine.name}`,
-      short: `${machine.name} at ${machine.baseUrl}`
-    }
-  })
-
-  return [...firstItemInOption, ...listOfMachines]
-}
 
 function generateQuestions() {
-  const listOfMachines = getMachineList()
+  const listOfMachines = MachineHelper.getMachinesAsOptions()
 
   return [
     {
@@ -46,21 +22,6 @@ function generateQuestions() {
   ]
 }
 
-function removeMachineFromLocalStorage(machineName) {
-  const removedMachine = machines.filter(
-    machine => machine.name === machineName
-  )[0]
-  const newMachines = machines.filter(machine => machine.name !== machineName)
-
-  configs.set("captainMachines", newMachines)
-
-  printMessage(
-    `You are now logged out from ${removedMachine.name} at ${
-      removedMachine.baseUrl
-    }...\n`
-  )
-}
-
 function logout() {
   const questions = generateQuestions()
 
@@ -75,7 +36,7 @@ function logout() {
       return
     }
 
-    removeMachineFromLocalStorage(captainNameToLogout)
+    MachineHelper.logoutMachine(captainNameToLogout)
   })
 }
 

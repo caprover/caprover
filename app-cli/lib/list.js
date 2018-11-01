@@ -1,9 +1,5 @@
 const chalk = require("chalk")
-const configstore = require("configstore")
-const packagejson = require("../package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: []
-})
+const MachineHelper = require("../helpers/MachineHelper")
 
 function _displayMachine(machine) {
   console.log(
@@ -17,9 +13,7 @@ function _displayMachine(machine) {
 function list() {
   console.log("\nLogged in Captain Machines:\n")
 
-  const machines = configs.get("captainMachines")
-
-  machines.map(machine => {
+  MachineHelper.machines.map(machine => {
     _displayMachine(machine)
   })
 

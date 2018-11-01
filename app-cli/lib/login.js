@@ -1,23 +1,10 @@
+const MachineHelper = require("../helpers/MachineHelper")
 const { printGreenMessage, printError } = require("../utils/messageHandler")
 const inquirer = require("inquirer")
-const configstore = require("configstore")
-const packagejson = require("../package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: []
-})
-const machines = configs.get("captainMachines")
 const { cleanUpUrl, findDefaultCaptainName } = require("../utils/loginHelpers")
 const { printMessage } = require("../utils/messageHandler")
 const { SAMPLE_DOMAIN } = require("../utils/constants")
 const LoginApi = require("../api/LoginApi")
-
-function setCaptainMachine(newMachine) {
-  const machines = configs.get("captainMachines")
-
-  machines.push(newMachine)
-
-  configs.set("captainMachines", machines)
-}
 
 function login() {
   printMessage("Login to a Captain Machine")
@@ -36,7 +23,7 @@ function login() {
 
         if (!cleanUpUrl(value)) return "This is an invalid URL: " + value
 
-        machines.map(machine => {
+        MachineHelper.machines.map(machine => {
           if (cleanUpUrl(machine.baseUrl) === cleanUpUrl(value)) {
             return `${value} already exist as ${
               machine.name
@@ -75,7 +62,7 @@ function login() {
       message: "Enter a name for this Captain machine:",
       default: findDefaultCaptainName(),
       validate: value => {
-        machines.map(machine => {
+        MachineHelper.machines.map(machine => {
           if (machine.name === value) {
             return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`
           }
@@ -112,17 +99,17 @@ function login() {
         throw new Error(JSON.stringify(response, null, 2))
       }
 
-      printGreenMessage(`Logged in successfully to ${baseUrl}`)
-
-      printGreenMessage(`Authorization token is now saved as ${captainName} \n`)
-
       const newMachine = {
         authToken: response.token,
         baseUrl,
         name: captainName
       }
 
-      setCaptainMachine(newMachine)
+      MachineHelper.addMachine(newMachine)
+
+      printGreenMessage(`Logged in successfully to ${baseUrl}`)
+
+      printGreenMessage(`Authorization token is now saved as ${captainName} \n`)
     } catch (error) {
       const errorMessage = error.message ? error.message : error
 

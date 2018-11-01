@@ -1,9 +1,4 @@
-const configstore = require("configstore")
-const packagejson = require("../package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: []
-})
-const machines = configs.get("captainMachines")
+const MachineHelper = require("../helpers/MachineHelper")
 
 function cleanUpUrl(url) {
   if (!url || !url.length) return null
@@ -22,19 +17,8 @@ function cleanUpUrl(url) {
     .trim()
 }
 
-function _getCaptainFullName(suffix) {
-  const formatSuffix = suffix < 10 ? `0${suffix}` : suffix
-
-  return `captain-${formatSuffix}`
-}
-
-const _isSuffixValid = suffixNumber =>
-  machines.map(machine => {
-    machine.name !== _getCaptainFullName(suffixNumber)
-  })
-
 function findDefaultCaptainName() {
-  let currentSuffix = machines.length + 1
+  let currentSuffix = MachineHelper.machines.length + 1
 
   while (!_isSuffixValid(currentSuffix)) {
     currentSuffix++
@@ -42,6 +26,17 @@ function findDefaultCaptainName() {
 
   return _getCaptainFullName(currentSuffix)
 }
+
+function _getCaptainFullName(suffix) {
+  const formatSuffix = suffix < 10 ? `0${suffix}` : suffix
+
+  return `captain-${formatSuffix}`
+}
+
+const _isSuffixValid = suffixNumber =>
+  MachineHelper.machines.map(machine => {
+    machine.name !== _getCaptainFullName(suffixNumber)
+  })
 
 module.exports = {
   cleanUpUrl,
