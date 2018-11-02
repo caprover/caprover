@@ -31,6 +31,8 @@ class MachineHelper {
 
   setMachines(machines) {
     this.machines = machines
+
+    configs.set("captainMachines", machines)
   }
 
   addMachine(newMachine) {
@@ -44,14 +46,14 @@ class MachineHelper {
   }
 
   logoutMachine(machineName) {
-    const removedMachine = MachineHelper.machines.filter(
+    const removedMachine = this.machines.filter(
       machine => machine.name === machineName
     )[0]
-    const newMachines = MachineHelper.machines.filter(
+    const newMachines = this.machines.filter(
       machine => machine.name !== machineName
     )
 
-    MachineHelper.setMachines(newMachines)
+    this.setMachines(newMachines)
 
     printMessage(
       `You are now logged out from ${removedMachine.name} at ${
