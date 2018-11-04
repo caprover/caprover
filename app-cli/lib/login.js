@@ -88,10 +88,7 @@ function login() {
     const baseUrl = `${handleHttp}${cleanUpUrl(captainAddress)}`
 
     try {
-      const data = await LoginApi.loginMachine(
-        `${baseUrl}/api/v1/login`,
-        captainPassword
-      )
+      const data = await LoginApi.loginMachine(baseUrl, captainPassword)
       const response = JSON.parse(data)
 
       // TODO - This status should be 200 maybe?

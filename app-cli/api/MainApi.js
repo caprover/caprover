@@ -1,33 +1,84 @@
 const Request = require("request-promise")
 
 class MainApi {
-  get(url, config) {
-    return Request.get(url)
-  }
-
-  post(url, form, config) {
-    const options = {
-      url,
+  constructor() {
+    this.sharedOptions = {
       headers: {
         "x-namespace": "captain"
-      },
+      }
+    }
+  }
+
+  _buildOptions(options) {
+    if (!options) return this.sharedOptions
+
+    if (options.headers) {
+      options.headers = Object.assign(
+        {},
+        this.sharedOptions.headers,
+        options.headers
+      )
+    }
+
+    return Object.assign({}, this.sharedOptions, options)
+  }
+
+  get(url, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
+      method: "GET"
+    }
+
+    return Request(optionsToSend)
+  }
+
+  post(url, form, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
       method: "POST",
       form
     }
 
-    return Request(options)
+    return Request(optionsToSend)
   }
 
-  put(url, data, config) {
-    return Request.put(url, data)
+  put(url, form, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
+      method: "PUT",
+      form
+    }
+
+    return Request(optionsToSend)
   }
 
-  patch(url, data, config) {
-    return Request.patch(url, data)
+  patch(url, form, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
+      method: "PATCH",
+      form
+    }
+
+    return Request(optionsToSend)
   }
 
-  delete(url, data, config) {
-    return Request.delete(url)
+  delete(url, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
+      method: "DELETE"
+    }
+
+    return Request(optionsToSend)
   }
 }
 

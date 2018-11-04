@@ -1,218 +1,18 @@
-const program = require("commander")
-const chalk = require("chalk")
+const MachineHelper = require("../helpers/MachineHelper")
+const SystemApi = require("../api/SystemApi")
+const LoginApi = require("../api/LoginApi")
 const inquirer = require("inquirer")
-const configstore = require("configstore")
-const request = require("request")
-const spinnerUtil = require("./utils/spinner")
-const packagejson = require("./package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: []
-})
-
-program.description("Easy setup for your Captain server.").parse(process.argv)
-
-if (program.args.length) {
-  console.error(chalk.red("Unrecognized commands:"))
-
-  program.args.forEach(function(arg) {
-    console.log(chalk.red(arg))
-  })
-
-  console.error(chalk.red("This command does not require any options. "))
-
-  process.exit(1)
-}
-
-function findDefaultCaptainName() {
-  const machines = configs.get("captainMachines")
-  let currentSuffix = machines.length + 1
-
-  function getCaptainFullName(suffix) {
-    if (suffix < 10) {
-      suffix = "0" + suffix
-    }
-
-    return "captain-" + suffix
-  }
-
-  function isSuffixValid(suffixNumber) {
-    for (let i = 0; i < machines.length; i++) {
-      const m = machines[i]
-
-      if (m.name === getCaptainFullName(suffixNumber)) {
-        return false
-      }
-    }
-
-    return true
-  }
-
-  while (!isSuffixValid(currentSuffix)) {
-    currentSuffix++
-  }
-
-  return getCaptainFullName(currentSuffix)
-}
-
-function isIpAddress(ipaddress) {
-  if (
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-      ipaddress
-    )
-  ) {
-    return true
-  }
-
-  return false
-}
-
-console.log("\nSetup your Captain server\n")
-
-const SAMPLE_IP = "123.123.123.123"
-let authTokenFromLogin = null
-let ipAddressOfServer = null
-let customDomainFromUser = null
-let newPasswordFirstTry = null
-let oldPassword = "captain42"
-
-function setCustomDomain(baseApiUrl, customDomain) {
-  return apiEndpointWithLoading("Changing Domain...")(
-    "POST",
-    baseApiUrl,
-    "/api/v1/user/system/changerootdomain/",
-    {
-      rootDomain: customDomain
-    }
-  )
-}
-
-function enableHttps(baseApiUrl, emailAddress) {
-  return apiEndpointWithLoading("Enabling SSL...")(
-    "POST",
-    baseApiUrl,
-    "/api/v1/user/system/enablessl/",
-    {
-      emailAddress: emailAddress
-    }
-  )
-}
-
-function changePass(baseApiUrl, newPass) {
-  return apiEndpointWithLoading("Changing Password...")(
-    "POST",
-    baseApiUrl,
-    "/api/v1/user/changepassword/",
-    {
-      oldPassword: oldPassword,
-      newPassword: newPass
-    }
-  )
-}
-
-function forceHttps(baseApiUrl) {
-  return apiEndpointWithLoading("Forcing SSL...")(
-    "POST",
-    baseApiUrl,
-    "/api/v1/user/system/forcessl/",
-    {
-      isEnabled: true
-    }
-  )
-}
-
-// returns promise that resolves to auth token
-// rejects with ErrorCode or null
-function login(baseApiUrl, password) {
-  return apiEndpointWithLoading("Login...")(
-    "POST",
-    baseApiUrl,
-    "/api/v1/login",
-    {
-      password: password
-    }
-  ).then(function(data) {
-    return data.token
-  })
-}
-
-function apiEndpointWithLoading(message) {
-  return (method, baseApiUrl, endpoint, dataToSend) => {
-    return apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message)
-  }
-}
-
-function apiEndpoint(method, baseApiUrl, endpoint, dataToSend, message) {
-  const options = {
-    url: baseApiUrl + endpoint,
-    headers: {
-      "x-namespace": "captain",
-      "x-captain-auth": authTokenFromLogin
-    },
-    method: method,
-    form: dataToSend
-  }
-
-  return new Promise(function(res, rej) {
-    let spinner
-
-    if (message) {
-      spinner = spinnerUtil.start(message)
-    }
-
-    var callback = function(error, response, body) {
-      try {
-        if (!error && response.statusCode === 200) {
-          const data = JSON.parse(body)
-
-          if (data.status !== 100) {
-            if (spinner) {
-              spinnerUtil.fail(spinner)
-            }
-
-            rej(data)
-
-            return
-          }
-
-          if (spinner) {
-            spinnerUtil.succeed(spinner)
-          }
-
-          res(data)
-
-          return
-        }
-
-        if (error) {
-          throw new Error(error)
-        }
-
-        throw new Error(
-          response ? JSON.stringify(response, null, 2) : "Response NULL"
-        )
-      } catch (error) {
-        if (spinner) {
-          spinnerUtil.fail(spinner)
-        }
-
-        console.error(
-          chalk.red(
-            `Something bad happened. Cannot connect to "${baseApiUrl} ${endpoint}"`
-          )
-        )
-
-        const errorMessage = error.message ? error.message : error
-
-        console.error(`${chalk.red(errorMessage)}\n`)
-
-        process.exit(0)
-      }
-    }
-
-    request(options, callback)
-  })
-}
-
+const { findDefaultCaptainName } = require("../utils/loginHelpers")
+const { isIpAddress } = require("../utils/validationsHandler")
+const { SAMPLE_IP, DEFAULT_PASSWORD } = require("../utils/constants")
+const {
+  printMessage,
+  printErrorAndExit,
+  printError,
+  printMessageAndExit,
+  errorHandler
+} = require("../utils/messageHandler")
+let newPasswordFirstTry = undefined
 const questions = [
   {
     type: "list",
@@ -222,24 +22,18 @@ const questions = [
       "\nmkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?",
     default: "Yes",
     choices: ["Yes", "No"],
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        if (value === "Yes") {
-          res(true)
+    filter: value => {
+      const answerFromUser = value.trim()
 
-          return
-        }
+      if (answerFromUser === "Yes") return answerFromUser
 
-        console.log(
-          "\n\nCannot start the setup process if Captain is not installed."
-        )
+      printMessage(
+        "\n\nCannot start the setup process if Captain is not installed."
+      )
 
-        console.log(
-          "Please read tutorial on CaptainDuckDuck.com\n to learn how to install CaptainDuckDuck on a server.\n"
-        )
-
-        process.exit(0)
-      })
+      printMessageAndExit(
+        "Please read tutorial on CaptainDuckDuck.com to learn how to install CaptainDuckDuck on a server."
+      )
     }
   },
   {
@@ -247,88 +41,50 @@ const questions = [
     default: SAMPLE_IP,
     name: "captainAddress",
     message: "Enter IP address of your captain server:",
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        if (value === SAMPLE_IP) {
-          rej("Enter a valid IP Address")
+    filter: async value => {
+      const ipFromUser = value.trim()
 
-          return
-        }
+      if (ipFromUser === SAMPLE_IP || !isIpAddress(ipFromUser)) {
+        printErrorAndExit(`\nThis is an invalid IP Address: ${ipFromUser}`)
+      }
 
-        if (!isIpAddress(value.trim())) {
-          rej("This is an invalid IP Address: " + value)
+      try {
+        // login using captain42. and set the ipAddressToServer
+        const data = await LoginApi.loginMachine(
+          `http://${ipFromUser}:3000`,
+          DEFAULT_PASSWORD
+        )
 
-          return
-        }
+        SystemApi.setIpAddressOfServer(ipFromUser)
 
-        ipAddressOfServer = value.trim()
-
-        //login using captain42.
-
-        return login("http://" + ipAddressOfServer + ":3000", oldPassword)
-          .then(function(authTokenFetched) {
-            authTokenFromLogin = authTokenFetched
-
-            res(ipAddressOfServer)
-          })
-          .catch(function(error) {
-            // if error is anything but password wrong, exit here...
-            if (error.status == 1105) {
-              authTokenFromLogin = null
-
-              res(ipAddressOfServer)
-
-              return
-            }
-
-            console.log("")
-
-            if (error.status) {
-              console.log(chalk.red(`Error: ${error.status}`))
-
-              console.log(chalk.red(`Error: ${error.description}`))
-            } else {
-              console.log(chalk.red(`Error: ${error}`))
-            }
-
-            process.exit(0)
-          })
-      })
+        // All went well
+        if (data) return ipFromUser
+      } catch (e) {
+        errorHandler(e)
+      }
     }
   },
   {
     type: "password",
     name: "captainOriginalPassword",
     message: "Enter your current password:",
-    when: function() {
-      return !authTokenFromLogin
-    },
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        console.log("")
+    when: () => !LoginApi.token,
+    filter: async value => {
+      try {
+        const captainPasswordFromUser = value.trim()
+        const data = await LoginApi.loginMachine(
+          `http://${SystemApi.ipAddressOfServer}:3000`,
+          captainPasswordFromUser
+        )
 
-        return login("http://" + ipAddressOfServer + ":3000", value)
-          .then(function(authTokenFetched) {
-            authTokenFromLogin = authTokenFetched
+        if (data) {
+          SystemApi.setIpAddressOfServer(captainPasswordFromUser)
 
-            oldPassword = value
-
-            res(value)
-          })
-          .catch(function(error) {
-            console.log("")
-
-            if (error.status) {
-              console.log(chalk.red("Error: " + error.status))
-
-              console.log(chalk.red("Error: " + error.description))
-            } else {
-              console.log(chalk.red("Error: " + error))
-            }
-
-            process.exit(0)
-          })
-      })
+          LoginApi.setOldPassword(captainPasswordFromUser)
+        }
+      } catch (e) {
+        errorHandler(e)
+      }
     }
   },
   {
@@ -338,136 +94,103 @@ const questions = [
       "Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you" +
       " setup your DNS to point *.test.yourdomain.com to ip address of your server" +
       ": ",
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        value = value.trim()
+    filter: async value => {
+      try {
+        const captainRootDomainFromUser = value.trim()
+        const data = await SystemApi.setCustomDomain(
+          `http://${SystemApi.ipAddressOfServer}:3000`,
+          captainRootDomainFromUser
+        )
 
-        customDomainFromUser = "captain." + value
+        if (data) {
+          const newCustomDomainFromUser = `captain.${captainRootDomainFromUser}`
 
-        return setCustomDomain("http://" + ipAddressOfServer + ":3000", value)
-          .then(function() {
-            res(customDomainFromUser)
-          })
-          .catch(function(error) {
-            if (error.status) {
-              console.log(chalk.red(`Error: ${error.status}`))
+          SystemApi.setCustomDomainFromUser(newCustomDomainFromUser)
 
-              console.log(chalk.red(`Error: ${error.description}`))
-            } else {
-              console.log(chalk.red(`Error: ${error}`))
-            }
-
-            process.exit(0)
-          })
-      })
+          return captainRootDomainFromUser
+        }
+      } catch (e) {
+        errorHandler(e)
+      }
     }
   },
   {
     type: "input",
     name: "emailAddress",
     message: "Enter your 'valid' email address to enable HTTPS: ",
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        console.log("")
+    filter: async value => {
+      try {
+        const emailAddressFromUser = value.trim()
+        const { customDomainFromUser } = SystemApi
 
-        value = value.trim()
+        await SystemApi.enableHttps(
+          `http://${customDomainFromUser}`,
+          emailAddressFromUser
+        )
 
-        return enableHttps("http://" + customDomainFromUser, value)
-          .then(function() {
-            return forceHttps("https://" + customDomainFromUser)
-          })
-          .then(function() {
-            res(value)
-          })
-          .catch(function(error) {
-            console.log("")
+        const data = await SystemApi.forceHttps(
+          `https://${customDomainFromUser}`
+        )
 
-            if (error.status) {
-              console.log(chalk.red(`Error: ${error.status}`))
-
-              console.log(chalk.red(`Error: ${error.description}`))
-            } else {
-              console.log(chalk.red(`Error: ${error}`))
-            }
-
-            process.exit(0)
-          })
-      })
+        if (data) return emailAddressFromUser
+      } catch (e) {
+        errorHandler(e)
+      }
     }
   },
   {
     type: "password",
     name: "newPasswordFirstTry",
     message: "Enter a new password:",
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        newPasswordFirstTry = value
+    filter: value => {
+      newPasswordFirstTry = value
 
-        res(value)
-      })
+      return value
     }
   },
   {
     type: "password",
     name: "newPassword",
     message: "Enter a new password:",
-    filter: function(value) {
-      return new Promise(function(res, rej) {
-        if (newPasswordFirstTry !== value) {
-          rej("Passwords do not match")
-          //process.exit(0);
+    filter: async value => {
+      const { customDomainFromUser } = SystemApi
 
-          return
+      try {
+        const confirmPasswordValueFromUser = value
+        const machineUrl = `https://${customDomainFromUser}`
+
+        if (newPasswordFirstTry !== confirmPasswordValueFromUser) {
+          printErrorAndExit("Passwords do not match")
         }
 
-        return changePass("https://" + customDomainFromUser, value)
-          .then(function() {
-            return login("https://" + customDomainFromUser, value)
-          })
-          .then(function(token) {
-            authTokenFromLogin = token
+        const changePassData = await LoginApi.changePass(
+          machineUrl,
+          confirmPasswordValueFromUser
+        )
 
-            res(value)
-          })
-          .catch(function(error) {
-            console.log("")
+        if (changePassData) {
+          const loginData = await LoginApi.login(
+            machineUrl,
+            confirmPasswordValueFromUser
+          )
 
-            if (error.status) {
-              console.log(chalk.red(`Error: ${error.status}`))
+          if (loginData) return
+        }
+      } catch (e) {
+        printError(
+          "\nIMPORTANT!! Server setup is completed by password is not changed."
+        )
 
-              console.log(chalk.red(`Error: ${error.description}`))
-            } else {
-              console.log(chalk.red(`Error: ${error}`))
-            }
+        printError("\nYou CANNOT use serversetup anymore. To continue:")
 
-            console.log(
-              chalk.red(
-                "\nIMPORTANT!! Server setup is completed by password is not changed."
-              )
-            )
+        printError(
+          `\n- Go to https://${customDomainFromUser} login with default password and change the password in settings.`
+        )
 
-            console.log(
-              chalk.red("You CANNOT use serversetup anymore. To continue: ")
-            )
-
-            console.log(
-              chalk.red(
-                "- Go to https://" +
-                  customDomainFromUser +
-                  " login with default password and change the password in settings."
-              )
-            )
-
-            console.log(
-              chalk.red(
-                "- In terminal (here), type captainduckduck login and enter this as your root domain: " +
-                  customDomainFromUser
-              )
-            )
-
-            process.exit(0)
-          })
-      })
+        printErrorAndExit(
+          `\n- In terminal (here), type captainduckduck login and enter this as your root domain: ${customDomainFromUser}`
+        )
+      }
     }
   },
   {
@@ -475,14 +198,14 @@ const questions = [
     name: "captainName",
     message: "Enter a name for this Captain machine:",
     default: findDefaultCaptainName(),
-    validate: function(value) {
-      const machines = configs.get("captainMachines")
+    validate: value => {
+      const newMachineName = value.trim()
 
-      for (let i = 0; i < machines.length; i++) {
-        if (machines[i].name === value) {
-          return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`
-        }
-      }
+      MachineHelper.machines.map(
+        machine =>
+          machine.name === newMachineName &&
+          `${newMachineName} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`
+      )
 
       if (value.match(/^[-\d\w]+$/i)) {
         return true
@@ -493,22 +216,26 @@ const questions = [
   }
 ]
 
-inquirer.prompt(questions).then(function(answers) {
-  var captainAddress = "https://" + customDomainFromUser
+function serversetup() {
+  printMessage("\nSetup your Captain server\n")
 
-  const machines = configs.get("captainMachines")
+  inquirer.prompt(questions).then(answers => {
+    var captainAddress = `https://${SystemApi.customDomainFromUser}`
 
-  machines.push({
-    authToken: authTokenFromLogin,
-    baseUrl: captainAddress,
-    name: answers.captainName
+    const newMachine = {
+      authToken: LoginApi.token,
+      baseUrl: captainAddress,
+      name: answers.captainName
+    }
+
+    MachineHelper.addMachine(newMachine)
+
+    printMessage(`\n\nCaptain is available at ${captainAddress}`)
+
+    printMessage(
+      "\nFor more details and docs see http://www.captainduckduck.com\n\n"
+    )
   })
+}
 
-  configs.set("captainMachines", machines)
-
-  console.log(`\n\nCaptain is available at ${captainAddress}`)
-
-  console.log(
-    "\nFor more details and docs see http://www.captainduckduck.com\n\n"
-  )
-})
+module.exports = serversetup

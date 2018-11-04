@@ -8,24 +8,23 @@ const program = require("commander")
 updateNotifier({ pkg: packagejson }).notify({ isGlobal: true })
 
 // Command actions
-const list = require("./lib/list")
-const logout = require("./lib/logout")
+const serversetup = require("./lib/serversetup")
 const login = require("./lib/login")
+const logout = require("./lib/logout")
+const list = require("./lib/list")
+// const deploy = require("./lib/deploy")
 
 // Setup
 program.version(packagejson.version).description(packagejson.description)
 
-program
-  .command(
-    "serversetup",
-    "Performs necessary actions and prepares your Captain server."
-  )
-  .command(
-    "deploy",
-    "Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine."
-  )
-
 // Commands
+program
+  .command("serversetup")
+  .description("Performs necessary actions and prepares your Captain server.")
+  .action(() => {
+    serversetup()
+  })
+
 program
   .command("login")
   .description(
@@ -47,6 +46,15 @@ program
   .description("List all Captain machines currently logged in.")
   .action(() => {
     list()
+  })
+
+program
+  .command("deploy")
+  .description(
+    "Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine."
+  )
+  .action(() => {
+    // deploy()
   })
 
 // Error on unknown commands
