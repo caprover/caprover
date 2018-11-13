@@ -25,7 +25,7 @@
     "on-finished": "^2.3.0",
     "public-ip": "^2.3.5",
     "recursive-readdir": "^2.2.1",
-    "request": "^2.85.0",
+    "request": "^2.88.0",
     "require-from-string": "^2.0.2",
     "serve-favicon": "~2.4.2",
     "simple-git": "^1.85.0",
