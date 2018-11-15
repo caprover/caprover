@@ -1,3 +1,6 @@
+/**
+ * Content of this file is mostly taken from https://gist.github.com/vlucas/2bd40f62d20c1d49237a109d491974eb
+ */
 const crypto = require('crypto');
 const algorithm = 'aes-256-ctr';
 const IV_LENGTH = 16; // For AES, this is always 16
@@ -25,7 +28,6 @@ class Encryptor {
         encrypted = Buffer.concat([encrypted, cipher.final()]);
 
         return iv.toString('hex') + ':' + encrypted.toString('hex');
-
     }
 
     decrypt(text) {
@@ -50,8 +52,6 @@ class Encryptor {
 
 module.exports = {
     create: function (encryptionKey) {
-
         return new Encryptor(encryptionKey);
-
     }
 };
