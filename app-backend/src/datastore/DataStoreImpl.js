@@ -21,6 +21,8 @@ const HAS_REGISTRY_SSL = 'hasRegistrySsl';
 const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
 const APP_DEFINITIONS = 'appDefinitions';
 const EMAIL_ADDRESS = 'emailAddress';
+const DOCKER_REGISTRIES = 'dockerRegistries';
+const DEFAULT_DOCKER_REGISTRY = 'defaultDockerReg';
 const NET_DATA_INFO = 'netDataInfo';
 const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
 const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
@@ -259,8 +261,7 @@ class DataStore {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
                     if (app.customDomain[idx].publicDomain === customDomain) {
                         removed = true;
-                    }
-                    else {
+                    } else {
                         newDomains.push(app.customDomain[idx]);
                     }
                 }
@@ -497,8 +498,7 @@ class DataStore {
                     }
 
                     app.appPushWebhook.repoInfo = appPushWebhookRepoInfo;
-                }
-                else {
+                } else {
 
                     app.appPushWebhook = {};
 
@@ -506,9 +506,9 @@ class DataStore {
 
                 if (ports) {
 
-                    function isPortValid(portNumber) {
+                    let isPortValid = function (portNumber) {
                         return portNumber > 0 && portNumber < 65535;
-                    }
+                    };
 
                     let tempPorts = [];
                     for (let i = 0; i < ports.length; i++) {
@@ -572,8 +572,7 @@ class DataStore {
                                 newVol.hostPath = obj.hostPath;
                                 newVol.type = 'bind';
 
-                            }
-                            else {
+                            } else {
 
                                 if (!isNameAllowed(obj.volumeName)) {
                                     throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
@@ -607,6 +606,119 @@ class DataStore {
                 self.data.set(APP_DEFINITIONS + '.' + appName, app);
 
             });
+    }
+
+    getDefaultPushRegistry() {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+
+                return self.data.get(DEFAULT_DOCKER_REGISTRY);
+
+            });
+
+    }
+
+    setDefaultPushRegistry(registryId) {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+
+                let found = false;
+                let registries = self.data.get(DOCKER_REGISTRIES) || [];
+                for (let i = 0; i < registries.length; i++) {
+                    const registry = registries[i];
+                    if (registry.id === registryId) {
+                        found = true;
+                    }
+                }
+
+                // registryId can be NULL/Empty, meaning that no registry will be the default push registry
+                if (!found && !!registryId) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
+                }
+
+                self.data.set(DEFAULT_DOCKER_REGISTRY, registryId);
+
+            });
+    }
+
+    deleteRegistry(registryId) {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+
+                let newReg = [];
+                let registries = self.data.get(DOCKER_REGISTRIES) || [];
+                for (let i = 0; i < registries.length; i++) {
+                    const registry = registries[i];
+                    if (registry.id !== registryId) {
+                        newReg.push(registry);
+                    }
+                }
+
+                if (newReg.length === registries.length) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
+                }
+
+                self.data.set(DOCKER_REGISTRIES, newReg);
+
+            });
+    }
+
+    getAllRegistries() {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+
+                return self.data.get(DOCKER_REGISTRIES);
+
+            });
+    }
+
+    addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+
+        const self = this;
+
+        return Promise.resolve()
+            .then(function () {
+                return new Promise(function (resolve, reject) {
+
+                    resolve(self.data.get(DOCKER_REGISTRIES) || []);
+
+                })
+            })
+            .then(function (registries) {
+
+                let id = uuid();
+                let isAlreadyTaken = true;
+
+                while (isAlreadyTaken) {
+                    isAlreadyTaken = false;
+                    for (let i = 0; i < registries.length; i++) {
+                        if (registries[i].id === id) {
+                            isAlreadyTaken = true;
+                            break;
+                        }
+                    }
+                }
+
+                registries.push({
+                    id, registryUser, registryPassword, registryDomain, registryImagePrefix
+                });
+
+                self.data.set(DOCKER_REGISTRIES, registries);
+
+            });
+
     }
 
     setUserEmailAddress(emailAddress) {

@@ -6,6 +6,9 @@ const Logger = require('../utils/Logger');
 const CaptainManager = require('../user/CaptainManager');
 const Validator = require('validator');
 const CaptainConstants = require('../utils/CaptainConstants');
+const RegistriesRouter = require('./RegistriesRouter');
+
+router.use('/registries/', RegistriesRouter);
 
 router.post('/changerootdomain/', function (req, res, next) {
 

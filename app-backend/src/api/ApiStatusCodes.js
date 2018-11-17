@@ -32,7 +32,11 @@ let apiStatusCode = {
 
     ILLEGAL_OPERATION: 1108,
 
-    BUILD_ERROR: 1109
+    BUILD_ERROR: 1109,
+
+    ILLEGAL_PARAMETER: 1110,
+
+    NOT_FOUND: 1111,
 
 };
 

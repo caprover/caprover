@@ -318,8 +318,7 @@ class CaptainManager {
 
                     if (error || !body || (body !== self.getHealthCheckUuid())) {
                         callback(false);
-                    }
-                    else {
+                    } else {
                         callback(true);
                     }
 
@@ -382,8 +381,7 @@ class CaptainManager {
 
             if (hasFailedCheck) {
                 self.consecutiveHealthCheckFailCount = self.consecutiveHealthCheckFailCount + 1;
-            }
-            else {
+            } else {
                 self.consecutiveHealthCheckFailCount = 0;
             }
 
@@ -431,11 +429,9 @@ class CaptainManager {
 
                     if (error) {
                         reject(error);
-                    }
-                    else if (!body || !JSON.parse(body).results) {
+                    } else if (!body || !JSON.parse(body).results) {
                         reject(new Error('Received empty body or no result for version list on docker hub.'));
-                    }
-                    else {
+                    } else {
                         let results = JSON.parse(body).results;
                         let tags = [];
                         for (let idx = 0; idx < results.length; idx++) {
@@ -698,6 +694,73 @@ class CaptainManager {
 
     getDockerRegistry() {
         return this.dockerRegistry;
+    }
+
+    setDefaultPushRegistry(registryId) {
+
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+
+                return self.dataStore.setDefaultPushRegistry(registryId);
+
+            });
+
+    }
+
+    getDefaultPushRegistry() {
+
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+
+                return self.dataStore.getDefaultPushRegistry();
+
+            });
+
+    }
+
+    deleteRegistry(registryId) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+
+                return self.getDefaultPushRegistry();
+
+            })
+            .then(function (registryIdDefaultPush) {
+
+                if (registryId === registryIdDefaultPush) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push');
+                }
+
+                return self.dataStore.deleteRegistry(registryId);
+
+            });
+    }
+
+    getAllRegistries() {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+
+                return (self.dataStore.getAllRegistries() || []);
+
+            });
+    }
+
+    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+
+                if (!registryUser || !registryPassword || !registryDomain) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
+                }
+
+                return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix);
+
+            });
     }
 
     enableSsl(emailAddress) {
