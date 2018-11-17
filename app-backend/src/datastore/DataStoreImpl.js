@@ -698,10 +698,11 @@ class DataStore {
             })
             .then(function (registries) {
 
-                let id = uuid();
+                let id = null;
                 let isAlreadyTaken = true;
 
                 while (isAlreadyTaken) {
+                    id = uuid();
                     isAlreadyTaken = false;
                     for (let i = 0; i < registries.length; i++) {
                         if (registries[i].id === id) {
