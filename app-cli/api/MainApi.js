@@ -46,6 +46,18 @@ class MainApi {
     return Request(optionsToSend)
   }
 
+  postWithFile(url, formData, options) {
+    const overrideOptions = this._buildOptions(options)
+    const optionsToSend = {
+      ...overrideOptions,
+      url,
+      method: "POST",
+      formData
+    }
+
+    return Request(optionsToSend)
+  }
+
   put(url, form, options) {
     const overrideOptions = this._buildOptions(options)
     const optionsToSend = {

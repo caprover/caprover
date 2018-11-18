@@ -72,7 +72,7 @@ class DeployApi {
           "x-captain-auth": authToken
         }
       }
-      const data = await MainApi.post(url, form, options)
+      const data = await MainApi.postWithFile(url, form, options)
 
       return data
     } catch (e) {
