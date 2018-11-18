@@ -170,7 +170,7 @@ class ServiceManager {
         return Promise.resolve()
             .then(function () {
 
-                return dataStore.getNewVersion(appName);
+                return dataStore.getAppsDataStore().getNewVersion(appName);
 
             })
             .then(function (newVersionPulled) {
@@ -219,7 +219,7 @@ class ServiceManager {
                 return promiseToFetchDirectory
                     .then(function (gitHashToSave) {
 
-                        return dataStore.setGitHash(appName, newVersion, gitHashToSave);
+                        return dataStore.getAppsDataStore().setGitHash(appName, newVersion, gitHashToSave);
 
                     })
                     .then(function () {
@@ -421,7 +421,7 @@ class ServiceManager {
 
                 Logger.d('Enabling SSL for: ' + appName + ' on ' + customDomain);
 
-                return self.dataStore.verifyCustomDomainBelongsToApp(appName, customDomain);
+                return self.dataStore.getAppsDataStore().verifyCustomDomainBelongsToApp(appName, customDomain);
 
             })
             .then(function () {
@@ -431,7 +431,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.enableCustomDomainSsl(appName, customDomain);
+                return self.dataStore.getAppsDataStore().enableCustomDomainSsl(appName, customDomain);
 
             })
             .then(function () {
@@ -487,7 +487,7 @@ class ServiceManager {
 
                 Logger.d('Enabling custom domain for: ' + appName);
 
-                return self.dataStore.addCustomDomainForApp(appName, customDomain);
+                return self.dataStore.getAppsDataStore().addCustomDomainForApp(appName, customDomain);
 
             })
             .then(function () {
@@ -509,7 +509,7 @@ class ServiceManager {
 
                 Logger.d('Removing custom domain for: ' + appName);
 
-                return self.dataStore.removeCustomDomainForApp(appName, customDomain);
+                return self.dataStore.getAppsDataStore().removeCustomDomainForApp(appName, customDomain);
 
             })
             .then(function () {
@@ -554,7 +554,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.getAppDefinitions();
+                return self.dataStore.getAppsDataStore().getAppDefinitions();
 
             })
             .then(function (apps) {
@@ -575,7 +575,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.enableSslForDefaultSubDomain(appName);
+                return self.dataStore.getAppsDataStore().enableSslForDefaultSubDomain(appName);
 
             })
             .then(function () {
@@ -608,7 +608,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.getAppDefinitions();
+                return self.dataStore.getAppsDataStore().getAppDefinitions();
 
             })
             .then(function (apps) {
@@ -660,7 +660,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return dataStore.deleteAppDefinition(appName);
+                return dataStore.getAppsDataStore().deleteAppDefinition(appName);
 
             })
             .then(function () {
@@ -688,7 +688,7 @@ class ServiceManager {
 
                 allImages = images;
 
-                return dataStore.getAppDefinitions()
+                return dataStore.getAppsDataStore().getAppDefinitions()
             })
             .then(function (apps) {
 
@@ -754,9 +754,9 @@ class ServiceManager {
         let dataStore = this.dataStore;
         let app = null;
 
-        return dataStore.setDeployedVersion(appName, version)
+        return dataStore.getAppsDataStore().setDeployedVersion(appName, version)
             .then(function () {
-                return dataStore.getAppDefinitions()
+                return dataStore.getAppsDataStore().getAppDefinitions()
                     .then(function (apps) {
                         Logger.d('App definitions retrieved');
                         return apps[appName];
@@ -868,7 +868,7 @@ class ServiceManager {
         return Promise.resolve()
             .then(function () {
 
-                return dataStore.getAppDefinition(appName);
+                return dataStore.getAppsDataStore().getAppDefinition(appName);
 
             })
             .then(function (app) {
@@ -928,7 +928,7 @@ class ServiceManager {
             })
             .then(function () {
 
-                return dataStore.updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId,
+                return dataStore.getAppsDataStore().updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId,
                     notExposeAsWebApp, forceSsl, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()),
                     customNginxConfig, preDeployFunction);
 
@@ -991,7 +991,7 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
-                return dataStore.getAppDefinition(appName);
+                return dataStore.getAppsDataStore().getAppDefinition(appName);
             })
             .then(function (app) {
 

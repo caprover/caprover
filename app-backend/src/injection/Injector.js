@@ -97,7 +97,7 @@ module.exports.injectUserForWebhook = function () {
 
                 decodedInfo = data;
 
-                return dataStore
+                return dataStore.getAppsDataStore()
                     .getAppDefinition(data.appName)
 
             })

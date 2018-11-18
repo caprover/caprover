@@ -46,7 +46,7 @@ router.post('/:appName/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
     let appName = req.params.appName;
 
-    dataStore.getAppDefinitions()
+    dataStore.getAppsDataStore().getAppDefinitions()
         .then(function (apps) {
             if (!apps[appName]) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC,

@@ -104,7 +104,7 @@ router.get('/', function (req, res, next) {
     let serviceManager = res.locals.user.serviceManager;
     let appsArray = [];
 
-    dataStore.getAppDefinitions()
+    dataStore.getAppsDataStore().getAppDefinitions()
         .then(function (apps) {
 
             let promises = [];
@@ -318,7 +318,7 @@ router.post('/register/', function (req, res, next) {
 
     Logger.d('Registering app started: ' + appName);
 
-    dataStore.registerAppDefinition(appName, hasPersistentData)
+    dataStore.getAppsDataStore().registerAppDefinition(appName, hasPersistentData)
         .then(function () {
 
             appCreated = true;
@@ -349,7 +349,7 @@ router.post('/register/', function (req, res, next) {
             }
 
             if (appCreated) {
-                return dataStore.deleteAppDefinition(appName)
+                return dataStore.getAppsDataStore().deleteAppDefinition(appName)
                     .then(function () {
                         return createRejectionPromise();
                     });
