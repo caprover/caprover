@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 const MachineHelper = require("../helpers/MachineHelper")
 const DeployApi = require("../api/DeployApi")
-const {
-  printErrorAndExit,
-  printError,
-  printMessage,
-  printGreenMessage,
-  printMagentaMessage
-} = require("../utils/messageHandler")
+const { printError, printMessage } = require("../utils/messageHandler")
 const {
   validateIsGitRepository,
   validateDefinitionFile,
@@ -15,7 +9,7 @@ const {
   optionIsGiven
 } = require("../utils/validationsHandler")
 const { requestLogin } = require("../lib/login")
-const { getFileStream } = require("../utils/fileHelper")
+const { getFileStream, uploadFile } = require("../utils/fileHelper")
 const { gitArchiveFile } = require("../utils/fileHelper")
 const fs = require("fs-extra")
 const path = require("path")
@@ -203,12 +197,7 @@ function deploy(options) {
       const fileStream = getFileStream(filePath)
       const gitHash = "sendviatarfile"
 
-      printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
-
-      const response = await DeployApi.sendFile(fileStream, gitHash)
-      // const data = JSON.parse(response)
-
-      console.log(response)
+      uploadFile(filePath, fileStream, gitHash)
 
       return
     }
@@ -218,8 +207,9 @@ function deploy(options) {
     if (!commandExistsSync("git")) {
       printError("'git' command not found...")
 
-      printErrorAndExit(
-        "Captain needs 'git' to create tar file of your source files..."
+      printError(
+        "Captain needs 'git' to create tar file of your source files...",
+        true
       )
     }
 

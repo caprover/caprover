@@ -5,6 +5,8 @@ const {
   printGreenMessage,
   printMagentaMessage
 } = require("./messageHandler")
+const { isTarFileProvided } = require("../utils/validationsHandler")
+const SpinnerHelper = require("../helpers/SpinnerHelper")
 const { exec } = require("child_process")
 const ProgressBar = require("progress")
 const ora = require("ora")
@@ -66,22 +68,22 @@ function onLogRetrieved(data) {
     }
   }
 
-  const { baseUrl, appName } = DeployApi.machineToDeploy
+  const finishedBuilding = data && !data.isAppBuilding
 
-  if (data && !data.isAppBuilding) {
+  if (finishedBuilding) {
     if (!data.isBuildFailed) {
-      const machineBaseUrl = baseUrl
-        .replace("//captain.", "//" + appName + ".")
-        .replace("https://", "http://")
+      printGreenMessage(`Deployed successfully: ${DeployApi.appName}`)
 
-      printGreenMessage(`Deployed successfully: ${appName}`)
-
-      printMagentaMessage(`App is available at ${machineBaseUrl}\n`)
+      printMagentaMessage(
+        `App is available at ${DeployApi.machineToDeploy.baseUrl}\n`,
+        true
+      )
     } else {
-      printError(`\nSomething bad happened. Cannot deploy "${appName}"\n`)
+      printError(
+        `\nSomething bad happened. Cannot deploy "${DeployApi.appName}"\n`,
+        true
+      )
     }
-
-    return
   }
 
   setTimeout(() => {
@@ -98,7 +100,7 @@ async function startFetchingBuildLogs() {
       throw new Error(JSON.stringify(response, null, 2))
     }
 
-    onLogRetrieved(data.data)
+    onLogRetrieved(response.data)
   } catch (error) {
     printError(`\nSomething while retrieving app build logs.. ${error}\n`)
 
@@ -123,72 +125,58 @@ function getFileStream(zipFileFullPath) {
     bar.tick(chunk.length)
   })
 
-  let spinner
-
   fileStream.on("end", () => {
     printMessage("This might take several minutes. PLEASE BE PATIENT...")
 
-    // spinner = ora("Building your source code...").start()
+    SpinnerHelper.start("Building your source code...")
 
-    // spinner.color = "yellow"
+    SpinnerHelper.setColor("yellow")
   })
 
   return fileStream
 }
 
-async function sendFileToCaptain(fileStream, gitHash) {
+async function uploadFile(filePath, fileStream, gitHash) {
   printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
 
-  // try {
   const response = await DeployApi.sendFile(fileStream, gitHash)
   const data = JSON.parse(response)
+  const somethingWentWrong = data.status !== 100 && data.status !== 101
+  const isDeployedAndBuilding = data.status === 101
+  const isDeployedSuccessfully = data.status === 100
 
-  // Uncomment this to remove the file
-  // if (fs.pathExistsSync(zipFileFullPath)) {
-  //   if (!isTarFileProvided()) {
-  //     fs.removeSync(zipFileFullPath)
-  //   }
-  // }
-
-  if (data.status === 1106) {
-    // // expired token
-
-    printMessage("Expired token")
-    // requestLogin(
-    //   DeployApi.machineToDeploy.name,
-    //   DeployApi.machineToDeploy.baseUrl,
-    //   function callback(machineToDeployNew) {
-    //     deployTo()
-    //   }
-    // )
-
-    return
+  if (somethingWentWrong) {
+    throw new Error(JSON.stringify(data, null, 2))
   }
 
-  // if (data.status !== 100 && data.status !== 101) {
-  //   throw new Error(JSON.stringify(data, null, 2))
-  // }
+  // deleteFileFromDisk(filePath) // Uncomment this
 
+  // Save app to local storage
   // savePropForDirectory(DEFAULT_APP_NAME, DeployApi.appName)
 
   // savePropForDirectory(DEFAULT_BRANCH_TO_PUSH, DeployApi.branchToPush)
 
   // savePropForDirectory(MACHINE_TO_DEPLOY, DeployApi.machineToDeploy)
 
-  // if (data.status === 100) {
-  //   printGreenMessage(`Deployed successfully: ${DeployApi.appName}\n`)
-  // } else if (data.status === 101) {
-  //   printGreenMessage(`Building started: ${DeployApi.appName}\n`)
+  if (isDeployedAndBuilding) {
+    startFetchingBuildLogs()
+  }
 
-  //   startFetchingBuildLogs()
-  // }
-  // } catch (e) {
-  //   printError(
-  //     `\nSomething bad happened. Cannot deploy "${DeployApi.appName}"\n`
-  //   )
-
-  //   errorHandler(e)
-  // }
+  if (isDeployedSuccessfully) {
+    printGreenMessage(`Deployed successfully: ${DeployApi.appName}\n`, true)
+  }
 }
 
-module.exports = { gitArchiveFile, sendFileToCaptain, getFileStream }
+function deleteFileFromDisk(filePath) {
+  if (fs.pathExistsSync(filePath)) {
+    if (!isTarFileProvided()) {
+      fs.removeSync(filePath)
+    }
+  }
+}
+
+module.exports = {
+  gitArchiveFile,
+  getFileStream,
+  uploadFile
+}

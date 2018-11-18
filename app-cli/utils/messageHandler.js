@@ -10,36 +10,35 @@ function printMessageAndExit(message) {
   process.exit(0)
 }
 
-function printGreenMessage(message) {
+function printGreenMessage(message, exit = false) {
   console.log(`${chalk.green(message)}`)
+
+  exit && process.exit(0)
 }
 
-function printMagentaMessage(message) {
+function printMagentaMessage(message, exit = false) {
   console.log(`${chalk.magenta(message)}`)
+
+  exit && process.exit(0)
 }
 
-function printError(error) {
+function printError(error, exit = false) {
   console.log(`${chalk.bold.red(error)}`)
-}
 
-function printErrorAndExit(error) {
-  console.log(`${printError(error)}`)
-
-  process.exit(0)
+  exit && process.exit(0)
 }
 
 function errorHandler(error) {
   if (error.status) {
-    printErrorAndExit(`\nError: ${error.status}\nError: ${error.description}`)
+    printError(`\nError: ${error.status}\nError: ${error.description}`, true)
   } else {
-    printErrorAndExit(`\nError: ${error}`)
+    printError(`\nError: ${error}`, true)
   }
 }
 
 module.exports = {
   printMessage,
   printMessageAndExit,
-  printErrorAndExit,
   printError,
   printGreenMessage,
   printMagentaMessage,

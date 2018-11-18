@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { printErrorAndExit } = require("./utils/messageHandler")
+const { printError } = require("./utils/messageHandler")
 const packagejson = require("./package.json")
 const updateNotifier = require("update-notifier")
 const program = require("commander")
@@ -78,8 +78,9 @@ program
 program.on("command:*", () => {
   const wrongCommands = program.args.join(" ")
 
-  printErrorAndExit(
-    `\nInvalid command: ${wrongCommands}\nSee --help for a list of available commands.`
+  printError(
+    `\nInvalid command: ${wrongCommands}\nSee --help for a list of available commands.`,
+    true
   )
 })
 

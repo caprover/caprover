@@ -7,7 +7,6 @@ const { isIpAddress } = require("../utils/validationsHandler")
 const { SAMPLE_IP, DEFAULT_PASSWORD } = require("../utils/constants")
 const {
   printMessage,
-  printErrorAndExit,
   printError,
   printMessageAndExit,
   errorHandler
@@ -45,7 +44,7 @@ const questions = [
       const ipFromUser = value.trim()
 
       if (ipFromUser === SAMPLE_IP || !isIpAddress(ipFromUser)) {
-        printErrorAndExit(`\nThis is an invalid IP Address: ${ipFromUser}`)
+        printError(`\nThis is an invalid IP Address: ${ipFromUser}`, true)
       }
 
       try {
@@ -160,7 +159,7 @@ const questions = [
         const machineUrl = `https://${customDomainFromUser}`
 
         if (newPasswordFirstTry !== confirmPasswordValueFromUser) {
-          printErrorAndExit("Passwords do not match")
+          printError("Passwords do not match", true)
         }
 
         const changePassData = await LoginApi.changePass(
@@ -187,8 +186,9 @@ const questions = [
           `\n- Go to https://${customDomainFromUser} login with default password and change the password in settings.`
         )
 
-        printErrorAndExit(
-          `\n- In terminal (here), type captainduckduck login and enter this as your root domain: ${customDomainFromUser}`
+        printError(
+          `\n- In terminal (here), type captainduckduck login and enter this as your root domain: ${customDomainFromUser}`,
+          true
         )
       }
     }

@@ -38,14 +38,16 @@ class DeployApi {
 
   setAppName(appName) {
     this.appName = appName
+
+    console.log("App name is", appName)
   }
 
   async fetchBuildLogs() {
     try {
-      const { token, baseUrl } = this.machineToDeploy
+      const { authToken, baseUrl } = this.machineToDeploy
       const customOptions = {
         headers: {
-          "x-captain-auth": token
+          "x-captain-auth": authToken
         }
       }
       const data = await MainApi.get(

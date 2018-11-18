@@ -1,12 +1,13 @@
 const fs = require("fs-extra")
-const { printErrorAndExit } = require("./messageHandler")
+const { printError } = require("./messageHandler")
 
 function validateIsGitRepository() {
   const gitFolderExists = fs.pathExistsSync("./.git")
 
   if (!gitFolderExists) {
-    printErrorAndExit(
-      "\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n"
+    printError(
+      "\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n",
+      true
     )
   }
 }
@@ -15,8 +16,9 @@ function validateDefinitionFile() {
   const captainDefinitionExists = fs.pathExistsSync("./captain-definition")
 
   if (!captainDefinitionExists) {
-    printErrorAndExit(
-      "\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n"
+    printError(
+      "\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n",
+      true
     )
   }
 
@@ -26,26 +28,30 @@ function validateDefinitionFile() {
   try {
     contentsJson = JSON.parse(contents)
   } catch (e) {
-    printErrorAndExit(
-      `**** ERROR: captain-definition file is not a valid JSON! ****\n Error:${e}`
+    printError(
+      `**** ERROR: captain-definition file is not a valid JSON! ****\n Error:${e}`,
+      true
     )
   }
 
   if (!contentsJson.schemaVersion) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****"
+    printError(
+      "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****",
+      true
     )
   }
 
   if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****"
+    printError(
+      "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****",
+      true
     )
   }
 
   if (contentsJson.templateId && contentsJson.dockerfileLines) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****"
+    printError(
+      "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****",
+      true
     )
   }
 }
