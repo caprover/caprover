@@ -19,7 +19,7 @@ const questions = [
     name: "hasInstalledCaptain",
     message:
       "Have you already installed Captain on your server by running the following line:" +
-      "\nmkdir /captain && docker run -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?",
+      "\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?",
     default: "Yes",
     choices: ["Yes", "No"],
     filter: value => {

@@ -1,440 +1,242 @@
 #!/usr/bin/env node
-const program = require("commander")
-const fs = require("fs-extra")
-const path = require("path")
-const chalk = require("chalk")
-const inquirer = require("inquirer")
-const configstore = require("configstore")
-const request = require("request")
-const commandExistsSync = require("command-exists").sync
-const { exec } = require("child_process")
-const { sendFileToCaptain } = require("./utils/fileHandler")
+const MachineHelper = require("../helpers/MachineHelper")
+const DeployApi = require("../api/DeployApi")
 const {
-  requestLogin,
-  requestLoginAuth,
-  isAuthTokenValid
-} = require("./utils/loginHandler")
+  printErrorAndExit,
+  printError,
+  printMessage,
+  printGreenMessage,
+  printMagentaMessage
+} = require("../utils/messageHandler")
 const {
   validateIsGitRepository,
-  validateDefinitionFile
-} = require("./utils/validationsHandler")
-const { printErrorAndExit } = require("./utils/errorHandler")
-const packagejson = require("./package.json")
-const configs = new configstore(packagejson.name, {
-  captainMachines: [],
-  apps: []
-})
-const BRANCH_TO_PUSH = "branchToPush"
-const APP_NAME = "appName"
+  validateDefinitionFile,
+  isTarFileProvided,
+  optionIsGiven
+} = require("../utils/validationsHandler")
+const { requestLogin } = require("../lib/login")
+const { getFileStream } = require("../utils/fileHelper")
+const { gitArchiveFile } = require("../utils/fileHelper")
+const fs = require("fs-extra")
+const path = require("path")
+const inquirer = require("inquirer")
+const commandExistsSync = require("command-exists").sync
 const MACHINE_TO_DEPLOY = "machineToDeploy"
-const EMPTY_STRING = ""
-
-console.log("\n")
-
-program
-  .description("Deploy current directory to a Captain machine.")
-  .option(
-    "-t, --tarFile <value>",
-    "Specify file to be uploaded (rather than using git archive)"
-  )
-  .option("-d, --default", "Run with default options")
-  .option("-s, --stateless", "Run deploy stateless")
-  .option(
-    "-h, --host <value>",
-    "Only for stateless mode: Host of the captain machine"
-  )
-  .option("-a, --appName <value>", "Only for stateless mode: Name of the app")
-  .option("-p, --pass <value>", "Only for stateless mode: Password for Captain")
-  .option(
-    "-b, --branch <value>",
-    "Only for stateless mode: Branch name (default master)"
-  )
-  .parse(process.argv)
-
-if (program.args.length) {
-  console.error(chalk.red("Unrecognized commands:"))
-  program.args.forEach(function(arg) {
-    console.log(chalk.red(arg))
-  })
-  console.error(chalk.red("Deploy does not require any options. "))
-  process.exit(1)
-}
-
-function getSuppliedTarFile() {
-  return program.tarFile
-}
-
-if (!getSuppliedTarFile()) {
-  validateIsGitRepository()
-
-  validateDefinitionFile()
-
-  const contents = fs.readFileSync("./captain-definition", "utf8")
-  let contentsJson = null
-
-  try {
-    contentsJson = JSON.parse(contents)
-  } catch (e) {
-    console.log(e)
-    console.log("")
-    printErrorAndExit(
-      "**** ERROR: captain-definition file is not a valid JSON! ****"
-    )
-  }
-
-  if (!contentsJson.schemaVersion) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****"
-    )
-  }
-
-  if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****"
-    )
-  }
-
-  if (contentsJson.templateId && contentsJson.dockerfileLines) {
-    printErrorAndExit(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****"
-    )
-  }
-}
-
-let listOfMachines = [
-  {
-    name: "-- CANCEL --",
-    value: EMPTY_STRING,
-    short: EMPTY_STRING
-  }
-]
-
-let machines = configs.get("captainMachines")
-for (let i = 0; i < machines.length; i++) {
-  let m = machines[i]
-  listOfMachines.push({
-    name: m.name + " at " + m.baseUrl,
-    value: m.name,
-    short: m.name + " at " + m.baseUrl
-  })
-}
+const {
+  EMPTY_STRING,
+  DEFAULT_BRANCH_TO_PUSH,
+  DEFAULT_APP_NAME
+} = require("../utils/constants")
 
 // Gets default value for propType that is stored in a directory.
 // Replaces getAppForDirectory
+// Check if the command is running inside the directory of an existing app
 function getPropForDirectory(propType) {
-  let apps = configs.get("apps")
+  const appDirectory = MachineHelper.apps
+    .map(app => {
+      if (app.cmd === process.cwd()) {
+        return app[propType]
+      }
+    })
+    .filter(Boolean)
+
+  return appDirectory.length ? appDirectory : undefined
+}
+
+// Sets default value for propType that is stored in a directory to propValue.
+// Replaces saveAppForDirectory
+// Saves the app directory into local storage
+function savePropForDirectory(propType, propValue) {
+  const apps = MachineHelper.apps
+
   for (let i = 0; i < apps.length; i++) {
-    let app = apps[i]
+    const app = apps[i]
+
     if (app.cwd === process.cwd()) {
-      return app[propType]
+      app[propType] = propValue
+
+      MachineHelper.setApps(apps)
+
+      return
     }
   }
-  return undefined
+
+  const newApp = {
+    cwd: process.cwd(),
+    [propType]: propValue
+  }
+
+  apps.push(newApp)
+
+  MachineHelper.setApps(apps)
 }
 
 function getDefaultMachine() {
-  let machine = getPropForDirectory(MACHINE_TO_DEPLOY)
-  if (machine) {
-    return machine.name
-  }
-  if (listOfMachines.length == 2) {
-    return 1
-  }
+  const machine = getPropForDirectory(MACHINE_TO_DEPLOY)
+
+  if (machine) return machine.name
+
+  if (MachineHelper.machines.length == 2) return 1
+
   return EMPTY_STRING
 }
 
-console.log("Preparing deployment to Captain...\n")
+function deploy(options) {
+  if (!isTarFileProvided(options.tarFile)) {
+    validateIsGitRepository()
 
-const questions = [
-  {
-    type: "list",
-    name: "captainNameToDeploy",
-    default: getDefaultMachine(),
-    message: "Select the Captain Machine you want to deploy to:",
-    choices: listOfMachines
-  },
-  {
-    type: "input",
-    default: getPropForDirectory(BRANCH_TO_PUSH) || "master",
-    name: BRANCH_TO_PUSH,
-    message: "Enter the 'git' branch you would like to deploy:",
-    when: function(answers) {
-      return !!answers.captainNameToDeploy
-    }
-  },
-  {
-    type: "input",
-    default: getPropForDirectory(APP_NAME),
-    name: APP_NAME,
-    message: "Enter the Captain app name this directory will be deployed to:",
-    when: function(answers) {
-      return !!answers.captainNameToDeploy
-    }
-  },
-  {
-    type: "confirm",
-    name: "confirmedToDeploy",
-    message:
-      "Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.",
-    default: true,
-    when: function(answers) {
-      return !!answers.captainNameToDeploy
-    }
-  }
-]
-
-let defaultInvalid = false
-
-if (program.default) {
-  if (
-    !getDefaultMachine() ||
-    !getPropForDirectory(BRANCH_TO_PUSH) ||
-    !getPropForDirectory(APP_NAME)
-  ) {
-    console.log("Default deploy failed. Please select deploy options.")
-    defaultInvalid = true
-  } else {
-    console.log("Deploying to " + getPropForDirectory(MACHINE_TO_DEPLOY).name)
-    deployTo(
-      getPropForDirectory(MACHINE_TO_DEPLOY),
-      getPropForDirectory(BRANCH_TO_PUSH),
-      getPropForDirectory(APP_NAME)
-    )
-  }
-}
-
-const isStateless =
-  program.stateless && program.host && program.appName && program.pass
-
-if (isStateless) {
-  // login first
-  console.log("Trying to login to", program.host)
-  requestLoginAuth(program.host, program.pass, function(authToken) {
-    // deploy
-    console.log(
-      "Starting stateless deploy to",
-      program.host,
-      program.branch,
-      program.appName
-    )
-    deployTo(
-      {
-        baseUrl: program.host,
-        authToken
-      },
-      program.branch || "master",
-      program.appName
-    )
-  })
-} else if (!program.default || defaultInvalid) {
-  inquirer.prompt(questions).then(function(answers) {
-    console.log(" ")
-    console.log(" ")
-
-    if (!answers.confirmedToDeploy) {
-      console.log("Operation cancelled by the user...")
-      console.log(" ")
-    } else {
-      let machines = configs.get("captainMachines")
-      let machineToDeploy = null
-      for (let i = 0; i < machines.length; i++) {
-        if (machines[i].name === answers.captainNameToDeploy) {
-          console.log("Deploying to " + answers.captainNameToDeploy)
-          machineToDeploy = machines[i]
-          break
-        }
-      }
-
-      console.log(" ")
-      deployTo(machineToDeploy, answers.branchToPush, answers.appName)
-    }
-  })
-}
-
-function deployTo(machineToDeploy, branchToPush, appName) {
-  function checkAuthAndSendFile(zipFileFullPath, gitHash) {
-    function isAuthTokenValidCallback(isValid) {
-      if (isValid) {
-        sendFileToCaptain(
-          machineToDeploy,
-          zipFileFullPath,
-          appName,
-          gitHash,
-          branchToPush
-        )
-      } else {
-        requestLogin(
-          machineToDeploy.name,
-          machineToDeploy.baseUrl,
-          function callback(machineToDeployNew) {
-            deployTo(machineToDeployNew, branchToPush, appName)
-          }
-        )
-      }
-    }
-
-    isAuthTokenValid(machineToDeploy, appName, isAuthTokenValidCallback)
+    validateDefinitionFile()
   }
 
-  if (getSuppliedTarFile()) {
-    checkAuthAndSendFile(
-      path.join(process.cwd(), getSuppliedTarFile()),
-      "sendviatarfile"
-    )
-    return
-  }
+  console.log("Preparing deployment to Captain...\n")
 
-  if (!commandExistsSync("git")) {
-    console.log(chalk.red('"git" command not found...'))
-    console.log(
-      chalk.red(
-        'Captain needs "git" to create tar file of your source files...'
-      )
-    )
-    console.log(" ")
-    process.exit(1)
-  }
-
-  let zipFileNameToDeploy = "temporary-captain-to-deploy.tar"
-  let zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy)
-
-  console.log("Saving tar file to:")
-  console.log(zipFileFullPath)
-  console.log(" ")
-
-  try {
-    fs.removeSync(zipFileFullPath)
-  } catch (ignoreError) {}
-
-  exec(
-    'git archive --format tar --output "' +
-      zipFileFullPath +
-      '" ' +
-      branchToPush,
-    function(err, stdout, stderr) {
-      if (err) {
-        console.log(chalk.red("TAR file failed"))
-        console.log(chalk.red(err + " "))
-        console.log(" ")
-        fs.removeSync(zipFileFullPath)
-        return
-      }
-
-      exec("git rev-parse " + branchToPush, function(err, stdout, stderr) {
-        const gitHash = (stdout || "").trim()
-
-        if (err || !/^[a-f0-9]{40}$/.test(gitHash)) {
-          console.log(
-            chalk.red(
-              "Cannot find hash of last commit on this branch: " + branchToPush
-            )
-          )
-          console.log(chalk.red(gitHash + " "))
-          console.log(chalk.red(err + " "))
-          console.log(" ")
-          return
-        }
-
-        console.log("Pushing last commit on " + branchToPush + ": " + gitHash)
-
-        checkAuthAndSendFile(zipFileFullPath, gitHash)
-      })
-    }
-  )
-}
-
-var lastLineNumberPrinted = -10000 // we want to show all lines to begin with!
-
-function startFetchingBuildLogs(machineToDeploy, appName) {
-  let options = {
-    url: machineToDeploy.baseUrl + "/api/v1/user/appData/" + appName,
-    headers: {
-      "x-namespace": "captain",
-      "x-captain-auth": machineToDeploy.authToken
+  const questions = [
+    {
+      type: "list",
+      name: "captainNameToDeploy",
+      default: getDefaultMachine(),
+      message: "Select the Captain Machine you want to deploy to:",
+      choices: MachineHelper.getMachinesAsOptions(),
+      when: () => optionIsGiven(options, "host")
     },
-    method: "GET"
+    {
+      type: "input",
+      default: getPropForDirectory(DEFAULT_BRANCH_TO_PUSH) || "master",
+      name: "branchToPush",
+      message: "Enter the 'git' branch you would like to deploy:",
+      when: () => optionIsGiven(options, "branch")
+    },
+    {
+      type: "input",
+      default: getPropForDirectory(DEFAULT_APP_NAME),
+      name: "appName",
+      message: "Enter the Captain app name this directory will be deployed to:",
+      when: () => optionIsGiven(options, "appName")
+    },
+    {
+      type: "confirm",
+      name: "confirmedToDeploy",
+      message:
+        "Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.",
+      default: true,
+      when: () => optionIsGiven(options, "stateless")
+    }
+  ]
+  // TODO - Refactor
+  let defaultInvalid = false
+
+  if (options.default) {
+    if (
+      !getDefaultMachine() ||
+      !getPropForDirectory(options.branch || DEFAULT_BRANCH_TO_PUSH) ||
+      !getPropForDirectory(DEFAULT_APP_NAME)
+    ) {
+      printError("Default deploy failed. Please select deploy options.")
+
+      defaultInvalid = true
+    } else {
+      printMessage(
+        `Deploying to ${getPropForDirectory(MACHINE_TO_DEPLOY).name}`
+      )
+
+      deployTo(
+        getPropForDirectory(MACHINE_TO_DEPLOY),
+        getPropForDirectory(DEFAULT_BRANCH_TO_PUSH),
+        getPropForDirectory(DEFAULT_APP_NAME)
+      )
+    }
   }
 
-  function onLogRetrieved(data) {
-    if (data) {
-      var lines = data.logs.lines
-      var firstLineNumberOfLogs = data.logs.firstLineNumber
-      var firstLinesToPrint = 0
-      if (firstLineNumberOfLogs > lastLineNumberPrinted) {
-        if (firstLineNumberOfLogs < 0) {
-          // This is the very first fetch, probably firstLineNumberOfLogs is around -50
-          firstLinesToPrint = -firstLineNumberOfLogs
-        } else {
-          console.log("[[ TRUNCATED ]]")
-        }
-      } else {
-        firstLinesToPrint = lastLineNumberPrinted - firstLineNumberOfLogs
+  // TODO - Refactor
+  const isStateless =
+    options.stateless && options.host && options.appName && options.pass
+
+  if (isStateless) {
+    // login first
+    printMessage(`Trying to login to ${options.host}\n`)
+
+    printMessage(
+      `Starting stateless deploy to\n${options.host}\n${options.branch}\n${
+        options.appName
+      }`
+    )
+
+    deployTo()
+  } else if (!options.default || defaultInvalid) {
+    inquirer.prompt(questions).then(answers => {
+      if (!answers.confirmedToDeploy) {
+        printMessage("\nOperation cancelled by the user...\n")
+
+        process.exit(0)
       }
 
-      lastLineNumberPrinted = firstLineNumberOfLogs + lines.length
+      const captainNameToDeploy = answers.captainNameToDeploy
+      const branchToPush = answers.branchToPush || options.branch
+      const appName = answers.appName || options.appName
 
-      for (var i = firstLinesToPrint; i < lines.length; i++) {
-        console.log((lines[i] || "").trim())
-      }
+      DeployApi.setMachineToDeploy(captainNameToDeploy || options.host)
+
+      DeployApi.setBranchToPush(branchToPush)
+
+      DeployApi.setAppName(appName)
+
+      printMessage(`Deploying to ${DeployApi.machineToDeploy.name}`)
+
+      deployTo()
+    })
+  }
+
+  async function deployTo() {
+    // 1. Check if valid auth
+    const isAuthenticated = await DeployApi.isAuthTokenValid()
+
+    // 2. Request login
+    // 3. Login
+    // 4. Update token
+    if (!isAuthenticated) {
+      requestLogin()
     }
 
-    if (data && !data.isAppBuilding) {
-      console.log(" ")
-      if (!data.isBuildFailed) {
-        console.log(chalk.green("Deployed successfully: ") + appName)
-        console.log(
-          chalk.magenta("App is available at ") +
-            machineToDeploy.baseUrl
-              .replace("//captain.", "//" + appName + ".")
-              .replace("https://", "http://")
-        )
-      } else {
-        console.error(
-          chalk.red(
-            '\nSomething bad happened. Cannot deploy "' + appName + '"\n'
-          )
-        )
-      }
-      console.log(" ")
+    // Send from tar file
+    if (isTarFileProvided(options.tarFile)) {
+      const filePath = options.tarFile
+      const fileStream = getFileStream(filePath)
+      const gitHash = "sendviatarfile"
+
+      printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
+
+      const response = await DeployApi.sendFile(fileStream, gitHash)
+      // const data = JSON.parse(response)
+
+      console.log(response)
+
       return
     }
 
-    setTimeout(function() {
-      startFetchingBuildLogs(machineToDeploy, appName)
-    }, 2000)
-  }
+    // TODO - Deploy from git folder
 
-  function callback(error, response, body) {
-    try {
-      if (!error && response.statusCode === 200) {
-        let data = JSON.parse(body)
+    if (!commandExistsSync("git")) {
+      printError("'git' command not found...")
 
-        if (data.status !== 100) {
-          throw new Error(JSON.stringify(data, null, 2))
-        }
-
-        onLogRetrieved(data.data)
-
-        return
-      }
-
-      if (error) {
-        throw new Error(error)
-      }
-
-      throw new Error(
-        response ? JSON.stringify(response, null, 2) : "Response NULL"
+      printErrorAndExit(
+        "Captain needs 'git' to create tar file of your source files..."
       )
-    } catch (error) {
-      console.error(
-        chalk.red(
-          '\nSomething while retrieving app build logs.. "' + error + '"\n'
-        )
-      )
-
-      onLogRetrieved(null)
     }
-  }
 
-  request(options, callback)
+    const zipFileNameToDeploy = "temporary-captain-to-deploy.tar"
+    const zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy)
+
+    printMessage(`Saving tar file to:\n${zipFileFullPath}\n`)
+
+    // Removes the temporarly file created
+    try {
+      fs.removeSync(zipFileFullPath)
+    } catch (e) {
+      // IgnoreError
+    }
+
+    gitArchiveFile(zipFileFullPath, MachineHelper.branchToPush)
+  }
 }
+
+module.exports = deploy

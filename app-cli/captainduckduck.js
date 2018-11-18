@@ -12,7 +12,7 @@ const serversetup = require("./lib/serversetup")
 const login = require("./lib/login")
 const logout = require("./lib/logout")
 const list = require("./lib/list")
-// const deploy = require("./lib/deploy")
+const deploy = require("./lib/deploy")
 
 // Setup
 program.version(packagejson.version).description(packagejson.description)
@@ -43,6 +43,7 @@ program
 
 program
   .command("list")
+  .alias("ls")
   .description("List all Captain machines currently logged in.")
   .action(() => {
     list()
@@ -53,8 +54,24 @@ program
   .description(
     "Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine."
   )
-  .action(() => {
-    // deploy()
+  .option(
+    "-t, --tarFile <value>",
+    "Specify file to be uploaded (rather than using git archive)"
+  )
+  .option("-d, --default", "Run with default options")
+  .option("-s, --stateless", "Run deploy stateless")
+  .option(
+    "-h, --host <value>",
+    "Only for stateless mode: Host of the captain machine"
+  )
+  .option("-a, --appName <value>", "Only for stateless mode: Name of the app")
+  .option("-p, --pass <value>", "Only for stateless mode: Password for Captain")
+  .option(
+    "-b, --branch <value>",
+    "Only for stateless mode: Branch name (default master)"
+  )
+  .action(options => {
+    deploy(options)
   })
 
 // Error on unknown commands
@@ -62,7 +79,7 @@ program.on("command:*", () => {
   const wrongCommands = program.args.join(" ")
 
   printErrorAndExit(
-    `\nInvalid command: ${wrongCommands}\nSee --help for a list of available commands.\n`
+    `\nInvalid command: ${wrongCommands}\nSee --help for a list of available commands.`
   )
 })
 

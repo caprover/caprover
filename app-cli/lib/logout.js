@@ -17,7 +17,7 @@ function generateQuestions() {
       name: "confirmedToLogout",
       message: "Are you sure you want to logout from this Captain machine?",
       default: false,
-      when: answers => !!answers.captainNameToLogout
+      when: answers => answers.captainNameToLogout
     }
   ]
 }

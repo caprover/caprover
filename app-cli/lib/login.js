@@ -1,10 +1,45 @@
 const MachineHelper = require("../helpers/MachineHelper")
-const { printGreenMessage, printError } = require("../utils/messageHandler")
+const {
+  printMessage,
+  printGreenMessage,
+  printError
+} = require("../utils/messageHandler")
 const inquirer = require("inquirer")
 const { cleanUpUrl, findDefaultCaptainName } = require("../utils/loginHelpers")
-const { printMessage } = require("../utils/messageHandler")
 const { SAMPLE_DOMAIN } = require("../utils/constants")
 const LoginApi = require("../api/LoginApi")
+
+// In case the token is expired
+function requestLogin() {
+  const { baseUrl, name } = this.machineToDeploy
+
+  printMessage("Your auth token is not valid anymore. Try to login again.")
+
+  const questions = [
+    {
+      type: "password",
+      name: "captainPassword",
+      message: "Please enter your password for " + baseUrl,
+      validate: function(value) {
+        if (value && value.trim()) {
+          return true
+        }
+
+        return "Please enter your password for " + baseUrl
+      }
+    }
+  ]
+
+  inquirer.prompt(questions).then(async passwordAnswers => {
+    const password = passwordAnswers.captainPassword
+    const response = await LoginApi.loginMachine(baseUrl, password)
+    const data = JSON.parse(response)
+    const newToken = data.token
+
+    // Update the token to the machine that corresponds
+    MachineHelper.updateMachineAuthToken(name, newToken)
+  })
+}
 
 function login() {
   printMessage("Login to a Captain Machine")
@@ -118,3 +153,5 @@ function login() {
 }
 
 module.exports = login
+
+module.exports = requestLogin

@@ -8,6 +8,8 @@ const configs = new configstore(packagejson.name, {
 class MachineHelper {
   constructor() {
     this.machines = configs.get("captainMachines")
+
+    this.apps = configs.get("apps")
   }
 
   getMachinesAsOptions() {
@@ -29,10 +31,31 @@ class MachineHelper {
     return [...firstItemInOption, ...listOfMachines]
   }
 
-  setMachines(machines) {
-    this.machines = machines
+  setMachines(newMachines) {
+    this.machines = newMachines
 
-    configs.set("captainMachines", machines)
+    configs.set("captainMachines", newMachines)
+  }
+
+  updateMachineAuthToken(machineName, authToken) {
+    const newMachines = this.machines.map(machine => {
+      if (machine.name === machineName) {
+        return {
+          ...machine,
+          authToken
+        }
+      }
+
+      return machine
+    })
+
+    this.setMachines(newMachines)
+  }
+
+  setApps(newApps) {
+    this.apps = newApps
+
+    configs.set("apps", newApps)
   }
 
   addMachine(newMachine) {

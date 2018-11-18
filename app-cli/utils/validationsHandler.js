@@ -19,6 +19,48 @@ function validateDefinitionFile() {
       "\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n"
     )
   }
+
+  const contents = fs.readFileSync("./captain-definition", "utf8")
+  let contentsJson = null
+
+  try {
+    contentsJson = JSON.parse(contents)
+  } catch (e) {
+    printErrorAndExit(
+      `**** ERROR: captain-definition file is not a valid JSON! ****\n Error:${e}`
+    )
+  }
+
+  if (!contentsJson.schemaVersion) {
+    printErrorAndExit(
+      "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****"
+    )
+  }
+
+  if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
+    printErrorAndExit(
+      "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****"
+    )
+  }
+
+  if (contentsJson.templateId && contentsJson.dockerfileLines) {
+    printErrorAndExit(
+      "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****"
+    )
+  }
+}
+
+function isTarFileProvided(tarFilePath) {
+  return tarFilePath
+}
+
+// Only show that question if there is no option given as argument
+function optionIsGiven(allOptions, option) {
+  if (allOptions[option]) {
+    return false
+  }
+
+  return true
 }
 
 function isIpAddress(ipaddress) {
@@ -36,5 +78,7 @@ function isIpAddress(ipaddress) {
 module.exports = {
   validateIsGitRepository,
   validateDefinitionFile,
-  isIpAddress
+  isIpAddress,
+  isTarFileProvided,
+  optionIsGiven
 }

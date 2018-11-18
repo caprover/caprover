@@ -14,6 +14,10 @@ function printGreenMessage(message) {
   console.log(`${chalk.green(message)}`)
 }
 
+function printMagentaMessage(message) {
+  console.log(`${chalk.magenta(message)}`)
+}
+
 function printError(error) {
   console.log(`${chalk.bold.red(error)}`)
 }
@@ -38,5 +42,6 @@ module.exports = {
   printErrorAndExit,
   printError,
   printGreenMessage,
+  printMagentaMessage,
   errorHandler
 }
