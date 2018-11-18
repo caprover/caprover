@@ -203,16 +203,14 @@ class ServiceManager {
                         .then(function () {
                             return gitHash;
                         });
-                }
-                else if (source.repoInfo) {
+                } else if (source.repoInfo) {
                     let repoInfo = source.repoInfo;
                     promiseToFetchDirectory = GitHelper
                         .clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, rawImageSourceFolder)
                         .then(function () {
                             return GitHelper.getLastHash(rawImageSourceFolder);
                         });
-                }
-                else {
+                } else {
                     return PLACEHOLDER_DOCKER_FILE_CONTENT;
                 }
 
@@ -307,20 +305,17 @@ class ServiceManager {
 
                                 return dockerfileLines.join('\n');
 
-                            }
-                            else if (!hasDockerfileLines && templateIdTag) {
+                            } else if (!hasDockerfileLines && templateIdTag) {
 
                                 return TemplateHelper.get().getDockerfileContentFromTemplateTag(templateIdTag);
 
-                            }
-                            else {
+                            } else {
 
                                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Dockerfile or TemplateId must be present. Both should not be present at the same time");
 
                             }
 
-                        }
-                        else {
+                        } else {
 
                             throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is not supported!");
 
@@ -554,16 +549,11 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.getAppsDataStore().getAppDefinitions();
+                // it will ensure that the app exists, otherwise it throws an exception
+                return self.dataStore.getAppsDataStore().getAppDefinition(appName);
 
             })
-            .then(function (apps) {
-
-                app = apps[appName];
-
-                if (!app) {
-                    throw new Error('Unknown app');
-                }
+            .then(function () {
 
                 return appName + '.' + rootDomain;
 
@@ -608,16 +598,11 @@ class ServiceManager {
             })
             .then(function () {
 
-                return self.dataStore.getAppsDataStore().getAppDefinitions();
+                // it will ensure that the app exists, otherwise it throws an exception
+                return self.dataStore.getAppsDataStore().getAppDefinition(appName);
 
             })
-            .then(function (apps) {
-
-                const app = apps[appName];
-
-                if (!app) {
-                    throw new Error('Unknown app');
-                }
+            .then(function () {
 
                 return appName + '.' + rootDomain;
 
@@ -651,8 +636,7 @@ class ServiceManager {
                 if (isRunning) {
                     return dockerApi
                         .removeService(serviceName);
-                }
-                else {
+                } else {
                     Logger.w('Cannot delete service... It is not running: ' + serviceName);
                     return true;
                 }
@@ -756,18 +740,10 @@ class ServiceManager {
 
         return dataStore.getAppsDataStore().setDeployedVersion(appName, version)
             .then(function () {
-                return dataStore.getAppsDataStore().getAppDefinitions()
-                    .then(function (apps) {
-                        Logger.d('App definitions retrieved');
-                        return apps[appName];
-                    });
+                return dataStore.getAppsDataStore().getAppDefinition(appName);
             })
             .then(function (appFound) {
                 app = appFound;
-
-                if (!appFound) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name not found!');
-                }
 
                 Logger.d('Check if service is running: ' + serviceName);
                 return dockerApi
@@ -777,8 +753,7 @@ class ServiceManager {
                 if (isRunning) {
                     Logger.d('Service is already running: ' + serviceName);
                     return true;
-                }
-                else {
+                } else {
                     Logger.d('Creating service: ' + serviceName + ' with image: ' + imageName);
                     // if we pass in networks here. Almost always it results in a delayed update which causes
                     // update errors if they happen right away!
@@ -882,15 +857,13 @@ class ServiceManager {
 
                         return checkIfNodeIdExists(nodeId);
 
-                    }
-                    else {
+                    } else {
 
                         if (app.nodeId) {
 
                             nodeId = app.nodeId;
 
-                        }
-                        else {
+                        } else {
 
                             return dockerApi
                                 .isServiceRunningByName(serviceName)
@@ -913,8 +886,7 @@ class ServiceManager {
 
                     }
 
-                }
-                else {
+                } else {
                     if (volumes && volumes.length) {
                         throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot set volumes for a non-persistent container!");
                     }
