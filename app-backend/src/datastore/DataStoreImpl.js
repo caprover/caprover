@@ -8,6 +8,7 @@ const fs = require('fs-extra');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const CaptainConstants = require('../utils/CaptainConstants');
 const Logger = require('../utils/Logger');
+const Encryptor = require('../utils/Encryptor');
 
 const dockerfilesRoot = __dirname + '/../dockerfiles/';
 
@@ -684,7 +685,7 @@ class DataStore {
             });
     }
 
-    addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+    addRegistryToDb(registryUser, registryPasswordEncrypted, registryDomain, registryImagePrefix) {
 
         const self = this;
 
@@ -713,7 +714,7 @@ class DataStore {
                 }
 
                 registries.push({
-                    id, registryUser, registryPassword, registryDomain, registryImagePrefix
+                    id, registryUser, registryPasswordEncrypted, registryDomain, registryImagePrefix
                 });
 
                 self.data.set(DOCKER_REGISTRIES, registries);

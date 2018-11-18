@@ -5,6 +5,7 @@ const Logger = require('../utils/Logger');
 const fs = require('fs-extra');
 const LoadBalancerManager = require('./LoadBalancerManager');
 const EnvVars = require('../utils/EnvVars');
+const Encryptor = require('../utils/Encryptor');
 const CertbotManager = require('./CertbotManager');
 const DockerRegistry = require('./DockerRegistry');
 const request = require('request');
@@ -758,7 +759,9 @@ class CaptainManager {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
                 }
 
-                return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix);
+                let passwordEncrypted  = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
+
+                return self.dataStore.addRegistryToDb(registryUser, passwordEncrypted, registryDomain, registryImagePrefix);
 
             });
     }
