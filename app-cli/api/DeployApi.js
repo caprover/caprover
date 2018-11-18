@@ -12,6 +12,8 @@ class DeployApi {
     this.branchToPush = DEFAULT_BRANCH_TO_PUSH
 
     this.appName = DEFAULT_APP_NAME
+
+    this.appUrl = ""
   }
 
   setMachineToDeploy(machineToDeploy) {
@@ -39,7 +41,13 @@ class DeployApi {
   setAppName(appName) {
     this.appName = appName
 
-    console.log("App name is", appName)
+    this.setAppUrl()
+  }
+
+  setAppUrl() {
+    this.appUrl = this.machineToDeploy.baseUrl
+      .replace("//captain.", "//" + this.appName + ".")
+      .replace("https://", "http://")
   }
 
   async fetchBuildLogs() {

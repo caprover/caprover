@@ -74,10 +74,7 @@ function onLogRetrieved(data) {
     if (!data.isBuildFailed) {
       printGreenMessage(`Deployed successfully: ${DeployApi.appName}`)
 
-      printMagentaMessage(
-        `App is available at ${DeployApi.machineToDeploy.baseUrl}\n`,
-        true
-      )
+      printMagentaMessage(`App is available at ${DeployApi.appUrl}\n`, true)
     } else {
       printError(
         `\nSomething bad happened. Cannot deploy "${DeployApi.appName}"\n`,
