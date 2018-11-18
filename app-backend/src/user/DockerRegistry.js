@@ -139,8 +139,7 @@ class DockerRegistry {
                     return dockerApi
                         .getNodeIdByServiceName(CaptainConstants.registryServiceName);
 
-                }
-                else {
+                } else {
 
                     Logger.d('No Captain Registry service is running. Creating one...');
 
@@ -171,8 +170,7 @@ class DockerRegistry {
                                 });
                         });
 
-                }
-                else {
+                } else {
 
                     return true;
 
@@ -226,8 +224,7 @@ class DockerRegistry {
                 if (secretExist) {
                     Logger.d('WARNING! Unexpected secret exist! Perhaps secret was created but Captain was not updated.');
                     return self.updateRegistryAuthHeader(username, password, domain, nextVersion);
-                }
-                else {
+                } else {
                     return dockerApi
                         .ensureSecret(secretName, JSON.stringify({
                             username: username,

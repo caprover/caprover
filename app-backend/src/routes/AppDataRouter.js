@@ -109,8 +109,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                 }
 
                 return serviceManager.createTarFarFromCaptainContent(captainDefinitionContent, appName, tarballSourceFilePath);
-            }
-            else {
+            } else {
 
                 if (!tarballSourceFilePath) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present.")
@@ -126,8 +125,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                     .catch(function (error) {
                         Logger.e(error);
                     });
-            }
-            else {
+            } else {
                 return startBuildProcess()
                     .then(function () {
                         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done'));

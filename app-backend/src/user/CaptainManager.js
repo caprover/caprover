@@ -759,7 +759,7 @@ class CaptainManager {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
                 }
 
-                let passwordEncrypted  = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
+                let passwordEncrypted = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
 
                 return self.dataStore.addRegistryToDb(registryUser, passwordEncrypted, registryDomain, registryImagePrefix);
 

@@ -157,8 +157,7 @@ class CertbotManager {
                             throw new Error('Unexpected output when registering with ACME Certbot \n' + registerOutput);
 
                         });
-                }
-                else {
+                } else {
 
                     /*
 
@@ -303,8 +302,7 @@ class CertbotManager {
                     return dockerApi
                         .getNodeIdByServiceName(CaptainConstants.certbotServiceName);
 
-                }
-                else {
+                } else {
 
                     Logger.d('No Captain Certbot service is running. Creating one...');
 
@@ -333,8 +331,7 @@ class CertbotManager {
                                 });
                         });
 
-                }
-                else {
+                } else {
 
                     return true;
 

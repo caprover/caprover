@@ -123,8 +123,7 @@ router.get('/', function (req, res, next) {
                             .then(function (decryptedData) {
                                 app.appPushWebhook.repoInfo = decryptedData;
                             }));
-                }
-                else {
+                } else {
                     app.appPushWebhook.repoInfo = {};
                 }
                 appsArray.push(app);

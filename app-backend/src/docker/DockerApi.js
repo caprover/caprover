@@ -9,8 +9,7 @@ const EnvVars = require('../utils/EnvVars');
 function safeParseChunk(chunk) {
     try {
         return JSON.parse(chunk);
-    }
-    catch (ignore) {
+    } catch (ignore) {
         return {
             stream: 'Cannot parse ' + chunk
         }
@@ -601,8 +600,7 @@ class DockerApi {
                     }
 
                     ports.push(item);
-                }
-                else {
+                } else {
                     let tcpItem = {
                         Protocol: 'tcp',
                         TargetPort: portsToMap[i].containerPort,
@@ -934,8 +932,7 @@ class DockerApi {
 
                 if (secretExists) {
                     return true;
-                }
-                else {
+                } else {
                     return self.dockerode
                         .createSecret({
                             Name: secretKey,
@@ -1131,8 +1128,7 @@ class DockerApi {
                                 TargetPort: p.containerPort,
                                 PublishedPort: p.hostPort
                             });
-                        }
-                        else {
+                        } else {
                             updatedData.EndpointSpec.Ports.push({
                                 Protocol: 'tcp',
                                 TargetPort: p.containerPort,
@@ -1165,8 +1161,7 @@ class DockerApi {
                                 ReadOnly: false,
                                 Consistency: 'default'
                             });
-                        }
-                        else if (v.type === TYPE_VOLUME) {
+                        } else if (v.type === TYPE_VOLUME) {
 
                             // named volumes are created here:
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
@@ -1177,8 +1172,7 @@ class DockerApi {
                                 ReadOnly: false
                             });
 
-                        }
-                        else {
+                        } else {
                             throw new Error("Unknown volume type!!");
                         }
 
@@ -1223,8 +1217,7 @@ class DockerApi {
 
                         if (foundIndexSecret >= 0) {
                             updatedData.TaskTemplate.ContainerSpec.Secrets[foundIndexSecret] = objToAdd;
-                        }
-                        else {
+                        } else {
                             updatedData.TaskTemplate.ContainerSpec.Secrets.push(objToAdd);
                         }
                     }

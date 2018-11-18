@@ -87,8 +87,7 @@ router.post('/changepassword/', function (req, res, next) {
         .catch(function (error) {
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            }
-            else {
+            } else {
                 Logger.e(error);
                 res.sendStatus(500);
             }

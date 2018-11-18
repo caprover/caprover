@@ -41,8 +41,7 @@ router.post('/changerootdomain/', function (req, res, next) {
         .catch(function (error) {
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            }
-            else {
+            } else {
                 Logger.e(error);
                 res.sendStatus(500);
             }
@@ -76,8 +75,7 @@ router.post('/enablessl/', function (req, res, next) {
         .catch(function (error) {
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            }
-            else {
+            } else {
                 Logger.e(error); //
                 res.sendStatus(500); //
             }
@@ -96,8 +94,7 @@ router.post('/forcessl/', function (req, res, next) {
         .catch(function (error) {
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            }
-            else {
+            } else {
                 Logger.e(error);
                 res.sendStatus(500);
             }
@@ -148,11 +145,9 @@ router.post('/enableregistry/', function (req, res, next) {
         .then(function () {
             if (isLocal) {
                 return captainManager.getDockerRegistry().ensureDockerRegistryRunningOnThisNode();
-            }
-            else if (isRemote) {
+            } else if (isRemote) {
                 return true; // remote registry is already created :p we just need to update the credentials
-            }
-            else {
+            } else {
                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Registry type is not known.');
             }
         })
@@ -304,13 +299,11 @@ router.get('/versionInfo/', function (req, res, next) {
                     canUpdate = true;
                     latestVersion = tag;
                     break;
-                }
-                else if (Number(tag[0]) === Number(currentVersion[0]) && Number(tag[1]) > Number(currentVersion[1])) {
+                } else if (Number(tag[0]) === Number(currentVersion[0]) && Number(tag[1]) > Number(currentVersion[1])) {
                     canUpdate = true;
                     latestVersion = tag;
                     break;
-                }
-                else if (Number(tag[0]) === Number(currentVersion[0]) && Number(tag[1]) === Number(currentVersion[1]) && Number(tag[2]) > Number(currentVersion[2])) {
+                } else if (Number(tag[0]) === Number(currentVersion[0]) && Number(tag[1]) === Number(currentVersion[1]) && Number(tag[2]) > Number(currentVersion[2])) {
                     canUpdate = true;
                     latestVersion = tag;
                     break;
@@ -531,11 +524,9 @@ router.post('/nodes/', function (req, res, next) {
 
     if (req.body.nodeType === MANAGER) {
         isManager = true;
-    }
-    else if (req.body.nodeType === WORKER) {
+    } else if (req.body.nodeType === WORKER) {
         isManager = false;
-    }
-    else {
+    } else {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Node type should be either manager or worker'));
         return;
     }

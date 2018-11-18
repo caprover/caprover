@@ -244,8 +244,8 @@ class LoadBalancerManager {
                         serviceExposedPort: CaptainConstants.captainServiceExposedPort,
                         defaultHtmlDir: CaptainConstants.nginxStaticRootDir + CaptainConstants.nginxDefaultHtmlDir,
                         staticWebRoot: CaptainConstants.nginxStaticRootDir
-                        + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
-                        + captainDomain
+                            + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
+                            + captainDomain
                     },
                     registry: {
                         crtPath: self.getSslCertPath(registryDomain),
@@ -253,8 +253,8 @@ class LoadBalancerManager {
                         hasRootSsl: hasRegistrySsl,
                         domain: registryDomain,
                         staticWebRoot: CaptainConstants.nginxStaticRootDir
-                        + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
-                        + registryDomain
+                            + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
+                            + registryDomain
                     }
                 });
 
@@ -403,8 +403,7 @@ class LoadBalancerManager {
                     return dockerApi
                         .getNodeIdByServiceName(CaptainConstants.nginxServiceName);
 
-                }
-                else {
+                } else {
 
 
                     return createNginxServiceOnNode(myNodeId)
@@ -432,8 +431,7 @@ class LoadBalancerManager {
                                 });
                         });
 
-                }
-                else {
+                } else {
 
                     return true;
 

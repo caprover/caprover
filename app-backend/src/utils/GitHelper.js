@@ -13,8 +13,7 @@ module.exports = {
                 ], function (err, result) {
                     if (err) {
                         reject(err);
-                    }
-                    else {
+                    } else {
                         resolve(result);
                     }
                 });
@@ -41,8 +40,7 @@ module.exports = {
                 ], function (err, result) {
                     if (err) {
                         reject(err);
-                    }
-                    else {
+                    } else {
                         resolve(result);
                     }
                 });

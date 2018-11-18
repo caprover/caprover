@@ -31,15 +31,13 @@ function checkSystemReq() {
 
             if (maj > 17) {
                 versionOk = true;
-            }
-            else if (maj === 17 && min >= 6) {
+            } else if (maj === 17 && min >= 6) {
                 versionOk = true;
             }
 
             if (versionOk) {
                 console.log('   Docker Version passed.');
-            }
-            else {
+            } else {
                 console.log('Warning!! Minimum Docker version is 17.06.x CaptainDuckDuck may not run properly on your Docker version.');
             }
 
@@ -50,15 +48,13 @@ function checkSystemReq() {
 
             if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
                 console.log('Warning!!    CaptainDuckDuck and Docker work best on Ubuntu - specially when it comes to storage drivers.');
-            }
-            else {
+            } else {
                 console.log('   Ubuntu detected.');
             }
 
             if (output.Architecture.toLowerCase().indexOf('x86') < 0) {
                 console.log('Warning!!    Default CaptainDuckDuck is compiled for X86 CPU. To use CaptainDuckDuck on other CPUs you can build from the source code');
-            }
-            else {
+            } else {
                 console.log('   X86 CPU detected.')
             }
 
@@ -66,8 +62,7 @@ function checkSystemReq() {
 
             if (totalMemInMb < 1000) {
                 console.log('Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CaptainDuckDuck system requirements.');
-            }
-            else {
+            } else {
                 console.log('   Total RAM ' + totalMemInMb + ' MB');
             }
 
@@ -166,8 +161,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
 
             if ((body + '') === FIREWALL_PASSED) {
                 resolve();
-            }
-            else {
+            } else {
                 printError();
                 reject(new Error("Port seems to be closed: " + portToTest));
             }
@@ -210,14 +204,12 @@ module.exports.install = function () {
                         .catch(function (error) {
                             if (error && error.statusCode === 503) {
                                 resolve(ip4);
-                            }
-                            else {
+                            } else {
                                 reject(error);
                             }
                         });
                 });
-            }
-            else {
+            } else {
                 return ip4;
             }
         })
@@ -281,8 +273,7 @@ module.exports.install = function () {
                     key: EnvVar.keys.CAPTAIN_DOCKER_API,
                     value: EnvVar.CAPTAIN_DOCKER_API
                 });
-            }
-            else {
+            } else {
                 volumeToMount.push({
                     hostPath: CaptainConstants.dockerSocketPath,
                     containerPath: CaptainConstants.dockerSocketPath

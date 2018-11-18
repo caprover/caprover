@@ -29,13 +29,11 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
         }
         let ref = bodyJson.ref; // "refs/heads/somebranch"
         res.locals.pushedBranches.push(ref.substring(11, ref.length));
-    }
-    else if (isBitbucket) {
+    } else if (isBitbucket) {
         for (let i = 0; i < req.body.push.changes.length; i++) {
             res.locals.pushedBranches.push(req.body.push.changes[i].new.name);
         }
-    }
-    else if (isGitlab) {
+    } else if (isGitlab) {
         let ref = req.body.ref; // "refs/heads/somebranch"
         res.locals.pushedBranches.push(ref.substring(11, ref.length));
     }
