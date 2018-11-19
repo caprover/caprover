@@ -6,15 +6,15 @@ let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 let httpProxy = require('http-proxy').createProxyServer({});
 
-let CaptainManager = require('./src/user/CaptainManager');
-let BaseApi = require('./src/api/BaseApi');
-let ApiStatusCodes = require('./src/api/ApiStatusCodes');
-let Injector = require('./src/injection/Injector');
-let Logger = require('./src/utils/Logger');
-let CaptainConstants = require('./src/utils/CaptainConstants');
+let CaptainManager = require('./user/CaptainManager');
+let BaseApi = require('./api/BaseApi');
+let ApiStatusCodes = require('./api/ApiStatusCodes');
+let Injector = require('./injection/Injector');
+let Logger = require('./utils/Logger');
+let CaptainConstants = require('./utils/CaptainConstants');
 
-let LoginRouter = require('./src/routes/LoginRouter');
-let UserRouter = require('./src/routes/UserRouter');
+let LoginRouter = require('./routes/LoginRouter');
+let UserRouter = require('./routes/UserRouter');
 
 let app = express();
 
