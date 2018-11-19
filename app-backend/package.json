@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
     "test": "jest"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/jsonwebtoken": "^8.3.0",
+    "@types/uuid": "^3.4.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "configstore": "^3.1.2",
@@ -33,6 +36,8 @@
     "simple-git": "^1.107.0",
     "ssh2": "^0.5.5",
     "tar": "^3.1.7",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6",
     "uuid": "^3.3.2",
     "validator": "^8.1.0"
   },
