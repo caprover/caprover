@@ -70,31 +70,26 @@ router.post('/:appName/', function (req, res, next) {
 
 router.post('/:appName/', upload.single('sourceFile'), function (req, res, next) {
 
-    let dataStore = res.locals.user.dataStore;
-    let serviceManager = res.locals.user.serviceManager;
-    let isDetachedBuild = !!req.query.detached;
+    const dataStore = res.locals.user.dataStore;
+    const serviceManager = res.locals.user.serviceManager;
 
-    let appName = req.params.appName;
-
-    let tarballSourceFilePath = (!!req.file) ? req.file.path : null;
+    const appName = req.params.appName;
+    const isDetachedBuild = !!req.query.detached;
     const captainDefinitionContent = req.body.captainDefinitionContent;
+    const gitHash = req.body.gitHash || '';
+    let tarballSourceFilePath = (!!req.file) ? req.file.path : null;
 
 
-    if ((tarballSourceFilePath && captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
+    if ((!!tarballSourceFilePath && !!captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
         res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present."));
         return;
     }
 
-    let gitHash = req.body.gitHash || '';
 
     Promise.resolve()
         .then(function () {
 
             if (captainDefinitionContent) {
-
-                if (tarballSourceFilePath) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Both tarballfile & captainDefinitionContent cannot be present at the same time.")
-                }
 
                 for (let i = 0; i < 1000; i++) {
                     let tempPath = __dirname + '/../../' + TEMP_UPLOAD + appName + i;
@@ -109,13 +104,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                 }
 
                 return serviceManager.createTarFarFromCaptainContent(captainDefinitionContent, appName, tarballSourceFilePath);
-            } else {
-
-                if (!tarballSourceFilePath) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present.")
-                }
             }
-
         })
         .then(function () {
 
