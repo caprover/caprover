@@ -11,7 +11,7 @@ var gulp = require('gulp'),
     minifyHTML = require('gulp-htmlmin');
 
 
-DIST_DIRECTORY = '../app-backend/dist'
+DIST_DIRECTORY = '../app-backend/dist-frontend'
 
 var paths = {
     scripts: 'src/js/**/*.*',

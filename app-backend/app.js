@@ -66,7 +66,7 @@ app.use(function (req, res, next) {
 });
 
 if (!CaptainConstants.isDebug) {
-    app.use(express.static(path.join(__dirname, 'dist')));
+    app.use(express.static(path.join(__dirname, 'dist-frontend')));
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
