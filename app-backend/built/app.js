@@ -1,19 +1,19 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var httpProxy = require('http-proxy').createProxyServer({});
-var CaptainManager = require('./user/CaptainManager');
-var BaseApi = require('./api/BaseApi');
-var ApiStatusCodes = require('./api/ApiStatusCodes');
-var Injector = require('./injection/Injector');
-var Logger = require('./utils/Logger');
-var CaptainConstants = require('./utils/CaptainConstants');
-var LoginRouter = require('./routes/LoginRouter');
-var UserRouter = require('./routes/UserRouter');
-var app = express();
+let express = require('express');
+let path = require('path');
+let favicon = require('serve-favicon');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+let httpProxy = require('http-proxy').createProxyServer({});
+let CaptainManager = require('./user/CaptainManager');
+let BaseApi = require('./api/BaseApi');
+let ApiStatusCodes = require('./api/ApiStatusCodes');
+let Injector = require('./injection/Injector');
+let Logger = require('./utils/Logger');
+let CaptainConstants = require('./utils/CaptainConstants');
+let LoginRouter = require('./routes/LoginRouter');
+let UserRouter = require('./routes/UserRouter');
+let app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -38,9 +38,9 @@ if (CaptainConstants.isDebug) {
 app.use(Injector.injectGlobal());
 app.use(function (req, res, next) {
     if (res.locals.forceSsl) {
-        var isRequestSsl = (req.secure || req.get('X-Forwarded-Proto') === 'https');
+        let isRequestSsl = (req.secure || req.get('X-Forwarded-Proto') === 'https');
         if (!isRequestSsl) {
-            var newUrl = 'https://' + req.get('host') + req.originalUrl;
+            let newUrl = 'https://' + req.get('host') + req.originalUrl;
             res.redirect(302, newUrl);
             return;
         }
@@ -57,7 +57,7 @@ app.use(CaptainConstants.healthCheckEndPoint, function (req, res, next) {
 //  ************  Beginning of reverse proxy 3rd party services  ****************************************
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     if (req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !== 0) {
-        var newUrl = 'https://' + req.get('host') + CaptainConstants.netDataRelativePath + '/';
+        let newUrl = 'https://' + req.get('host') + CaptainConstants.netDataRelativePath + '/';
         res.redirect(302, newUrl);
         return;
     }
@@ -91,14 +91,14 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 });
 //  ************  End of reverse proxy 3rd party services  ****************************************
 //  *********************  Beginning of API End Points  *******************************************
-var API_PREFIX = '/api/';
+let API_PREFIX = '/api/';
 app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
     if (req.params.apiVersionFromRequest !== CaptainConstants.apiVersion) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'This captain instance only accepts API V1.'));
         return;
     }
     if (!res.locals.initialized) {
-        var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED, 'Captain is not ready yet...');
+        let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED, 'Captain is not ready yet...');
         res.send(response);
         return;
     }
@@ -115,7 +115,7 @@ app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter);
 //  *********************  End of API End Points  *******************************************
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
@@ -135,3 +135,4 @@ setTimeout(function () {
     CaptainManager.get().initialize();
 }, 1500);
 module.exports = app;
+//# sourceMappingURL=app.js.map

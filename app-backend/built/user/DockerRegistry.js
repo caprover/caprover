@@ -1,27 +1,27 @@
-var CaptainConstants = require('../utils/CaptainConstants');
-var Logger = require('../utils/Logger');
-var EnvVars = require('../utils/EnvVars');
-var fs = require('fs-extra');
-var uuid = require('uuid/v4');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var bcrypt = require('bcryptjs');
-var DockerRegistry = /** @class */ (function () {
-    function DockerRegistry(dockerApi, dataStore, certbotManager, loadBalancerManager, captainManager) {
+const CaptainConstants = require('../utils/CaptainConstants');
+const Logger = require('../utils/Logger');
+const EnvVars = require('../utils/EnvVars');
+const fs = require('fs-extra');
+const uuid = require('uuid/v4');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const bcrypt = require('bcryptjs');
+class DockerRegistry {
+    constructor(dockerApi, dataStore, certbotManager, loadBalancerManager, captainManager) {
         this.dockerApi = dockerApi;
         this.dataStore = dataStore;
         this.certbotManager = certbotManager;
         this.loadBalancerManager = loadBalancerManager;
         this.captainManager = captainManager;
     }
-    DockerRegistry.prototype.enableLocalDockerRegistry = function () {
-        var self = this;
+    enableLocalDockerRegistry() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.setHasLocalRegistry(true);
         });
-    };
-    DockerRegistry.prototype.enableRegistrySsl = function () {
-        var self = this;
+    }
+    enableRegistrySsl() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getHasRootSsl();
@@ -41,18 +41,18 @@ var DockerRegistry = /** @class */ (function () {
             .then(function () {
             return self.loadBalancerManager.sendReloadSignal();
         });
-    };
-    DockerRegistry.prototype.getLocalRegistryDomainAndPort = function () {
-        var self = this;
+    }
+    getLocalRegistryDomainAndPort() {
+        const self = this;
         return CaptainConstants.registrySubDomain + '.'
             + self.dataStore.getRootDomain()
             + ':' + CaptainConstants.registrySubDomainPort;
-    };
-    DockerRegistry.prototype.ensureDockerRegistryRunningOnThisNode = function () {
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
-        var myNodeId = this.captainManager.getMyNodeId();
-        var captainSalt = this.captainManager.getCaptainSalt();
+    }
+    ensureDockerRegistryRunningOnThisNode() {
+        const dockerApi = this.dockerApi;
+        const dataStore = this.dataStore;
+        const myNodeId = this.captainManager.getMyNodeId();
+        const captainSalt = this.captainManager.getCaptainSalt();
         function createRegistryServiceOnNode() {
             return dockerApi.createServiceOnNodeId(CaptainConstants.registryImageName, CaptainConstants.registryServiceName, [{
                     protocol: 'tcp',
@@ -90,7 +90,7 @@ var DockerRegistry = /** @class */ (function () {
         }
         return Promise.resolve()
             .then(function () {
-            var authContent = CaptainConstants.captainRegistryUsername + ':' +
+            let authContent = CaptainConstants.captainRegistryUsername + ':' +
                 bcrypt.hashSync(captainSalt, bcrypt.genSaltSync(5));
             return fs.outputFile(CaptainConstants.registryAuthPathOnHost, authContent);
         })
@@ -129,13 +129,13 @@ var DockerRegistry = /** @class */ (function () {
                 return true;
             }
         });
-    };
-    DockerRegistry.prototype.updateRegistryAuthHeader = function (username, password, domain, currentVersion) {
-        var self = this;
-        var dockerApi = this.dockerApi;
-        var nextVersion = null;
-        var secretName = null;
-        var userEmailAddress;
+    }
+    updateRegistryAuthHeader(username, password, domain, currentVersion) {
+        const self = this;
+        const dockerApi = this.dockerApi;
+        let nextVersion = null;
+        let secretName = null;
+        let userEmailAddress;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getUserEmailAddress();
@@ -174,7 +174,7 @@ var DockerRegistry = /** @class */ (function () {
                 });
             }
         });
-    };
-    return DockerRegistry;
-}());
+    }
+}
 module.exports = DockerRegistry;
+//# sourceMappingURL=DockerRegistry.js.map

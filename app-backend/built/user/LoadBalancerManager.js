@@ -1,13 +1,13 @@
-var ejs = require('ejs');
-var CaptainConstants = require('../utils/CaptainConstants');
-var Logger = require('../utils/Logger');
-var fs = require('fs-extra');
-var uuid = require('uuid/v4');
-var request = require('request');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var defaultPageTemplate = fs.readFileSync(__dirname + '/../template/default-page.ejs').toString();
-var LoadBalancerManager = /** @class */ (function () {
-    function LoadBalancerManager(dockerApi, certbotManager, dataStore) {
+const ejs = require('ejs');
+const CaptainConstants = require('../utils/CaptainConstants');
+const Logger = require('../utils/Logger');
+const fs = require('fs-extra');
+const uuid = require('uuid/v4');
+const request = require('request');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const defaultPageTemplate = fs.readFileSync(__dirname + '/../template/default-page.ejs').toString();
+class LoadBalancerManager {
+    constructor(dockerApi, certbotManager, dataStore) {
         this.dockerApi = dockerApi;
         this.certbotManager = certbotManager;
         this.reloadInProcess = false;
@@ -21,8 +21,8 @@ var LoadBalancerManager = /** @class */ (function () {
      * @param dataStoreToQueue
      * @returns {Promise.<>}
      */
-    LoadBalancerManager.prototype.rePopulateNginxConfigFile = function (dataStoreToQueue) {
-        var self = this;
+    rePopulateNginxConfigFile(dataStoreToQueue) {
+        const self = this;
         return new Promise(function (res, rej) {
             self.requestedReloadPromises.push({
                 dataStore: dataStoreToQueue,
@@ -31,10 +31,10 @@ var LoadBalancerManager = /** @class */ (function () {
             });
             self.consumeQueueIfAnyInNginxReloadQueue();
         });
-    };
-    LoadBalancerManager.prototype.consumeQueueIfAnyInNginxReloadQueue = function () {
-        var self = this;
-        var q = self.requestedReloadPromises.pop();
+    }
+    consumeQueueIfAnyInNginxReloadQueue() {
+        const self = this;
+        const q = self.requestedReloadPromises.pop();
         if (!q) {
             return;
         }
@@ -44,13 +44,13 @@ var LoadBalancerManager = /** @class */ (function () {
         }
         Logger.d('Locking NGINX configuration reloading...');
         self.reloadInProcess = true;
-        var dataStore = q.dataStore;
+        const dataStore = q.dataStore;
         // This will resolve to something like: /captain/nginx/conf.d/captain
-        var configFilePathBase = CaptainConstants.perAppNginxConfigPathBase + '/' + dataStore.getNameSpace();
-        var FUTURE = configFilePathBase + '.fut';
-        var BACKUP = configFilePathBase + '.bak';
-        var CONFIG = configFilePathBase + '.conf';
-        var nginxConfigContent = '';
+        let configFilePathBase = CaptainConstants.perAppNginxConfigPathBase + '/' + dataStore.getNameSpace();
+        const FUTURE = configFilePathBase + '.fut';
+        const BACKUP = configFilePathBase + '.bak';
+        const CONFIG = configFilePathBase + '.conf';
+        let nginxConfigContent = '';
         return fs.remove(FUTURE)
             .then(function () {
             return dataStore.getServerList();
@@ -59,9 +59,9 @@ var LoadBalancerManager = /** @class */ (function () {
             if (!servers || !servers.length) {
                 return '';
             }
-            var promises = [];
-            var _loop_1 = function (i) {
-                var s = servers[i];
+            let promises = [];
+            for (let i = 0; i < servers.length; i++) {
+                let s = servers[i];
                 if (s.hasSsl) {
                     s.crtPath = self.getSslCertPath(s.publicDomain);
                     s.keyPath = self.getSslKeyPath(s.publicDomain);
@@ -76,9 +76,6 @@ var LoadBalancerManager = /** @class */ (function () {
                     .then(function (rendered) {
                     nginxConfigContent += rendered;
                 }));
-            };
-            for (var i = 0; i < servers.length; i++) {
-                _loop_1(i);
             }
             return Promise.all(promises);
         })
@@ -113,24 +110,24 @@ var LoadBalancerManager = /** @class */ (function () {
             q.reject(error);
             self.consumeQueueIfAnyInNginxReloadQueue();
         });
-    };
-    LoadBalancerManager.prototype.sendReloadSignal = function () {
+    }
+    sendReloadSignal() {
         return this.dockerApi.sendSingleContainerKillHUP(CaptainConstants.nginxServiceName);
-    };
-    LoadBalancerManager.prototype.getCaptainPublicRandomKey = function () {
+    }
+    getCaptainPublicRandomKey() {
         return this.captainPublicRandomKey;
-    };
-    LoadBalancerManager.prototype.getSslCertPath = function (domainName) {
-        var self = this;
+    }
+    getSslCertPath(domainName) {
+        const self = this;
         return CaptainConstants.letsEncryptEtcPathOnNginx + self.certbotManager.getCertRelativePathForDomain(domainName);
-    };
-    LoadBalancerManager.prototype.getSslKeyPath = function (domainName) {
-        var self = this;
+    }
+    getSslKeyPath(domainName) {
+        const self = this;
         return CaptainConstants.letsEncryptEtcPathOnNginx + self.certbotManager.getKeyRelativePathForDomain(domainName);
-    };
-    LoadBalancerManager.prototype.getInfo = function () {
+    }
+    getInfo() {
         return new Promise(function (resolve, reject) {
-            var url = 'http://' + CaptainConstants.nginxServiceName + '/nginx_status';
+            let url = 'http://' + CaptainConstants.nginxServiceName + '/nginx_status';
             request(url, function (error, response, body) {
                 if (error || !body) {
                     Logger.e("Error        " + error);
@@ -138,8 +135,8 @@ var LoadBalancerManager = /** @class */ (function () {
                     return;
                 }
                 try {
-                    var data = {};
-                    var lines = body.split('\n');
+                    let data = {};
+                    let lines = body.split('\n');
                     data.activeConnections = Number(lines[0].split(' ')[2].trim());
                     data.accepted = Number(lines[2].split(' ')[1].trim());
                     data.handled = Number(lines[2].split(' ')[2].trim());
@@ -155,16 +152,16 @@ var LoadBalancerManager = /** @class */ (function () {
                 }
             });
         });
-    };
-    LoadBalancerManager.prototype.createRootConfFile = function (dataStore) {
-        var self = this;
-        var captainDomain = CaptainConstants.captainSubDomain + '.' + dataStore.getRootDomain();
-        var registryDomain = CaptainConstants.registrySubDomain + '.' + dataStore.getRootDomain();
-        var hasRootSsl = false;
-        var FUTURE = CaptainConstants.rootNginxConfigPath + '.fut';
-        var BACKUP = CaptainConstants.rootNginxConfigPath + '.bak';
-        var CONFIG = CaptainConstants.rootNginxConfigPath + '.conf';
-        var rootNginxTemplate = null;
+    }
+    createRootConfFile(dataStore) {
+        const self = this;
+        let captainDomain = CaptainConstants.captainSubDomain + '.' + dataStore.getRootDomain();
+        let registryDomain = CaptainConstants.registrySubDomain + '.' + dataStore.getRootDomain();
+        let hasRootSsl = false;
+        const FUTURE = CaptainConstants.rootNginxConfigPath + '.fut';
+        const BACKUP = CaptainConstants.rootNginxConfigPath + '.bak';
+        const CONFIG = CaptainConstants.rootNginxConfigPath + '.conf';
+        let rootNginxTemplate = null;
         return Promise.resolve()
             .then(function () {
             return dataStore.getNginxConfig();
@@ -217,24 +214,24 @@ var LoadBalancerManager = /** @class */ (function () {
             .then(function () {
             return fs.renameSync(FUTURE, CONFIG); // sync method. It's really fast.
         });
-    };
-    LoadBalancerManager.prototype.ensureBaseNginxConf = function () {
-        var self = this;
+    }
+    ensureBaseNginxConf() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getNginxConfig();
         })
             .then(function (captainConfig) {
-            var baseConfigTemplate = captainConfig.baseConfig.customValue || captainConfig.baseConfig.byDefault;
+            let baseConfigTemplate = captainConfig.baseConfig.customValue || captainConfig.baseConfig.byDefault;
             return ejs.render(baseConfigTemplate, {});
         })
             .then(function (baseNginxConfFileContent) {
             return fs.outputFile(CaptainConstants.baseNginxConfigPath, baseNginxConfFileContent);
         });
-    };
-    LoadBalancerManager.prototype.init = function (myNodeId, dataStore) {
-        var dockerApi = this.dockerApi;
-        var self = this;
+    }
+    init(myNodeId, dataStore) {
+        let dockerApi = this.dockerApi;
+        let self = this;
         function createNginxServiceOnNode(nodeId) {
             Logger.d('No Captain Nginx service is running. Creating one on captain node...');
             return dockerApi.createServiceOnNodeId(CaptainConstants.nginxImageName, CaptainConstants.nginxServiceName, [{
@@ -253,7 +250,7 @@ var LoadBalancerManager = /** @class */ (function () {
                 }
             })
                 .then(function () {
-                var waitTimeInMillis = 5000;
+                let waitTimeInMillis = 5000;
                 Logger.d('Waiting for ' + (waitTimeInMillis / 1000) + ' seconds for nginx to start up');
                 return new Promise(function (resolve, reject) {
                     setTimeout(function () {
@@ -354,7 +351,7 @@ var LoadBalancerManager = /** @class */ (function () {
             ], [CaptainConstants.captainNetworkName]);
         })
             .then(function () {
-            var waitTimeInMillis = 5000;
+            let waitTimeInMillis = 5000;
             Logger.d('Waiting for ' + (waitTimeInMillis / 1000) + ' seconds for nginx reload to take into effect');
             return new Promise(function (resolve, reject) {
                 setTimeout(function () {
@@ -363,7 +360,7 @@ var LoadBalancerManager = /** @class */ (function () {
                 }, waitTimeInMillis);
             });
         });
-    };
-    return LoadBalancerManager;
-}());
+    }
+}
 module.exports = LoadBalancerManager;
+//# sourceMappingURL=LoadBalancerManager.js.map

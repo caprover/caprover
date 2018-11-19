@@ -1,8 +1,8 @@
 /**
  * Created by kasra on 27/06/17.
  */
-var CaptainConstants = require('./CaptainConstants');
-var moment = require('moment');
+const CaptainConstants = require('./CaptainConstants');
+const moment = require('moment');
 function errorize(error) {
     if (!(error instanceof Error)) {
         return new Error('Wrapped: ' + (error ? error : 'NULL'));
@@ -25,7 +25,8 @@ module.exports = {
         }
     },
     e: function (msgOrError) {
-        var err = errorize(msgOrError);
+        let err = errorize(msgOrError);
         console.error(getTime() + err + '\n' + err.stack);
     }
 };
+//# sourceMappingURL=Logger.js.map

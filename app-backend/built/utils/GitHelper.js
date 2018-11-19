@@ -1,4 +1,4 @@
-var git = require('simple-git');
+const git = require('simple-git');
 module.exports = {
     getLastHash: function (directory) {
         return new Promise(function (resolve, reject) {
@@ -17,9 +17,9 @@ module.exports = {
         });
     },
     clone: function (username, pass, repo, branch, directory) {
-        var USER = encodeURIComponent(username);
-        var PASS = encodeURIComponent(pass);
-        var remote = "https://" + USER + ":" + PASS + "@" + repo;
+        const USER = encodeURIComponent(username);
+        const PASS = encodeURIComponent(pass);
+        const remote = `https://${USER}:${PASS}@${repo}`;
         return new Promise(function (resolve, reject) {
             git().silent(true)
                 .raw([
@@ -40,3 +40,4 @@ module.exports = {
         });
     }
 };
+//# sourceMappingURL=GitHelper.js.map

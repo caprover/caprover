@@ -1,16 +1,16 @@
-var express = require('express');
-var router = express.Router();
-var BaseApi = require('../api/BaseApi');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Injector = require('../injection/Injector');
-var SystemRouter = require('./SystemRouter');
-var WebhooksRouter = require('./WebhooksRouter');
-var AppDefinitionRouter = require('./AppDefinitionRouter');
-var AppDataRouter = require('./AppDataRouter');
-var Authenticator = require('../user/Authenticator');
-var Logger = require('../utils/Logger');
-var onFinished = require('on-finished');
-var threadLockNamespace = {};
+const express = require('express');
+const router = express.Router();
+const BaseApi = require('../api/BaseApi');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Injector = require('../injection/Injector');
+const SystemRouter = require('./SystemRouter');
+const WebhooksRouter = require('./WebhooksRouter');
+const AppDefinitionRouter = require('./AppDefinitionRouter');
+const AppDataRouter = require('./AppDataRouter');
+const Authenticator = require('../user/Authenticator');
+const Logger = require('../utils/Logger');
+const onFinished = require('on-finished');
+const threadLockNamespace = {};
 router.use('/webhooks/', Injector.injectUserForWebhook());
 router.use(Injector.injectUser());
 function isNotGetRequest(req) {
@@ -18,33 +18,33 @@ function isNotGetRequest(req) {
 }
 router.use(function (req, res, next) {
     if (!res.locals.user) {
-        var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'The request is not authorized.');
+        let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'The request is not authorized.');
         res.send(response);
         return;
     }
     if (!res.locals.user.initialized) {
-        var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_USER_NOT_INITIALIZED, 'User data is being loaded... Please wait...');
+        let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_USER_NOT_INITIALIZED, 'User data is being loaded... Please wait...');
         res.send(response);
         return;
     }
-    var namespace = res.locals.user.namespace;
+    const namespace = res.locals.user.namespace;
     if (!namespace) {
-        var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Cannot find the namespace attached to this user');
+        let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Cannot find the namespace attached to this user');
         res.send(response);
         return;
     }
-    var serviceManager = res.locals.user.serviceManager;
+    const serviceManager = res.locals.user.serviceManager;
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
     if (isNotGetRequest(req)) {
         if (threadLockNamespace[namespace]) {
-            var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Another operation still in progress... please wait...');
+            let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Another operation still in progress... please wait...');
             res.send(response);
             return;
         }
-        var activeBuildAppName = serviceManager.isAnyBuildRunning();
+        let activeBuildAppName = serviceManager.isAnyBuildRunning();
         if (activeBuildAppName) {
-            var response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, "An active build (" + activeBuildAppName + ") is in progress... please wait...");
+            let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, `An active build (${activeBuildAppName}) is in progress... please wait...`);
             res.send(response);
             return;
         }
@@ -78,3 +78,4 @@ router.use('/system/', SystemRouter);
 router.use('/appDefinitions/', AppDefinitionRouter);
 router.use('/appData/', AppDataRouter);
 module.exports = router;
+//# sourceMappingURL=UserRouter.js.map

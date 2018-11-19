@@ -1,10 +1,10 @@
-var express = require('express');
-var fs = require('fs');
-var router = express.Router();
-var BaseApi = require('../api/BaseApi');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Logger = require('../utils/Logger');
-var Authenticator = require('../user/Authenticator');
+const express = require('express');
+const fs = require('fs');
+const router = express.Router();
+const BaseApi = require('../api/BaseApi');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Logger = require('../utils/Logger');
+const Authenticator = require('../user/Authenticator');
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
     fs.readdir(__dirname + '/../../dist/oneclick-apps', function (err, files) {
@@ -13,28 +13,28 @@ router.get('/oneclickapps', function (req, res, next) {
             res.sendStatus(500);
             return;
         }
-        var ret = [];
-        for (var i = 0; i < files.length; i++) {
+        let ret = [];
+        for (let i = 0; i < files.length; i++) {
             if (files[i].endsWith('.js')) {
                 ret.push(files[i].substring(0, files[i].length - 3));
             }
         }
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "One click app list is fetched.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "One click app list is fetched.");
         baseApi.data = ret;
         res.send(baseApi);
     });
 });
 // unused iamges
 router.get('/unusedImages', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
     Promise.resolve()
         .then(function () {
-        var mostRecentLimit = Number(req.query.mostRecentLimit || '0');
+        let mostRecentLimit = Number(req.query.mostRecentLimit || '0');
         return serviceManager.getUnusedImages(mostRecentLimit);
     })
         .then(function (unusedImages) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Unused images retrieved.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Unused images retrieved.");
         baseApi.data = {};
         baseApi.data.unusedImages = unusedImages;
         res.send(baseApi);
@@ -50,15 +50,15 @@ router.get('/unusedImages', function (req, res, next) {
 });
 // unused iamges
 router.post('/deleteImages', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var imageIds = req.body.imageIds || [];
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let imageIds = req.body.imageIds || [];
     Promise.resolve()
         .then(function () {
         return serviceManager.deleteImages(imageIds);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Images Deleted.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Images Deleted.");
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -72,18 +72,18 @@ router.post('/deleteImages', function (req, res, next) {
 });
 // Get All App Definitions
 router.get('/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appsArray = [];
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appsArray = [];
     dataStore.getAppsDataStore().getAppDefinitions()
         .then(function (apps) {
-        var promises = [];
+        let promises = [];
         Object.keys(apps).forEach(function (key, index) {
-            var app = apps[key];
+            let app = apps[key];
             app.appName = key;
             app.isAppBuilding = serviceManager.isAppBuilding(key);
             app.appPushWebhook = app.appPushWebhook || {};
-            var repoInfoEncrypted = app.appPushWebhook ? app.appPushWebhook.repoInfo : null;
+            let repoInfoEncrypted = app.appPushWebhook ? app.appPushWebhook.repoInfo : null;
             if (repoInfoEncrypted) {
                 promises.push(Authenticator.get(dataStore.getNameSpace())
                     .decodeAppPushWebhookDatastore(repoInfoEncrypted)
@@ -102,7 +102,7 @@ router.get('/', function (req, res, next) {
         return dataStore.getDefaultAppNginxConfig();
     })
         .then(function (defaultNginxConfig) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
         baseApi.data = appsArray;
         baseApi.rootDomain = dataStore.getRootDomain();
         baseApi.defaultNginxConfig = defaultNginxConfig;
@@ -118,15 +118,15 @@ router.get('/', function (req, res, next) {
     });
 });
 router.post('/enablebasedomainssl/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    const appName = req.body.appName;
     return Promise.resolve()
         .then(function () {
         return serviceManager.enableSslForApp(appName);
     })
         .then(function () {
-        var msg = 'General SSL is enabled for: ' + appName;
+        let msg = 'General SSL is enabled for: ' + appName;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -140,10 +140,10 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
     });
 });
 router.post('/customdomain/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
-    var customDomain = (req.body.customDomain || '').toLowerCase();
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
+    let customDomain = (req.body.customDomain || '').toLowerCase();
     // verify customdomain.com going through the default NGINX
     // Add customdomain.com to app in Data Store
     return Promise.resolve()
@@ -151,7 +151,7 @@ router.post('/customdomain/', function (req, res, next) {
         return serviceManager.addCustomDomain(appName, customDomain);
     })
         .then(function () {
-        var msg = 'Custom domain is enabled for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain is enabled for: ' + appName + ' at ' + customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -165,16 +165,16 @@ router.post('/customdomain/', function (req, res, next) {
     });
 });
 router.post('/removecustomdomain/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
-    var customDomain = (req.body.customDomain || '').toLowerCase();
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
+    let customDomain = (req.body.customDomain || '').toLowerCase();
     return Promise.resolve()
         .then(function () {
         return serviceManager.removeCustomDomain(appName, customDomain);
     })
         .then(function () {
-        var msg = 'Custom domain is removed for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain is removed for: ' + appName + ' at ' + customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -188,10 +188,10 @@ router.post('/removecustomdomain/', function (req, res, next) {
     });
 });
 router.post('/enablecustomdomainssl/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
-    var customDomain = (req.body.customDomain || '').toLowerCase();
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
+    let customDomain = (req.body.customDomain || '').toLowerCase();
     // Check if customdomain is already associated with app. If not, error out.
     // Verify customdomain.com is served from /customdomain.com/
     return Promise.resolve()
@@ -199,7 +199,7 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
         return serviceManager.enableCustomDomainSsl(appName, customDomain);
     })
         .then(function () {
-        var msg = 'Custom domain SSL is enabled for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain SSL is enabled for: ' + appName + ' at ' + customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -213,11 +213,11 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
     });
 });
 router.post('/register/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
-    var hasPersistentData = !!req.body.hasPersistentData;
-    var appCreated = false;
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
+    let hasPersistentData = !!req.body.hasPersistentData;
+    let appCreated = false;
     Logger.d('Registering app started: ' + appName);
     dataStore.getAppsDataStore().registerAppDefinition(appName, hasPersistentData)
         .then(function () {
@@ -259,9 +259,9 @@ router.post('/register/', function (req, res, next) {
     });
 });
 router.post('/delete/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
     Logger.d('Deleting app started: ' + appName);
     Promise.resolve()
         .then(function () {
@@ -281,19 +281,19 @@ router.post('/delete/', function (req, res, next) {
     });
 });
 router.post('/update/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.body.appName;
-    var nodeId = req.body.nodeId;
-    var notExposeAsWebApp = req.body.notExposeAsWebApp;
-    var customNginxConfig = req.body.customNginxConfig;
-    var forceSsl = !!req.body.forceSsl;
-    var appPushWebhook = req.body.appPushWebhook || {};
-    var envVars = req.body.envVars || [];
-    var volumes = req.body.volumes || [];
-    var ports = req.body.ports || [];
-    var instanceCount = req.body.instanceCount || '0';
-    var preDeployFunction = req.body.preDeployFunction || '';
+    let dataStore = res.locals.user.dataStore;
+    let serviceManager = res.locals.user.serviceManager;
+    let appName = req.body.appName;
+    let nodeId = req.body.nodeId;
+    let notExposeAsWebApp = req.body.notExposeAsWebApp;
+    let customNginxConfig = req.body.customNginxConfig;
+    let forceSsl = !!req.body.forceSsl;
+    let appPushWebhook = req.body.appPushWebhook || {};
+    let envVars = req.body.envVars || [];
+    let volumes = req.body.volumes || [];
+    let ports = req.body.ports || [];
+    let instanceCount = req.body.instanceCount || '0';
+    let preDeployFunction = req.body.preDeployFunction || '';
     if (appPushWebhook.repoInfo) {
         if (appPushWebhook.repoInfo.user) {
             appPushWebhook.repoInfo.user = appPushWebhook.repoInfo.user.trim();
@@ -321,3 +321,4 @@ router.post('/update/', function (req, res, next) {
     });
 });
 module.exports = router;
+//# sourceMappingURL=AppDefinitionRouter.js.map

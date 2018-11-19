@@ -1,23 +1,23 @@
-var express = require('express');
-var router = express.Router();
-var BaseApi = require('../api/BaseApi');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Logger = require('../utils/Logger');
-var CaptainManager = require('../user/CaptainManager');
-var Validator = require('validator');
-var CaptainConstants = require('../utils/CaptainConstants');
+const express = require('express');
+const router = express.Router();
+const BaseApi = require('../api/BaseApi');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Logger = require('../utils/Logger');
+const CaptainManager = require('../user/CaptainManager');
+const Validator = require('validator');
+const CaptainConstants = require('../utils/CaptainConstants');
 router.post('/insert/', function (req, res, next) {
-    var registryUser = req.body.registryUser + '';
-    var registryPassword = req.body.registryPassword + '';
-    var registryDomain = req.body.registryDomain + '';
-    var registryImagePrefix = req.body.registryImagePrefix + '';
-    var captainManager = CaptainManager.get();
+    let registryUser = req.body.registryUser + '';
+    let registryPassword = req.body.registryPassword + '';
+    let registryDomain = req.body.registryDomain + '';
+    let registryImagePrefix = req.body.registryImagePrefix + '';
+    const captainManager = CaptainManager.get();
     return Promise.resolve()
         .then(function () {
         return captainManager.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix);
     })
         .then(function () {
-        var msg = 'Registry is added.';
+        let msg = 'Registry is added.';
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -31,8 +31,8 @@ router.post('/insert/', function (req, res, next) {
     });
 });
 router.get('/all/', function (req, res, next) {
-    var captainManager = CaptainManager.get();
-    var registries = [];
+    const captainManager = CaptainManager.get();
+    let registries = [];
     return Promise.resolve()
         .then(function () {
         return captainManager.getAllRegistries();
@@ -42,7 +42,7 @@ router.get('/all/', function (req, res, next) {
         return captainManager.getDefaultPushRegistry();
     })
         .then(function (defaultPush) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');
         baseApi.registries = registries;
         baseApi.defaultPushRegistryId = defaultPush;
         res.send(baseApi);
@@ -57,14 +57,14 @@ router.get('/all/', function (req, res, next) {
     });
 });
 router.post('/delete/', function (req, res, next) {
-    var registryId = req.body.registryId + '';
-    var captainManager = CaptainManager.get();
+    let registryId = req.body.registryId + '';
+    const captainManager = CaptainManager.get();
     return Promise.resolve()
         .then(function () {
         return captainManager.deleteRegistry(registryId);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Registry deleted');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Registry deleted');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -77,14 +77,14 @@ router.post('/delete/', function (req, res, next) {
     });
 });
 router.post('/setpush/', function (req, res, next) {
-    var registryId = req.body.registryId + '';
-    var captainManager = CaptainManager.get();
+    let registryId = req.body.registryId + '';
+    const captainManager = CaptainManager.get();
     return Promise.resolve()
         .then(function () {
         return captainManager.setDefaultPushRegistry(registryId);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Push Registry changed');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Push Registry changed');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -97,3 +97,4 @@ router.post('/setpush/', function (req, res, next) {
     });
 });
 module.exports = router;
+//# sourceMappingURL=RegistriesRouter.js.map

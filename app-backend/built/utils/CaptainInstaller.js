@@ -1,9 +1,9 @@
-var externalIp = require('public-ip');
-var DockerApi = require('../docker/DockerApi');
-var CaptainConstants = require('./CaptainConstants');
-var EnvVar = require('./EnvVars');
-var http = require('http');
-var request = require('request');
+const externalIp = require('public-ip');
+const DockerApi = require('../docker/DockerApi');
+const CaptainConstants = require('./CaptainConstants');
+const EnvVar = require('./EnvVars');
+const http = require('http');
+const request = require('request');
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
 function checkSystemReq() {
@@ -16,10 +16,10 @@ function checkSystemReq() {
         console.log(' ');
         console.log(' ');
         console.log(' >>>> Checking System Compatibility <<<<');
-        var ver = output.Version.split('.');
-        var maj = Number(ver[0]);
-        var min = Number(ver[1]);
-        var versionOk = false;
+        let ver = output.Version.split('.');
+        let maj = Number(ver[0]);
+        let min = Number(ver[1]);
+        let versionOk = false;
         if (maj > 17) {
             versionOk = true;
         }
@@ -47,7 +47,7 @@ function checkSystemReq() {
         else {
             console.log('   X86 CPU detected.');
         }
-        var totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0);
+        let totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0);
         if (totalMemInMb < 1000) {
             console.log('Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CaptainDuckDuck system requirements.');
         }
@@ -64,7 +64,7 @@ function checkSystemReq() {
         console.error(error);
     });
 }
-var FIREWALL_PASSED = 'firewall-passed';
+const FIREWALL_PASSED = 'firewall-passed';
 function startServerOnPort_80_443_3000() {
     return Promise.resolve()
         .then(function () {
@@ -111,7 +111,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
         console.log(' ');
     }
     return new Promise(function (resolve, reject) {
-        var finished = false;
+        let finished = false;
         setTimeout(function () {
             if (finished) {
                 return;
@@ -135,7 +135,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
         });
     });
 }
-var myIp4 = null;
+let myIp4 = null;
 module.exports.install = function () {
     Promise.resolve()
         .then(function () {
@@ -192,13 +192,13 @@ module.exports.install = function () {
         return DockerApi.get().getLeaderNodeId();
     })
         .then(function (nodeId) {
-        var volumeToMount = [
+        let volumeToMount = [
             {
                 hostPath: CaptainConstants.captainRootDirectory,
                 containerPath: CaptainConstants.captainRootDirectory
             }
         ];
-        var env = [];
+        let env = [];
         env.push({
             key: EnvVar.keys.IS_CAPTAIN_INSTANCE,
             value: '1'
@@ -221,8 +221,8 @@ module.exports.install = function () {
                 containerPath: CaptainConstants.dockerSocketPath
             });
         }
-        var ports = [];
-        var captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub + ':' + CaptainConstants.version;
+        let ports = [];
+        let captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub + ':' + CaptainConstants.version;
         if (CaptainConstants.isDebug) {
             captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
             env.push({
@@ -257,3 +257,4 @@ module.exports.install = function () {
         process.exit();
     });
 };
+//# sourceMappingURL=CaptainInstaller.js.map

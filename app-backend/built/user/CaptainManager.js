@@ -1,24 +1,24 @@
-var uuid = require('uuid/v4');
-var DockerApi = require('../docker/DockerApi');
-var CaptainConstants = require('../utils/CaptainConstants');
-var Logger = require('../utils/Logger');
-var fs = require('fs-extra');
-var LoadBalancerManager = require('./LoadBalancerManager');
-var EnvVars = require('../utils/EnvVars');
-var Encryptor = require('../utils/Encryptor');
-var CertbotManager = require('./CertbotManager');
-var DockerRegistry = require('./DockerRegistry');
-var request = require('request');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var SshClient = require('ssh2').Client;
-var DataStoreProvider = require('../datastore/DataStoreProvider');
-var DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
-var MAX_FAIL_ALLOWED = 4;
-var HEALTH_CHECK_INTERVAL = 20000; //ms
-var TIMEOUT_HEALTH_CHECK = 15000; //ms
-var CaptainManager = /** @class */ (function () {
-    function CaptainManager() {
-        var dockerApi = DockerApi.get();
+const uuid = require('uuid/v4');
+const DockerApi = require('../docker/DockerApi');
+const CaptainConstants = require('../utils/CaptainConstants');
+const Logger = require('../utils/Logger');
+const fs = require('fs-extra');
+const LoadBalancerManager = require('./LoadBalancerManager');
+const EnvVars = require('../utils/EnvVars');
+const Encryptor = require('../utils/Encryptor');
+const CertbotManager = require('./CertbotManager');
+const DockerRegistry = require('./DockerRegistry');
+const request = require('request');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const SshClient = require('ssh2').Client;
+const DataStoreProvider = require('../datastore/DataStoreProvider');
+const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
+const MAX_FAIL_ALLOWED = 4;
+const HEALTH_CHECK_INTERVAL = 20000; //ms
+const TIMEOUT_HEALTH_CHECK = 15000; //ms
+class CaptainManager {
+    constructor() {
+        let dockerApi = DockerApi.get();
         this.hasForceSsl = false;
         this.dataStore = DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace);
         this.dockerApi = dockerApi;
@@ -34,15 +34,15 @@ var CaptainManager = /** @class */ (function () {
         this.consecutiveHealthCheckFailCount = 0;
         this.healthCheckUuid = uuid();
     }
-    CaptainManager.prototype.initialize = function () {
+    initialize() {
         // If a linked file / directory is deleted on the host, it loses the connection to
         // the container and needs an update to be picked up again.
-        var self = this;
-        var dataStore = this.dataStore;
-        var dockerApi = this.dockerApi;
-        var loadBalancerManager = this.loadBalancerManager;
-        var certbotManager = this.certbotManager;
-        var myNodeId = null;
+        const self = this;
+        const dataStore = this.dataStore;
+        const dockerApi = this.dockerApi;
+        const loadBalancerManager = this.loadBalancerManager;
+        const certbotManager = this.certbotManager;
+        let myNodeId = null;
         self.refreshForceSslState()
             .then(function () {
             return dockerApi.getNodeIdByServiceName(CaptainConstants.captainServiceName);
@@ -94,7 +94,7 @@ var CaptainManager = /** @class */ (function () {
             return loadBalancerManager.init(myNodeId, dataStore);
         })
             .then(function () {
-            var valueIfNotExist = CaptainConstants.isDebug ? DEBUG_SALT : uuid();
+            let valueIfNotExist = CaptainConstants.isDebug ? DEBUG_SALT : uuid();
             return dockerApi.ensureSecret(CaptainConstants.captainSaltSecretKey, valueIfNotExist);
         })
             .then(function () {
@@ -109,7 +109,7 @@ var CaptainManager = /** @class */ (function () {
             return dataStore.getRegistryAuthSecretVersion();
         })
             .then(function (currentVersion) {
-            var secretName = CaptainConstants.captainRegistryAuthHeaderSecretPrefix + currentVersion;
+            let secretName = CaptainConstants.captainRegistryAuthHeaderSecretPrefix + currentVersion;
             if (currentVersion > 0) {
                 Logger.d('Updating secrets to update docker registry auth.');
                 return dockerApi
@@ -131,12 +131,12 @@ var CaptainManager = /** @class */ (function () {
                 Logger.d('There is no Docker Registry, neither local nor remote.');
                 return true;
             }
-            var secretName = CaptainConstants.captainRegistryAuthHeaderSecretPrefix + currentVersion;
-            var secretFileName = '/run/secrets/' + secretName;
+            let secretName = CaptainConstants.captainRegistryAuthHeaderSecretPrefix + currentVersion;
+            const secretFileName = '/run/secrets/' + secretName;
             if (!fs.existsSync(secretFileName)) {
                 throw new Error('Secret is attached according to Docker. But file cannot be found. ' + secretFileName);
             }
-            var secretContent = fs.readFileSync(secretFileName).toString();
+            let secretContent = fs.readFileSync(secretFileName).toString();
             if (!secretContent) {
                 throw new Error('Docker Auth content is empty!');
             }
@@ -144,7 +144,7 @@ var CaptainManager = /** @class */ (function () {
             return true;
         })
             .then(function () {
-            var secretFileName = '/run/secrets/' + CaptainConstants.captainSaltSecretKey;
+            const secretFileName = '/run/secrets/' + CaptainConstants.captainSaltSecretKey;
             if (!fs.existsSync(secretFileName)) {
                 if (CaptainConstants.isDebug) {
                     Logger.d('SECURITY WARNING! Setting the salt to default! Perhaps you are running the code outside of the container?');
@@ -153,7 +153,7 @@ var CaptainManager = /** @class */ (function () {
                 }
                 throw new Error('Secret is attached according to Docker. But file cannot be found. ' + secretFileName);
             }
-            var secretContent = fs.readFileSync(secretFileName).toString();
+            let secretContent = fs.readFileSync(secretFileName).toString();
             if (!secretContent) {
                 throw new Error('Salt secret content is empty!');
             }
@@ -187,10 +187,10 @@ var CaptainManager = /** @class */ (function () {
                 self.initialize();
             }, 10000);
         });
-    };
-    CaptainManager.prototype.performHealthCheck = function () {
-        var self = this;
-        var captainPublicDomain = CaptainConstants.captainSubDomain + '.' + self.dataStore.getRootDomain();
+    }
+    performHealthCheck() {
+        const self = this;
+        const captainPublicDomain = CaptainConstants.captainSubDomain + '.' + self.dataStore.getRootDomain();
         function scheduleNextHealthCheck() {
             self.healthCheckUuid = uuid();
             setTimeout(function () {
@@ -203,7 +203,7 @@ var CaptainManager = /** @class */ (function () {
             return;
         }
         function checkCaptainHealth(callback) {
-            var callbackCalled = false;
+            let callbackCalled = false;
             setTimeout(function () {
                 if (callbackCalled) {
                     return;
@@ -211,7 +211,7 @@ var CaptainManager = /** @class */ (function () {
                 callbackCalled = true;
                 callback(false);
             }, TIMEOUT_HEALTH_CHECK);
-            var url = 'http://' + captainPublicDomain + CaptainConstants.healthCheckEndPoint;
+            let url = 'http://' + captainPublicDomain + CaptainConstants.healthCheckEndPoint;
             request(url, function (error, response, body) {
                 if (callbackCalled) {
                     return;
@@ -226,7 +226,7 @@ var CaptainManager = /** @class */ (function () {
             });
         }
         function checkNginxHealth(callback) {
-            var callbackCalled = false;
+            let callbackCalled = false;
             setTimeout(function () {
                 if (callbackCalled) {
                     return;
@@ -250,12 +250,12 @@ var CaptainManager = /** @class */ (function () {
                 callback(false);
             });
         }
-        var checksPerformed = {};
+        let checksPerformed = {};
         function scheduleIfNecessary() {
             if (!checksPerformed.captainHealth || !checksPerformed.nginxHealth) {
                 return;
             }
-            var hasFailedCheck = false;
+            let hasFailedCheck = false;
             if (!checksPerformed.captainHealth.value) {
                 Logger.w("Captain health check failed: #" + self.consecutiveHealthCheckFailCount + ' at ' + captainPublicDomain);
                 hasFailedCheck = true;
@@ -283,15 +283,15 @@ var CaptainManager = /** @class */ (function () {
             checksPerformed.nginxHealth = { value: success };
             scheduleIfNecessary();
         });
-    };
-    CaptainManager.prototype.getHealthCheckUuid = function () {
+    }
+    getHealthCheckUuid() {
         return this.healthCheckUuid;
-    };
-    CaptainManager.prototype.isInitialized = function () {
+    }
+    isInitialized() {
         return this.inited && !this.waitUntilRestarted;
-    };
-    CaptainManager.prototype.getCaptainImageTags = function () {
-        var url = 'https://hub.docker.com/v2/repositories/' + CaptainConstants.publishedNameOnDockerHub + '/tags';
+    }
+    getCaptainImageTags() {
+        let url = 'https://hub.docker.com/v2/repositories/' + CaptainConstants.publishedNameOnDockerHub + '/tags';
         return new Promise(function (resolve, reject) {
             request(url, function (error, response, body) {
                 if (CaptainConstants.isDebug) {
@@ -305,52 +305,52 @@ var CaptainManager = /** @class */ (function () {
                     reject(new Error('Received empty body or no result for version list on docker hub.'));
                 }
                 else {
-                    var results = JSON.parse(body).results;
-                    var tags = [];
-                    for (var idx = 0; idx < results.length; idx++) {
+                    let results = JSON.parse(body).results;
+                    let tags = [];
+                    for (let idx = 0; idx < results.length; idx++) {
                         tags.push(results[idx].name);
                     }
                     resolve(tags);
                 }
             });
         });
-    };
-    CaptainManager.prototype.updateCaptain = function (versionTag) {
-        var self = this;
+    }
+    updateCaptain(versionTag) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.publishedNameOnDockerHub + ':' + versionTag);
         });
-    };
-    CaptainManager.prototype.getMyNodeId = function () {
+    }
+    getMyNodeId() {
         if (!this.myNodeId) {
-            var msg = 'myNodeId is not set yet!!';
+            let msg = 'myNodeId is not set yet!!';
             Logger.e(msg);
             throw new Error(msg);
         }
         return this.myNodeId;
-    };
-    CaptainManager.prototype.getCaptainSalt = function () {
+    }
+    getCaptainSalt() {
         if (!this.captainSalt) {
-            var msg = 'Captain Salt is not set yet!!';
+            let msg = 'Captain Salt is not set yet!!';
             Logger.e(msg);
             throw new Error(msg);
         }
         return this.captainSalt;
-    };
-    CaptainManager.prototype.getDockerAuthObject = function () {
+    }
+    getDockerAuthObject() {
         return this.dockerAuthObj;
-    };
-    CaptainManager.prototype.updateNetDataInfo = function (netDataInfo) {
-        var self = this;
-        var dockerApi = this.dockerApi;
+    }
+    updateNetDataInfo(netDataInfo) {
+        const self = this;
+        const dockerApi = this.dockerApi;
         return Promise.resolve()
             .then(function () {
             return dockerApi.ensureContainerStoppedAndRemoved(CaptainConstants.netDataContainerName, CaptainConstants.captainNetworkName);
         })
             .then(function () {
             if (netDataInfo.isEnabled) {
-                var vols = [
+                let vols = [
                     {
                         hostPath: '/proc',
                         containerPath: '/host/proc',
@@ -366,7 +366,7 @@ var CaptainManager = /** @class */ (function () {
                         containerPath: '/var/run/docker.sock'
                     }
                 ];
-                var envVars = [];
+                let envVars = [];
                 if (netDataInfo.data.smtp) {
                     envVars.push({
                         key: 'SSMTP_TO',
@@ -435,9 +435,9 @@ var CaptainManager = /** @class */ (function () {
             .then(function () {
             return self.dataStore.setNetDataInfo(netDataInfo);
         });
-    };
-    CaptainManager.prototype.getNodesInfo = function () {
-        var dockerApi = this.dockerApi;
+    }
+    getNodesInfo() {
+        const dockerApi = this.dockerApi;
         return Promise.resolve()
             .then(function () {
             return dockerApi.getNodesInfo();
@@ -448,16 +448,16 @@ var CaptainManager = /** @class */ (function () {
             }
             return data;
         });
-    };
-    CaptainManager.prototype.joinDockerNode = function (captainIpAddress, isManager, remoteNodeIpAddress, remoteUserName, privateKey) {
-        var dockerApi = this.dockerApi;
+    }
+    joinDockerNode(captainIpAddress, isManager, remoteNodeIpAddress, remoteUserName, privateKey) {
+        const dockerApi = this.dockerApi;
         return Promise.resolve()
             .then(function () {
             return dockerApi.getJoinToken(isManager);
         })
             .then(function (token) {
             return new Promise(function (resolve, reject) {
-                var conn = new SshClient();
+                const conn = new SshClient();
                 conn
                     .on('error', function (err) {
                     Logger.e(err);
@@ -471,7 +471,7 @@ var CaptainManager = /** @class */ (function () {
                             reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'SSH Running command failed!!'));
                             return;
                         }
-                        var hasExisted = false;
+                        let hasExisted = false;
                         stream
                             .on('close', function (code, signal) {
                             Logger.d('Stream :: close :: code: ' + code + ', signal: ' + signal);
@@ -504,37 +504,37 @@ var CaptainManager = /** @class */ (function () {
                 });
             });
         });
-    };
-    CaptainManager.prototype.getLoadBalanceManager = function () {
+    }
+    getLoadBalanceManager() {
         return this.loadBalancerManager;
-    };
-    CaptainManager.prototype.reloadLoadBalancer = function (ds) {
-        var self = this;
+    }
+    reloadLoadBalancer(ds) {
+        const self = this;
         return self.loadBalancerManager.rePopulateNginxConfigFile(ds)
             .then(function () {
             Logger.d('sendReloadSignal...');
             return self.loadBalancerManager.sendReloadSignal();
         });
-    };
-    CaptainManager.prototype.getDockerRegistry = function () {
+    }
+    getDockerRegistry() {
         return this.dockerRegistry;
-    };
-    CaptainManager.prototype.setDefaultPushRegistry = function (registryId) {
-        var self = this;
+    }
+    setDefaultPushRegistry(registryId) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.setDefaultPushRegistry(registryId);
         });
-    };
-    CaptainManager.prototype.getDefaultPushRegistry = function () {
-        var self = this;
+    }
+    getDefaultPushRegistry() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getDefaultPushRegistry();
         });
-    };
-    CaptainManager.prototype.deleteRegistry = function (registryId) {
-        var self = this;
+    }
+    deleteRegistry(registryId) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.getDefaultPushRegistry();
@@ -545,27 +545,27 @@ var CaptainManager = /** @class */ (function () {
             }
             return self.dataStore.deleteRegistry(registryId);
         });
-    };
-    CaptainManager.prototype.getAllRegistries = function () {
-        var self = this;
+    }
+    getAllRegistries() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return (self.dataStore.getAllRegistries() || []);
         });
-    };
-    CaptainManager.prototype.addRegistry = function (registryUser, registryPassword, registryDomain, registryImagePrefix) {
-        var self = this;
+    }
+    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             if (!registryUser || !registryPassword || !registryDomain) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
             }
-            var passwordEncrypted = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
+            let passwordEncrypted = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
             return self.dataStore.addRegistryToDb(registryUser, passwordEncrypted, registryDomain, registryImagePrefix);
         });
-    };
-    CaptainManager.prototype.enableSsl = function (emailAddress) {
-        var self = this;
+    }
+    enableSsl(emailAddress) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.certbotManager.ensureRegistered(emailAddress);
@@ -585,9 +585,9 @@ var CaptainManager = /** @class */ (function () {
             .then(function () {
             return self.loadBalancerManager.sendReloadSignal();
         });
-    };
-    CaptainManager.prototype.forceSsl = function (isEnabled) {
-        var self = this;
+    }
+    forceSsl(isEnabled) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getHasRootSsl();
@@ -601,9 +601,9 @@ var CaptainManager = /** @class */ (function () {
             .then(function () {
             return self.refreshForceSslState();
         });
-    };
-    CaptainManager.prototype.refreshForceSslState = function () {
-        var self = this;
+    }
+    refreshForceSslState() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getForceSsl();
@@ -611,10 +611,10 @@ var CaptainManager = /** @class */ (function () {
             .then(function (hasForceSsl) {
             self.hasForceSsl = hasForceSsl;
         });
-    };
-    CaptainManager.prototype.getForceSslValue = function () {
+    }
+    getForceSslValue() {
         return !!this.hasForceSsl;
-    };
+    }
     /**
      * Returns a promise successfully if verification is succeeded. If it fails, it throws an exception.
      *
@@ -623,10 +623,10 @@ var CaptainManager = /** @class */ (function () {
      *
      * @returns {Promise.<boolean>}
      */
-    CaptainManager.prototype.verifyCaptainOwnsDomainOrThrow = function (domainName, identifierSuffix) {
-        var self = this;
-        var randomUuid = uuid();
-        var captainConfirmationPath = CaptainConstants.captainConfirmationPath + (identifierSuffix ? identifierSuffix : '');
+    verifyCaptainOwnsDomainOrThrow(domainName, identifierSuffix) {
+        const self = this;
+        const randomUuid = uuid();
+        let captainConfirmationPath = CaptainConstants.captainConfirmationPath + (identifierSuffix ? identifierSuffix : '');
         return Promise.resolve()
             .then(function () {
             return self.certbotManager.domainValidOrThrow(domainName);
@@ -644,7 +644,7 @@ var CaptainManager = /** @class */ (function () {
         })
             .then(function () {
             return new Promise(function (resolve, reject) {
-                var url = 'http://' + domainName + ':' +
+                let url = 'http://' + domainName + ':' +
                     CaptainConstants.nginxPortNumber + captainConfirmationPath;
                 request(url, function (error, response, body) {
                     if (error || !body || (body !== randomUuid)) {
@@ -659,16 +659,16 @@ var CaptainManager = /** @class */ (function () {
                 });
             });
         });
-    };
-    CaptainManager.prototype.getNginxConfig = function () {
-        var self = this;
+    }
+    getNginxConfig() {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.getNginxConfig();
         });
-    };
-    CaptainManager.prototype.setNginxConfig = function (baseConfig, captainConfig) {
-        var self = this;
+    }
+    setNginxConfig(baseConfig, captainConfig) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             return self.dataStore.setNginxConfig(baseConfig, captainConfig);
@@ -676,14 +676,14 @@ var CaptainManager = /** @class */ (function () {
             .then(function () {
             self.resetSelf();
         });
-    };
-    CaptainManager.prototype.requestCertificateForDomain = function (domainName) {
+    }
+    requestCertificateForDomain(domainName) {
         return this.certbotManager.enableSsl(domainName);
-    };
-    CaptainManager.prototype.verifyDomainResolvesToDefaultServerOnHost = function (domainName) {
-        var self = this;
+    }
+    verifyDomainResolvesToDefaultServerOnHost(domainName) {
+        const self = this;
         return new Promise(function (resolve, reject) {
-            var url = 'http://' + domainName + CaptainConstants.captainConfirmationPath;
+            let url = 'http://' + domainName + CaptainConstants.captainConfirmationPath;
             Logger.d('Sending request to ' + url);
             request(url, function (error, response, body) {
                 if (error || !body || (body !== self.loadBalancerManager.getCaptainPublicRandomKey())) {
@@ -693,13 +693,13 @@ var CaptainManager = /** @class */ (function () {
                 resolve();
             });
         });
-    };
-    CaptainManager.prototype.changeCaptainRootDomain = function (requestedCustomDomain) {
-        var self = this;
+    }
+    changeCaptainRootDomain(requestedCustomDomain) {
+        const self = this;
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
-        var url = (CaptainConstants.preCheckForWildCard ? uuid() : CaptainConstants.captainSubDomain) +
+        let url = (CaptainConstants.preCheckForWildCard ? uuid() : CaptainConstants.captainSubDomain) +
             '.' + requestedCustomDomain + ':' +
             CaptainConstants.nginxPortNumber;
         return self.verifyDomainResolvesToDefaultServerOnHost(url)
@@ -715,19 +715,19 @@ var CaptainManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer(self.dataStore);
         });
-    };
-    CaptainManager.prototype.resetSelf = function () {
-        var self = this;
+    }
+    resetSelf() {
+        const self = this;
         Logger.d('Captain is resetting itself!');
         return new Promise(function (resolve, reject) {
             setTimeout(function () {
-                var promiseToIgnore = self.dockerApi.updateService(CaptainConstants.captainServiceName);
+                let promiseToIgnore = self.dockerApi.updateService(CaptainConstants.captainServiceName);
             }, 2000);
         });
-    };
-    return CaptainManager;
-}());
-var captainManagerInstance = new CaptainManager();
+    }
+}
+const captainManagerInstance = new CaptainManager();
 module.exports.get = function () {
     return captainManagerInstance;
 };
+//# sourceMappingURL=CaptainManager.js.map

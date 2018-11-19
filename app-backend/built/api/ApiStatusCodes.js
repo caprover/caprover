@@ -1,7 +1,7 @@
-var apiStatusCode = {
+let apiStatusCode = {
     createError: function (code, message) {
-        var msg = message || 'NONE';
-        var error = new Error(msg);
+        let msg = message || 'NONE';
+        let error = new Error(msg);
         error.captainErrorType = code;
         error.apiMessage = msg;
         return error;
@@ -23,3 +23,4 @@ var apiStatusCode = {
     NOT_FOUND: 1111,
 };
 module.exports = apiStatusCode;
+//# sourceMappingURL=ApiStatusCodes.js.map

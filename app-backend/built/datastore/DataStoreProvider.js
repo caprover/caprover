@@ -1,8 +1,8 @@
 /**
  * Created by kasra on 27/06/17.
  */
-var DataStore = require('./DataStoreImpl');
-var dataStoreCache = {};
+const DataStore = require('./DataStoreImpl');
+const dataStoreCache = {};
 module.exports = {
     getDataStore: function (namespace) {
         if (!namespace) {
@@ -14,3 +14,4 @@ module.exports = {
         return dataStoreCache[namespace];
     }
 };
+//# sourceMappingURL=DataStoreProvider.js.map

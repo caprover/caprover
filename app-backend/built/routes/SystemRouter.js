@@ -1,15 +1,15 @@
-var express = require('express');
-var router = express.Router();
-var BaseApi = require('../api/BaseApi');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Logger = require('../utils/Logger');
-var CaptainManager = require('../user/CaptainManager');
-var Validator = require('validator');
-var CaptainConstants = require('../utils/CaptainConstants');
-var RegistriesRouter = require('./RegistriesRouter');
+const express = require('express');
+const router = express.Router();
+const BaseApi = require('../api/BaseApi');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Logger = require('../utils/Logger');
+const CaptainManager = require('../user/CaptainManager');
+const Validator = require('validator');
+const CaptainConstants = require('../utils/CaptainConstants');
+const RegistriesRouter = require('./RegistriesRouter');
 router.use('/registries/', RegistriesRouter);
 router.post('/changerootdomain/', function (req, res, next) {
-    var requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
+    let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
     function replaceAll(target, search, replacement) {
         return target.replace(new RegExp(search, 'g'), replacement);
     }
@@ -40,7 +40,7 @@ router.post('/changerootdomain/', function (req, res, next) {
     });
 });
 router.post('/enablessl/', function (req, res, next) {
-    var emailAddress = req.body.emailAddress || '';
+    const emailAddress = req.body.emailAddress || '';
     if (!emailAddress ||
         emailAddress.length < 3 ||
         emailAddress.indexOf('/') >= 0 ||
@@ -68,7 +68,7 @@ router.post('/enablessl/', function (req, res, next) {
     });
 });
 router.post('/forcessl/', function (req, res, next) {
-    var isEnabled = !!req.body.isEnabled;
+    let isEnabled = !!req.body.isEnabled;
     CaptainManager.get()
         .forceSsl(isEnabled)
         .then(function () {
@@ -90,7 +90,7 @@ router.post('/enableregistryssl/', function (req, res, next) {
         return CaptainManager.get().getDockerRegistry().enableRegistrySsl();
     })
         .then(function () {
-        var msg = 'General SSL is enabled for docker registry.';
+        let msg = 'General SSL is enabled for docker registry.';
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -104,11 +104,11 @@ router.post('/enableregistryssl/', function (req, res, next) {
     });
 });
 router.post('/enableregistry/', function (req, res, next) {
-    var LOCAL = 'local';
-    var REMOTE = 'remote';
-    var isLocal = req.body.registryType === LOCAL;
-    var isRemote = req.body.registryType === REMOTE;
-    var captainManager = CaptainManager.get();
+    const LOCAL = 'local';
+    const REMOTE = 'remote';
+    let isLocal = req.body.registryType === LOCAL;
+    let isRemote = req.body.registryType === REMOTE;
+    const captainManager = CaptainManager.get();
     return Promise.resolve()
         .then(function () {
         if (isLocal) {
@@ -122,9 +122,9 @@ router.post('/enableregistry/', function (req, res, next) {
         }
     })
         .then(function () {
-        var user = req.body.registryUser;
-        var pass = req.body.registryPassword;
-        var domain = req.body.registryDomain;
+        let user = req.body.registryUser;
+        let pass = req.body.registryPassword;
+        let domain = req.body.registryDomain;
         if (isLocal) {
             user = CaptainConstants.captainRegistryUsername;
             pass = captainManager.getCaptainSalt();
@@ -139,7 +139,7 @@ router.post('/enableregistry/', function (req, res, next) {
         return true;
     })
         .then(function () {
-        var msg = 'Local registry is created.';
+        let msg = 'Local registry is created.';
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -156,13 +156,13 @@ router.post('/enableregistry/', function (req, res, next) {
     });
 });
 router.get('/info/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
+    const dataStore = res.locals.user.dataStore;
     return Promise.resolve()
         .then(function () {
         return dataStore.getHasRootSsl();
     })
         .then(function (hasRootSsl) {
-        var dockerRegistryAuthObj = CaptainManager.get().getDockerAuthObject();
+        let dockerRegistryAuthObj = CaptainManager.get().getDockerAuthObject();
         return {
             dockerRegistryDomain: dockerRegistryAuthObj ? dockerRegistryAuthObj.serveraddress : '',
             hasRootSsl: hasRootSsl,
@@ -171,7 +171,7 @@ router.get('/info/', function (req, res, next) {
         };
     })
         .then(function (data) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Captain info retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Captain info retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -185,13 +185,13 @@ router.get('/info/', function (req, res, next) {
     });
 });
 router.get('/loadbalancerinfo/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
+    const dataStore = res.locals.user.dataStore;
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get().getLoadBalanceManager().getInfo();
     })
         .then(function (data) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Load Balancer info retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Load Balancer info retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -210,12 +210,12 @@ router.get('/versionInfo/', function (req, res, next) {
         return CaptainManager.get().getCaptainImageTags();
     })
         .then(function (tagList) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Version Info Retrieved');
-        var currentVersion = CaptainConstants.version.split('.');
-        var latestVersion = CaptainConstants.version.split('.');
-        var canUpdate = false;
-        for (var i = 0; i < tagList.length; i++) {
-            var tag = tagList[i].split('.');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Version Info Retrieved');
+        let currentVersion = CaptainConstants.version.split('.');
+        let latestVersion = CaptainConstants.version.split('.');
+        let canUpdate = false;
+        for (let i = 0; i < tagList.length; i++) {
+            let tag = tagList[i].split('.');
             if (tag.length !== 3) {
                 continue;
             }
@@ -252,13 +252,13 @@ router.get('/versionInfo/', function (req, res, next) {
     });
 });
 router.post('/versionInfo/', function (req, res, next) {
-    var latestVersion = req.body.latestVersion;
+    let latestVersion = req.body.latestVersion;
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get().updateCaptain(latestVersion);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Captain update process has started...');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Captain update process has started...');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -271,14 +271,14 @@ router.post('/versionInfo/', function (req, res, next) {
     });
 });
 router.get('/netdata/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
+    const dataStore = res.locals.user.dataStore;
     return Promise.resolve()
         .then(function () {
         return dataStore.getNetDataInfo();
     })
         .then(function (data) {
         data.netDataUrl = CaptainConstants.captainSubDomain + '.' + dataStore.getRootDomain() + CaptainConstants.netDataRelativePath;
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -292,7 +292,7 @@ router.get('/netdata/', function (req, res, next) {
     });
 });
 router.post('/netdata/', function (req, res, next) {
-    var netDataInfo = req.body.netDataInfo;
+    let netDataInfo = req.body.netDataInfo;
     netDataInfo.netDataUrl = undefined; // Frontend app returns this value, but we really don't wanna save this.
     // root address is subject to change.
     return Promise.resolve()
@@ -300,7 +300,7 @@ router.post('/netdata/', function (req, res, next) {
         return CaptainManager.get().updateNetDataInfo(netDataInfo);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info is updated');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info is updated');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -318,7 +318,7 @@ router.get('/nginxconfig/', function (req, res, next) {
         return CaptainManager.get().getNginxConfig();
     })
         .then(function (data) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -332,14 +332,14 @@ router.get('/nginxconfig/', function (req, res, next) {
     });
 });
 router.post('/nginxconfig/', function (req, res, next) {
-    var baseConfigCustomValue = req.body.baseConfig.customValue;
-    var captainConfigCustomValue = req.body.captainConfig.customValue;
+    let baseConfigCustomValue = req.body.baseConfig.customValue;
+    let captainConfigCustomValue = req.body.captainConfig.customValue;
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get().setNginxConfig(baseConfigCustomValue, captainConfigCustomValue);
     })
         .then(function () {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config is updated');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config is updated');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -357,7 +357,7 @@ router.get('/nodes/', function (req, res, next) {
         return CaptainManager.get().getNodesInfo();
     })
         .then(function (data) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Node info retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Node info retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -371,9 +371,9 @@ router.get('/nodes/', function (req, res, next) {
     });
 });
 router.post('/nodes/', function (req, res, next) {
-    var MANAGER = 'manager';
-    var WORKER = 'worker';
-    var isManager = null;
+    const MANAGER = 'manager';
+    const WORKER = 'worker';
+    let isManager = null;
     if (req.body.nodeType === MANAGER) {
         isManager = true;
     }
@@ -384,10 +384,10 @@ router.post('/nodes/', function (req, res, next) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Node type should be either manager or worker'));
         return;
     }
-    var privateKey = req.body.privateKey;
-    var remoteNodeIpAddress = req.body.remoteNodeIpAddress;
-    var remoteUserName = req.body.remoteUserName;
-    var captainIpAddress = req.body.captainIpAddress;
+    let privateKey = req.body.privateKey;
+    let remoteNodeIpAddress = req.body.remoteNodeIpAddress;
+    let remoteUserName = req.body.remoteUserName;
+    let captainIpAddress = req.body.captainIpAddress;
     if (!captainIpAddress || !remoteNodeIpAddress || !remoteUserName || !privateKey) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Private Key, Captain IP address, remote IP address and remote username should all be present'));
         return;
@@ -402,7 +402,7 @@ router.post('/nodes/', function (req, res, next) {
         return CaptainManager.get().joinDockerNode(captainIpAddress, isManager, remoteNodeIpAddress, remoteUserName, privateKey);
     })
         .then(function () {
-        var msg = 'Docker node is successfully joined.';
+        let msg = 'Docker node is successfully joined.';
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -416,3 +416,4 @@ router.post('/nodes/', function (req, res, next) {
     });
 });
 module.exports = router;
+//# sourceMappingURL=SystemRouter.js.map

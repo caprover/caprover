@@ -1,4 +1,6 @@
-const jwt = require('jsonwebtoken');
+import jwt = require('jsonwebtoken');
+import DataStore = require('../datastore/DataStoreImpl');
+
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const uuid = require('uuid/v4');
 const EnvVar = require('../utils/EnvVars');
@@ -16,14 +18,19 @@ const WEBHOOK_APP_PUSH_DATASTORE_SUFFIX = "-webhook-app-datastore";
 
 class Authenticator {
 
-    constructor(secret, namespace, dataStore) {
+    private encryptionKey: string;
+    private namespace: string;
+    private tokenVersion: string;
+    private dataStore: DataStore;
+
+    constructor(secret: string, namespace: string, dataStore: DataStore) {
         this.encryptionKey = secret + namespace; //making encryption key unique per namespace!
         this.namespace = namespace;
         this.dataStore = dataStore;
         this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid();
     }
 
-    changepass(oldPass, newPass) {
+    changepass(oldPass: string, newPass: string) {
 
         const self = this;
 
@@ -54,7 +61,7 @@ class Authenticator {
             });
     }
 
-    isPasswordCorrect(password) {
+    isPasswordCorrect(password: string) {
 
         const self = this;
 
@@ -72,11 +79,11 @@ class Authenticator {
             })
     }
 
-    getAuthTokenForCookies(password) {
+    getAuthTokenForCookies(password: string) {
         return this.getAuthToken(password, COOKIE_AUTH_SUFFIX);
     }
 
-    getAuthToken(password, keySuffix) {
+    getAuthToken(password: string, keySuffix: string) {
 
         const self = this;
 
@@ -101,16 +108,16 @@ class Authenticator {
             });
     }
 
-    decodeAuthTokenFromCookies(token) {
+    decodeAuthTokenFromCookies(token: string) {
         return this.decodeAuthToken(token, COOKIE_AUTH_SUFFIX);
     }
 
-    decodeAuthToken(token, keySuffix) {
+    decodeAuthToken(token: string, keySuffix: string) {
         const self = this;
 
         return new Promise(function (resolve, reject) {
 
-            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded) {
+            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded: any) {
                 if (err) {
                     Logger.d(err);
                     reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token corrupted'));
@@ -137,19 +144,19 @@ class Authenticator {
         });
     }
 
-    getAppPushWebhookDatastore(dataToSave) {
+    getAppPushWebhookDatastore(dataToSave: any) {
         const self = this;
 
         return self.getGenericToken(dataToSave, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX)
     }
 
-    decodeAppPushWebhookDatastore(token) {
+    decodeAppPushWebhookDatastore(token: string) {
         const self = this;
 
         return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX)
     }
 
-    getAppPushWebhookToken(appName, tokenVersion) {
+    getAppPushWebhookToken(appName: string, tokenVersion: string) {
         const self = this;
 
         if (!appName) {
@@ -162,13 +169,13 @@ class Authenticator {
         }, WEBHOOK_APP_PUSH_SUFFIX)
     }
 
-    decodeAppPushWebhookToken(token) {
+    decodeAppPushWebhookToken(token: string) {
         const self = this;
 
         return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_SUFFIX)
     }
 
-    getGenericToken(obj, keySuffix) {
+    getGenericToken(obj: any, keySuffix: string) {
 
         const self = this;
         obj.namespace = self.namespace;
@@ -181,12 +188,12 @@ class Authenticator {
             })
     }
 
-    decodeGenericToken(token, keySuffix) {
+    decodeGenericToken(token: string, keySuffix: string) {
         const self = this;
 
         return new Promise(function (resolve, reject) {
 
-            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded) {
+            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded: any) {
                 if (err) {
                     Logger.d(err);
                     reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Token corrupted'));
@@ -209,10 +216,14 @@ class Authenticator {
 
 }
 
-const authenticatorCache = {};
+interface IHash {
+    [details: string]: Authenticator;
+}
 
-module.exports = {
-    get: function (namespace) {
+const authenticatorCache: IHash = {};
+
+exports = {
+    get: function (namespace: string) {
 
         if (!namespace) {
             return null;

@@ -1,20 +1,20 @@
-var CaptainConstants = require('../utils/CaptainConstants');
-var Logger = require('../utils/Logger');
-var fs = require('fs-extra');
-var tar = require('tar');
-var path = require('path');
-var CaptainManager = require('./CaptainManager');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var TemplateHelper = require('./TemplateHelper');
-var Authenticator = require('./Authenticator');
-var GitHelper = require('../utils/GitHelper');
-var uuid = require('uuid/v4');
-var requireFromString = require('require-from-string');
-var BUILD_LOG_SIZE = 50;
-var SOURCE_FOLDER_NAME = 'src';
-var DOCKER_FILE = 'Dockerfile';
-var CAPTAIN_DEFINITION_FILE = 'captain-definition';
-var PLACEHOLDER_DOCKER_FILE_CONTENT = 'FROM ' + CaptainConstants.appPlaceholderImageName
+const CaptainConstants = require('../utils/CaptainConstants');
+const Logger = require('../utils/Logger');
+const fs = require('fs-extra');
+const tar = require('tar');
+const path = require('path');
+const CaptainManager = require('./CaptainManager');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const TemplateHelper = require('./TemplateHelper');
+const Authenticator = require('./Authenticator');
+const GitHelper = require('../utils/GitHelper');
+const uuid = require('uuid/v4');
+const requireFromString = require('require-from-string');
+const BUILD_LOG_SIZE = 50;
+const SOURCE_FOLDER_NAME = 'src';
+const DOCKER_FILE = 'Dockerfile';
+const CAPTAIN_DEFINITION_FILE = 'captain-definition';
+const PLACEHOLDER_DOCKER_FILE_CONTENT = 'FROM ' + CaptainConstants.appPlaceholderImageName
     + '\nCMD [ "npm", "start" ]';
 function getRawImageSourceFolder(imageName, newVersionPulled) {
     return CaptainConstants.captainRawImagesDir + '/' + imageName + '/' + newVersionPulled + '/' + SOURCE_FOLDER_NAME;
@@ -28,44 +28,43 @@ function getTarImageBaseFolder(imageName, newVersionPulled) {
 function getCaptainDefinitionTempFolder(serviceName, randomSuffix) {
     return CaptainConstants.captainDefinitionTempDir + '/' + serviceName + '/' + randomSuffix;
 }
-var BuildLog = /** @class */ (function () {
-    function BuildLog(size) {
+class BuildLog {
+    constructor(size) {
         this.size = size;
         this.clear();
     }
-    BuildLog.prototype.onBuildFailed = function (error) {
+    onBuildFailed(error) {
         this.log('----------------------');
         this.log('Deploy failed!');
         this.log(error);
         this.isBuildFailed = true;
-    };
-    BuildLog.prototype.clear = function () {
+    }
+    clear() {
         this.isBuildFailed = false;
         this.firstLineNumber = -this.size;
         this.lines = [];
-        for (var i = 0; i < this.size; i++) {
+        for (let i = 0; i < this.size; i++) {
             this.lines.push('');
         }
-    };
-    BuildLog.prototype.log = function (msg) {
+    }
+    log(msg) {
         msg = (msg || '') + '';
         this.lines.shift();
         this.lines.push(msg);
         this.firstLineNumber++;
         Logger.dev(msg);
-    };
-    BuildLog.prototype.getLogs = function () {
-        var self = this;
+    }
+    getLogs() {
+        const self = this;
         // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
         return JSON.parse(JSON.stringify({
             lines: self.lines,
             firstLineNumber: self.firstLineNumber
         }));
-    };
-    return BuildLog;
-}());
-var ServiceManager = /** @class */ (function () {
-    function ServiceManager(user, dockerApi, loadBalancerManager) {
+    }
+}
+class ServiceManager {
+    constructor(user, dockerApi, loadBalancerManager) {
         this.user = user;
         this.dataStore = user.dataStore;
         this.dockerApi = dockerApi;
@@ -74,16 +73,16 @@ var ServiceManager = /** @class */ (function () {
         this.buildLogs = {};
         this.isReady = true;
     }
-    ServiceManager.prototype.isInited = function () {
+    isInited() {
         return this.isReady;
-    };
-    ServiceManager.prototype.createTarFarFromCaptainContent = function (captainDefinitionContent, appName, tarDestination) {
-        var serviceName = this.dataStore.getServiceName(appName);
-        var captainDefinitionDirPath;
+    }
+    createTarFarFromCaptainContent(captainDefinitionContent, appName, tarDestination) {
+        let serviceName = this.dataStore.getServiceName(appName);
+        let captainDefinitionDirPath;
         return Promise.resolve()
             .then(function () {
-            for (var i = 0; i < 100; i++) {
-                var temp = getCaptainDefinitionTempFolder(serviceName, uuid());
+            for (let i = 0; i < 100; i++) {
+                let temp = getCaptainDefinitionTempFolder(serviceName, uuid());
                 if (!fs.pathExistsSync(temp)) {
                     captainDefinitionDirPath = temp;
                     break;
@@ -103,7 +102,7 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return fs.remove(captainDefinitionDirPath);
         });
-    };
+    }
     /**
      *
      * @param appName
@@ -114,18 +113,18 @@ var ServiceManager = /** @class */ (function () {
      * @param gitHash
      * @returns {Promise<void>}
      */
-    ServiceManager.prototype.createImage = function (appName, source, gitHash) {
+    createImage(appName, source, gitHash) {
         Logger.d('Creating image for: ' + appName);
-        var self = this;
-        var imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName);
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
-        var newVersion = null;
-        var rawImageSourceFolder = null;
-        var rawImageBaseFolder = null;
-        var tarImageBaseFolder = null;
-        var tarballFilePath = null;
-        var dockerFilePath = null;
+        const self = this;
+        let imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName);
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let newVersion = null;
+        let rawImageSourceFolder = null;
+        let rawImageBaseFolder = null;
+        let tarImageBaseFolder = null;
+        let tarballFilePath = null;
+        let dockerFilePath = null;
         this.activeBuilds[appName] = true;
         this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
         this.buildLogs[appName].clear();
@@ -148,7 +147,7 @@ var ServiceManager = /** @class */ (function () {
             });
         })
             .then(function (rawImageSourceFolder) {
-            var promiseToFetchDirectory = null;
+            let promiseToFetchDirectory = null;
             if (source.pathToSrcTarballFile) {
                 promiseToFetchDirectory = tar
                     .x({
@@ -160,7 +159,7 @@ var ServiceManager = /** @class */ (function () {
                 });
             }
             else if (source.repoInfo) {
-                var repoInfo = source.repoInfo;
+                let repoInfo = source.repoInfo;
                 promiseToFetchDirectory = GitHelper
                     .clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, rawImageSourceFolder)
                     .then(function () {
@@ -186,7 +185,7 @@ var ServiceManager = /** @class */ (function () {
                     // rename rawImageSourceFolder to rawImageSourceFolder+'.bak'
                     // move the child directory out to base and rename it to rawImageSourceFolder
                     // read captain definition from the folder and return it.
-                    var directoryInside_1 = null;
+                    let directoryInside = null;
                     return new Promise(function (resolve, reject) {
                         fs.readdir(rawImageSourceFolder, function (err, files) {
                             if (err) {
@@ -201,16 +200,16 @@ var ServiceManager = /** @class */ (function () {
                         });
                     })
                         .then(function (directory) {
-                        directoryInside_1 = directory;
-                        return fs.pathExists(path.join(path.join(rawImageSourceFolder, directoryInside_1), CAPTAIN_DEFINITION_FILE));
+                        directoryInside = directory;
+                        return fs.pathExists(path.join(path.join(rawImageSourceFolder, directoryInside), CAPTAIN_DEFINITION_FILE));
                     })
                         .then(function (captainDefinitionExists) {
                         if (!captainDefinitionExists) {
                             throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!");
                         }
-                        var BAK = '.bak';
+                        const BAK = '.bak';
                         fs.renameSync(rawImageSourceFolder, rawImageSourceFolder + BAK);
-                        fs.renameSync(path.join(rawImageSourceFolder + BAK, directoryInside_1), rawImageSourceFolder);
+                        fs.renameSync(path.join(rawImageSourceFolder + BAK, directoryInside), rawImageSourceFolder);
                     });
                 }
             })
@@ -225,9 +224,9 @@ var ServiceManager = /** @class */ (function () {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition version is empty!");
                 }
                 if (data.schemaVersion === 1) {
-                    var templateIdTag = data.templateId;
-                    var dockerfileLines = data.dockerfileLines;
-                    var hasDockerfileLines = dockerfileLines && dockerfileLines.length > 0;
+                    let templateIdTag = data.templateId;
+                    let dockerfileLines = data.dockerfileLines;
+                    let hasDockerfileLines = dockerfileLines && dockerfileLines.length > 0;
                     if (hasDockerfileLines && !templateIdTag) {
                         return dockerfileLines.join('\n');
                     }
@@ -270,7 +269,7 @@ var ServiceManager = /** @class */ (function () {
             return fs.remove(rawImageBaseFolder);
         })
             .then(function () {
-            var authObj = CaptainManager.get().getDockerAuthObject();
+            let authObj = CaptainManager.get().getDockerAuthObject();
             if (!authObj) {
                 Logger.d('No Docker Auth is found. Skipping pushing the image.');
                 return true;
@@ -296,9 +295,9 @@ var ServiceManager = /** @class */ (function () {
                 reject(error);
             });
         });
-    };
-    ServiceManager.prototype.enableCustomDomainSsl = function (appName, customDomain) {
-        var self = this;
+    }
+    enableCustomDomainSsl(appName, customDomain) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             Logger.d('Verifying Captain owns domain: ' + customDomain);
@@ -320,13 +319,13 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.addCustomDomain = function (appName, customDomain) {
-        var self = this;
+    }
+    addCustomDomain(appName, customDomain) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
-            var rootDomain = self.dataStore.getRootDomain();
-            var dotRootDomain = "." + rootDomain;
+            let rootDomain = self.dataStore.getRootDomain();
+            let dotRootDomain = "." + rootDomain;
             if (!customDomain || !(/^[a-z0-9\-\.]+$/.test(customDomain))) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, 'Domain name is not accepted. Please use alphanumerical domains such as myapp.google123.ca');
             }
@@ -354,9 +353,9 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.removeCustomDomain = function (appName, customDomain) {
-        var self = this;
+    }
+    removeCustomDomain(appName, customDomain) {
+        const self = this;
         return Promise.resolve()
             .then(function () {
             if (!appName) {
@@ -368,11 +367,11 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.enableSslForApp = function (appName) {
-        var self = this;
-        var rootDomain = null;
-        var app = null;
+    }
+    enableSslForApp(appName) {
+        const self = this;
+        let rootDomain = null;
+        let app = null;
         return Promise.resolve()
             .then(function () {
             return self.verifyCaptainOwnsGenericSubDomain(appName);
@@ -406,10 +405,10 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.verifyCaptainOwnsGenericSubDomain = function (appName) {
-        var self = this;
-        var rootDomain = null;
+    }
+    verifyCaptainOwnsGenericSubDomain(appName) {
+        const self = this;
+        let rootDomain = null;
         return Promise.resolve()
             .then(function () {
             if (!appName) {
@@ -431,13 +430,13 @@ var ServiceManager = /** @class */ (function () {
             Logger.d('Verifying Captain owns domain: ' + domainName);
             return CaptainManager.get().verifyCaptainOwnsDomainOrThrow(domainName);
         });
-    };
-    ServiceManager.prototype.removeApp = function (appName) {
+    }
+    removeApp(appName) {
         Logger.d('Removing service for: ' + appName);
-        var self = this;
-        var serviceName = this.dataStore.getServiceName(appName);
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
+        const self = this;
+        let serviceName = this.dataStore.getServiceName(appName);
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
         return Promise.resolve()
             .then(function () {
             Logger.d('Check if service is running: ' + serviceName);
@@ -460,13 +459,13 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.getUnusedImages = function (mostRecentLimit) {
+    }
+    getUnusedImages(mostRecentLimit) {
         Logger.d('Getting unused images, excluding most recent ones: ' + mostRecentLimit);
-        var self = this;
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
-        var allImages = null;
+        const self = this;
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let allImages = null;
         return Promise.resolve()
             .then(function () {
             return dockerApi
@@ -477,25 +476,22 @@ var ServiceManager = /** @class */ (function () {
             return dataStore.getAppsDataStore().getAppDefinitions();
         })
             .then(function (apps) {
-            var unusedImages = [];
-            var _loop_1 = function (i) {
-                var img = allImages[i];
-                var imageInUse = false;
+            let unusedImages = [];
+            for (let i = 0; i < allImages.length; i++) {
+                const img = allImages[i];
+                let imageInUse = false;
                 if (img.RepoTags) {
-                    var _loop_2 = function (j) {
-                        var repoTag = img.RepoTags[j];
+                    for (let j = 0; j < img.RepoTags.length; j++) {
+                        const repoTag = img.RepoTags[j];
                         Object.keys(apps).forEach(function (key, index) {
-                            var app = apps[key];
+                            let app = apps[key];
                             app.appName = key;
-                            for (var k = 0; k < (mostRecentLimit + 1); k++) {
+                            for (let k = 0; k < (mostRecentLimit + 1); k++) {
                                 if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(app.appName, Number(app.deployedVersion) - k)) >= 0) {
                                     imageInUse = true;
                                 }
                             }
                         });
-                    };
-                    for (var j = 0; j < img.RepoTags.length; j++) {
-                        _loop_2(j);
                     }
                 }
                 if (!imageInUse) {
@@ -504,34 +500,31 @@ var ServiceManager = /** @class */ (function () {
                         description: (img.RepoTags && img.RepoTags.length) ? img.RepoTags[0] : 'untagged'
                     });
                 }
-            };
-            for (var i = 0; i < allImages.length; i++) {
-                _loop_1(i);
             }
             return unusedImages;
         });
-    };
-    ServiceManager.prototype.deleteImages = function (imageIds) {
+    }
+    deleteImages(imageIds) {
         Logger.d('Deleting images...');
-        var self = this;
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
-        var allImages = null;
+        const self = this;
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let allImages = null;
         return Promise.resolve()
             .then(function () {
             return dockerApi
                 .deleteImages(imageIds);
         });
-    };
-    ServiceManager.prototype.ensureServiceInitedAndUpdated = function (appName, version) {
+    }
+    ensureServiceInitedAndUpdated(appName, version) {
         Logger.d('Ensure service inited and Updated for: ' + appName);
-        var self = this;
-        var serviceName = this.dataStore.getServiceName(appName);
-        var dockerAuthObject = CaptainManager.get().getDockerAuthObject();
-        var imageName = this.dataStore.getImageName(dockerAuthObject, appName, version);
-        var dockerApi = this.dockerApi;
-        var dataStore = this.dataStore;
-        var app = null;
+        const self = this;
+        let serviceName = this.dataStore.getServiceName(appName);
+        const dockerAuthObject = CaptainManager.get().getDockerAuthObject();
+        let imageName = this.dataStore.getImageName(dockerAuthObject, appName, version);
+        let dockerApi = this.dockerApi;
+        let dataStore = this.dataStore;
+        let app = null;
         return dataStore.getAppsDataStore().setDeployedVersion(appName, version)
             .then(function () {
             return dataStore.getAppsDataStore().getAppDefinition(appName);
@@ -572,9 +565,9 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.createPreDeployFunctionIfExist = function (app) {
-        var preDeployFunction = app.preDeployFunction;
+    }
+    createPreDeployFunctionIfExist(app) {
+        let preDeployFunction = app.preDeployFunction;
         if (!preDeployFunction) {
             return null;
         }
@@ -594,17 +587,17 @@ var ServiceManager = /** @class */ (function () {
          */
         preDeployFunction = preDeployFunction + '\n\n module.exports = preDeployFunction';
         return requireFromString(preDeployFunction);
-    };
-    ServiceManager.prototype.updateAppDefinition = function (appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction) {
-        var self = this;
-        var dataStore = this.dataStore;
-        var dockerApi = this.dockerApi;
-        var serviceName = null;
-        var checkIfNodeIdExists = function (nodeIdToCheck) {
+    }
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction) {
+        const self = this;
+        const dataStore = this.dataStore;
+        const dockerApi = this.dockerApi;
+        let serviceName = null;
+        let checkIfNodeIdExists = function (nodeIdToCheck) {
             return dockerApi
                 .getNodesInfo()
                 .then(function (nodeInfo) {
-                for (var i = 0; i < nodeInfo.length; i++) {
+                for (let i = 0; i < nodeInfo.length; i++) {
                     if (nodeIdToCheck === nodeInfo[i].nodeId) {
                         return;
                     }
@@ -664,44 +657,44 @@ var ServiceManager = /** @class */ (function () {
             .then(function () {
             return self.reloadLoadBalancer();
         });
-    };
-    ServiceManager.prototype.isAppBuilding = function (appName) {
+    }
+    isAppBuilding(appName) {
         return !!this.activeBuilds[appName];
-    };
+    }
     /**
      *
      * @returns the active build that it finds
      */
-    ServiceManager.prototype.isAnyBuildRunning = function () {
-        var activeBuilds = this.activeBuilds;
-        for (var appName in activeBuilds) {
+    isAnyBuildRunning() {
+        let activeBuilds = this.activeBuilds;
+        for (let appName in activeBuilds) {
             if (!!activeBuilds[appName]) {
                 return appName;
             }
         }
         return null;
-    };
-    ServiceManager.prototype.getBuildStatus = function (appName) {
-        var self = this;
+    }
+    getBuildStatus(appName) {
+        const self = this;
         this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
         return {
             isAppBuilding: self.isAppBuilding(appName),
             logs: self.buildLogs[appName].getLogs(),
             isBuildFailed: self.buildLogs[appName].isBuildFailed
         };
-    };
-    ServiceManager.prototype.logBuildFailed = function (appName, error) {
+    }
+    logBuildFailed(appName, error) {
         error = (error || '') + '';
         this.buildLogs[appName] = this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE);
         this.buildLogs[appName].onBuildFailed(error);
-    };
-    ServiceManager.prototype.updateServiceOnDefinitionUpdate = function (appName) {
-        var self = this;
-        var serviceName = this.dataStore.getServiceName(appName);
-        var dockerAuthObject = CaptainManager.get().getDockerAuthObject();
-        var dataStore = this.dataStore;
-        var dockerApi = this.dockerApi;
-        var appFound = null;
+    }
+    updateServiceOnDefinitionUpdate(appName) {
+        const self = this;
+        let serviceName = this.dataStore.getServiceName(appName);
+        const dockerAuthObject = CaptainManager.get().getDockerAuthObject();
+        const dataStore = this.dataStore;
+        const dockerApi = this.dockerApi;
+        let appFound = null;
         return Promise.resolve()
             .then(function () {
             return dataStore.getAppsDataStore().getAppDefinition(appName);
@@ -720,16 +713,16 @@ var ServiceManager = /** @class */ (function () {
             return dockerApi
                 .updateService(serviceName, null, appFound.volumes, appFound.networks, appFound.envVars, null, dockerAuthObject, Number(appFound.instanceCount), appFound.nodeId, dataStore.getNameSpace(), appFound.ports, appFound, preDeployFunction);
         });
-    };
-    ServiceManager.prototype.reloadLoadBalancer = function () {
+    }
+    reloadLoadBalancer() {
         Logger.d('Updating Load Balancer');
-        var self = this;
+        const self = this;
         return self.loadBalancerManager.rePopulateNginxConfigFile(self.dataStore)
             .then(function () {
             Logger.d('sendReloadSignal...');
             return self.loadBalancerManager.sendReloadSignal();
         });
-    };
-    return ServiceManager;
-}());
+    }
+}
 module.exports = ServiceManager;
+//# sourceMappingURL=ServiceManager.js.map

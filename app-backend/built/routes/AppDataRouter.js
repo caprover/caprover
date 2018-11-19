@@ -1,21 +1,21 @@
-var express = require('express');
-var router = express.Router();
-var BaseApi = require('../api/BaseApi');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Logger = require('../utils/Logger');
-var multer = require('multer');
-var fs = require('fs-extra');
-var TEMP_UPLOAD = 'temp_upload/';
-var upload = multer({ dest: TEMP_UPLOAD });
+const express = require('express');
+const router = express.Router();
+const BaseApi = require('../api/BaseApi');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Logger = require('../utils/Logger');
+const multer = require('multer');
+const fs = require('fs-extra');
+const TEMP_UPLOAD = 'temp_upload/';
+const upload = multer({ dest: TEMP_UPLOAD });
 router.get('/:appName/', function (req, res, next) {
-    var appName = req.params.appName;
-    var serviceManager = res.locals.user.serviceManager;
+    let appName = req.params.appName;
+    let serviceManager = res.locals.user.serviceManager;
     return Promise.resolve()
         .then(function () {
         return serviceManager.getBuildStatus(appName);
     })
         .then(function (data) {
-        var baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App build status retrieved');
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App build status retrieved');
         baseApi.data = data;
         res.send(baseApi);
     })
@@ -29,8 +29,8 @@ router.get('/:appName/', function (req, res, next) {
     });
 });
 router.post('/:appName/', function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var appName = req.params.appName;
+    let dataStore = res.locals.user.dataStore;
+    let appName = req.params.appName;
     dataStore.getAppsDataStore().getAppDefinitions()
         .then(function (apps) {
         if (!apps[appName]) {
@@ -48,13 +48,13 @@ router.post('/:appName/', function (req, res, next) {
     });
 });
 router.post('/:appName/', upload.single('sourceFile'), function (req, res, next) {
-    var dataStore = res.locals.user.dataStore;
-    var serviceManager = res.locals.user.serviceManager;
-    var appName = req.params.appName;
-    var isDetachedBuild = !!req.query.detached;
-    var captainDefinitionContent = req.body.captainDefinitionContent;
-    var gitHash = req.body.gitHash || '';
-    var tarballSourceFilePath = (!!req.file) ? req.file.path : null;
+    const dataStore = res.locals.user.dataStore;
+    const serviceManager = res.locals.user.serviceManager;
+    const appName = req.params.appName;
+    const isDetachedBuild = !!req.query.detached;
+    const captainDefinitionContent = req.body.captainDefinitionContent;
+    const gitHash = req.body.gitHash || '';
+    let tarballSourceFilePath = (!!req.file) ? req.file.path : null;
     if ((!!tarballSourceFilePath && !!captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
         res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present."));
         return;
@@ -62,8 +62,8 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     Promise.resolve()
         .then(function () {
         if (captainDefinitionContent) {
-            for (var i = 0; i < 1000; i++) {
-                var tempPath = __dirname + '/../../' + TEMP_UPLOAD + appName + i;
+            for (let i = 0; i < 1000; i++) {
+                let tempPath = __dirname + '/../../' + TEMP_UPLOAD + appName + i;
                 if (!fs.pathExistsSync(tempPath)) {
                     tarballSourceFilePath = tempPath;
                     break;
@@ -133,3 +133,4 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     }
 });
 module.exports = router;
+//# sourceMappingURL=AppDataRouter.js.map

@@ -1,8 +1,8 @@
-var request = require('request');
-var fs = require('fs-extra');
-var ApiStatusCodes = require('../api/ApiStatusCodes');
-var Logger = require('../utils/Logger');
-var CaptainConstants = require('../utils/CaptainConstants');
+const request = require('request');
+const fs = require('fs-extra');
+const ApiStatusCodes = require('../api/ApiStatusCodes');
+const Logger = require('../utils/Logger');
+const CaptainConstants = require('../utils/CaptainConstants');
 function getTagsForImage(imageBaseName, url, allTags) {
     if (!url) {
         url = 'https://hub.docker.com/v2/repositories/' + imageBaseName + '/tags';
@@ -21,7 +21,7 @@ function getTagsForImage(imageBaseName, url, allTags) {
             catch (e) {
                 Logger.e(e);
             }
-            var results = null;
+            let results = null;
             if (body) {
                 results = body.results;
             }
@@ -33,7 +33,7 @@ function getTagsForImage(imageBaseName, url, allTags) {
             if (!allTags) {
                 allTags = [];
             }
-            for (var idx = 0; idx < results.length; idx++) {
+            for (let idx = 0; idx < results.length; idx++) {
                 allTags.push(results[idx].name);
             }
             if (body.next) {
@@ -48,20 +48,20 @@ function firstEndsWithSecond(str1, str2) {
     if (!str1 || !str2) {
         throw new Error('Str1 or Str2 are null ' + !str1 + ' ' + !str2);
     }
-    var idx = str1.indexOf(str2);
+    let idx = str1.indexOf(str2);
     return idx >= 0 && (idx + str2.length) === str1.length;
 }
 function isEmpty(obj) {
-    for (var key in obj) {
+    for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
             return false;
         }
     }
     return true;
 }
-var TemplateHelper = /** @class */ (function () {
-    function TemplateHelper() {
-        var templates = [
+class TemplateHelper {
+    constructor() {
+        const templates = [
             {
                 templateName: 'node',
                 dockerHubImageName: 'library/node',
@@ -91,8 +91,8 @@ var TemplateHelper = /** @class */ (function () {
                 tagSuffix: '-alpine3.7'
             }
         ];
-        var dockerfilesRoot = __dirname + '/../dockerfiles/';
-        for (var i = 0; i < templates.length; i++) {
+        const dockerfilesRoot = __dirname + '/../dockerfiles/';
+        for (let i = 0; i < templates.length; i++) {
             templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, 'utf8');
         }
         this.templates = templates;
@@ -101,34 +101,34 @@ var TemplateHelper = /** @class */ (function () {
             this.printAvailableImageTagsForReadme();
         }
     }
-    TemplateHelper.prototype.getDockerVersionsForTemplateName = function (templateName) {
-        var self = this;
-        var templateObj = self.getTemplateFromTemplateName(templateName);
+    getDockerVersionsForTemplateName(templateName) {
+        const self = this;
+        let templateObj = self.getTemplateFromTemplateName(templateName);
         if (isEmpty(this.cachedImageTags)) {
             throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Please wait about 30 seconds, then try again.');
         }
-        var tags = self.cachedImageTags[templateObj.dockerHubImageName];
-        var dockerVersions = [];
-        for (var i = 0; i < tags.length; i++) {
-            var t = tags[i];
+        let tags = self.cachedImageTags[templateObj.dockerHubImageName];
+        let dockerVersions = [];
+        for (let i = 0; i < tags.length; i++) {
+            let t = tags[i];
             if (firstEndsWithSecond(t, templateObj.tagSuffix)) {
                 dockerVersions.push(t.substring(0, t.length - templateObj.tagSuffix.length));
             }
         }
         return dockerVersions;
-    };
-    TemplateHelper.prototype.printAvailableImageTagsForReadme = function () {
-        var self = this;
+    }
+    printAvailableImageTagsForReadme() {
+        const self = this;
         self.cachedImageTags = {};
-        var tempCache = {};
-        var _loop_1 = function (i) {
-            var currentImageName = self.templates[i].dockerHubImageName;
+        let tempCache = {};
+        for (let i = 0; i < self.templates.length; i++) {
+            const currentImageName = self.templates[i].dockerHubImageName;
             getTagsForImage(currentImageName)
                 .then(function (tags) {
                 tempCache[currentImageName] = tags;
-                var isAllDone = true;
-                for (var j = 0; j < self.templates.length; j++) {
-                    var imageName = self.templates[j].dockerHubImageName;
+                let isAllDone = true;
+                for (let j = 0; j < self.templates.length; j++) {
+                    let imageName = self.templates[j].dockerHubImageName;
                     if (!tempCache[imageName]) {
                         isAllDone = false;
                     }
@@ -137,7 +137,7 @@ var TemplateHelper = /** @class */ (function () {
                     Logger.d('Template Cache Updated!');
                     self.cachedImageTags = tempCache;
                     // Used for README
-                    for (var tempIdx = 0; tempIdx < self.templates.length; tempIdx++) {
+                    for (let tempIdx = 0; tempIdx < self.templates.length; tempIdx++) {
                         Logger.d(' ');
                         Logger.d(self.templates[tempIdx].templateName + '/');
                         Logger.d(self.getDockerVersionsForTemplateName(self.templates[tempIdx].templateName).join(', '));
@@ -148,35 +148,32 @@ var TemplateHelper = /** @class */ (function () {
                 .catch(function (error) {
                 Logger.e(error);
             });
-        };
-        for (var i = 0; i < self.templates.length; i++) {
-            _loop_1(i);
         }
-    };
-    TemplateHelper.prototype.getTemplateFromTemplateName = function (templateName) {
-        for (var i = 0; i < this.templates.length; i++) {
+    }
+    getTemplateFromTemplateName(templateName) {
+        for (let i = 0; i < this.templates.length; i++) {
             if (this.templates[i].templateName === templateName) {
                 return this.templates[i];
             }
         }
         throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'TEMPLATE NAME NOT FOUND: ' + templateName);
-    };
-    TemplateHelper.prototype.getDockerfileContentFromTemplateTag = function (templateAndVersion) {
-        var self = this;
-        var templateName = templateAndVersion.split('/')[0];
-        var templateVersion = templateAndVersion.split('/')[1];
+    }
+    getDockerfileContentFromTemplateTag(templateAndVersion) {
+        const self = this;
+        let templateName = templateAndVersion.split('/')[0];
+        let templateVersion = templateAndVersion.split('/')[1];
         if (!templateVersion) {
             throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Template version field is empty!');
         }
-        var templateObj = self.getTemplateFromTemplateName(templateName);
-        var fromLine = templateObj.dockerHubImageName + ':' + templateVersion + templateObj.tagSuffix;
+        let templateObj = self.getTemplateFromTemplateName(templateName);
+        const fromLine = templateObj.dockerHubImageName + ':' + templateVersion + templateObj.tagSuffix;
         return 'FROM ' + fromLine + '\n' + templateObj.postFromLines;
-    };
-    return TemplateHelper;
-}());
-var templateHelperInstance = new TemplateHelper();
+    }
+}
+const templateHelperInstance = new TemplateHelper();
 module.exports = {
     get: function () {
         return templateHelperInstance;
     }
 };
+//# sourceMappingURL=TemplateHelper.js.map

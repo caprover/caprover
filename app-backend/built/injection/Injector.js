@@ -1,18 +1,18 @@
-var DataStoreProvider = require('../datastore/DataStoreProvider');
-var Authenticator = require('../user/Authenticator');
-var CaptainConstants = require('../utils/CaptainConstants');
-var CaptainManager = require('../user/CaptainManager');
-var ServiceManager = require('../user/ServiceManager');
-var dockerApi = require('../docker/DockerApi').get();
-var BaseApi = require('../api/BaseApi');
-var Logger = require('../utils/Logger');
-var serviceMangerCache = {};
+const DataStoreProvider = require('../datastore/DataStoreProvider');
+const Authenticator = require('../user/Authenticator');
+const CaptainConstants = require('../utils/CaptainConstants');
+const CaptainManager = require('../user/CaptainManager');
+const ServiceManager = require('../user/ServiceManager');
+const dockerApi = require('../docker/DockerApi').get();
+const BaseApi = require('../api/BaseApi');
+const Logger = require('../utils/Logger');
+const serviceMangerCache = {};
 /**
  * Global dependency injection module
  */
 module.exports.injectGlobal = function (req, res) {
     return function (req, res, next) {
-        var locals = res.locals;
+        const locals = res.locals;
         locals.initialized = CaptainManager.get().isInitialized();
         locals.namespace = req.header(CaptainConstants.header.namespace);
         locals.forceSsl = CaptainManager.get().getForceSslValue();
@@ -28,7 +28,7 @@ module.exports.injectUser = function () {
             next();
             return; // user is already injected by another layer
         }
-        var namespace = res.locals.namespace;
+        const namespace = res.locals.namespace;
         Authenticator.get(namespace)
             .decodeAuthToken(req.header(CaptainConstants.header.auth))
             .then(function (user) {
@@ -59,16 +59,16 @@ module.exports.injectUser = function () {
  */
 module.exports.injectUserForWebhook = function () {
     return function (req, res, next) {
-        var token = req.query.token;
-        var namespace = req.query.namespace;
-        var app = null;
+        let token = req.query.token;
+        let namespace = req.query.namespace;
+        let app = null;
         if (!token || !namespace) {
             Logger.e('Trigger build is called with no token/namespace');
             next();
             return;
         }
-        var dataStore = DataStoreProvider.getDataStore(namespace);
-        var decodedInfo = null;
+        let dataStore = DataStoreProvider.getDataStore(namespace);
+        let decodedInfo = null;
         Authenticator.get(namespace).decodeAppPushWebhookToken(token)
             .then(function (data) {
             decodedInfo = data;
@@ -80,7 +80,7 @@ module.exports.injectUserForWebhook = function () {
             if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
                 throw new Error('Token Info do not match');
             }
-            var user = {
+            let user = {
                 namespace: namespace
             };
             user.dataStore = DataStoreProvider.getDataStore(namespace);
@@ -124,3 +124,4 @@ module.exports.injectUserUsingCookieDataOnly = function () {
         });
     };
 };
+//# sourceMappingURL=Injector.js.map

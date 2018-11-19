@@ -13,3 +13,4 @@ module.exports =
         IS_CAPTAIN_INSTANCE: process.env.IS_CAPTAIN_INSTANCE,
         DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD
     };
+//# sourceMappingURL=EnvVars.js.map

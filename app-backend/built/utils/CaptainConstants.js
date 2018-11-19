@@ -1,10 +1,10 @@
-var fs = require('fs-extra');
-var EnvVars = require('./EnvVars');
-var CAPTAIN_ROOT_DIRECTORY = '/captain';
-var CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
-var CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp';
-var CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated';
-var data = {
+const fs = require('fs-extra');
+const EnvVars = require('./EnvVars');
+const CAPTAIN_ROOT_DIRECTORY = '/captain';
+const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
+const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp';
+const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated';
+let data = {
     apiVersion: 'v1',
     publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
     certbotImageName: 'dockersaturn/certbot-sleeping:v0.17.0',
@@ -65,9 +65,9 @@ var data = {
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
     perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d'
 };
-var overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, { throws: false });
+let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, { throws: false });
 if (!!overridingValues) {
-    for (var prop in overridingValues) {
+    for (let prop in overridingValues) {
         if (!overridingValues.hasOwnProperty(prop)) {
             continue;
         }
@@ -76,7 +76,7 @@ if (!!overridingValues) {
     }
 }
 if (data.isDebug) {
-    var devDirectoryOnLocalMachine = fs.readFileSync(__dirname + '/../../currentdirectory').toString().trim();
+    let devDirectoryOnLocalMachine = fs.readFileSync(__dirname + '/../../currentdirectory').toString().trim();
     if (!devDirectoryOnLocalMachine) {
         throw new Error('For development purposes, you need to assign your local directory here');
     }
@@ -85,3 +85,4 @@ if (data.isDebug) {
     data.nginxPortNumber = 80;
 }
 module.exports = data;
+//# sourceMappingURL=CaptainConstants.js.map
