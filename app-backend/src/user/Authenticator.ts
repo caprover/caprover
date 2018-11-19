@@ -3,12 +3,12 @@ import DataStore = require("../datastore/DataStoreImpl");
 import uuid = require("uuid/v4");
 import bcrypt = require("bcryptjs");
 
-const ApiStatusCodes = require("../api/ApiStatusCodes");
-const EnvVar = require("../utils/EnvVars");
-const CaptainManager = require("./CaptainManager");
-const CaptainConstants = require("../utils/CaptainConstants");
-const Logger = require("../utils/Logger");
-const DataStoreProvider = require("../datastore/DataStoreProvider");
+import ApiStatusCodes = require("../api/ApiStatusCodes");
+import EnvVar = require("../utils/EnvVars");
+import CaptainManager = require("./CaptainManager");
+import CaptainConstants = require("../utils/CaptainConstants");
+import Logger = require("../utils/Logger");
+import DataStoreProvider = require("../datastore/DataStoreProvider");
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || "captain42";
 

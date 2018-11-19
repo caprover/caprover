@@ -1012,10 +1012,11 @@ class CaptainManager {
             }, 2000);
         });
     }
+    static get(): CaptainManager {
+        return captainManagerInstance;
+    }
 }
 
 const captainManagerInstance = new CaptainManager();
 
-module.exports.get = function () {
-    return captainManagerInstance;
-};
+export = CaptainManager;

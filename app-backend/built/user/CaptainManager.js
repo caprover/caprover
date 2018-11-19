@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require("uuid/v4");
 const SshClientImport = require("ssh2");
 const request = require("request");
@@ -732,9 +731,10 @@ class CaptainManager {
             }, 2000);
         });
     }
+    static get() {
+        return captainManagerInstance;
+    }
 }
 const captainManagerInstance = new CaptainManager();
-module.exports.get = function () {
-    return captainManagerInstance;
-};
+module.exports = CaptainManager;
 //# sourceMappingURL=CaptainManager.js.map
