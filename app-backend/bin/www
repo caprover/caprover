@@ -3,9 +3,9 @@
 console.log('Captain Starting ...');
 
 // Check if Captain is running as an installer or not.
-const EnvVars = require('../src/utils/EnvVars');
-const CaptainConstants = require('../src/utils/CaptainConstants');
-const CaptainInstaller = require('../src/utils/CaptainInstaller');
+const EnvVars = require('../built/utils/EnvVars');
+const CaptainConstants = require('../built/utils/CaptainConstants');
+const CaptainInstaller = require('../built/utils/CaptainInstaller');
 
 if (CaptainConstants.isDebug) {
     console.log('***DEBUG BUILD***');
@@ -21,7 +21,7 @@ if (!EnvVars.IS_CAPTAIN_INSTANCE) {
  * Module dependencies.
  */
 
-var app = require('../src/app');
+var app = require('../built/app');
 var debug = require('debug')('captain-duckduck:server');
 var http = require('http');
 
