@@ -90,7 +90,7 @@ class TemplateHelper {
                 tagSuffix: '-alpine3.7'
             }
         ];
-        const dockerfilesRoot = __dirname + '/../dockerfiles/';
+        const dockerfilesRoot = __dirname + '/../../dockerfiles/';
         for (let i = 0; i < templates.length; i++) {
             templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, 'utf8');
         }

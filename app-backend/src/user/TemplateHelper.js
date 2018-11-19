@@ -110,7 +110,7 @@ class TemplateHelper {
             }
         ];
 
-        const dockerfilesRoot = __dirname + '/../dockerfiles/';
+        const dockerfilesRoot = __dirname + '/../../dockerfiles/';
 
         for (let i = 0; i < templates.length; i++) {
             templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, 'utf8');

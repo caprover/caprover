@@ -6,7 +6,7 @@ const uuid = require('uuid/v4');
 const request = require('request');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 
-const defaultPageTemplate = fs.readFileSync(__dirname + '/../template/default-page.ejs').toString();
+const defaultPageTemplate = fs.readFileSync(__dirname + '/../../template/default-page.ejs').toString();
 
 class LoadBalancerManager {
 

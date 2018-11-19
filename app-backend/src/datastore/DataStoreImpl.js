@@ -27,9 +27,9 @@ const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
 const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
 
-const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + '/../template/base-nginx-conf.ejs').toString();
-const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + '/../template/root-nginx-conf.ejs').toString();
-const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + '/../template/server-block-conf.ejs').toString();
+const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + '/../../template/base-nginx-conf.ejs').toString();
+const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + '/../../template/root-nginx-conf.ejs').toString();
+const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + '/../../template/server-block-conf.ejs').toString();
 
 class DataStore {
 
