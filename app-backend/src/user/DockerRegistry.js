@@ -64,9 +64,9 @@ class DockerRegistry {
 
         const self = this;
 
-        return CaptainConstants.registrySubDomain + '.'
-            + self.dataStore.getRootDomain()
-            + ':' + CaptainConstants.registrySubDomainPort;
+        return CaptainConstants.registrySubDomain + '.' +
+            self.dataStore.getRootDomain() +
+            ':' + CaptainConstants.registrySubDomainPort;
     }
 
     ensureDockerRegistryRunningOnThisNode() {
@@ -84,8 +84,7 @@ class DockerRegistry {
                 protocol: 'tcp',
                 containerPort: 5000,
                 hostPort: CaptainConstants.registrySubDomainPort
-            }], myNodeId, [
-                {
+            }], myNodeId, [{
                     containerPath: '/cert-files',
                     hostPath: CaptainConstants.letsEncryptEtcPath
                 },

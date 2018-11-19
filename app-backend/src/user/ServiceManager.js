@@ -15,8 +15,8 @@ const BUILD_LOG_SIZE = 50;
 const SOURCE_FOLDER_NAME = 'src';
 const DOCKER_FILE = 'Dockerfile';
 const CAPTAIN_DEFINITION_FILE = 'captain-definition';
-const PLACEHOLDER_DOCKER_FILE_CONTENT = 'FROM ' + CaptainConstants.appPlaceholderImageName
-    + '\nCMD [ "npm", "start" ]';
+const PLACEHOLDER_DOCKER_FILE_CONTENT = 'FROM ' + CaptainConstants.appPlaceholderImageName +
+    '\nCMD [ "npm", "start" ]';
 
 function getRawImageSourceFolder(imageName, newVersionPulled) {
     return CaptainConstants.captainRawImagesDir + '/' + imageName + '/' + newVersionPulled + '/' + SOURCE_FOLDER_NAME;
@@ -241,24 +241,24 @@ class ServiceManager {
                             let directoryInside = null;
 
                             return new Promise(
-                                function (resolve, reject) {
+                                    function (resolve, reject) {
 
-                                    fs.readdir(rawImageSourceFolder, function (err, files) {
+                                        fs.readdir(rawImageSourceFolder, function (err, files) {
 
-                                        if (err) {
-                                            reject(err);
-                                            return;
-                                        }
+                                            if (err) {
+                                                reject(err);
+                                                return;
+                                            }
 
-                                        if (files.length !== 1 || !fs.statSync(path.join(rawImageSourceFolder, files[0])).isDirectory()) {
-                                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!"));
-                                            return;
-                                        }
+                                            if (files.length !== 1 || !fs.statSync(path.join(rawImageSourceFolder, files[0])).isDirectory()) {
+                                                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Captain Definition file does not exist!"));
+                                                return;
+                                            }
 
-                                        resolve(files[0]);
+                                            resolve(files[0]);
 
-                                    });
-                                })
+                                        });
+                                    })
                                 .then(function (directory) {
 
                                     directoryInside = directory;
@@ -461,8 +461,8 @@ class ServiceManager {
                         'Domain name is not accepted. You cannot have two consecutive periods ".." inside a domain name. Please use alphanumerical domains such as myapp.google123.ca');
                 }
 
-                if (customDomain.indexOf(dotRootDomain) >= 0
-                    && (customDomain.indexOf(dotRootDomain) + dotRootDomain.length) === customDomain.length) {
+                if (customDomain.indexOf(dotRootDomain) >= 0 &&
+                    (customDomain.indexOf(dotRootDomain) + dotRootDomain.length) === customDomain.length) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME,
                         'Domain name is not accepted. Custom domain cannot be subdomain of root domain.');
                 }

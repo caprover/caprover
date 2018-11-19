@@ -85,20 +85,26 @@ function startServerOnPort_80_443_3000() {
         .then(function () {
 
             http.createServer(function (req, res) {
-                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.writeHead(200, {
+                    'Content-Type': 'text/plain'
+                });
                 res.write(FIREWALL_PASSED);
                 res.end();
             }).listen(80);
 
             http.createServer(function (req, res) {
-                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.writeHead(200, {
+                    'Content-Type': 'text/plain'
+                });
                 res.write(FIREWALL_PASSED);
                 res.end();
             }).listen(443);
 
 
             http.createServer(function (req, res) {
-                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.writeHead(200, {
+                    'Content-Type': 'text/plain'
+                });
                 res.write(FIREWALL_PASSED);
                 res.end();
             }).listen(3000);
@@ -248,12 +254,10 @@ module.exports.install = function () {
         })
         .then(function (nodeId) {
 
-            let volumeToMount = [
-                {
-                    hostPath: CaptainConstants.captainRootDirectory,
-                    containerPath: CaptainConstants.captainRootDirectory
-                }
-            ];
+            let volumeToMount = [{
+                hostPath: CaptainConstants.captainRootDirectory,
+                containerPath: CaptainConstants.captainRootDirectory
+            }];
 
             let env = [];
             env.push({
@@ -327,5 +331,3 @@ module.exports.install = function () {
             process.exit();
         });
 };
-
-

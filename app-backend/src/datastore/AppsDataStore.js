@@ -233,7 +233,7 @@ class AppsDataStore {
     }
 
     updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports,
-                            appPushWebhook, authenticator, customNginxConfig, preDeployFunction) {
+        appPushWebhook, authenticator, customNginxConfig, preDeployFunction) {
         const self = this;
 
         let app;
@@ -251,8 +251,8 @@ class AppsDataStore {
             })
             .then(function () {
 
-                if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch
-                    && appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
+                if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch &&
+                    appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
                     return authenticator
                         .getAppPushWebhookDatastore({
                             repo: appPushWebhook.repoInfo.repo,

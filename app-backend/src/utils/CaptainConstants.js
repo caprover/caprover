@@ -123,7 +123,9 @@ let data = {
 
 };
 
-let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {throws: false});
+let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
+    throws: false
+});
 
 if (!!overridingValues) {
 

@@ -119,10 +119,10 @@ router.get('/', function (req, res, next) {
                 if (repoInfoEncrypted) {
                     promises.push(
                         Authenticator.get(dataStore.getNameSpace())
-                            .decodeAppPushWebhookDatastore(repoInfoEncrypted)
-                            .then(function (decryptedData) {
-                                app.appPushWebhook.repoInfo = decryptedData;
-                            }));
+                        .decodeAppPushWebhookDatastore(repoInfoEncrypted)
+                        .then(function (decryptedData) {
+                            app.appPushWebhook.repoInfo = decryptedData;
+                        }));
                 } else {
                     app.appPushWebhook.repoInfo = {};
                 }
@@ -325,7 +325,7 @@ router.post('/register/', function (req, res, next) {
         })
         .then(function () {
 
-            return serviceManager.createImage(appName, {/*use default dockerfile*/});
+            return serviceManager.createImage(appName, { /*use default dockerfile*/ });
 
         })
         .then(function (version) {

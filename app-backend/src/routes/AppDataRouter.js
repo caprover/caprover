@@ -6,7 +6,9 @@ const Logger = require('../utils/Logger');
 const multer = require('multer');
 const fs = require('fs-extra');
 const TEMP_UPLOAD = 'temp_upload/';
-const upload = multer({dest: TEMP_UPLOAD});
+const upload = multer({
+    dest: TEMP_UPLOAD
+});
 
 
 router.get('/:appName/', function (req, res, next) {
@@ -138,8 +140,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
 
             try {
                 fs.removeSync(tarballSourceFilePath);
-            } catch (ignore) {
-            }
+            } catch (ignore) {}
         });
 
 

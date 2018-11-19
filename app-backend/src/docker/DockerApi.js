@@ -73,13 +73,13 @@ class DockerApi {
                 if (!nodeID) {
                     if (retryCount < 3) {
                         return new Promise(
-                            function (resolve) {
+                                function (resolve) {
 
-                                setTimeout(function () {
-                                    resolve()
-                                }, 3000);
+                                    setTimeout(function () {
+                                        resolve()
+                                    }, 3000);
 
-                            })
+                                })
                             .then(function () {
 
                                 Logger.d('Retrying to get NodeID for ' + serviceName + ' retry count:' + retryCount);
@@ -357,8 +357,7 @@ class DockerApi {
 
                 return Promise.race([
                     self.dockerode.getContainer(nameOrId)
-                        .wait()
-                    ,
+                    .wait(),
                     new Promise(function (resolve, reject) {
                         setTimeout(function () {
                             resolve();
@@ -379,7 +378,9 @@ class DockerApi {
                 Logger.d('Removing ' + nameOrId);
 
                 return self.dockerode.getContainer(nameOrId)
-                    .remove({force: true});
+                    .remove({
+                        force: true
+                    });
 
             })
             .then(function () {
@@ -729,13 +730,13 @@ class DockerApi {
 
                     if (retryCount < 3) {
                         return new Promise(
-                            function (resolve) {
+                                function (resolve) {
 
-                                setTimeout(function () {
-                                    resolve()
-                                }, 3000);
+                                    setTimeout(function () {
+                                        resolve()
+                                    }, 3000);
 
-                            })
+                                })
                             .then(function () {
 
                                 Logger.d('Retrying to get containerId for ' + serviceName + ' retry count:' + retryCount);
@@ -1076,7 +1077,7 @@ class DockerApi {
      * @returns {Promise.<>}
      */
     updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount,
-                  nodeId, namespace, ports, appObject, preDeployFunction) {
+        nodeId, namespace, ports, appObject, preDeployFunction) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -1390,15 +1391,16 @@ class DockerApi {
 }
 
 const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || '').split('\:');
-const connectionParams = dockerApiAddressSplited.length < 2 ?
-    {socketPath: CaptainConstants.dockerSocketPath}
-    :
-    dockerApiAddressSplited.length === 2 ?
-        {host: dockerApiAddressSplited[0], port: Number(dockerApiAddressSplited[1])} :
-        {
-            host: (dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1]),
-            port: Number(dockerApiAddressSplited[2])
-        };
+const connectionParams = dockerApiAddressSplited.length < 2 ? {
+        socketPath: CaptainConstants.dockerSocketPath
+    } :
+    dockerApiAddressSplited.length === 2 ? {
+        host: dockerApiAddressSplited[0],
+        port: Number(dockerApiAddressSplited[1])
+    } : {
+        host: (dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1]),
+        port: Number(dockerApiAddressSplited[2])
+    };
 
 connectionParams.version = 'v1.30';
 
