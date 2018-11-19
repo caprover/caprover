@@ -230,7 +230,11 @@ class DataStore {
                 }
             }
             registries.push({
-                id, registryUser, registryPasswordEncrypted, registryDomain, registryImagePrefix
+                id,
+                registryUser,
+                registryPasswordEncrypted,
+                registryDomain,
+                registryImagePrefix
             });
             self.data.set(DOCKER_REGISTRIES, registries);
         });

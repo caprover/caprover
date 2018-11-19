@@ -65,7 +65,9 @@ let data = {
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
     perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d'
 };
-let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, { throws: false });
+let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
+    throws: false
+});
 if (!!overridingValues) {
     for (let prop in overridingValues) {
         if (!overridingValues.hasOwnProperty(prop)) {

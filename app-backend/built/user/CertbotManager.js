@@ -35,15 +35,16 @@ class CertbotManager {
         self.domainValidOrThrow(domainName);
         return Promise.resolve()
             .then(function () {
-            const webrootInCaptainContainer = CaptainConstants.captainStaticFilesDir
-                + CaptainConstants.nginxDomainSpecificHtmlDir
-                + '/' + domainName;
+            const webrootInCaptainContainer = CaptainConstants.captainStaticFilesDir +
+                CaptainConstants.nginxDomainSpecificHtmlDir +
+                '/' + domainName;
             return fs.ensureDir(webrootInCaptainContainer);
         })
             .then(function () {
             const cmd = ['certbot', 'certonly', '--webroot',
                 '-w', CAPTAIN_WEBROOT_PATH_CERTBOT + '/' + domainName,
-                '-d', domainName, '--non-interactive'];
+                '-d', domainName, '--non-interactive'
+            ];
             if (shouldUseStaging) {
                 cmd.push('--staging');
             }
@@ -66,9 +67,9 @@ class CertbotManager {
         let self = this;
         return Promise.resolve()
             .then(function () {
-            const rootPathDir = CaptainConstants.letsEncryptEtcPath + '/accounts/acme-'
-                + (shouldUseStaging ? 'staging' : 'v01')
-                + '.api.letsencrypt.org/directory';
+            const rootPathDir = CaptainConstants.letsEncryptEtcPath + '/accounts/acme-' +
+                (shouldUseStaging ? 'staging' : 'v01') +
+                '.api.letsencrypt.org/directory';
             if (!fs.existsSync(rootPathDir)) {
                 Logger.d('Fresh install of Certbot. There is no registration directory');
                 return null;
@@ -91,7 +92,8 @@ class CertbotManager {
             if (!regrContent) {
                 const cmd = ['certbot', 'register',
                     '--email', emailAddress,
-                    '--agree-tos', '--no-eff-email', '--non-interactive'];
+                    '--agree-tos', '--no-eff-email', '--non-interactive'
+                ];
                 if (shouldUseStaging) {
                     cmd.push('--staging');
                 }
@@ -238,8 +240,7 @@ class CertbotManager {
         })
             .then(function () {
             Logger.d('Updating Certbot service...');
-            return dockerApi.updateService(CaptainConstants.certbotServiceName, null, [
-                {
+            return dockerApi.updateService(CaptainConstants.certbotServiceName, null, [{
                     hostPath: CaptainConstants.letsEncryptEtcPath,
                     containerPath: '/etc/letsencrypt'
                 },

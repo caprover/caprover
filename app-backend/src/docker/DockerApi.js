@@ -16,10 +16,15 @@ function safeParseChunk(chunk) {
     }
 }
 
+
 class DockerApi {
 
     constructor(connectionParams) {
         this.dockerode = new Docker(connectionParams);
+    }
+
+    static get(){
+        return dockerApiInstance;
     }
 
     initSwarm(ip, port) {
@@ -1406,6 +1411,4 @@ connectionParams.version = 'v1.30';
 
 const dockerApiInstance = new DockerApi(connectionParams);
 
-module.exports.get = function () {
-    return dockerApiInstance;
-};
+module.exports = DockerApi;

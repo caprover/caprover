@@ -66,12 +66,14 @@ class LoadBalancerManager {
                     s.crtPath = self.getSslCertPath(s.publicDomain);
                     s.keyPath = self.getSslKeyPath(s.publicDomain);
                 }
-                s.staticWebRoot = CaptainConstants.nginxStaticRootDir
-                    + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
-                    + s.publicDomain;
+                s.staticWebRoot = CaptainConstants.nginxStaticRootDir +
+                    CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
+                    s.publicDomain;
                 promises.push(Promise.resolve()
                     .then(function () {
-                    return ejs.render(s.nginxConfigTemplate, { s: s });
+                    return ejs.render(s.nginxConfigTemplate, {
+                        s: s
+                    });
                 })
                     .then(function (rendered) {
                     nginxConfigContent += rendered;
@@ -184,18 +186,18 @@ class LoadBalancerManager {
                     domain: captainDomain,
                     serviceExposedPort: CaptainConstants.captainServiceExposedPort,
                     defaultHtmlDir: CaptainConstants.nginxStaticRootDir + CaptainConstants.nginxDefaultHtmlDir,
-                    staticWebRoot: CaptainConstants.nginxStaticRootDir
-                        + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
-                        + captainDomain
+                    staticWebRoot: CaptainConstants.nginxStaticRootDir +
+                        CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
+                        captainDomain
                 },
                 registry: {
                     crtPath: self.getSslCertPath(registryDomain),
                     keyPath: self.getSslKeyPath(registryDomain),
                     hasRootSsl: hasRegistrySsl,
                     domain: registryDomain,
-                    staticWebRoot: CaptainConstants.nginxStaticRootDir
-                        + CaptainConstants.nginxDomainSpecificHtmlDir + '/'
-                        + registryDomain
+                    staticWebRoot: CaptainConstants.nginxStaticRootDir +
+                        CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
+                        registryDomain
                 }
             });
         })
@@ -260,24 +262,28 @@ class LoadBalancerManager {
             });
         }
         return fs
-            .outputFile(CaptainConstants.captainStaticFilesDir
-            + CaptainConstants.nginxDefaultHtmlDir
-            + CaptainConstants.captainConfirmationPath, self.getCaptainPublicRandomKey())
+            .outputFile(CaptainConstants.captainStaticFilesDir +
+            CaptainConstants.nginxDefaultHtmlDir +
+            CaptainConstants.captainConfirmationPath, self.getCaptainPublicRandomKey())
             .then(function () {
-            return ejs.render(defaultPageTemplate, { message: 'Nothing here yet :/' });
+            return ejs.render(defaultPageTemplate, {
+                message: 'Nothing here yet :/'
+            });
         })
             .then(function (staticPageContent) {
             return fs.outputFile(CaptainConstants.captainStaticFilesDir +
-                CaptainConstants.nginxDefaultHtmlDir
-                + '/index.html', staticPageContent);
+                CaptainConstants.nginxDefaultHtmlDir +
+                '/index.html', staticPageContent);
         })
             .then(function () {
-            return ejs.render(defaultPageTemplate, { message: 'An Error Occurred :/' });
+            return ejs.render(defaultPageTemplate, {
+                message: 'An Error Occurred :/'
+            });
         })
             .then(function (errorPageContent) {
             return fs.outputFile(CaptainConstants.captainStaticFilesDir +
-                CaptainConstants.nginxDefaultHtmlDir
-                + '/error.html', errorPageContent);
+                CaptainConstants.nginxDefaultHtmlDir +
+                '/error.html', errorPageContent);
         })
             .then(function () {
             Logger.d('Setting up NGINX conf file...');
@@ -327,8 +333,7 @@ class LoadBalancerManager {
         })
             .then(function () {
             Logger.d('Updating NGINX service...');
-            return dockerApi.updateService(CaptainConstants.nginxServiceName, null, [
-                {
+            return dockerApi.updateService(CaptainConstants.nginxServiceName, null, [{
                     containerPath: CaptainConstants.nginxStaticRootDir,
                     hostPath: CaptainConstants.captainStaticFilesDir
                 },

@@ -7,7 +7,9 @@ const Authenticator = require('../user/Authenticator');
 const ApiStatusCodes = require('../api/ApiStatusCodes');
 const Logger = require('../utils/Logger');
 const CaptainConstants = require('../utils/CaptainConstants');
-const urlencodedParser = bodyParser.urlencoded({ extended: true });
+const urlencodedParser = bodyParser.urlencoded({
+    extended: true
+});
 router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
     // find which branch is pushed
     // inject it in locals.pushedBranches

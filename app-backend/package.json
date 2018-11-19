@@ -9,7 +9,10 @@
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/fs-extra": "^5.0.4",
     "@types/jsonwebtoken": "^8.3.0",
+    "@types/request": "^2.48.1",
+    "@types/ssh2": "^0.5.36",
     "@types/uuid": "^3.4.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",

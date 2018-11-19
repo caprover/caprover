@@ -19,6 +19,9 @@ class DockerApi {
     constructor(connectionParams) {
         this.dockerode = new Docker(connectionParams);
     }
+    static get() {
+        return dockerApiInstance;
+    }
     initSwarm(ip, port) {
         const self = this;
         port = port || '2377';
@@ -285,7 +288,9 @@ class DockerApi {
             .then(function () {
             Logger.d('Removing ' + nameOrId);
             return self.dockerode.getContainer(nameOrId)
-                .remove({ force: true });
+                .remove({
+                force: true
+            });
         })
             .then(function () {
             Logger.d('Pruning containers...');
@@ -1101,18 +1106,17 @@ class DockerApi {
     }
 }
 const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || '').split('\:');
-const connectionParams = dockerApiAddressSplited.length < 2 ?
-    { socketPath: CaptainConstants.dockerSocketPath }
-    :
-        dockerApiAddressSplited.length === 2 ?
-            { host: dockerApiAddressSplited[0], port: Number(dockerApiAddressSplited[1]) } :
-            {
-                host: (dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1]),
-                port: Number(dockerApiAddressSplited[2])
-            };
+const connectionParams = dockerApiAddressSplited.length < 2 ? {
+    socketPath: CaptainConstants.dockerSocketPath
+} :
+    dockerApiAddressSplited.length === 2 ? {
+        host: dockerApiAddressSplited[0],
+        port: Number(dockerApiAddressSplited[1])
+    } : {
+        host: (dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1]),
+        port: Number(dockerApiAddressSplited[2])
+    };
 connectionParams.version = 'v1.30';
 const dockerApiInstance = new DockerApi(connectionParams);
-module.exports.get = function () {
-    return dockerApiInstance;
-};
+module.exports = DockerApi;
 //# sourceMappingURL=DockerApi.js.map

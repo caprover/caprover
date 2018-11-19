@@ -61,8 +61,7 @@ function isEmpty(obj) {
 }
 class TemplateHelper {
     constructor() {
-        const templates = [
-            {
+        const templates = [{
                 templateName: 'node',
                 dockerHubImageName: 'library/node',
                 dockerFileFromName: 'node',

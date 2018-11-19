@@ -169,8 +169,8 @@ class AppsDataStore {
             app = appObj;
         })
             .then(function () {
-            if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch
-                && appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
+            if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch &&
+                appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
                 return authenticator
                     .getAppPushWebhookDatastore({
                     repo: appPushWebhook.repoInfo.repo,
