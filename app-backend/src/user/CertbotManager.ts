@@ -1,57 +1,57 @@
-const CaptainConstants = require('../utils/CaptainConstants');
-const Logger = require('../utils/Logger');
-const fs = require('fs-extra');
-const uuid = require('uuid/v4');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
+import CaptainConstants = require("../utils/CaptainConstants");
+import Logger = require("../utils/Logger");
+import fs = require("fs-extra");
+import uuid = require("uuid/v4");
+import ApiStatusCodes = require("../api/ApiStatusCodes");
+import DockerApi = require("../docker/DockerApi");
 
-const CAPTAIN_WEBROOT_PATH_CERTBOT = '/captain-webroot';
+const CAPTAIN_WEBROOT_PATH_CERTBOT = "/captain-webroot";
 
-const shouldUseStaging = false; //CaptainConstants.isDebug;
-
+const shouldUseStaging = false; // CaptainConstants.isDebug;
 
 class CertbotManager {
 
-    constructor(dockerApi) {
+    constructor(private dockerApi: DockerApi) {
         this.dockerApi = dockerApi;
     }
 
-    domainValidOrThrow(domainName) {
+    domainValidOrThrow(domainName: string) {
 
         if (!domainName) {
-            throw new Error('Domain Name is empty');
+            throw new Error("Domain Name is empty");
         }
 
         const RegExpression = /^[a-z0-9\.\-]*$/;
 
         if (!RegExpression.test(domainName)) {
-            throw new Error('Bad Domain Name!');
+            throw new Error("Bad Domain Name!");
         }
 
     }
 
-    getCertRelativePathForDomain(domainName) {
+    getCertRelativePathForDomain(domainName: string) {
 
-        let self = this;
-
-        self.domainValidOrThrow(domainName);
-
-        return '/live/' + domainName + '/fullchain.pem';
-    }
-
-    getKeyRelativePathForDomain(domainName) {
-
-        let self = this;
+        const self = this;
 
         self.domainValidOrThrow(domainName);
 
-        return '/live/' + domainName + '/privkey.pem';
+        return "/live/" + domainName + "/fullchain.pem";
     }
 
-    enableSsl(domainName) {
-        let dockerApi = this.dockerApi;
-        let self = this;
+    getKeyRelativePathForDomain(domainName: string) {
 
-        Logger.d('Enabling SSL for ' + domainName);
+        const self = this;
+
+        self.domainValidOrThrow(domainName);
+
+        return "/live/" + domainName + "/privkey.pem";
+    }
+
+    enableSsl(domainName: string) {
+        const dockerApi = this.dockerApi;
+        const self = this;
+
+        Logger.d("Enabling SSL for " + domainName);
 
         self.domainValidOrThrow(domainName);
 
@@ -60,20 +60,20 @@ class CertbotManager {
 
                 const webrootInCaptainContainer = CaptainConstants.captainStaticFilesDir +
                     CaptainConstants.nginxDomainSpecificHtmlDir +
-                    '/' + domainName;
+                    "/" + domainName;
 
                 return fs.ensureDir(webrootInCaptainContainer);
 
             })
             .then(function () {
 
-                const cmd = ['certbot', 'certonly', '--webroot',
-                    '-w', CAPTAIN_WEBROOT_PATH_CERTBOT + '/' + domainName,
-                    '-d', domainName, '--non-interactive'
+                const cmd = ["certbot", "certonly", "--webroot",
+                    "-w", CAPTAIN_WEBROOT_PATH_CERTBOT + "/" + domainName,
+                    "-d", domainName, "--non-interactive"
                 ];
 
                 if (shouldUseStaging) {
-                    cmd.push('--staging');
+                    cmd.push("--staging");
                 }
 
                 return self
@@ -82,54 +82,54 @@ class CertbotManager {
 
                         Logger.d(output);
 
-                        if (output.indexOf('Congratulations! Your certificate and chain have been saved') >= 0) {
+                        if (output.indexOf("Congratulations! Your certificate and chain have been saved") >= 0) {
                             return true;
                         }
 
-                        if (output.indexOf('Certificate not yet due for renewal; no action taken') >= 0) {
+                        if (output.indexOf("Certificate not yet due for renewal; no action taken") >= 0) {
                             return true;
                         }
 
                         throw ApiStatusCodes.createError(ApiStatusCodes.VERIFICATION_FAILED,
-                            'Unexpected output when enabling SSL for' + domainName + ' with ACME Certbot \n' + output);
+                            "Unexpected output when enabling SSL for" + domainName + " with ACME Certbot \n" + output);
 
                     });
 
             });
     }
 
-    ensureRegistered(emailAddress) {
+    ensureRegistered(emailAddress: string) {
 
-        let dockerApi = this.dockerApi;
-        let self = this;
+        const dockerApi = this.dockerApi;
+        const self = this;
 
         return Promise.resolve()
             .then(function () {
 
-                const rootPathDir = CaptainConstants.letsEncryptEtcPath + '/accounts/acme-' +
-                    (shouldUseStaging ? 'staging' : 'v01') +
-                    '.api.letsencrypt.org/directory';
+                const rootPathDir = CaptainConstants.letsEncryptEtcPath + "/accounts/acme-" +
+                    (shouldUseStaging ? "staging" : "v01") +
+                    ".api.letsencrypt.org/directory";
 
                 if (!fs.existsSync(rootPathDir)) {
-                    Logger.d('Fresh install of Certbot. There is no registration directory');
-                    return null;
+                    Logger.d("Fresh install of Certbot. There is no registration directory");
+                    return undefined;
                 }
 
                 const files = fs.readdirSync(rootPathDir);
 
                 if (files.length === 0) {
-                    Logger.d('Fresh install of Certbot. There is nothing in the registration directory');
-                    return null;
+                    Logger.d("Fresh install of Certbot. There is nothing in the registration directory");
+                    return undefined;
                 }
 
                 if (files.length !== 1) {
-                    throw new Error('I do not know know what to do when there are multiple directories in ' + rootPathDir);
+                    throw new Error("I do not know know what to do when there are multiple directories in " + rootPathDir);
                 }
 
-                const regFilePath = rootPathDir + '/' + files[0] + '/regr.json';
+                const regFilePath = rootPathDir + "/" + files[0] + "/regr.json";
 
                 if (!fs.existsSync(regFilePath)) {
-                    throw new Error('ACME Reg directory exists, but there is no file! ' + regFilePath);
+                    throw new Error("ACME Reg directory exists, but there is no file! " + regFilePath);
                 }
 
                 return fs.readJson(regFilePath);
@@ -139,24 +139,24 @@ class CertbotManager {
 
                 if (!regrContent) {
 
-                    const cmd = ['certbot', 'register',
-                        '--email', emailAddress,
-                        '--agree-tos', '--no-eff-email', '--non-interactive'
+                    const cmd = ["certbot", "register",
+                        "--email", emailAddress,
+                        "--agree-tos", "--no-eff-email", "--non-interactive"
                     ];
 
                     if (shouldUseStaging) {
-                        cmd.push('--staging');
+                        cmd.push("--staging");
                     }
 
                     return self
                         .runCommand(cmd)
                         .then(function (registerOutput) {
 
-                            if (registerOutput.indexOf('Your account credentials have been saved in your Certbot') >= 0) {
+                            if (registerOutput.indexOf("Your account credentials have been saved in your Certbot") >= 0) {
                                 return true;
                             }
 
-                            throw new Error('Unexpected output when registering with ACME Certbot \n' + registerOutput);
+                            throw new Error("Unexpected output when registering with ACME Certbot \n" + registerOutput);
 
                         });
                 } else {
@@ -184,27 +184,27 @@ class CertbotManager {
 
                      */
 
-                    let contact = null;
+                    let contact = undefined;
 
                     if (regrContent && regrContent.body && regrContent.body.contact && Array.isArray(regrContent.body.contact)) {
                         contact = regrContent.body.contact;
                         for (let idx = 0; idx < contact.length; idx++) {
-                            if (contact[idx] === ('mailto:' + emailAddress)) {
+                            if (contact[idx] === ("mailto:" + emailAddress)) {
                                 return true;
                             }
                         }
                     }
 
-                    throw new Error('Previously registered with a different address: ' + contact ? JSON.stringify(contact) : 'NULL');
+                    throw new Error("Previously registered with a different address: " + contact ? JSON.stringify(contact) : "NULL");
                 }
             });
 
     }
 
-    runCommand(cmd) {
+    runCommand(cmd: string[]) {
 
-        let dockerApi = this.dockerApi;
-        let self = this;
+        const dockerApi = this.dockerApi;
+        const self = this;
 
         return Promise.resolve()
             .then(function () {
@@ -235,10 +235,10 @@ class CertbotManager {
             self.renewAllCerts();
         }, 1000 * 3600 * 20.3);
 
-        const cmd = ['certbot', 'renew'];
+        const cmd = ["certbot", "renew"];
 
         if (shouldUseStaging) {
-            cmd.push('--staging');
+            cmd.push("--staging");
         }
 
         return self
@@ -250,21 +250,21 @@ class CertbotManager {
             });
     }
 
-    init(myNodeId) {
+    init(myNodeId: string) {
 
         const dockerApi = this.dockerApi;
         const self = this;
 
         const domainSpecificRootDirectoryInHost = CaptainConstants.captainStaticFilesDir + CaptainConstants.nginxDomainSpecificHtmlDir;
 
-        function createCertbotServiceOnNode(nodeId) {
+        function createCertbotServiceOnNode(nodeId: string) {
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.certbotImageName,
-                    CaptainConstants.certbotServiceName, null, nodeId)
+                    CaptainConstants.certbotServiceName, undefined, nodeId, undefined, undefined, undefined)
                 .then(function () {
 
-                    let waitTimeInMillis = 5000;
-                    Logger.d('Waiting for ' + (waitTimeInMillis / 1000) + ' seconds for Certbot to start up');
+                    const waitTimeInMillis = 5000;
+                    Logger.d("Waiting for " + (waitTimeInMillis / 1000) + " seconds for Certbot to start up");
                     return new Promise(function (resolve, reject) {
                         setTimeout(function () {
                             resolve(true);
@@ -299,19 +299,19 @@ class CertbotManager {
 
                 if (isRunning) {
 
-                    Logger.d('Captain Certbot is already running.. ');
+                    Logger.d("Captain Certbot is already running.. ");
 
                     return dockerApi
                         .getNodeIdByServiceName(CaptainConstants.certbotServiceName);
 
                 } else {
 
-                    Logger.d('No Captain Certbot service is running. Creating one...');
+                    Logger.d("No Captain Certbot service is running. Creating one...");
 
                     return createCertbotServiceOnNode(myNodeId)
                         .then(function () {
                             return myNodeId;
-                        })
+                        });
                 }
 
             })
@@ -319,7 +319,7 @@ class CertbotManager {
 
                 if (nodeId !== myNodeId) {
 
-                    Logger.d('Captain Certbot is running on a different node. Removing...');
+                    Logger.d("Captain Certbot is running on a different node. Removing...");
 
                     return dockerApi
                         .removeServiceByName(CaptainConstants.certbotServiceName)
@@ -340,15 +340,15 @@ class CertbotManager {
                 }
             })
             .then(function () {
-                Logger.d('Updating Certbot service...');
+                Logger.d("Updating Certbot service...");
 
-                return dockerApi.updateService(CaptainConstants.certbotServiceName, null, [{
+                return dockerApi.updateService(CaptainConstants.certbotServiceName, undefined, [{
                             hostPath: CaptainConstants.letsEncryptEtcPath,
-                            containerPath: '/etc/letsencrypt'
+                            containerPath: "/etc/letsencrypt"
                         },
                         {
                             hostPath: CaptainConstants.letsEncryptLibPath,
-                            containerPath: '/var/lib/letsencrypt'
+                            containerPath: "/var/lib/letsencrypt"
                         },
                         {
                             hostPath: domainSpecificRootDirectoryInHost,
@@ -356,7 +356,7 @@ class CertbotManager {
                         }
                     ]
                     // No need to certbot to be connected to the network
-                );
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 
             })
             .then(function () {
@@ -371,4 +371,4 @@ class CertbotManager {
 
 }
 
-module.exports = CertbotManager;
+export = CertbotManager;

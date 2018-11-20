@@ -256,6 +256,9 @@ class CaptainManager {
             })
             .then(function () {
 
+                if (!myNodeId) {
+                    throw new Error("NodeID is still not found");
+                }
                 return certbotManager.init(myNodeId);
             })
             .then(function () {
