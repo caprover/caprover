@@ -1,22 +1,30 @@
-const ejs = require('ejs');
-const CaptainConstants = require('../utils/CaptainConstants');
-const Logger = require('../utils/Logger');
-const fs = require('fs-extra');
-const uuid = require('uuid/v4');
-const request = require('request');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
+import ejs = require("ejs");
+import CaptainConstants = require("../utils/CaptainConstants");
+import Logger = require("../utils/Logger");
+import fs = require("fs-extra");
+import uuid = require("uuid/v4");
+import request = require("request");
+import ApiStatusCodes = require("../api/ApiStatusCodes");
+import DockerApi = require("../docker/DockerApi");
+import DataStore = require("../datastore/DataStoreImpl");
+import CertbotManager = require("./CertbotManager");
 
-const defaultPageTemplate = fs.readFileSync(__dirname + '/../../template/default-page.ejs').toString();
+const defaultPageTemplate = fs.readFileSync(__dirname + "/../../template/default-page.ejs").toString();
 
 class LoadBalancerManager {
 
-    constructor(dockerApi, certbotManager, dataStore) {
-        this.dockerApi = dockerApi;
-        this.certbotManager = certbotManager;
+    private reloadInProcess: boolean;
+    private requestedReloadPromises: {
+        dataStore: DataStore,
+        resolve: Function,
+        reject: Function
+    }[];
+    private captainPublicRandomKey: string;
+
+    constructor(private dockerApi: DockerApi, private certbotManager: CertbotManager, private  dataStore: DataStore) {
         this.reloadInProcess = false;
         this.requestedReloadPromises = [];
         this.captainPublicRandomKey = uuid();
-        this.dataStore = dataStore;
     }
 
     /**
@@ -25,7 +33,7 @@ class LoadBalancerManager {
      * @param dataStoreToQueue
      * @returns {Promise.<>}
      */
-    rePopulateNginxConfigFile(dataStoreToQueue) {
+    rePopulateNginxConfigFile(dataStoreToQueue: DataStore) {
 
         const self = this;
 
@@ -51,26 +59,29 @@ class LoadBalancerManager {
         }
 
         if (self.reloadInProcess) {
-            Logger.d('NGINX Reload already in process, Bouncing off...');
+            Logger.d("NGINX Reload already in process, Bouncing off...");
             return;
         }
 
-        Logger.d('Locking NGINX configuration reloading...');
+        Logger.d("Locking NGINX configuration reloading...");
 
         self.reloadInProcess = true;
 
         const dataStore = q.dataStore;
 
         // This will resolve to something like: /captain/nginx/conf.d/captain
-        let configFilePathBase = CaptainConstants.perAppNginxConfigPathBase + '/' + dataStore.getNameSpace();
+        const configFilePathBase = CaptainConstants.perAppNginxConfigPathBase + "/" + dataStore.getNameSpace();
 
-        const FUTURE = configFilePathBase + '.fut';
-        const BACKUP = configFilePathBase + '.bak';
-        const CONFIG = configFilePathBase + '.conf';
+        const FUTURE = configFilePathBase + ".fut";
+        const BACKUP = configFilePathBase + ".bak";
+        const CONFIG = configFilePathBase + ".conf";
 
-        let nginxConfigContent = '';
+        let nginxConfigContent = "";
 
-        return fs.remove(FUTURE)
+        return Promise.resolve()
+            .then(function() {
+                return fs.remove(FUTURE);
+            })
             .then(function () {
 
                 return dataStore.getServerList();
@@ -78,36 +89,36 @@ class LoadBalancerManager {
             })
             .then(function (servers) {
 
-                if (!servers || !servers.length) {
-                    return '';
-                }
+                const promises: Promise<void>[] = [];
 
-                let promises = [];
+                if (servers && !!servers.length) {
 
-                for (let i = 0; i < servers.length; i++) {
-                    let s = servers[i];
-                    if (s.hasSsl) {
-                        s.crtPath = self.getSslCertPath(s.publicDomain);
-                        s.keyPath = self.getSslKeyPath(s.publicDomain);
+                    for (let i = 0; i < servers.length; i++) {
+                        const s = servers[i];
+                        if (s.hasSsl) {
+                            s.crtPath = self.getSslCertPath(s.publicDomain);
+                            s.keyPath = self.getSslKeyPath(s.publicDomain);
+                        }
+
+                        s.staticWebRoot = CaptainConstants.nginxStaticRootDir +
+                            CaptainConstants.nginxDomainSpecificHtmlDir + "/" +
+                            s.publicDomain;
+
+                        promises.push(
+                            Promise.resolve()
+                            .then(function () {
+                                return ejs.render(s.nginxConfigTemplate, {
+                                    s: s
+                                });
+                            })
+                            .then(function (rendered) {
+
+                                nginxConfigContent += rendered;
+
+                            })
+                        );
+
                     }
-
-                    s.staticWebRoot = CaptainConstants.nginxStaticRootDir +
-                        CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
-                        s.publicDomain;
-
-                    promises.push(
-                        Promise.resolve()
-                        .then(function () {
-                            return ejs.render(s.nginxConfigTemplate, {
-                                s: s
-                            });
-                        })
-                        .then(function (rendered) {
-
-                            nginxConfigContent += rendered;
-
-                        })
-                    );
 
                 }
 
@@ -133,16 +144,16 @@ class LoadBalancerManager {
             })
             .then(function () {
 
-                Logger.d('SUCCESS: UNLocking NGINX configuration reloading...');
+                Logger.d("SUCCESS: UNLocking NGINX configuration reloading...");
                 self.reloadInProcess = false;
                 q.resolve();
                 self.consumeQueueIfAnyInNginxReloadQueue();
 
             })
-            .catch(function (error) {
+            .catch(function (error: any) {
 
                 Logger.e(error);
-                Logger.d('Error: UNLocking NGINX configuration reloading...');
+                Logger.d("Error: UNLocking NGINX configuration reloading...");
                 self.reloadInProcess = false;
                 q.reject(error);
                 self.consumeQueueIfAnyInNginxReloadQueue();
@@ -157,12 +168,12 @@ class LoadBalancerManager {
         return this.captainPublicRandomKey;
     }
 
-    getSslCertPath(domainName) {
+    getSslCertPath(domainName: string) {
         const self = this;
         return CaptainConstants.letsEncryptEtcPathOnNginx + self.certbotManager.getCertRelativePathForDomain(domainName);
     }
 
-    getSslKeyPath(domainName) {
+    getSslKeyPath(domainName: string) {
         const self = this;
         return CaptainConstants.letsEncryptEtcPathOnNginx + self.certbotManager.getKeyRelativePathForDomain(domainName);
     }
@@ -170,55 +181,55 @@ class LoadBalancerManager {
     getInfo() {
         return new Promise(
             function (resolve, reject) {
-                let url = 'http://' + CaptainConstants.nginxServiceName + '/nginx_status';
+                const url = "http://" + CaptainConstants.nginxServiceName + "/nginx_status";
 
                 request(url,
                     function (error, response, body) {
 
                         if (error || !body) {
                             Logger.e("Error        " + error);
-                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Request to nginx Failed.'));
+                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Request to nginx Failed."));
                             return;
                         }
 
                         try {
-                            let data = {};
-                            let lines = body.split('\n');
+                            const data = new LoadBalancerInfo();
+                            const lines = body.split("\n");
 
-                            data.activeConnections = Number(lines[0].split(' ')[2].trim());
+                            data.activeConnections = Number(lines[0].split(" ")[2].trim());
 
-                            data.accepted = Number(lines[2].split(' ')[1].trim());
-                            data.handled = Number(lines[2].split(' ')[2].trim());
-                            data.total = Number(lines[2].split(' ')[3].trim());
+                            data.accepted = Number(lines[2].split(" ")[1].trim());
+                            data.handled = Number(lines[2].split(" ")[2].trim());
+                            data.total = Number(lines[2].split(" ")[3].trim());
 
-                            data.reading = Number(lines[3].split(' ')[1].trim());
-                            data.writing = Number(lines[3].split(' ')[3].trim());
-                            data.waiting = Number(lines[3].split(' ')[5].trim());
+                            data.reading = Number(lines[3].split(" ")[1].trim());
+                            data.writing = Number(lines[3].split(" ")[3].trim());
+                            data.waiting = Number(lines[3].split(" ")[5].trim());
 
                             resolve(data);
 
                         } catch (error) {
-                            Logger.e('Cannot parse ' + body);
-                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Parser Failed. See internal logs...'));
+                            Logger.e("Cannot parse " + body);
+                            reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Parser Failed. See internal logs..."));
                         }
                     });
             });
     }
 
-    createRootConfFile(dataStore) {
+    createRootConfFile(dataStore: DataStore) {
 
         const self = this;
 
-        let captainDomain = CaptainConstants.captainSubDomain + '.' + dataStore.getRootDomain();
-        let registryDomain = CaptainConstants.registrySubDomain + '.' + dataStore.getRootDomain();
+        const captainDomain = CaptainConstants.captainSubDomain + "." + dataStore.getRootDomain();
+        const registryDomain = CaptainConstants.registrySubDomain + "." + dataStore.getRootDomain();
 
         let hasRootSsl = false;
 
-        const FUTURE = CaptainConstants.rootNginxConfigPath + '.fut';
-        const BACKUP = CaptainConstants.rootNginxConfigPath + '.bak';
-        const CONFIG = CaptainConstants.rootNginxConfigPath + '.conf';
+        const FUTURE = CaptainConstants.rootNginxConfigPath + ".fut";
+        const BACKUP = CaptainConstants.rootNginxConfigPath + ".bak";
+        const CONFIG = CaptainConstants.rootNginxConfigPath + ".conf";
 
-        let rootNginxTemplate = null;
+        let rootNginxTemplate: string | undefined = undefined;
 
         return Promise.resolve()
             .then(function () {
@@ -236,7 +247,7 @@ class LoadBalancerManager {
             })
             .then(function (hasRegistrySsl) {
 
-                return ejs.render(rootNginxTemplate, {
+                return ejs.render(rootNginxTemplate!, {
                     captain: {
                         crtPath: self.getSslCertPath(captainDomain),
                         keyPath: self.getSslKeyPath(captainDomain),
@@ -246,7 +257,7 @@ class LoadBalancerManager {
                         serviceExposedPort: CaptainConstants.captainServiceExposedPort,
                         defaultHtmlDir: CaptainConstants.nginxStaticRootDir + CaptainConstants.nginxDefaultHtmlDir,
                         staticWebRoot: CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
+                            CaptainConstants.nginxDomainSpecificHtmlDir + "/" +
                             captainDomain
                     },
                     registry: {
@@ -255,7 +266,7 @@ class LoadBalancerManager {
                         hasRootSsl: hasRegistrySsl,
                         domain: registryDomain,
                         staticWebRoot: CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir + '/' +
+                            CaptainConstants.nginxDomainSpecificHtmlDir + "/" +
                             registryDomain
                     }
                 });
@@ -287,7 +298,7 @@ class LoadBalancerManager {
             })
             .then(function (captainConfig) {
 
-                let baseConfigTemplate = captainConfig.baseConfig.customValue || captainConfig.baseConfig.byDefault;
+                const baseConfigTemplate = captainConfig.baseConfig.customValue || captainConfig.baseConfig.byDefault;
 
                 return ejs.render(baseConfigTemplate, {});
 
@@ -296,37 +307,37 @@ class LoadBalancerManager {
 
                 return fs.outputFile(
                     CaptainConstants.baseNginxConfigPath, baseNginxConfFileContent);
-            })
+            });
     }
 
-    init(myNodeId, dataStore) {
+    init(myNodeId: string, dataStore: DataStore) {
 
-        let dockerApi = this.dockerApi;
-        let self = this;
+        const dockerApi = this.dockerApi;
+        const self = this;
 
-        function createNginxServiceOnNode(nodeId) {
+        function createNginxServiceOnNode(nodeId: string) {
 
-            Logger.d('No Captain Nginx service is running. Creating one on captain node...');
+            Logger.d("No Captain Nginx service is running. Creating one on captain node...");
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.nginxImageName, CaptainConstants.nginxServiceName, [{
-                    protocol: 'tcp',
-                    publishMode: 'host',
+                    protocol: "tcp",
+                    publishMode: "host",
                     containerPort: 80,
                     hostPort: CaptainConstants.nginxPortNumber
                 }, {
-                    protocol: 'tcp',
-                    publishMode: 'host',
+                    protocol: "tcp",
+                    publishMode: "host",
                     containerPort: 443,
                     hostPort: 443
-                }], nodeId, null, null, {
+                }], nodeId, undefined, undefined, {
                     Reservation: {
                         MemoryBytes: 30 * 1024 * 1024
                     }
                 })
                 .then(function () {
 
-                    let waitTimeInMillis = 5000;
-                    Logger.d('Waiting for ' + (waitTimeInMillis / 1000) + ' seconds for nginx to start up');
+                    const waitTimeInMillis = 5000;
+                    Logger.d("Waiting for " + (waitTimeInMillis / 1000) + " seconds for nginx to start up");
                     return new Promise(function (resolve, reject) {
                         setTimeout(function () {
                             resolve(true);
@@ -345,7 +356,7 @@ class LoadBalancerManager {
             .then(function () {
 
                 return ejs.render(defaultPageTemplate, {
-                    message: 'Nothing here yet :/'
+                    message: "Nothing here yet :/"
                 });
 
             })
@@ -354,13 +365,13 @@ class LoadBalancerManager {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                     CaptainConstants.nginxDefaultHtmlDir +
-                    '/index.html', staticPageContent);
+                    "/index.html", staticPageContent);
 
             })
             .then(function () {
 
                 return ejs.render(defaultPageTemplate, {
-                    message: 'An Error Occurred :/'
+                    message: "An Error Occurred :/"
                 });
 
             })
@@ -369,12 +380,12 @@ class LoadBalancerManager {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                     CaptainConstants.nginxDefaultHtmlDir +
-                    '/error.html', errorPageContent);
+                    "/error.html", errorPageContent);
 
             })
             .then(function () {
 
-                Logger.d('Setting up NGINX conf file...');
+                Logger.d("Setting up NGINX conf file...");
 
                 return self.ensureBaseNginxConf();
 
@@ -404,7 +415,7 @@ class LoadBalancerManager {
 
                 if (isRunning) {
 
-                    Logger.d('Captain Nginx is already running.. ');
+                    Logger.d("Captain Nginx is already running.. ");
 
                     return dockerApi
                         .getNodeIdByServiceName(CaptainConstants.nginxServiceName);
@@ -415,7 +426,7 @@ class LoadBalancerManager {
                     return createNginxServiceOnNode(myNodeId)
                         .then(function () {
                             return myNodeId;
-                        })
+                        });
                 }
 
             })
@@ -423,7 +434,7 @@ class LoadBalancerManager {
 
                 if (nodeId !== myNodeId) {
 
-                    Logger.d('Captain Nginx is running on a different node. Removing...');
+                    Logger.d("Captain Nginx is running on a different node. Removing...");
 
                     return dockerApi
                         .removeServiceByName(CaptainConstants.nginxServiceName)
@@ -444,18 +455,18 @@ class LoadBalancerManager {
                 }
             })
             .then(function () {
-                Logger.d('Updating NGINX service...');
+                Logger.d("Updating NGINX service...");
 
-                return dockerApi.updateService(CaptainConstants.nginxServiceName, null, [{
+                return dockerApi.updateService(CaptainConstants.nginxServiceName, undefined, [{
                         containerPath: CaptainConstants.nginxStaticRootDir,
                         hostPath: CaptainConstants.captainStaticFilesDir
                     },
                     {
-                        containerPath: '/etc/nginx/nginx.conf',
+                        containerPath: "/etc/nginx/nginx.conf",
                         hostPath: CaptainConstants.baseNginxConfigPath
                     },
                     {
-                        containerPath: '/etc/nginx/conf.d',
+                        containerPath: "/etc/nginx/conf.d",
                         hostPath: CaptainConstants.perAppNginxConfigPathBase
                     },
                     {
@@ -466,16 +477,16 @@ class LoadBalancerManager {
                         containerPath: CaptainConstants.nginxSharedPathOnNginx,
                         hostPath: CaptainConstants.nginxSharedPathOnHost
                     }
-                ], [CaptainConstants.captainNetworkName]);
+                ], [CaptainConstants.captainNetworkName], undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 
             })
             .then(function () {
 
-                let waitTimeInMillis = 5000;
-                Logger.d('Waiting for ' + (waitTimeInMillis / 1000) + ' seconds for nginx reload to take into effect');
+                const waitTimeInMillis = 5000;
+                Logger.d("Waiting for " + (waitTimeInMillis / 1000) + " seconds for nginx reload to take into effect");
                 return new Promise(function (resolve, reject) {
                     setTimeout(function () {
-                        Logger.d('NGINX is fully set up and working...');
+                        Logger.d("NGINX is fully set up and working...");
                         resolve(true);
                     }, waitTimeInMillis);
                 });
@@ -485,4 +496,4 @@ class LoadBalancerManager {
 
 }
 
-module.exports = LoadBalancerManager;
+export = LoadBalancerManager;

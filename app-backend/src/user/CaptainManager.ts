@@ -150,6 +150,10 @@ class CaptainManager {
             })
             .then(function () {
 
+                if (!myNodeId) {
+                    throw new Error("myNodeId is null");
+                }
+
                 return loadBalancerManager.init(myNodeId, dataStore);
 
             })

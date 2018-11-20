@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/ejs": "^2.6.0",
     "@types/fs-extra": "^5.0.4",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/request": "^2.48.1",

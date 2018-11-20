@@ -92,6 +92,9 @@ class CaptainManager {
             return dockerApi.ensureServiceConnectedToNetwork(CaptainConstants.captainServiceName, CaptainConstants.captainNetworkName);
         })
             .then(function () {
+            if (!myNodeId) {
+                throw new Error("myNodeId is null");
+            }
             return loadBalancerManager.init(myNodeId, dataStore);
         })
             .then(function () {
