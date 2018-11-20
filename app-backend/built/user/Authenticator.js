@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const jwt = require("jsonwebtoken");
 const uuid = require("uuid/v4");
 const bcrypt = require("bcryptjs");
@@ -148,10 +147,7 @@ class Authenticator {
             });
         });
     }
-}
-const authenticatorCache = {};
-exports = {
-    get: function (namespace) {
+    static get(namespace) {
         if (!namespace) {
             return undefined;
         }
@@ -162,6 +158,8 @@ exports = {
             }
         }
         return authenticatorCache[namespace];
-    },
-};
+    }
+}
+const authenticatorCache = {};
+module.exports = Authenticator;
 //# sourceMappingURL=Authenticator.js.map

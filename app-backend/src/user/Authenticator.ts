@@ -259,16 +259,8 @@ class Authenticator {
             );
         });
     }
-}
 
-interface IHash {
-    [details: string]: Authenticator;
-}
-
-const authenticatorCache: IHash = {};
-
-exports = {
-    get: function(namespace: string): Authenticator | undefined {
+    static get(namespace: string): Authenticator|undefined {
         if (!namespace) {
             return undefined;
         }
@@ -285,5 +277,13 @@ exports = {
         }
 
         return authenticatorCache[namespace];
-    },
-};
+    }
+}
+
+interface IHash {
+    [details: string]: Authenticator;
+}
+
+const authenticatorCache: IHash = {};
+
+export = Authenticator;

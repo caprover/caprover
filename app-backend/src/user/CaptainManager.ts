@@ -875,7 +875,7 @@ class CaptainManager {
      *
      * @returns {Promise.<boolean>}
      */
-    verifyCaptainOwnsDomainOrThrow(domainName: string, identifierSuffix: string) {
+    verifyCaptainOwnsDomainOrThrow(domainName: string, identifierSuffix: string|undefined) {
 
         const self = this;
         const randomUuid = uuid();
