@@ -1,37 +1,35 @@
+"use strict";
 /**
  * Created by kasra on 27/06/17.
  */
-const Configstore = require('configstore');
-const uuid = require('uuid/v4');
-const isValidPath = require('is-valid-path');
-const fs = require('fs-extra');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const CaptainConstants = require('../utils/CaptainConstants');
-const Logger = require('../utils/Logger');
-const Encryptor = require('../utils/Encryptor');
-const AppsDataStore = require('./AppsDataStore');
-const NAMESPACE = 'namespace';
-const HASHED_PASSWORD = 'hashedPassword';
-const CAPTAIN_REGISTRY_AUTH_SECRET_VER = 'captainRegistryAuthSecretVer';
-const CUSTOM_DOMAIN = 'customDomain';
-const HAS_ROOT_SSL = 'hasRootSsl';
-const FORCE_ROOT_SSL = 'forceRootSsl';
-const HAS_REGISTRY_SSL = 'hasRegistrySsl';
-const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
-const EMAIL_ADDRESS = 'emailAddress';
-const DOCKER_REGISTRIES = 'dockerRegistries';
-const DEFAULT_DOCKER_REGISTRY = 'defaultDockerReg';
-const NET_DATA_INFO = 'netDataInfo';
-const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
-const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
-const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
-const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + '/../../template/base-nginx-conf.ejs').toString();
-const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + '/../../template/root-nginx-conf.ejs').toString();
-const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + '/../../template/server-block-conf.ejs').toString();
+const Configstore = require("configstore");
+const uuid = require("uuid/v4");
+const fs = require("fs-extra");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
+const CaptainConstants = require("../utils/CaptainConstants");
+const AppsDataStore = require("./AppsDataStore");
+const NAMESPACE = "namespace";
+const HASHED_PASSWORD = "hashedPassword";
+const CAPTAIN_REGISTRY_AUTH_SECRET_VER = "captainRegistryAuthSecretVer";
+const CUSTOM_DOMAIN = "customDomain";
+const HAS_ROOT_SSL = "hasRootSsl";
+const FORCE_ROOT_SSL = "forceRootSsl";
+const HAS_REGISTRY_SSL = "hasRegistrySsl";
+const HAS_LOCAL_REGISTRY = "hasLocalRegistry";
+const EMAIL_ADDRESS = "emailAddress";
+const DOCKER_REGISTRIES = "dockerRegistries";
+const DEFAULT_DOCKER_REGISTRY = "defaultDockerReg";
+const NET_DATA_INFO = "netDataInfo";
+const NGINX_BASE_CONFIG = "NGINX_BASE_CONFIG";
+const NGINX_CAPTAIN_CONFIG = "NGINX_CAPTAIN_CONFIG";
+const DEFAULT_CAPTAIN_ROOT_DOMAIN = "captain.localhost";
+const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + "/../../template/base-nginx-conf.ejs").toString();
+const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + "/../../template/root-nginx-conf.ejs").toString();
+const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + "/../../template/server-block-conf.ejs").toString();
 class DataStore {
     constructor(namespace) {
-        let data = new Configstore('captain-store', {});
-        data.path = CaptainConstants.captainRootDirectory + '/config.conf';
+        const data = new Configstore("captain-store", {});
+        data.path = CaptainConstants.captainRootDirectory + "/config.conf";
         this.data = data;
         this.data.set(NAMESPACE, namespace);
         this.appsDataStore = new AppsDataStore(this.data);
@@ -80,7 +78,7 @@ class DataStore {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            let netDataInfo = self.data.get(NET_DATA_INFO) || {};
+            const netDataInfo = self.data.get(NET_DATA_INFO) || {};
             netDataInfo.isEnabled = netDataInfo.isEnabled || false;
             netDataInfo.data = netDataInfo.data || {};
             return netDataInfo;
@@ -108,23 +106,23 @@ class DataStore {
         });
     }
     getServiceName(appName) {
-        return 'srv-' + this.getNameSpace() + '--' + appName;
+        return "srv-" + this.getNameSpace() + "--" + appName;
     }
     getImageName(authObj, appName, version) {
-        let authPrefix = '';
+        let authPrefix = "";
         if (authObj) {
-            authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
+            authPrefix = authObj.serveraddress + "/" + authObj.username + "/";
         }
         return authPrefix + this.getImageNameWithoutAuthObj(appName, version);
     }
-    getImageNameWithoutAuthObj(appName, version) {
-        if (version === 0) {
-            version = '0';
+    getImageNameWithoutAuthObj(appName, versionStr) {
+        if (versionStr === 0) {
+            versionStr = "0";
         }
-        return this.getImageNameBase() + appName + (version ? (':' + version) : '');
+        return this.getImageNameBase() + appName + (versionStr ? (":" + versionStr) : "");
     }
     getImageNameBase() {
-        return 'img-' + this.getNameSpace() + '--';
+        return "img-" + this.getNameSpace() + "--";
     }
     getRootDomain() {
         return this.data.get(CUSTOM_DOMAIN) || DEFAULT_CAPTAIN_ROOT_DOMAIN;
@@ -134,8 +132,8 @@ class DataStore {
     }
     getServerList() {
         const self = this;
-        let hasRootSsl = null;
-        let rootDomain = null;
+        let hasRootSsl;
+        let rootDomain;
         return Promise.resolve()
             .then(function () {
             return self.getHasRootSsl();
@@ -169,7 +167,7 @@ class DataStore {
         return Promise.resolve()
             .then(function () {
             let found = false;
-            let registries = self.data.get(DOCKER_REGISTRIES) || [];
+            const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
                 const registry = registries[i];
                 if (registry.id === registryId) {
@@ -178,7 +176,7 @@ class DataStore {
             }
             // registryId can be NULL/Empty, meaning that no registry will be the default push registry
             if (!found && !!registryId) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
+                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, "Registry not found");
             }
             self.data.set(DEFAULT_DOCKER_REGISTRY, registryId);
         });
@@ -187,8 +185,8 @@ class DataStore {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            let newReg = [];
-            let registries = self.data.get(DOCKER_REGISTRIES) || [];
+            const newReg = [];
+            const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
                 const registry = registries[i];
                 if (registry.id !== registryId) {
@@ -196,7 +194,7 @@ class DataStore {
                 }
             }
             if (newReg.length === registries.length) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
+                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, "Registry not found");
             }
             self.data.set(DOCKER_REGISTRIES, newReg);
         });
@@ -217,7 +215,7 @@ class DataStore {
             });
         })
             .then(function (registries) {
-            let id = null;
+            let id = uuid();
             let isAlreadyTaken = true;
             while (isAlreadyTaken) {
                 id = uuid();

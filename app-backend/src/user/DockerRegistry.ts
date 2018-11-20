@@ -213,7 +213,7 @@ class DockerRegistry {
         const self = this;
         const dockerApi = this.dockerApi;
 
-        let nextVersion: number|undefined = undefined;
+        let nextVersion: number;
 
         let secretName: string|undefined = undefined;
 
@@ -256,7 +256,7 @@ class DockerRegistry {
                         username,
                         password,
                         domain,
-                        nextVersion!
+                        nextVersion
                     );
                 } else {
                     return dockerApi

@@ -124,7 +124,7 @@ class ServiceManager {
     createImage(appName, source, gitHash) {
         Logger.d("Creating image for: " + appName);
         const self = this;
-        const imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName);
+        const imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName, undefined);
         const dockerApi = this.dockerApi;
         const dataStore = this.dataStore;
         let newVersion;

@@ -153,7 +153,7 @@ class DockerRegistry {
     updateRegistryAuthHeader(username, password, domain, currentVersion) {
         const self = this;
         const dockerApi = this.dockerApi;
-        let nextVersion = undefined;
+        let nextVersion;
         let secretName = undefined;
         let userEmailAddress = undefined;
         return Promise.resolve()

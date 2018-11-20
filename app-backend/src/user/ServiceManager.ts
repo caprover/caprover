@@ -164,7 +164,7 @@ class ServiceManager {
 
         const self = this;
 
-        const imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName);
+        const imageName = this.dataStore.getImageName(CaptainManager.get().getDockerAuthObject(), appName, undefined);
         const dockerApi = this.dockerApi;
         const dataStore = this.dataStore;
         let newVersion: number;
