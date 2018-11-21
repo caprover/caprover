@@ -260,9 +260,9 @@ class Authenticator {
         });
     }
 
-    static get(namespace: string): Authenticator|undefined {
+    static get(namespace: string): Authenticator {
         if (!namespace) {
-            return undefined;
+            throw new Error("namespace is needed");
         }
 
         if (!authenticatorCache[namespace]) {

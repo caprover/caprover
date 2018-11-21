@@ -149,7 +149,7 @@ class Authenticator {
     }
     static get(namespace) {
         if (!namespace) {
-            return undefined;
+            throw new Error("namespace is needed");
         }
         if (!authenticatorCache[namespace]) {
             const captainSalt = CaptainManager.get().getCaptainSalt();

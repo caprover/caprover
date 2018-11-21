@@ -82,7 +82,7 @@ class ServiceManager {
         return this.isReady;
     }
     createTarFarFromCaptainContent(captainDefinitionContent, appName, tarDestination) {
-        const serviceName = this.dataStore.getServiceName(appName);
+        const serviceName = this.dataStore.getAppsDataStore().getServiceName(appName);
         let captainDefinitionDirPath = undefined;
         return Promise.resolve()
             .then(function () {
@@ -441,7 +441,7 @@ class ServiceManager {
     removeApp(appName) {
         Logger.d("Removing service for: " + appName);
         const self = this;
-        const serviceName = this.dataStore.getServiceName(appName);
+        const serviceName = this.dataStore.getAppsDataStore().getServiceName(appName);
         const dockerApi = this.dockerApi;
         const dataStore = this.dataStore;
         return Promise.resolve()
@@ -492,9 +492,9 @@ class ServiceManager {
                         const repoTag = img.RepoTags[j];
                         Object.keys(apps).forEach(function (key, index) {
                             const app = apps[key];
-                            app.appName = key;
+                            const appName = key;
                             for (let k = 0; k < (mostRecentLimit + 1); k++) {
-                                if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(app.appName, Number(app.deployedVersion) - k)) >= 0) {
+                                if (repoTag.indexOf(dataStore.getImageNameWithoutAuthObj(appName, Number(app.deployedVersion) - k)) >= 0) {
                                     imageInUse = true;
                                 }
                             }
@@ -524,7 +524,7 @@ class ServiceManager {
     ensureServiceInitedAndUpdated(appName, version) {
         Logger.d("Ensure service inited and Updated for: " + appName);
         const self = this;
-        const serviceName = this.dataStore.getServiceName(appName);
+        const serviceName = this.dataStore.getAppsDataStore().getServiceName(appName);
         const dockerAuthObject = CaptainManager.get().getDockerAuthObject();
         const imageName = this.dataStore.getImageName(dockerAuthObject, appName, version);
         const dockerApi = this.dockerApi;
@@ -614,7 +614,7 @@ class ServiceManager {
             return dataStore.getAppsDataStore().getAppDefinition(appName);
         })
             .then(function (app) {
-            serviceName = dataStore.getServiceName(appName);
+            serviceName = dataStore.getAppsDataStore().getServiceName(appName);
             // After leaving this block, nodeId will be guaranteed to be NonNull
             if (app.hasPersistentData) {
                 if (nodeId) {
@@ -694,7 +694,7 @@ class ServiceManager {
     }
     updateServiceOnDefinitionUpdate(appName) {
         const self = this;
-        const serviceName = this.dataStore.getServiceName(appName);
+        const serviceName = this.dataStore.getAppsDataStore().getServiceName(appName);
         const dockerAuthObject = CaptainManager.get().getDockerAuthObject();
         const dataStore = this.dataStore;
         const dockerApi = this.dockerApi;

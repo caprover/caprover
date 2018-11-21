@@ -41,10 +41,10 @@ class DataStore {
 
         this.data = data;
         this.data.set(NAMESPACE, namespace);
-        this.appsDataStore = new AppsDataStore(this.data);
+        this.appsDataStore = new AppsDataStore(this.data, namespace);
     }
 
-    getNameSpace() {
+    getNameSpace(): string {
         return this.data.get(NAMESPACE);
     }
 
@@ -122,10 +122,6 @@ class DataStore {
             });
     }
 
-    getServiceName(appName: string) {
-        return "srv-" + this.getNameSpace() + "--" + appName;
-    }
-
     getImageName(authObj: any, appName: string, version: string|undefined|number) {
 
         let authPrefix = "";
@@ -163,7 +159,7 @@ class DataStore {
         const self = this;
 
         let hasRootSsl: boolean;
-        let rootDomain: boolean;
+        let rootDomain: string;
 
         return Promise.resolve()
             .then(function () {

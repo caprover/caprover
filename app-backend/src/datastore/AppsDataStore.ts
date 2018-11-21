@@ -1,23 +1,28 @@
-const uuid = require('uuid/v4');
-const isValidPath = require('is-valid-path');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const CaptainConstants = require('../utils/CaptainConstants');
-const Logger = require('../utils/Logger');
+import uuid = require("uuid/v4");
+import ApiStatusCodes = require("../api/ApiStatusCodes");
+import CaptainConstants = require("../utils/CaptainConstants");
+import Logger = require("../utils/Logger");
+import configstore = require("configstore");
+import Authenticator = require("../user/Authenticator");
+const isValidPath = require("is-valid-path");
 
-const APP_DEFINITIONS = 'appDefinitions';
+const APP_DEFINITIONS = "appDefinitions";
 
-function isNameAllowed(name) {
-    let isNameFormattingOk = (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf('--') < 0;
-    return isNameFormattingOk && (['captain', 'registry'].indexOf(name) < 0);
+function isNameAllowed(name: string) {
+    const isNameFormattingOk = (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf("--") < 0;
+    return isNameFormattingOk && (["captain", "registry"].indexOf(name) < 0);
 }
 
-class AppsDataStore {
+ class AppsDataStore {
 
-    constructor(data) {
-        this.data = data;
+    constructor(private data: configstore, private namepace: string) {
     }
 
-    getAppDefinitions() {
+    getServiceName(appName: string) {
+        return "srv-" + this.namepace + "--" + appName;
+    }
+
+    getAppDefinitions(): Promise<IAllAppDefinitions> {
         const self = this;
         return new Promise(function (resolve, reject) {
 
@@ -26,7 +31,7 @@ class AppsDataStore {
         });
     }
 
-    getAppDefinition(appName) {
+    getAppDefinition(appName: string) {
 
         const self = this;
 
@@ -34,13 +39,13 @@ class AppsDataStore {
             .then(function (allApps) {
 
                 if (!appName) {
-                    throw new Error('App Name should not be empty');
+                    throw new Error("App Name should not be empty");
                 }
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, ('App could not be found ' + appName));
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, ("App could not be found " + appName));
                 }
 
                 return app;
@@ -48,39 +53,39 @@ class AppsDataStore {
             });
     }
 
-    enableSslForDefaultSubDomain(appName) {
+    enableSslForDefaultSubDomain(appName: string) {
 
         const self = this;
 
         return this.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.hasDefaultSubDomainSsl = true;
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
                 return true;
 
             });
     }
 
-    enableCustomDomainSsl(appName, customDomain) {
+    enableCustomDomainSsl(appName: string, customDomain: string) {
 
         const self = this;
 
         return self.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.customDomain = app.customDomain || [];
@@ -89,28 +94,28 @@ class AppsDataStore {
                     for (let idx = 0; idx < app.customDomain.length; idx++) {
                         if (app.customDomain[idx].publicDomain === customDomain) {
                             app.customDomain[idx].hasSsl = true;
-                            self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                            self.data.set(APP_DEFINITIONS + "." + appName, app);
                             return true;
                         }
                     }
                 }
 
-                throw new Error('customDomain: ' + customDomain + ' is not attached to app ' + appName);
+                throw new Error("customDomain: " + customDomain + " is not attached to app " + appName);
 
             });
     }
 
-    removeCustomDomainForApp(appName, customDomain) {
+    removeCustomDomainForApp(appName: string, customDomain: string) {
 
         const self = this;
 
         return this.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.customDomain = app.customDomain || [];
@@ -126,29 +131,29 @@ class AppsDataStore {
                 }
 
                 if (!removed) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Custom domain ' + customDomain + ' does not exist in ' + appName);
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Custom domain " + customDomain + " does not exist in " + appName);
                 }
 
                 app.customDomain = newDomains;
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
                 return true;
 
             });
     }
 
-    addCustomDomainForApp(appName, customDomain) {
+    addCustomDomainForApp(appName: string, customDomain: string) {
 
         const self = this;
 
         return this.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.customDomain = app.customDomain || [];
@@ -156,7 +161,7 @@ class AppsDataStore {
                 if (app.customDomain.length > 0) {
                     for (let idx = 0; idx < app.customDomain.length; idx++) {
                         if (app.customDomain[idx].publicDomain === customDomain) {
-                            throw new Error('App already has customDomain: ' + customDomain + ' attached to app ' + appName);
+                            throw new Error("App already has customDomain: " + customDomain + " attached to app " + appName);
                         }
                     }
                 }
@@ -166,23 +171,23 @@ class AppsDataStore {
                     hasSsl: false
                 });
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
                 return true;
 
             });
     }
 
-    verifyCustomDomainBelongsToApp(appName, customDomain) {
+    verifyCustomDomainBelongsToApp(appName: string, customDomain: string) {
         const self = this;
 
         return self.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.customDomain = app.customDomain || [];
@@ -195,48 +200,50 @@ class AppsDataStore {
                     }
                 }
 
-                throw new Error('customDomain: ' + customDomain + ' is not attached to app ' + appName);
+                throw new Error("customDomain: " + customDomain + " is not attached to app " + appName);
 
             });
     }
 
-    getNewVersion(appName) {
+    getNewVersion(appName: string) {
 
         if (!appName) {
-            throw new Error('App Name should not be empty');
+            throw new Error("App Name should not be empty");
         }
         const self = this;
 
         return this.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
-                let versions = app.versions;
-                let newVersionIndex = versions.length;
+                const versions = app.versions;
+                const newVersionIndex = versions.length;
 
                 versions.push({
                     version: newVersionIndex,
                     gitHash: undefined,
-                    timeStamp: new Date()
+                    timeStamp: new Date().toString()
                 });
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
                 return newVersionIndex;
 
             });
     }
 
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports,
-        appPushWebhook, authenticator, customNginxConfig, preDeployFunction) {
+    updateAppDefinitionInDb(appName: string, instanceCount: number, envVars: IAppEnvVar[], volumes: IAppVolume[],
+         nodeId: string, notExposeAsWebApp: boolean, forceSsl: boolean,
+        ports: IAppPort[], appPushWebhook: IAppPushWebhook, authenticator: Authenticator,
+        customNginxConfig: string, preDeployFunction: string) {
         const self = this;
 
-        let app;
+        let app: IAppDefinition;
 
         return Promise.resolve()
             .then(function () {
@@ -259,10 +266,10 @@ class AppsDataStore {
                             branch: appPushWebhook.repoInfo.branch,
                             user: appPushWebhook.repoInfo.user,
                             password: appPushWebhook.repoInfo.password
-                        })
+                        });
                 }
 
-                return null;
+                return Promise.resolve(undefined);
 
             })
             .then(function (appPushWebhookRepoInfo) {
@@ -282,7 +289,7 @@ class AppsDataStore {
 
                 if (app.forceSsl) {
                     let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;
-                    let customDomainArray = app.customDomain;
+                    const customDomainArray = app.customDomain;
                     if (customDomainArray && customDomainArray.length > 0) {
                         for (let idx = 0; idx < customDomainArray.length; idx++) {
                             if (customDomainArray[idx].hasSsl) {
@@ -292,7 +299,7 @@ class AppsDataStore {
                     }
 
                     if (!hasAtLeastOneSslDomain) {
-                        throw new ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot force SSL without any SSL-enabled domain!");
+                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot force SSL without any SSL-enabled domain!");
                     }
 
                 }
@@ -308,23 +315,23 @@ class AppsDataStore {
                     app.appPushWebhook.repoInfo = appPushWebhookRepoInfo;
                 } else {
 
-                    app.appPushWebhook = {};
+                    app.appPushWebhook = {} as IAppPushWebhookAsSaved;
 
                 }
 
                 if (ports) {
 
-                    let isPortValid = function (portNumber) {
+                    const isPortValid = function (portNumber: number) {
                         return portNumber > 0 && portNumber < 65535;
                     };
 
-                    let tempPorts = [];
+                    const tempPorts: IAppPort[] = [];
                     for (let i = 0; i < ports.length; i++) {
-                        let obj = ports[i];
+                        const obj = ports[i];
                         if (obj.containerPort && obj.hostPort) {
 
-                            let containerPort = Number(obj.containerPort);
-                            let hostPort = Number(obj.hostPort);
+                            const containerPort = Number(obj.containerPort);
+                            const hostPort = Number(obj.hostPort);
 
                             if (isPortValid(containerPort) && isPortValid(hostPort)) {
                                 tempPorts.push({
@@ -341,12 +348,12 @@ class AppsDataStore {
                 if (envVars) {
                     app.envVars = [];
                     for (let i = 0; i < envVars.length; i++) {
-                        let obj = envVars[i];
+                        const obj = envVars[i];
                         if (obj.key && obj.value) {
                             app.envVars.push({
                                 key: obj.key,
                                 value: obj.value
-                            })
+                            });
                         }
                     }
                 }
@@ -356,38 +363,38 @@ class AppsDataStore {
                     app.volumes = [];
 
                     for (let i = 0; i < volumes.length; i++) {
-                        let obj = volumes[i];
+                        const obj = volumes[i];
                         if (obj.containerPath && (obj.volumeName || obj.hostPath)) {
 
                             if (obj.volumeName && obj.hostPath) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot define both host path and volume name!");
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot define both host path and volume name!");
                             }
 
                             if (!isValidPath(obj.containerPath)) {
-                                throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
                             }
 
-                            let newVol = {
+                            const newVol = {
                                 containerPath: obj.containerPath
-                            };
+                            } as IAppVolume;
 
                             if (obj.hostPath) {
 
                                 if (!isValidPath(obj.hostPath)) {
-                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume host path: " + obj.hostPath);
+                                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume host path: " + obj.hostPath);
                                 }
 
                                 newVol.hostPath = obj.hostPath;
-                                newVol.type = 'bind';
+                                newVol.type = "bind";
 
                             } else {
 
                                 if (!isNameAllowed(obj.volumeName)) {
-                                    throw new ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
                                 }
 
                                 newVol.volumeName = obj.volumeName;
-                                newVol.type = 'volume';
+                                newVol.type = "volume";
 
                             }
 
@@ -401,9 +408,10 @@ class AppsDataStore {
 
                 if (app.appPushWebhook.repoInfo) {
                     return authenticator
-                        .getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion)
+                        .getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion);
                 }
 
+                return Promise.resolve(undefined);
             })
             .then(function (pushWebhookToken) {
 
@@ -411,40 +419,40 @@ class AppsDataStore {
                     app.appPushWebhook.pushWebhookToken = pushWebhookToken;
                 }
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
             });
     }
 
-    setDeployedVersion(appName, version) {
+    setDeployedVersion(appName: string, version: number) {
 
         if (!appName) {
-            throw new Error('App Name should not be empty');
+            throw new Error("App Name should not be empty");
         }
         const self = this;
 
         return this.getAppDefinitions()
             .then(function (allApps) {
 
-                let app = allApps[appName];
+                const app = allApps[appName];
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.deployedVersion = version;
 
-                self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                self.data.set(APP_DEFINITIONS + "." + appName, app);
 
                 return version;
 
             });
     }
 
-    setGitHash(appName, newVersion, gitHashToSave) {
+    setGitHash(appName: string, newVersion: number, gitHashToSave: string) {
 
         if (!appName) {
-            throw new Error('App Name should not be empty');
+            throw new Error("App Name should not be empty");
         }
 
         const self = this;
@@ -453,7 +461,7 @@ class AppsDataStore {
             .then(function (app) {
 
                 if (!app) {
-                    throw new Error('App could not be found ' + appName);
+                    throw new Error("App could not be found " + appName);
                 }
 
                 app.versions = app.versions || [];
@@ -462,34 +470,34 @@ class AppsDataStore {
                 for (let i = 0; i < app.versions.length; i++) {
                     if (app.versions[i].version === newVersion) {
                         app.versions[i].gitHash = gitHashToSave;
-                        self.data.set(APP_DEFINITIONS + '.' + appName, app);
+                        self.data.set(APP_DEFINITIONS + "." + appName, app);
                         return;
                     }
                 }
 
-                Logger.e('Failed to set the git hash on the deployed version');
+                Logger.e("Failed to set the git hash on the deployed version");
 
 
             });
 
     }
 
-    deleteAppDefinition(appName) {
+    deleteAppDefinition(appName: string) {
         const self = this;
 
         return new Promise(function (resolve, reject) {
 
             if (!isNameAllowed(appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, 'App Name is not allow. Only lowercase letters and single hyphen is allow'));
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
                 return;
             }
 
-            if (!self.data.get(APP_DEFINITIONS + '.' + appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App Name does not exist in Database! Cannot be deleted.'));
+            if (!self.data.get(APP_DEFINITIONS + "." + appName)) {
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "App Name does not exist in Database! Cannot be deleted."));
                 return;
             }
 
-            self.data.delete(APP_DEFINITIONS + '.' + appName);
+            self.data.delete(APP_DEFINITIONS + "." + appName);
             resolve();
 
         });
@@ -502,22 +510,22 @@ class AppsDataStore {
      * @param hasPersistentData         whether the app has persistent data, you can only run one instance of the app.
      * @returns {Promise}
      */
-    registerAppDefinition(appName, hasPersistentData) {
+    registerAppDefinition(appName: string, hasPersistentData: boolean) {
         const self = this;
 
         return new Promise(function (resolve, reject) {
 
             if (!isNameAllowed(appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, 'App Name is not allow. Only lowercase letters and single hyphen is allow'));
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
                 return;
             }
 
-            if (!!self.data.get(APP_DEFINITIONS + '.' + appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST, 'App Name already exists. Please use a different name'));
+            if (!!self.data.get(APP_DEFINITIONS + "." + appName)) {
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST, "App Name already exists. Please use a different name"));
                 return;
             }
 
-            let defaultAppDefinition = {
+            const defaultAppDefinition = {
                 hasPersistentData: !!hasPersistentData,
                 instanceCount: 1,
                 networks: [CaptainConstants.captainNetworkName],
@@ -528,34 +536,34 @@ class AppsDataStore {
                 versions: []
             };
 
-            self.data.set(APP_DEFINITIONS + '.' + appName, defaultAppDefinition);
+            self.data.set(APP_DEFINITIONS + "." + appName, defaultAppDefinition);
             resolve();
 
         });
     }
 
-    getAppsServerConfig(defaultAppNginxConfig, hasRootSsl, rootDomain) {
+    getAppsServerConfig(defaultAppNginxConfig: string, hasRootSsl: boolean, rootDomain: string) {
 
         const self = this;
 
-        let apps = self.data.get(APP_DEFINITIONS) || {};
-        let servers = [];
+        const apps = self.data.get(APP_DEFINITIONS) || {};
+        const servers: IServerBlockDetails[] = [];
 
         Object.keys(apps).forEach(function (appName) {
 
-            let webApp = apps[appName];
+            const webApp = apps[appName];
 
             if (webApp.notExposeAsWebApp) {
                 return;
             }
 
-            let localDomain = self.getServiceName(appName);
-            let forceSsl = !!webApp.forceSsl;
-            let nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
+            const localDomain = self.getServiceName(appName);
+            const forceSsl = !!webApp.forceSsl;
+            const nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
 
-            let serverWithSubDomain = {};
+            const serverWithSubDomain = {} as IServerBlockDetails;
             serverWithSubDomain.hasSsl = hasRootSsl && webApp.hasDefaultSubDomainSsl;
-            serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
+            serverWithSubDomain.publicDomain = appName + "." + rootDomain;
             serverWithSubDomain.localDomain = localDomain;
             serverWithSubDomain.forceSsl = forceSsl;
             serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate;
@@ -563,16 +571,17 @@ class AppsDataStore {
             servers.push(serverWithSubDomain);
 
             // adding custom domains
-            let customDomainArray = webApp.customDomain;
+            const customDomainArray = webApp.customDomain;
             if (customDomainArray && customDomainArray.length > 0) {
                 for (let idx = 0; idx < customDomainArray.length; idx++) {
-                    let d = customDomainArray[idx];
+                    const d = customDomainArray[idx];
                     servers.push({
                         hasSsl: d.hasSsl,
                         forceSsl: forceSsl,
                         publicDomain: d.publicDomain,
                         localDomain: localDomain,
-                        nginxConfigTemplate: nginxConfigTemplate
+                        nginxConfigTemplate: nginxConfigTemplate,
+                        staticWebRoot: ""
                     });
 
                 }
@@ -585,4 +594,4 @@ class AppsDataStore {
     }
 }
 
-module.exports = AppsDataStore;
+export = AppsDataStore;

@@ -32,7 +32,7 @@ class DataStore {
         data.path = CaptainConstants.captainRootDirectory + "/config.conf";
         this.data = data;
         this.data.set(NAMESPACE, namespace);
-        this.appsDataStore = new AppsDataStore(this.data);
+        this.appsDataStore = new AppsDataStore(this.data, namespace);
     }
     getNameSpace() {
         return this.data.get(NAMESPACE);
@@ -104,9 +104,6 @@ class DataStore {
             .then(function () {
             return (self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0);
         });
-    }
-    getServiceName(appName) {
-        return "srv-" + this.getNameSpace() + "--" + appName;
     }
     getImageName(authObj, appName, version) {
         let authPrefix = "";
