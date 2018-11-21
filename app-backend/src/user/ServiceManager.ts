@@ -1015,4 +1015,4 @@ class ServiceManager {
     }
 }
 
-module.exports = ServiceManager;
+export = ServiceManager;

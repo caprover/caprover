@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
 const fs = require("fs-extra");

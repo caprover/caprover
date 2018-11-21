@@ -1,16 +1,19 @@
-const DataStoreProvider = require('../datastore/DataStoreProvider');
-const Authenticator = require('../user/Authenticator');
-const CaptainConstants = require('../utils/CaptainConstants');
-const CaptainManager = require('../user/CaptainManager');
-const ServiceManager = require('../user/ServiceManager');
-const dockerApi = require('../docker/DockerApi').get();
-const BaseApi = require('../api/BaseApi');
-const Logger = require('../utils/Logger');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const DataStoreProvider = require("../datastore/DataStoreProvider");
+const Authenticator = require("../user/Authenticator");
+const CaptainConstants = require("../utils/CaptainConstants");
+const CaptainManager = require("../user/CaptainManager");
+const ServiceManager = require("../user/ServiceManager");
+const DockerApiProvider = require("../docker/DockerApi");
+const BaseApi = require("../api/BaseApi");
+const Logger = require("../utils/Logger");
+const dockerApi = DockerApiProvider.get();
 const serviceMangerCache = {};
 /**
  * Global dependency injection module
  */
-module.exports.injectGlobal = function (req, res) {
+module.exports.injectGlobal = function () {
     return function (req, res, next) {
         const locals = res.locals;
         locals.initialized = CaptainManager.get().isInitialized();
@@ -30,8 +33,9 @@ module.exports.injectUser = function () {
         }
         const namespace = res.locals.namespace;
         Authenticator.get(namespace)
-            .decodeAuthToken(req.header(CaptainConstants.header.auth))
-            .then(function (user) {
+            .decodeAuthToken(req.header(CaptainConstants.header.auth) || "")
+            .then(function (userDecoded) {
+            const user = userDecoded;
             if (user) {
                 user.dataStore = DataStoreProvider.getDataStore(namespace);
                 if (!serviceMangerCache[user.namespace]) {
@@ -49,7 +53,7 @@ module.exports.injectUser = function () {
                 return;
             }
             Logger.e(error);
-            res.locals.user = null;
+            res.locals.user = undefined;
             next();
         });
     };
@@ -59,28 +63,28 @@ module.exports.injectUser = function () {
  */
 module.exports.injectUserForWebhook = function () {
     return function (req, res, next) {
-        let token = req.query.token;
-        let namespace = req.query.namespace;
-        let app = null;
+        const token = req.query.token;
+        const namespace = req.query.namespace;
+        let app = undefined;
         if (!token || !namespace) {
-            Logger.e('Trigger build is called with no token/namespace');
+            Logger.e("Trigger build is called with no token/namespace");
             next();
             return;
         }
-        let dataStore = DataStoreProvider.getDataStore(namespace);
-        let decodedInfo = null;
+        const dataStore = DataStoreProvider.getDataStore(namespace);
+        let decodedInfo;
         Authenticator.get(namespace).decodeAppPushWebhookToken(token)
             .then(function (data) {
             decodedInfo = data;
             return dataStore.getAppsDataStore()
-                .getAppDefinition(data.appName);
+                .getAppDefinition(decodedInfo.appName);
         })
             .then(function (appFound) {
             app = appFound;
             if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
-                throw new Error('Token Info do not match');
+                throw new Error("Token Info do not match");
             }
-            let user = {
+            const user = {
                 namespace: namespace
             };
             user.dataStore = DataStoreProvider.getDataStore(namespace);
@@ -96,7 +100,7 @@ module.exports.injectUserForWebhook = function () {
         })
             .catch(function (error) {
             Logger.e(error);
-            res.locals.app = null;
+            res.locals.app = undefined;
             next();
         });
     };
@@ -119,7 +123,7 @@ module.exports.injectUserUsingCookieDataOnly = function () {
                 return;
             }
             Logger.e(error);
-            res.locals.user = null;
+            res.locals.user = undefined;
             next();
         });
     };

@@ -9,6 +9,7 @@ import CaptainManager = require("./CaptainManager");
 import CaptainConstants = require("../utils/CaptainConstants");
 import Logger = require("../utils/Logger");
 import DataStoreProvider = require("../datastore/DataStoreProvider");
+import { UserJwt } from "../models/InjectionInterfaces";
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || "captain42";
 
@@ -103,7 +104,7 @@ class Authenticator {
                     );
                 }
 
-                const userObj = {
+                const userObj: UserJwt = {
                     namespace: self.namespace,
                     tokenVersion: self.tokenVersion,
                 };
@@ -122,7 +123,7 @@ class Authenticator {
         return this.decodeAuthToken(token, COOKIE_AUTH_SUFFIX);
     }
 
-    decodeAuthToken(token: string, keySuffix: string) {
+    decodeAuthToken(token: string, keySuffix?: string) {
         const self = this;
 
         return new Promise(function(resolve, reject) {
