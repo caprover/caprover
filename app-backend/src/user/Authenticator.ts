@@ -89,7 +89,7 @@ class Authenticator {
         return this.getAuthToken(password, COOKIE_AUTH_SUFFIX);
     }
 
-    getAuthToken(password: string, keySuffix: string) {
+    getAuthToken(password: string, keySuffix?: string) {
         const self = this;
 
         return Promise.resolve()

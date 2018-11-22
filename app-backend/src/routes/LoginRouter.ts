@@ -1,11 +1,11 @@
-const express = require('express');
+import express = require('express');
+import TokenApi = require('../api/TokenApi');
+import BaseApi = require('../api/BaseApi');
+import Authenticator = require('../user/Authenticator');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Logger = require('../utils/Logger');
+import CaptainConstants = require('../utils/CaptainConstants');
 const router = express.Router();
-const TokenApi = require('../api/TokenApi');
-const BaseApi = require('../api/BaseApi');
-const Authenticator = require('../user/Authenticator');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainConstants = require('../utils/CaptainConstants');
 
 router.post('/', function (req, res, next) {
 
@@ -18,7 +18,7 @@ router.post('/', function (req, res, next) {
         return;
     }
 
-    let authToken = null;
+    let authToken:string;
 
     Authenticator.get(res.locals.namespace).getAuthToken(password)
         .then(function (token) {
@@ -40,4 +40,4 @@ router.post('/', function (req, res, next) {
 
 });
 
-module.exports = router;
+export = router;

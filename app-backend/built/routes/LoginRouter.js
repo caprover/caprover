@@ -1,11 +1,12 @@
-const express = require('express');
+"use strict";
+const express = require("express");
+const TokenApi = require("../api/TokenApi");
+const BaseApi = require("../api/BaseApi");
+const Authenticator = require("../user/Authenticator");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
+const Logger = require("../utils/Logger");
+const CaptainConstants = require("../utils/CaptainConstants");
 const router = express.Router();
-const TokenApi = require('../api/TokenApi');
-const BaseApi = require('../api/BaseApi');
-const Authenticator = require('../user/Authenticator');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainConstants = require('../utils/CaptainConstants');
 router.post('/', function (req, res, next) {
     let password = req.body.password || '';
     if (!password) {
@@ -13,7 +14,7 @@ router.post('/', function (req, res, next) {
         res.send(response);
         return;
     }
-    let authToken = null;
+    let authToken;
     Authenticator.get(res.locals.namespace).getAuthToken(password)
         .then(function (token) {
         authToken = token;
