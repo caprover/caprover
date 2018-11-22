@@ -1,5 +1,5 @@
-const fs = require('fs-extra');
-const EnvVars = require('./EnvVars');
+import fs = require('fs-extra');
+import EnvVars = require('./EnvVars');
 
 const CAPTAIN_ROOT_DIRECTORY = '/captain';
 const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
@@ -119,7 +119,9 @@ let data = {
 
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
 
-    perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d'
+    perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
+
+    debugSourceDirectory:'' // Only used in debug mode
 
 };
 
@@ -136,7 +138,7 @@ if (!!overridingValues) {
         }
 
         console.log('Overriding ' + prop);
-
+        // @ts-ignore
         data[prop] = overridingValues[prop];
     }
 }
@@ -155,4 +157,4 @@ if (data.isDebug) {
     data.nginxPortNumber = 80;
 }
 
-module.exports = data;
+export = data;

@@ -1,5 +1,6 @@
-const fs = require('fs-extra');
-const EnvVars = require('./EnvVars');
+"use strict";
+const fs = require("fs-extra");
+const EnvVars = require("./EnvVars");
 const CAPTAIN_ROOT_DIRECTORY = '/captain';
 const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf';
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp';
@@ -63,7 +64,8 @@ let data = {
     captainDefinitionTempDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/captain_definition',
     baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
-    perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d'
+    perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
+    debugSourceDirectory: '' // Only used in debug mode
 };
 let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
     throws: false
@@ -74,6 +76,7 @@ if (!!overridingValues) {
             continue;
         }
         console.log('Overriding ' + prop);
+        // @ts-ignore
         data[prop] = overridingValues[prop];
     }
 }
