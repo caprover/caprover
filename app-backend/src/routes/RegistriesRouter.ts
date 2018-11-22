@@ -1,11 +1,11 @@
-const express = require('express');
+import express = require('express');
+import BaseApi = require('../api/BaseApi');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Logger = require('../utils/Logger');
+import CaptainManager = require('../user/CaptainManager');
+import Validator = require('validator');
+import CaptainConstants = require('../utils/CaptainConstants');
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainManager = require('../user/CaptainManager');
-const Validator = require('validator');
-const CaptainConstants = require('../utils/CaptainConstants');
 
 router.post('/insert/', function (req, res, next) {
 
@@ -46,7 +46,7 @@ router.post('/insert/', function (req, res, next) {
 router.get('/all/', function (req, res, next) {
 
     const captainManager = CaptainManager.get();
-    let registries = [];
+    let registries: IRegistryInfo[] = [];
 
     return Promise.resolve()
         .then(function () {
@@ -64,8 +64,9 @@ router.get('/all/', function (req, res, next) {
 
 
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');
-            baseApi.registries = registries;
-            baseApi.defaultPushRegistryId = defaultPush;
+            baseApi.data = {};
+            baseApi.data.registries = registries;
+            baseApi.data.defaultPushRegistryId = defaultPush;
             res.send(baseApi);
 
         })
@@ -143,4 +144,4 @@ router.post('/setpush/', function (req, res, next) {
 });
 
 
-module.exports = router;
+export = router;

@@ -1,11 +1,10 @@
-const express = require('express');
+"use strict";
+const express = require("express");
+const BaseApi = require("../api/BaseApi");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
+const Logger = require("../utils/Logger");
+const CaptainManager = require("../user/CaptainManager");
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainManager = require('../user/CaptainManager');
-const Validator = require('validator');
-const CaptainConstants = require('../utils/CaptainConstants');
 router.post('/insert/', function (req, res, next) {
     let registryUser = req.body.registryUser + '';
     let registryPassword = req.body.registryPassword + '';
@@ -43,8 +42,9 @@ router.get('/all/', function (req, res, next) {
     })
         .then(function (defaultPush) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');
-        baseApi.registries = registries;
-        baseApi.defaultPushRegistryId = defaultPush;
+        baseApi.data = {};
+        baseApi.data.registries = registries;
+        baseApi.data.defaultPushRegistryId = defaultPush;
         res.send(baseApi);
     })
         .catch(function (error) {
