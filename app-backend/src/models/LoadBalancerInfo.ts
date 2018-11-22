@@ -1,14 +1,13 @@
 class LoadBalancerInfo {
-    public activeConnections: number;
+    public activeConnections: number
 
-    public accepted: number;
-    public handled: number;
-    public total: number;
+    public accepted: number
+    public handled: number
+    public total: number
 
-
-    public reading: number;
-    public writing: number;
-    public waiting: number;
+    public reading: number
+    public writing: number
+    public waiting: number
 }
 
-exports = LoadBalancerInfo;
+exports = LoadBalancerInfo

@@ -1,91 +1,91 @@
-import fs = require("fs-extra");
-import EnvVars = require("./EnvVars");
+import fs = require('fs-extra')
+import EnvVars = require('./EnvVars')
 
-const CAPTAIN_ROOT_DIRECTORY = "/captain";
-const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + "/constants.conf";
-const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + "/temp";
-const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + "/generated";
+const CAPTAIN_ROOT_DIRECTORY = '/captain'
+const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf'
+const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp'
+const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated'
 
 let data = {
-    apiVersion: "v1",
+    apiVersion: 'v1',
 
-    publishedNameOnDockerHub: "dockersaturn/captainduckduck",
+    publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
 
-    certbotImageName: "dockersaturn/certbot-sleeping:v0.17.0",
+    certbotImageName: 'dockersaturn/certbot-sleeping:v0.17.0',
 
-    netDataImageName: "titpetric/netdata:1.8",
+    netDataImageName: 'titpetric/netdata:1.8',
 
-    registryImageName: "registry:2",
+    registryImageName: 'registry:2',
 
-    appPlaceholderImageName: "dockersaturn/app-placeholder:latest",
+    appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
 
-    nginxImageName: "nginx",
+    nginxImageName: 'nginx',
 
-    defaultEmail: "runner@captainduckduck.com",
+    defaultEmail: 'runner@captainduckduck.com',
 
-    defaultMaxLogSize: "512m",
+    defaultMaxLogSize: '512m',
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
-    version: "0.7.2",
+    version: '0.7.2',
 
-    captainSaltSecretKey: "captain-salt",
+    captainSaltSecretKey: 'captain-salt',
 
-    nginxServiceName: "captain-nginx",
+    nginxServiceName: 'captain-nginx',
 
     nginxPortNumber: 80,
 
-    rootNameSpace: "captain",
+    rootNameSpace: 'captain',
 
-    captainServiceName: "captain-captain",
+    captainServiceName: 'captain-captain',
 
-    certbotServiceName: "captain-certbot",
+    certbotServiceName: 'captain-certbot',
 
-    netDataContainerName: "captain-netdata-container",
+    netDataContainerName: 'captain-netdata-container',
 
-    netDataRelativePath: "/net-data-monitor",
+    netDataRelativePath: '/net-data-monitor',
 
     preCheckForWildCard: true,
 
-    captainSubDomain: "captain",
+    captainSubDomain: 'captain',
 
-    registrySubDomain: "registry",
+    registrySubDomain: 'registry',
 
-    registryServiceName: "captain-registry",
+    registryServiceName: 'captain-registry',
 
     registrySubDomainPort: 996,
 
-    captainRegistryAuthHeaderSecretPrefix: "captain-reg-auth",
+    captainRegistryAuthHeaderSecretPrefix: 'captain-reg-auth',
 
-    captainRegistryUsername: "captain",
+    captainRegistryUsername: 'captain',
 
-    captainNetworkName: "captain-overlay-network",
+    captainNetworkName: 'captain-overlay-network',
 
     header: {
-        cookieAuth: "captainCookieAuth",
-        auth: "x-captain-auth",
-        namespace: "x-namespace",
+        cookieAuth: 'captainCookieAuth',
+        auth: 'x-captain-auth',
+        namespace: 'x-namespace',
     },
 
-    healthCheckEndPoint: "/checkhealth",
+    healthCheckEndPoint: '/checkhealth',
 
-    prefixManagerNode: "captainManager",
+    prefixManagerNode: 'captainManager',
 
-    prefixWorkerNode: "captainWorker",
+    prefixWorkerNode: 'captainWorker',
 
-    dockerSocketPath: "/var/run/docker.sock",
+    dockerSocketPath: '/var/run/docker.sock',
 
-    sourcePathInContainer: "/usr/src/app",
+    sourcePathInContainer: '/usr/src/app',
 
     captainServiceExposedPort: 3000,
 
-    nginxStaticRootDir: "/usr/share/nginx",
+    nginxStaticRootDir: '/usr/share/nginx',
 
-    nginxDefaultHtmlDir: "/default",
+    nginxDefaultHtmlDir: '/default',
 
-    nginxDomainSpecificHtmlDir: "/domains",
+    nginxDomainSpecificHtmlDir: '/domains',
 
-    captainConfirmationPath: "/.well-known/captain-identifier",
+    captainConfirmationPath: '/.well-known/captain-identifier',
 
     captainRootDirectory: CAPTAIN_ROOT_DIRECTORY,
 
@@ -93,68 +93,71 @@ let data = {
 
     captainRootDirectoryGenerated: CAPTAIN_ROOT_DIRECTORY_GENERATED,
 
-    letsEncryptLibPath: CAPTAIN_ROOT_DIRECTORY + "/letencrypt/lib",
+    letsEncryptLibPath: CAPTAIN_ROOT_DIRECTORY + '/letencrypt/lib',
 
-    letsEncryptEtcPath: CAPTAIN_ROOT_DIRECTORY + "/letencrypt/etc",
+    letsEncryptEtcPath: CAPTAIN_ROOT_DIRECTORY + '/letencrypt/etc',
 
-    registryPathOnHost: CAPTAIN_ROOT_DIRECTORY + "/registry",
+    registryPathOnHost: CAPTAIN_ROOT_DIRECTORY + '/registry',
 
-    registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + "/registry-auth", // this is a file
+    registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
 
-    nginxSharedPathOnHost: CAPTAIN_ROOT_DIRECTORY + "/nginx-shared",
+    nginxSharedPathOnHost: CAPTAIN_ROOT_DIRECTORY + '/nginx-shared',
 
-    letsEncryptEtcPathOnNginx: "/letencrypt/etc",
+    letsEncryptEtcPathOnNginx: '/letencrypt/etc',
 
-    nginxSharedPathOnNginx: "/nginx-shared",
+    nginxSharedPathOnNginx: '/nginx-shared',
 
-    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + "/static",
+    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
 
-    captainRawImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + "/img_raw",
+    captainRawImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_raw',
 
-    captainTarImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + "/img_tar",
+    captainTarImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_tar',
 
-    captainDefinitionTempDir: CAPTAIN_ROOT_DIRECTORY_TEMP + "/captain_definition",
+    captainDefinitionTempDir:
+        CAPTAIN_ROOT_DIRECTORY_TEMP + '/captain_definition',
 
-    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + "/nginx/nginx.conf",
+    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
 
-    rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + "/nginx/conf.d/captain-root",
+    rootNginxConfigPath:
+        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
 
-    perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + "/nginx/conf.d",
+    perAppNginxConfigPathBase:
+        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
 
-    debugSourceDirectory: "", // Only used in debug mode
-
-};
+    debugSourceDirectory: '', // Only used in debug mode
+}
 
 let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
     throws: false,
-});
+})
 
 if (!!overridingValues) {
-
     for (let prop in overridingValues) {
-
         if (!overridingValues.hasOwnProperty(prop)) {
-            continue;
+            continue
         }
 
-        console.log("Overriding " + prop);
+        console.log('Overriding ' + prop)
         // @ts-ignore
-        data[prop] = overridingValues[prop];
+        data[prop] = overridingValues[prop]
     }
 }
-
 
 if (data.isDebug) {
-
-    let devDirectoryOnLocalMachine = fs.readFileSync(__dirname + "/../../currentdirectory").toString().trim();
+    let devDirectoryOnLocalMachine = fs
+        .readFileSync(__dirname + '/../../currentdirectory')
+        .toString()
+        .trim()
 
     if (!devDirectoryOnLocalMachine) {
-        throw new Error("For development purposes, you need to assign your local directory here");
+        throw new Error(
+            'For development purposes, you need to assign your local directory here'
+        )
     }
 
-    data.debugSourceDirectory = devDirectoryOnLocalMachine;
-    data.publishedNameOnDockerHub = "captain-debug";
-    data.nginxPortNumber = 80;
+    data.debugSourceDirectory = devDirectoryOnLocalMachine
+    data.publishedNameOnDockerHub = 'captain-debug'
+    data.nginxPortNumber = 80
 }
 
-export = data;
+export = data

@@ -1,9 +1,9 @@
 interface IAllAppDefinitions {
-    [appId: string]: IAppDefinition;
+    [appId: string]: IAppDefinition
 }
 
 interface IAppPushWebhook {
-    repoInfo: RepoInfo;
+    repoInfo: RepoInfo
 }
 
 interface RepoInfo {
@@ -14,72 +14,69 @@ interface RepoInfo {
 }
 
 interface IAppPushWebhookAsSaved {
-    tokenVersion: string;
+    tokenVersion: string
     /*repoInfo: {
         repoAddress: string
         branch: string
         user: string
         passwordEncrypted: string
     };*/
-    repoInfo: string | RepoInfo | {};
-    pushWebhookToken: string;
+    repoInfo: string | RepoInfo | {}
+    pushWebhookToken: string
 }
 
-
 interface IAppEnvVar {
-    key: string;
-    value: string;
+    key: string
+    value: string
 }
 
 interface IAppVolume {
-    containerPath: string;
-    volumeName?: string;
-    hostPath?: string;
-    type?: string;
+    containerPath: string
+    volumeName?: string
+    hostPath?: string
+    type?: string
 
-    mode?: string;
+    mode?: string
 }
 
 interface IAppPort {
-    containerPort: number;
-    hostPort: number;
-    protocol?: string;
+    containerPort: number
+    hostPort: number
+    protocol?: string
 
-    publishMode?: string;
+    publishMode?: string
 }
 
 class IAppDefinition {
-    public appName?: string;
-    public isAppBuilding?: boolean;
+    public appName?: string
+    public isAppBuilding?: boolean
 
+    public deployedVersion: number
+    public notExposeAsWebApp: boolean
+    public hasPersistentData: boolean
+    public hasDefaultSubDomainSsl: boolean
 
-    public deployedVersion: number;
-    public notExposeAsWebApp: boolean;
-    public hasPersistentData: boolean;
-    public hasDefaultSubDomainSsl: boolean;
-
-    public forceSsl: boolean;
-    public nodeId: string;
-    public instanceCount: number;
-    public preDeployFunction: string;
-    public customNginxConfig: string;
-    public networks: string[];
+    public forceSsl: boolean
+    public nodeId: string
+    public instanceCount: number
+    public preDeployFunction: string
+    public customNginxConfig: string
+    public networks: string[]
     public customDomain: {
         publicDomain: string
         hasSsl: boolean
-    }[];
-    public appPushWebhook: IAppPushWebhookAsSaved;
+    }[]
+    public appPushWebhook: IAppPushWebhookAsSaved
 
-    public ports: IAppPort[];
+    public ports: IAppPort[]
 
-
-    public volumes: IAppVolume[];
-    public envVars: IAppEnvVar[];
+    public volumes: IAppVolume[]
+    public envVars: IAppEnvVar[]
 
     public versions: {
-        version: number,
-        timeStamp: string,
+        version: number
+        timeStamp: string
         /// imageName: string,
-        gitHash: string | undefined,
-    }[];
+        gitHash: string | undefined
+    }[]
 }

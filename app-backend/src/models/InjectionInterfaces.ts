@@ -1,21 +1,19 @@
-import DataStore = require("../datastore/DataStoreImpl");
-import ServiceManager = require("../user/ServiceManager");
+import DataStore = require('../datastore/DataStoreImpl')
+import ServiceManager = require('../user/ServiceManager')
 
 export interface UserJwt {
-    namespace: string;
-    tokenVersion: string | undefined;
+    namespace: string
+    tokenVersion: string | undefined
 }
-
 
 export interface UserInjected extends UserJwt {
-    dataStore: DataStore;
-    serviceManager: ServiceManager;
+    dataStore: DataStore
+    serviceManager: ServiceManager
 
-    initialized: boolean;
+    initialized: boolean
 }
 
-
 export interface IAppWebHookToken {
-    appName: string;
-    tokenVersion: string;
+    appName: string
+    tokenVersion: string
 }
