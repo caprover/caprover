@@ -274,7 +274,7 @@ class AppsDataStore {
                             newVol.type = "bind";
                         }
                         else {
-                            if (!isNameAllowed(obj.volumeName)) {
+                            if (!obj.volumeName || !isNameAllowed(obj.volumeName)) {
                                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
                             }
                             newVol.volumeName = obj.volumeName;

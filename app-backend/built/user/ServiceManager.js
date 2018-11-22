@@ -11,6 +11,7 @@ const Authenticator = require("./Authenticator");
 const GitHelper = require("../utils/GitHelper");
 const uuid = require("uuid/v4");
 const requireFromString = require("require-from-string");
+const BuildLog = require("./BuildLog");
 const BUILD_LOG_SIZE = 50;
 const SOURCE_FOLDER_NAME = "src";
 const DOCKER_FILE = "Dockerfile";
@@ -28,41 +29,6 @@ function getTarImageBaseFolder(imageName, newVersionPulled) {
 }
 function getCaptainDefinitionTempFolder(serviceName, randomSuffix) {
     return CaptainConstants.captainDefinitionTempDir + "/" + serviceName + "/" + randomSuffix;
-}
-class BuildLog {
-    constructor(size) {
-        this.size = size;
-        this.clear();
-    }
-    onBuildFailed(error) {
-        this.log("----------------------");
-        this.log("Deploy failed!");
-        this.log(error);
-        this.isBuildFailed = true;
-    }
-    clear() {
-        this.isBuildFailed = false;
-        this.firstLineNumber = -this.size;
-        this.lines = [];
-        for (let i = 0; i < this.size; i++) {
-            this.lines.push("");
-        }
-    }
-    log(msg) {
-        msg = (msg || "") + "";
-        this.lines.shift();
-        this.lines.push(msg);
-        this.firstLineNumber++;
-        Logger.dev(msg);
-    }
-    getLogs() {
-        const self = this;
-        // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
-        return JSON.parse(JSON.stringify({
-            lines: self.lines,
-            firstLineNumber: self.firstLineNumber
-        }));
-    }
 }
 class ServiceManager {
     constructor(user, dockerApi, loadBalancerManager) {
@@ -631,7 +597,7 @@ class ServiceManager {
                                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot find the service. Try again in a minute...");
                             }
                             return dockerApi
-                                .getNodeIdByServiceName(serviceName);
+                                .getNodeIdByServiceName(serviceName, 0);
                         })
                             .then(function (nodeIdRunningService) {
                             if (!nodeIdRunningService) {

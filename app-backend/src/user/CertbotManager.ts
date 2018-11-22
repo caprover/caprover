@@ -302,7 +302,7 @@ class CertbotManager {
                     Logger.d("Captain Certbot is already running.. ");
 
                     return dockerApi
-                        .getNodeIdByServiceName(CaptainConstants.certbotServiceName);
+                        .getNodeIdByServiceName(CaptainConstants.certbotServiceName, 0);
 
                 } else {
 

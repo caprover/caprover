@@ -1,17 +1,18 @@
-const Base64 = require('js-base64').Base64;
-const Docker = require('dockerode');
-const uuid = require('uuid/v4');
-const util = require('util');
-const CaptainConstants = require('../utils/CaptainConstants');
-const Logger = require('../utils/Logger');
-const EnvVars = require('../utils/EnvVars');
+"use strict";
+const Base64Provider = require("js-base64");
+const Docker = require("dockerode");
+const uuid = require("uuid/v4");
+const CaptainConstants = require("../utils/CaptainConstants");
+const Logger = require("../utils/Logger");
+const EnvVars = require("../utils/EnvVars");
+const Base = Base64Provider.Base64;
 function safeParseChunk(chunk) {
     try {
         return JSON.parse(chunk);
     }
     catch (ignore) {
         return {
-            stream: 'Cannot parse ' + chunk
+            stream: "Cannot parse " + chunk
         };
     }
 }
@@ -24,14 +25,14 @@ class DockerApi {
     }
     initSwarm(ip, port) {
         const self = this;
-        port = port || '2377';
-        let advertiseAddr = ip + ':' + port;
-        let swarmOptions = {
-            'ListenAddr': '0.0.0.0:' + port,
-            'AdvertiseAddr': advertiseAddr,
-            'ForceNewCluster': false
+        port = port || "2377";
+        const advertiseAddr = ip + ":" + port;
+        const swarmOptions = {
+            "ListenAddr": "0.0.0.0:" + port,
+            "AdvertiseAddr": advertiseAddr,
+            "ForceNewCluster": false
         };
-        Logger.d('Starting swarm at ' + advertiseAddr);
+        Logger.d("Starting swarm at " + advertiseAddr);
         return self.dockerode.swarmInit(swarmOptions);
     }
     swarmLeave(forced) {
@@ -47,15 +48,14 @@ class DockerApi {
             .listTasks({
             filters: {
                 service: [serviceName],
-                'desired-state': ['running']
+                "desired-state": ["running"]
             }
         })
             .then(function (data) {
-            let nodeID = null;
             if (data.length > 0) {
-                nodeID = data[0].NodeID;
+                return Promise.resolve(data[0].NodeID);
             }
-            if (!nodeID) {
+            else {
                 if (retryCount < 3) {
                     return new Promise(function (resolve) {
                         setTimeout(function () {
@@ -63,13 +63,12 @@ class DockerApi {
                         }, 3000);
                     })
                         .then(function () {
-                        Logger.d('Retrying to get NodeID for ' + serviceName + ' retry count:' + retryCount);
+                        Logger.d("Retrying to get NodeID for " + serviceName + " retry count:" + retryCount);
                         return self.getNodeIdByServiceName(serviceName, retryCount + 1);
                     });
                 }
-                throw new Error('There must be only one instance (not ' + data.length + ') of the service running to find node id. ' + serviceName);
+                throw new Error("There must be only one instance (not " + data.length + ") of the service running to find node id. " + serviceName);
             }
-            return nodeID;
         });
     }
     getLeaderNodeId() {
@@ -80,7 +79,7 @@ class DockerApi {
         })
             .then(function (nodes) {
             for (let idx = 0; idx < nodes.length; idx++) {
-                let node = nodes[idx];
+                const node = nodes[idx];
                 if (node.ManagerStatus && node.ManagerStatus.Leader) {
                     return node.ID;
                 }
@@ -88,7 +87,7 @@ class DockerApi {
         });
     }
     createJoinCommand(captainIpAddress, token) {
-        return 'docker swarm join --token ' + token + ' ' + captainIpAddress + ':2377';
+        return "docker swarm join --token " + token + " " + captainIpAddress + ":2377";
     }
     getNodesInfo() {
         const self = this;
@@ -97,16 +96,16 @@ class DockerApi {
             return self.dockerode.listNodes();
         })
             .then(function (nodes) {
-            let ret = [];
+            const ret = [];
             if (!nodes || !nodes.length) {
                 return ret;
             }
             for (let i = 0; i < nodes.length; i++) {
-                let n = nodes[i];
+                const n = nodes[i];
                 ret.push({
                     nodeId: n.ID,
                     type: n.Spec.Role,
-                    isLeader: n.Spec.Role === 'manager' && n.ManagerStatus && n.ManagerStatus.Leader === true,
+                    isLeader: n.Spec.Role === "manager" && n.ManagerStatus && n.ManagerStatus.Leader === true,
                     hostname: n.Description.Hostname,
                     architecture: n.Description.Platform.Architecture,
                     operatingSystem: n.Description.Platform.OS,
@@ -129,59 +128,59 @@ class DockerApi {
         })
             .then(function (inspectData) {
             if (!inspectData || !inspectData.JoinTokens) {
-                throw new Error('Inspect data does not contain tokens!!');
+                throw new Error("Inspect data does not contain tokens!!");
             }
-            let token = isManager ? inspectData.JoinTokens.Manager : inspectData.JoinTokens.Worker;
+            const token = isManager ? inspectData.JoinTokens.Manager : inspectData.JoinTokens.Worker;
             if (!token) {
-                throw new Error('Inspect data does not contain the required token!!');
+                throw new Error("Inspect data does not contain the required token!!");
             }
             return token;
         });
     }
-    buildImageFromDockerFile(imageName, newVersion, tarballFilePath, buildLogs) {
+    buildImageFromDockerFile(imageName, newVersionNumber, tarballFilePath, buildLogs) {
         const self = this;
-        newVersion = '' + newVersion;
-        Logger.d('Building docker image. This might take a few minutes...');
+        let newVersion = "" + newVersionNumber;
+        Logger.d("Building docker image. This might take a few minutes...");
         return self.dockerode
             .buildImage(tarballFilePath, {
             t: imageName
         })
             .then(function (stream) {
             return new Promise(function (resolve, reject) {
-                let errorMessage = '';
-                stream.setEncoding('utf8');
+                let errorMessage = "";
+                stream.setEncoding("utf8");
                 // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                stream.on('data', function (chunk) {
-                    Logger.dev('stream data ' + chunk);
+                stream.on("data", function (chunk) {
+                    Logger.dev("stream data " + chunk);
                     chunk = safeParseChunk(chunk);
-                    let chuckStream = chunk.stream;
+                    const chuckStream = chunk.stream;
                     if (chuckStream) {
                         // Logger.dev('stream data ' + chuckStream);
                         buildLogs.log(chuckStream);
                     }
                     if (chunk.error) {
                         Logger.e(chunk.error);
-                        let errorDetails = JSON.stringify(chunk.errorDetail);
+                        const errorDetails = JSON.stringify(chunk.errorDetail);
                         Logger.e(errorDetails);
                         buildLogs.log(errorDetails);
                         buildLogs.log(chunk.error);
-                        errorMessage += '\n';
+                        errorMessage += "\n";
                         errorMessage += errorDetails;
-                        errorMessage += '\n';
+                        errorMessage += "\n";
                         errorMessage += chunk.error;
                     }
                 });
                 // stream.pipe(process.stdout, {end: true});
                 // IncomingMessage
                 // https://nodejs.org/api/stream.html#stream_event_end
-                stream.on('end', function () {
+                stream.on("end", function () {
                     if (errorMessage) {
                         reject(errorMessage);
                         return;
                     }
                     resolve();
                 });
-                stream.on('error', function (chunk) {
+                stream.on("error", function (chunk) {
                     errorMessage += chunk;
                 });
             });
@@ -196,7 +195,7 @@ class DockerApi {
     }
     pullImage(imageName, tag) {
         const self = this;
-        tag = tag || 'latest';
+        tag = tag || "latest";
         return Promise.resolve()
             .then(function () {
             return self.dockerode.createImage({
@@ -206,17 +205,17 @@ class DockerApi {
         })
             .then(function (stream) {
             return new Promise(function (resolve, reject) {
-                let errorMessage = '';
-                let logsBeforeError = [];
+                let errorMessage = "";
+                const logsBeforeError = [];
                 for (let i = 0; i < 20; i++) {
-                    logsBeforeError.push('');
+                    logsBeforeError.push("");
                 }
-                stream.setEncoding('utf8');
+                stream.setEncoding("utf8");
                 // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                stream.on('data', function (chunk) {
-                    Logger.dev('stream data ' + chunk);
+                stream.on("data", function (chunk) {
+                    Logger.dev("stream data " + chunk);
                     chunk = safeParseChunk(chunk);
-                    let chuckStream = chunk.stream;
+                    const chuckStream = chunk.stream;
                     if (chuckStream) {
                         // Logger.dev('stream data ' + chuckStream);
                         logsBeforeError.shift();
@@ -225,23 +224,23 @@ class DockerApi {
                     if (chunk.error) {
                         Logger.e(chunk.error);
                         Logger.e(JSON.stringify(chunk.errorDetail));
-                        errorMessage += '\n [truncated] \n';
-                        errorMessage += logsBeforeError.join('');
-                        errorMessage += '\n';
+                        errorMessage += "\n [truncated] \n";
+                        errorMessage += logsBeforeError.join("");
+                        errorMessage += "\n";
                         errorMessage += chunk.error;
                     }
                 });
                 // stream.pipe(process.stdout, {end: true});
                 // IncomingMessage
                 // https://nodejs.org/api/stream.html#stream_event_end
-                stream.on('end', function () {
+                stream.on("end", function () {
                     if (errorMessage) {
                         reject(errorMessage);
                         return;
                     }
                     resolve();
                 });
-                stream.on('error', function (chunk) {
+                stream.on("error", function (chunk) {
                     errorMessage += chunk;
                 });
             });
@@ -257,17 +256,17 @@ class DockerApi {
      */
     ensureContainerStoppedAndRemoved(nameOrId, networkIdOrName) {
         const self = this;
-        Logger.d('Ensuring Stopped & Removed Container: ' + nameOrId);
+        Logger.d("Ensuring Stopped & Removed Container: " + nameOrId);
         return Promise.resolve()
             .then(function () {
-            Logger.d('Stopping ' + nameOrId);
+            Logger.d("Stopping " + nameOrId);
             return self.dockerode.getContainer(nameOrId)
                 .stop({
                 t: 2
             });
         })
             .then(function () {
-            Logger.d('Waiting to stop ' + nameOrId);
+            Logger.d("Waiting to stop " + nameOrId);
             return Promise.race([
                 self.dockerode.getContainer(nameOrId)
                     .wait(),
@@ -280,28 +279,28 @@ class DockerApi {
         })
             .catch(function (error) {
             if (error && error.statusCode === 304) {
-                Logger.w('Container already stopped: ' + nameOrId);
+                Logger.w("Container already stopped: " + nameOrId);
                 return false;
             }
             throw error;
         })
             .then(function () {
-            Logger.d('Removing ' + nameOrId);
+            Logger.d("Removing " + nameOrId);
             return self.dockerode.getContainer(nameOrId)
                 .remove({
                 force: true
             });
         })
             .then(function () {
-            Logger.d('Pruning containers...');
+            Logger.d("Pruning containers...");
             return self.pruneContainers()
                 .catch(function (err) {
-                Logger.d('Prune Containers Failed!');
+                Logger.d("Prune Containers Failed!");
                 Logger.e(err);
             });
         })
             .then(function () {
-            Logger.d('Disconnecting from network: ' + nameOrId);
+            Logger.d("Disconnecting from network: " + nameOrId);
             return self.dockerode.getNetwork(networkIdOrName)
                 .disconnect({
                 Force: true,
@@ -310,7 +309,7 @@ class DockerApi {
         })
             .catch(function (error) {
             if (error && error.statusCode === 404) {
-                Logger.w('Container not found: ' + nameOrId);
+                Logger.w("Container not found: " + nameOrId);
                 return false;
             }
             throw error;
@@ -334,23 +333,23 @@ class DockerApi {
      */
     createStickyContainer(containerName, imageName, volumes, network, arrayOfEnvKeyAndValue, addedCapabilities) {
         const self = this;
-        Logger.d('Creating Sticky Container: ' + imageName);
-        let volumesMapped = [];
+        Logger.d("Creating Sticky Container: " + imageName);
+        const volumesMapped = [];
         volumes = volumes || [];
         for (let i = 0; i < volumes.length; i++) {
-            let v = volumes[i];
-            volumesMapped.push(v.hostPath + ':' + v.containerPath + (v.mode ? (':' + v.mode) : ''));
+            const v = volumes[i];
+            volumesMapped.push(v.hostPath + ":" + v.containerPath + (v.mode ? (":" + v.mode) : ""));
         }
-        let envs = [];
+        const envs = [];
         arrayOfEnvKeyAndValue = arrayOfEnvKeyAndValue || [];
         for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
-            let e = arrayOfEnvKeyAndValue[i];
-            envs.push(e.key + '=' + e.value);
+            const e = arrayOfEnvKeyAndValue[i];
+            envs.push(e.key + "=" + e.value);
         }
         return Promise.resolve()
             .then(function () {
-            let nameAndTag = imageName.split(':');
-            return self.pullImage(nameAndTag[0], nameAndTag[1] || 'latest');
+            const nameAndTag = imageName.split(":");
+            return self.pullImage(nameAndTag[0], nameAndTag[1] || "latest");
         })
             .then(function () {
             return self.dockerode.createContainer({
@@ -362,13 +361,13 @@ class DockerApi {
                     CapAdd: addedCapabilities,
                     NetworkMode: network,
                     LogConfig: {
-                        Type: 'json-file',
+                        Type: "json-file",
                         Config: {
-                            'max-size': CaptainConstants.defaultMaxLogSize
+                            "max-size": CaptainConstants.defaultMaxLogSize
                         }
                     },
                     RestartPolicy: {
-                        Name: 'always'
+                        Name: "always"
                     }
                 }
             });
@@ -377,39 +376,39 @@ class DockerApi {
             return data.start();
         });
     }
-    pushImage(imageName, newVersion, authObj, buildLogs) {
+    pushImage(imageName, newVersionNumber, authObj, buildLogs) {
         const self = this;
-        newVersion = '' + newVersion;
-        buildLogs.log('Pushing to remote: ' + imageName + ':' + newVersion);
-        buildLogs.log('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
-        buildLogs.log('This might take a few minutes...');
+        let newVersion = "" + newVersionNumber;
+        buildLogs.log("Pushing to remote: " + imageName + ":" + newVersion);
+        buildLogs.log("Server: " + (authObj ? authObj.serveraddress : "N/A"));
+        buildLogs.log("This might take a few minutes...");
         return Promise.resolve()
             .then(function () {
-            return self.dockerode.getImage(imageName + ':' + newVersion)
+            return self.dockerode.getImage(imageName + ":" + newVersion)
                 .push({
                 authconfig: authObj
             });
         })
             .then(function (stream) {
             return new Promise(function (resolve, reject) {
-                let errorMessage = '';
-                stream.setEncoding('utf8');
+                let errorMessage = "";
+                stream.setEncoding("utf8");
                 // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                stream.on('data', function (chunk) {
-                    Logger.dev('stream data ' + chunk);
+                stream.on("data", function (chunk) {
+                    Logger.dev("stream data " + chunk);
                     chunk = safeParseChunk(chunk);
-                    let chuckStream = chunk.stream;
+                    const chuckStream = chunk.stream;
                     if (chuckStream) {
                         // Logger.dev('stream data ' + chuckStream);
                         buildLogs.log(chuckStream);
                     }
                     if (chunk.error) {
                         Logger.e(chunk.error);
-                        let errorDetails = JSON.stringify(chunk.errorDetail);
+                        const errorDetails = JSON.stringify(chunk.errorDetail);
                         Logger.e(errorDetails);
                         buildLogs.log(errorDetails);
                         buildLogs.log(chunk.error);
-                        errorMessage += '\n';
+                        errorMessage += "\n";
                         errorMessage += errorDetails;
                         errorMessage += chunk.error;
                     }
@@ -417,16 +416,16 @@ class DockerApi {
                 // stream.pipe(process.stdout, {end: true});
                 // IncomingMessage
                 // https://nodejs.org/api/stream.html#stream_event_end
-                stream.on('end', function () {
+                stream.on("end", function () {
                     if (errorMessage) {
-                        buildLogs.log('Push failed...');
+                        buildLogs.log("Push failed...");
                         reject(errorMessage);
                         return;
                     }
-                    buildLogs.log('Push succeeded...');
+                    buildLogs.log("Push succeeded...");
                     resolve();
                 });
-                stream.on('error', function (chunk) {
+                stream.on("error", function (chunk) {
                     errorMessage += chunk;
                 });
             });
@@ -457,11 +456,11 @@ class DockerApi {
      */
     createServiceOnNodeId(imageName, serviceName, portsToMap, nodeId, volumeToMount, arrayOfEnvKeyAndValue, resourcesObject) {
         const self = this;
-        let ports = [];
+        const ports = [];
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
                 if (portsToMap[i].protocol) {
-                    let item = {
+                    const item = {
                         Protocol: portsToMap[i].protocol,
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
@@ -472,13 +471,13 @@ class DockerApi {
                     ports.push(item);
                 }
                 else {
-                    let tcpItem = {
-                        Protocol: 'tcp',
+                    const tcpItem = {
+                        Protocol: "tcp",
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
                     };
-                    let udpItem = {
-                        Protocol: 'udp',
+                    const udpItem = {
+                        Protocol: "udp",
                         TargetPort: portsToMap[i].containerPort,
                         PublishedPort: portsToMap[i].hostPort
                     };
@@ -491,7 +490,7 @@ class DockerApi {
                 }
             }
         }
-        let dataToCreate = {
+        const dataToCreate = {
             name: serviceName,
             TaskTemplate: {
                 ContainerSpec: {
@@ -499,12 +498,12 @@ class DockerApi {
                 },
                 Resources: resourcesObject,
                 Placement: {
-                    Constraints: nodeId ? ['node.id == ' + nodeId] : []
+                    Constraints: nodeId ? ["node.id == " + nodeId] : []
                 },
                 LogDriver: {
-                    Name: 'json-file',
+                    Name: "json-file",
                     Options: {
-                        'max-size': CaptainConstants.defaultMaxLogSize
+                        "max-size": CaptainConstants.defaultMaxLogSize
                     }
                 }
             },
@@ -513,15 +512,15 @@ class DockerApi {
             }
         };
         if (volumeToMount) {
-            let mts = [];
+            const mts = [];
             for (let idx = 0; idx < volumeToMount.length; idx++) {
-                let v = volumeToMount[idx];
+                const v = volumeToMount[idx];
                 mts.push({
                     Source: v.hostPath,
                     Target: v.containerPath,
-                    Type: 'bind',
+                    Type: v.type,
                     ReadOnly: false,
-                    Consistency: 'default'
+                    Consistency: "default"
                 });
             }
             dataToCreate.TaskTemplate.ContainerSpec.Mounts = mts;
@@ -529,8 +528,8 @@ class DockerApi {
         if (arrayOfEnvKeyAndValue) {
             dataToCreate.TaskTemplate.ContainerSpec.Env = [];
             for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
-                let keyVal = arrayOfEnvKeyAndValue[i];
-                let newSet = keyVal.key + '=' + keyVal.value;
+                const keyVal = arrayOfEnvKeyAndValue[i];
+                const newSet = keyVal.key + "=" + keyVal.value;
                 dataToCreate.TaskTemplate.ContainerSpec.Env.push(newSet);
             }
         }
@@ -561,47 +560,43 @@ class DockerApi {
             .getService(serviceName)
             .remove();
     }
-    getContainerIdByServiceName(serviceName, retryCount) {
+    getContainerIdByServiceName(serviceName, retryCountMaybe) {
         const self = this;
-        retryCount = retryCount || 0;
+        const retryCount = retryCountMaybe || 0;
         return self.dockerode
             .listTasks({
             filters: {
                 service: [serviceName],
-                'desired-state': ['running']
+                "desired-state": ["running"]
             }
         })
             .then(function (data) {
-            let containerId = null;
-            if (data.length === 1) {
-                containerId = data[0].Status.ContainerStatus.ContainerID;
-            }
             if (data.length >= 2) {
-                throw new Error('There must be only one instance (not ' + data.length + ') of the service running for sendSingleContainerKillHUP. ' + serviceName);
+                throw new Error("There must be only one instance (not " + data.length + ") of the service running for sendSingleContainerKillHUP. " + serviceName);
             }
-            if (!containerId) {
-                if (retryCount < 3) {
-                    return new Promise(function (resolve) {
-                        setTimeout(function () {
-                            resolve();
-                        }, 3000);
-                    })
-                        .then(function () {
-                        Logger.d('Retrying to get containerId for ' + serviceName + ' retry count:' + retryCount);
-                        return self.getContainerIdByServiceName(serviceName, retryCount + 1);
-                    });
-                }
-                throw new Error('No containerId is found');
+            if (data.length === 1) {
+                return Promise.resolve(data[0].Status.ContainerStatus.ContainerID);
             }
-            return containerId;
+            if (retryCount < 3) {
+                return new Promise(function (resolve) {
+                    setTimeout(function () {
+                        resolve();
+                    }, 3000);
+                })
+                    .then(function () {
+                    Logger.d("Retrying to get containerId for " + serviceName + " retry count:" + retryCount);
+                    return self.getContainerIdByServiceName(serviceName, retryCount + 1);
+                });
+            }
+            throw new Error("No containerId is found");
         });
     }
+    ;
     executeCommand(serviceName, cmd) {
         const self = this;
-        return self
-            .getContainerIdByServiceName(serviceName)
+        return self.getContainerIdByServiceName(serviceName)
             .then(function (containerIdFound) {
-            Logger.d('executeCommand Container: ' + containerIdFound);
+            Logger.d("executeCommand Container: " + containerIdFound);
             if (!Array.isArray(cmd)) {
                 throw new Error('Command should be an array. e.g, ["echo", "--help"] ');
             }
@@ -623,25 +618,25 @@ class DockerApi {
                 .then(function (data) {
                 const output = data.output; // output from the exec command
                 if (!output) {
-                    throw new Error('No output from service: ' + serviceName + ' running ' + cmd);
+                    throw new Error("No output from service: " + serviceName + " running " + cmd);
                 }
                 return new Promise(function (resolve) {
                     let finished = false;
-                    let outputBody = '';
+                    let outputBody = "";
                     // output in IncomingMessage a readable stream
                     // https://nodejs.org/api/stream.html#stream_event_end
-                    output.setEncoding('utf8');
-                    output.on('data', function (chunk) {
+                    output.setEncoding("utf8");
+                    output.on("data", function (chunk) {
                         outputBody += chunk;
                     });
-                    output.on('end', function () {
+                    output.on("end", function () {
                         if (finished) {
                             return;
                         }
                         finished = true;
                         resolve(outputBody);
                     });
-                    output.on('close', function () {
+                    output.on("close", function () {
                         if (finished) {
                             return;
                         }
@@ -657,9 +652,9 @@ class DockerApi {
         return self
             .getContainerIdByServiceName(serviceName)
             .then(function (containerIdFound) {
-            Logger.d('Kill HUP Container: ' + containerIdFound);
+            Logger.d("Kill HUP Container: " + containerIdFound);
             return self.dockerode.getContainer(containerIdFound).kill({
-                signal: 'HUP'
+                signal: "HUP"
             });
         });
     }
@@ -671,7 +666,7 @@ class DockerApi {
      */
     ensureSecretOnService(serviceName, secretName) {
         const self = this;
-        let secretToExpose = null;
+        let secretToExpose;
         return self.dockerode
             .listSecrets({
             name: secretName
@@ -680,28 +675,29 @@ class DockerApi {
             // the filter returns all secrets whose name includes the provided secretKey. e.g., if you ask for
             // captain-me, it also returns captain-me1 and etc if exist
             for (let i = 0; i < secrets.length; i++) {
-                if (secrets[i].Spec.Name === secretName) {
+                const specs = secrets[i].Spec;
+                if (specs && specs.Name === secretName) {
                     secretToExpose = secrets[i];
                     break;
                 }
             }
             if (!secretToExpose) {
-                throw new Error('Cannot find secret: ' + secretName);
+                throw new Error("Cannot find secret: " + secretName);
             }
             return self.checkIfServiceHasSecret(serviceName, secretToExpose.ID);
         })
             .then(function (hasSecret) {
             if (hasSecret) {
-                Logger.d(serviceName + ' (service) has already been connected to secret: ' + secretName);
+                Logger.d(serviceName + " (service) has already been connected to secret: " + secretName);
                 return true;
             }
-            Logger.d('Adding ' + secretToExpose.ID + ' Name:' + secretName + ' to service: ' + serviceName);
+            Logger.d("Adding " + secretToExpose.ID + " Name:" + secretName + " to service: " + serviceName);
             // we only want to update the service is it doesn't have the secret. Otherwise, it keeps restarting!
             return self
-                .updateService(serviceName, null, null, null, null, [{
+                .updateService(serviceName, undefined, undefined, undefined, undefined, [{
                     secretName: secretName,
                     secretId: secretToExpose.ID
-                }])
+                }], undefined, undefined, undefined, undefined, undefined, undefined, undefined)
                 .then(function () {
                 return false;
             });
@@ -713,7 +709,7 @@ class DockerApi {
             .getService(serviceName)
             .inspect()
             .then(function (data) {
-            let secrets = data.Spec.TaskTemplate.ContainerSpec.Secrets;
+            const secrets = data.Spec.TaskTemplate.ContainerSpec.Secrets;
             if (secrets) {
                 for (let i = 0; i < secrets.length; i++) {
                     if (secrets[i].SecretID === secretId) {
@@ -752,7 +748,8 @@ class DockerApi {
             // captain-me, it also returns captain-me1 and etc if exist
             let secretExists = false;
             for (let i = 0; i < secrets.length; i++) {
-                if (secrets[i].Spec.Name === secretKey) {
+                const spec = secrets[i].Spec;
+                if (spec && spec.Name === secretKey) {
                     secretExists = true;
                     break;
                 }
@@ -762,7 +759,7 @@ class DockerApi {
     }
     ensureServiceConnectedToNetwork(serviceName, networkName) {
         const self = this;
-        let networkId = null;
+        let networkId;
         return self.dockerode
             .getNetwork(networkName)
             .inspect()
@@ -774,18 +771,18 @@ class DockerApi {
         })
             .then(function (serviceData) {
             let availableNetworks = serviceData.Spec.TaskTemplate.Networks;
-            let allNetworks = [];
+            const allNetworks = [];
             availableNetworks = availableNetworks || [];
             for (let i = 0; i < availableNetworks.length; i++) {
                 allNetworks.push(availableNetworks[i].Target);
                 if (availableNetworks[i].Target === networkId) {
-                    Logger.d('Network ' + networkName + ' is already attached to service: ' + serviceName);
+                    Logger.d("Network " + networkName + " is already attached to service: " + serviceName);
                     return;
                 }
             }
             allNetworks.push(networkId);
-            Logger.d('Attaching network ' + networkName + ' to service: ' + serviceName);
-            return self.updateService(serviceName, null, null, allNetworks, null, null);
+            Logger.d("Attaching network " + networkName + " to service: " + serviceName);
+            return self.updateService(serviceName, undefined, undefined, allNetworks, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         });
     }
     ensureOverlayNetwork(networkName) {
@@ -802,7 +799,7 @@ class DockerApi {
                 return self.dockerode.createNetwork({
                     Name: networkName,
                     CheckDuplicate: true,
-                    Driver: 'overlay',
+                    Driver: "overlay",
                     Attachable: true
                 });
             }
@@ -857,8 +854,8 @@ class DockerApi {
             .getService(serviceName)
             .inspect()
             .then(function (readData) {
-            let data = JSON.parse(JSON.stringify(readData));
-            let updatedData = data.Spec;
+            const data = JSON.parse(JSON.stringify(readData));
+            const updatedData = data.Spec;
             updatedData.version = parseInt(data.Version.Index);
             if (imageName) {
                 updatedData.TaskTemplate.ContainerSpec.Image = imageName;
@@ -866,21 +863,21 @@ class DockerApi {
             if (nodeId) {
                 updatedData.TaskTemplate.Placement = updatedData.TaskTemplate.Placement || {};
                 updatedData.TaskTemplate.Placement.Constraints = updatedData.TaskTemplate.Placement.Constraints || [];
-                let newConstraints = [];
+                const newConstraints = [];
                 for (let i = 0; i < updatedData.TaskTemplate.Placement.Constraints.length; i++) {
-                    let c = updatedData.TaskTemplate.Placement.Constraints[i];
-                    if (c.indexOf('node.id') < 0) {
+                    const c = updatedData.TaskTemplate.Placement.Constraints[i];
+                    if (c.indexOf("node.id") < 0) {
                         newConstraints.push(c);
                     }
                 }
-                newConstraints.push('node.id == ' + nodeId);
+                newConstraints.push("node.id == " + nodeId);
                 updatedData.TaskTemplate.Placement.Constraints = newConstraints;
             }
             if (arrayOfEnvKeyAndValue) {
                 updatedData.TaskTemplate.ContainerSpec.Env = [];
                 for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
-                    let keyVal = arrayOfEnvKeyAndValue[i];
-                    let newSet = keyVal.key + '=' + keyVal.value;
+                    const keyVal = arrayOfEnvKeyAndValue[i];
+                    const newSet = keyVal.key + "=" + keyVal.value;
                     updatedData.TaskTemplate.ContainerSpec.Env.push(newSet);
                 }
             }
@@ -888,7 +885,7 @@ class DockerApi {
                 updatedData.EndpointSpec = updatedData.EndpointSpec || {};
                 updatedData.EndpointSpec.Ports = [];
                 for (let i = 0; i < ports.length; i++) {
-                    let p = ports[i];
+                    const p = ports[i];
                     if (p.protocol) {
                         updatedData.EndpointSpec.Ports.push({
                             Protocol: p.protocol,
@@ -898,12 +895,12 @@ class DockerApi {
                     }
                     else {
                         updatedData.EndpointSpec.Ports.push({
-                            Protocol: 'tcp',
+                            Protocol: "tcp",
                             TargetPort: p.containerPort,
                             PublishedPort: p.hostPort
                         });
                         updatedData.EndpointSpec.Ports.push({
-                            Protocol: 'udp',
+                            Protocol: "udp",
                             TargetPort: p.containerPort,
                             PublishedPort: p.hostPort
                         });
@@ -911,11 +908,11 @@ class DockerApi {
                 }
             }
             if (volumes) {
-                let mts = [];
+                const mts = [];
                 for (let idx = 0; idx < volumes.length; idx++) {
-                    let v = volumes[idx];
-                    const TYPE_BIND = 'bind';
-                    const TYPE_VOLUME = 'volume';
+                    const v = volumes[idx];
+                    const TYPE_BIND = "bind";
+                    const TYPE_VOLUME = "volume";
                     v.type = v.type || TYPE_BIND;
                     if (v.type === TYPE_BIND) {
                         mts.push({
@@ -923,14 +920,14 @@ class DockerApi {
                             Target: v.containerPath,
                             Type: TYPE_BIND,
                             ReadOnly: false,
-                            Consistency: 'default'
+                            Consistency: "default"
                         });
                     }
                     else if (v.type === TYPE_VOLUME) {
                         // named volumes are created here:
                         // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                         mts.push({
-                            Source: (namespace ? (namespace + '--') : '') + v.volumeName,
+                            Source: (namespace ? (namespace + "--") : "") + v.volumeName,
                             Target: v.containerPath,
                             Type: TYPE_VOLUME,
                             ReadOnly: false
@@ -953,14 +950,14 @@ class DockerApi {
             if (secrets) {
                 updatedData.TaskTemplate.ContainerSpec.Secrets = updatedData.TaskTemplate.ContainerSpec.Secrets || [];
                 for (let i = 0; i < secrets.length; i++) {
-                    let obj = secrets[i];
+                    const obj = secrets[i];
                     let foundIndexSecret = -1;
                     for (let idx = 0; idx < updatedData.TaskTemplate.ContainerSpec.Secrets.length; idx++) {
                         if (updatedData.TaskTemplate.ContainerSpec.Secrets[idx].secretId === obj.secretId) {
                             foundIndexSecret = idx;
                         }
                     }
-                    let objToAdd = {
+                    const objToAdd = {
                         File: {
                             Name: obj.secretName,
                             UID: "0",
@@ -993,12 +990,12 @@ class DockerApi {
             instanceCount = Number(instanceCount);
             if ((instanceCount && instanceCount > 0) || instanceCount === 0) {
                 if (!updatedData.Mode.Replicated) {
-                    throw new Error('Non replicated services cannot be associated with instance count');
+                    throw new Error("Non replicated services cannot be associated with instance count");
                 }
                 updatedData.Mode.Replicated.Replicas = instanceCount;
             }
             if (preDeployFunction) {
-                Logger.d('Running preDeployFunction');
+                Logger.d("Running preDeployFunction");
                 return preDeployFunction(appObject, updatedData);
             }
             return updatedData;
@@ -1013,7 +1010,7 @@ class DockerApi {
             setTimeout(function () {
                 self.pruneContainers()
                     .catch(function (err) {
-                    Logger.d('Prune Containers Failed!');
+                    Logger.d("Prune Containers Failed!");
                     Logger.e(err);
                 });
             }, 5000);
@@ -1031,7 +1028,7 @@ class DockerApi {
             .getNode(nodeId)
             .inspect()
             .then(function (data) {
-            return data.Spec.Role === 'manager';
+            return data.Spec.Role === "manager";
         });
     }
     getDockerVersion() {
@@ -1052,10 +1049,10 @@ class DockerApi {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            let promises = [];
+            const promises = [];
             for (let i = 0; i < imageIds.length; i++) {
                 const imageId = imageIds[i];
-                let p = self.dockerode.getImage(imageId).remove()
+                const p = self.dockerode.getImage(imageId).remove()
                     .catch(function (err) {
                     Logger.e(err);
                 });
@@ -1086,7 +1083,7 @@ class DockerApi {
             .getNode(nodeId)
             .inspect()
             .then(function (data) {
-            let currentLabels = data.Spec.Labels || {};
+            const currentLabels = data.Spec.Labels || {};
             Object.keys(labels).forEach(function (key) {
                 currentLabels[key] = labels[key];
             });
@@ -1105,7 +1102,7 @@ class DockerApi {
         });
     }
 }
-const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || '').split('\:');
+const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || "").split("\:");
 const connectionParams = dockerApiAddressSplited.length < 2 ? {
     socketPath: CaptainConstants.dockerSocketPath
 } :
@@ -1113,10 +1110,10 @@ const connectionParams = dockerApiAddressSplited.length < 2 ? {
         host: dockerApiAddressSplited[0],
         port: Number(dockerApiAddressSplited[1])
     } : {
-        host: (dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1]),
+        host: (dockerApiAddressSplited[0] + ":" + dockerApiAddressSplited[1]),
         port: Number(dockerApiAddressSplited[2])
     };
-connectionParams.version = 'v1.30';
+connectionParams.version = "v1.30";
 const dockerApiInstance = new DockerApi(connectionParams);
 module.exports = DockerApi;
 //# sourceMappingURL=DockerApi.js.map

@@ -31,7 +31,7 @@ class CaptainManager {
         this.inited = false;
         this.waitUntilRestarted = false;
         this.captainSalt = "";
-        this.dockerAuthObj = "";
+        this.dockerAuthObj = undefined;
         this.consecutiveHealthCheckFailCount = 0;
         this.healthCheckUuid = uuid();
     }
@@ -46,7 +46,7 @@ class CaptainManager {
         let myNodeId = undefined;
         self.refreshForceSslState()
             .then(function () {
-            return dockerApi.getNodeIdByServiceName(CaptainConstants.captainServiceName);
+            return dockerApi.getNodeIdByServiceName(CaptainConstants.captainServiceName, 0);
         })
             .then(function (nodeId) {
             myNodeId = nodeId;
@@ -180,6 +180,7 @@ class CaptainManager {
                 Logger.d("Ensuring Docker Registry is running...");
                 return self.dockerRegistry.ensureDockerRegistryRunningOnThisNode();
             }
+            return Promise.resolve(true);
         })
             .then(function () {
             self.inited = true;

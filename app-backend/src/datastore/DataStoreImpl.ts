@@ -445,10 +445,11 @@ class DataStore {
         });
     }
 
-    getHasLocalRegistry() {
+    getHasLocalRegistry(): Promise<boolean> {
         const self = this;
         return new Promise(function (resolve, reject) {
-            resolve(self.data.get(HAS_LOCAL_REGISTRY));
+            let value = !!self.data.get(HAS_LOCAL_REGISTRY);
+            resolve(value);
         });
     }
 

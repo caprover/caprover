@@ -10,9 +10,11 @@
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/configstore": "^2.1.1",
+    "@types/dockerode": "^2.5.9",
     "@types/ejs": "^2.6.0",
     "@types/express": "^4.16.0",
     "@types/fs-extra": "^5.0.4",
+    "@types/js-base64": "^2.3.1",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/request": "^2.48.1",
     "@types/require-from-string": "^1.2.0",

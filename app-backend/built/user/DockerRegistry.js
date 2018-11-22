@@ -124,7 +124,7 @@ class DockerRegistry {
             .then(function (isRunning) {
             if (isRunning) {
                 Logger.d("Captain Registry is already running.. ");
-                return dockerApi.getNodeIdByServiceName(CaptainConstants.registryServiceName);
+                return dockerApi.getNodeIdByServiceName(CaptainConstants.registryServiceName, 0);
             }
             else {
                 Logger.d("No Captain Registry service is running. Creating one...");
@@ -154,7 +154,7 @@ class DockerRegistry {
         const self = this;
         const dockerApi = this.dockerApi;
         let nextVersion;
-        let secretName = undefined;
+        let secretName;
         let userEmailAddress = undefined;
         return Promise.resolve()
             .then(function () {
@@ -183,14 +183,15 @@ class DockerRegistry {
                 return self.updateRegistryAuthHeader(username, password, domain, nextVersion);
             }
             else {
-                return dockerApi
-                    .ensureSecret(secretName, JSON.stringify({
+                const authObj = {
                     username: username,
                     password: password,
                     email: userEmailAddress ||
                         CaptainConstants.defaultEmail,
                     serveraddress: domain,
-                }))
+                };
+                return dockerApi
+                    .ensureSecret(secretName, JSON.stringify(authObj))
                     .then(function () {
                     Logger.d("Updating EnvVars to update docker registry auth.");
                     return self.dataStore.setRegistryAuthSecretVersion(nextVersion);

@@ -170,7 +170,7 @@ class DockerRegistry {
                     Logger.d("Captain Registry is already running.. ");
 
                     return dockerApi.getNodeIdByServiceName(
-                        CaptainConstants.registryServiceName
+                        CaptainConstants.registryServiceName,0
                     );
                 } else {
                     Logger.d(
@@ -215,7 +215,7 @@ class DockerRegistry {
 
         let nextVersion: number;
 
-        let secretName: string|undefined = undefined;
+        let secretName: string;
 
         let userEmailAddress: string|undefined = undefined;
 
@@ -259,17 +259,19 @@ class DockerRegistry {
                         nextVersion
                     );
                 } else {
+                    const authObj: DockerAuthObj = {
+                        username: username,
+                        password: password,
+                        email:
+                            userEmailAddress ||
+                            CaptainConstants.defaultEmail,
+                        serveraddress: domain,
+                    };
+
                     return dockerApi
                         .ensureSecret(
                             secretName,
-                            JSON.stringify({
-                                username: username,
-                                password: password,
-                                email:
-                                    userEmailAddress ||
-                                    CaptainConstants.defaultEmail,
-                                serveraddress: domain,
-                            })
+                            JSON.stringify(authObj)
                         )
                         .then(function() {
                             Logger.d(

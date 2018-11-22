@@ -13,6 +13,7 @@ import Authenticator = require("./Authenticator");
 import GitHelper = require("../utils/GitHelper");
 import uuid = require("uuid/v4");
 import requireFromString = require("require-from-string");
+import BuildLog = require("./BuildLog");
 
 const BUILD_LOG_SIZE = 50;
 const SOURCE_FOLDER_NAME = "src";
@@ -38,55 +39,12 @@ function getCaptainDefinitionTempFolder(serviceName: string, randomSuffix: strin
 }
 
 
-class BuildLog {
-
-    private isBuildFailed: boolean;
-    private firstLineNumber: number;
-    private lines: string[];
-    constructor(private size: number) {
-        this.clear();
-    }
-
-    onBuildFailed(error: string) {
-        this.log("----------------------");
-        this.log("Deploy failed!");
-        this.log(error);
-        this.isBuildFailed = true;
-    }
-
-    clear() {
-        this.isBuildFailed = false;
-        this.firstLineNumber = -this.size;
-        this.lines = [];
-        for (let i = 0; i < this.size; i++) {
-            this.lines.push("");
-        }
-    }
-
-    log(msg: string) {
-        msg = (msg || "") + "";
-        this.lines.shift();
-        this.lines.push(msg);
-        this.firstLineNumber++;
-        Logger.dev(msg);
-    }
-
-    getLogs() {
-        const self = this;
-        // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
-        return JSON.parse(JSON.stringify({
-            lines: self.lines,
-            firstLineNumber: self.firstLineNumber
-        }));
-    }
-}
-
 
 class ServiceManager {
 
     private dataStore: DataStore;
     private activeBuilds: any;
-    private buildLogs: any;
+    private buildLogs: ICacheGeneric<BuildLog>;
     private isReady: boolean;
 
     constructor(private user: any, private dockerApi: DockerApi, private loadBalancerManager: LoadBalancerManager) {
@@ -389,7 +347,7 @@ class ServiceManager {
 
                 return dockerApi
                     .pushImage(imageName, newVersion, authObj, self.buildLogs[appName])
-                    .catch(function (error) {
+                    .catch(function (error: any) {
                         return new Promise(function (resolve, reject) {
                             Logger.e("PUSH FAILED");
                             Logger.e(error);
@@ -884,7 +842,7 @@ class ServiceManager {
                                         throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot find the service. Try again in a minute...");
                                     }
                                     return dockerApi
-                                        .getNodeIdByServiceName(serviceName);
+                                        .getNodeIdByServiceName(serviceName, 0);
                                 })
                                 .then(function (nodeIdRunningService: string) {
                                     if (!nodeIdRunningService) {

@@ -418,7 +418,7 @@ class LoadBalancerManager {
                     Logger.d("Captain Nginx is already running.. ");
 
                     return dockerApi
-                        .getNodeIdByServiceName(CaptainConstants.nginxServiceName);
+                        .getNodeIdByServiceName(CaptainConstants.nginxServiceName, 0);
 
                 } else {
 

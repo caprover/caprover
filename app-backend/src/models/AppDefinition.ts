@@ -31,15 +31,19 @@ interface IAppEnvVar {
 
 interface IAppVolume {
     containerPath: string;
-    volumeName: string;
-    hostPath: string;
-    type: string;
+    volumeName?: string;
+    hostPath?: string;
+    type?: string;
+
+    mode?: string;
 }
 
 interface IAppPort {
     containerPort: number;
     hostPort: number;
-    // type: string;
+    protocol?: string;
+
+    publishMode?: string;
 }
 
 class IAppDefinition {
