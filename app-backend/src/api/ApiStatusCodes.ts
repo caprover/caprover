@@ -1,11 +1,8 @@
-let apiStatusCode = {
+import { CaptainError } from './CaptainError'
 
-    createError: function (code, message) {
-        let msg = message || 'NONE';
-        let error = new Error(msg);
-        error.captainErrorType = code;
-        error.apiMessage = msg;
-        return error
+let apiStatusCode = {
+    createError: function(code: number, message: string) {
+        return new CaptainError(code, message || 'NONE')
     },
 
     STATUS_OK: 100,
@@ -37,7 +34,6 @@ let apiStatusCode = {
     ILLEGAL_PARAMETER: 1110,
 
     NOT_FOUND: 1111,
+}
 
-};
-
-module.exports = apiStatusCode;
+export = apiStatusCode

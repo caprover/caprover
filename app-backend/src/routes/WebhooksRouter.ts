@@ -102,4 +102,4 @@ router.post('/triggerbuild', function (req, res, next) {
 
 });
 
-module.exports = router;
+export = router;

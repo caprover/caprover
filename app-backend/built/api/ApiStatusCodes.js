@@ -1,10 +1,8 @@
+"use strict";
+const CaptainError_1 = require("./CaptainError");
 let apiStatusCode = {
     createError: function (code, message) {
-        let msg = message || 'NONE';
-        let error = new Error(msg);
-        error.captainErrorType = code;
-        error.apiMessage = msg;
-        return error;
+        return new CaptainError_1.CaptainError(code, message || 'NONE');
     },
     STATUS_OK: 100,
     STATUS_OK_DEPLOY_STARTED: 101,
