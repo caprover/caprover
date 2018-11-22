@@ -179,7 +179,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
 
 let myIp4:string;
 
-module.exports.install = function () {
+export function install() {
     Promise.resolve()
         .then(function () {
 
