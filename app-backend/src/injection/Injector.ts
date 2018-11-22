@@ -17,7 +17,7 @@ const serviceMangerCache = {} as ICacheGeneric<ServiceManager>;
 /**
  * Global dependency injection module
  */
-module.exports.injectGlobal = function () {
+export function injectGlobal() {
 
     return function (req: Request, res: Response, next: NextFunction) {
 
@@ -35,7 +35,7 @@ module.exports.injectGlobal = function () {
 /**
  * User dependency injection module
  */
-module.exports.injectUser = function () {
+export function injectUser () {
 
     return function (req: Request, res: Response, next: NextFunction) {
 
@@ -82,7 +82,7 @@ module.exports.injectUser = function () {
 /**
  * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
  */
-module.exports.injectUserForWebhook = function () {
+export function injectUserForWebhook() {
 
     return function (req: Request, res: Response, next: NextFunction) {
 
@@ -148,7 +148,7 @@ module.exports.injectUserForWebhook = function () {
  * User dependency injection module. This is a less secure way for user injection. But for reverse proxy services,
  * this is the only way that we can secure the call
  */
-module.exports.injectUserUsingCookieDataOnly = function () {
+export function injectUserUsingCookieDataOnly () {
 
     return function (req: Request, res: Response, next: NextFunction) {
 

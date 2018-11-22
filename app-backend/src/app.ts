@@ -1,20 +1,24 @@
-let express = require('express');
-let path = require('path');
-let favicon = require('serve-favicon');
-let logger = require('morgan');
-let cookieParser = require('cookie-parser');
-let bodyParser = require('body-parser');
-let httpProxy = require('http-proxy').createProxyServer({});
+import express = require('express');
+import path = require('path');
+import favicon = require('serve-favicon');
+import logger = require('morgan');
+import cookieParser = require('cookie-parser');
+import bodyParser = require('body-parser');
+import httpProxyImport = require('http-proxy');
 
-let CaptainManager = require('./user/CaptainManager');
-let BaseApi = require('./api/BaseApi');
-let ApiStatusCodes = require('./api/ApiStatusCodes');
-let Injector = require('./injection/Injector');
-let Logger = require('./utils/Logger');
-let CaptainConstants = require('./utils/CaptainConstants');
+import CaptainManager = require('./user/CaptainManager');
+import BaseApi = require('./api/BaseApi');
+import ApiStatusCodes = require('./api/ApiStatusCodes');
+import Injector = require('./injection/Injector');
+import Logger = require('./utils/Logger');
+import CaptainConstants = require('./utils/CaptainConstants');
 
-let LoginRouter = require('./routes/LoginRouter');
-let UserRouter = require('./routes/UserRouter');
+import LoginRouter = require('./routes/LoginRouter');
+import UserRouter = require('./routes/UserRouter');
+import { NextFunction, Request, Response } from 'express';
+import { IncomingMessage, ServerResponse } from 'http';
+
+const httpProxy = httpProxyImport.createProxyServer({});
 
 let app = express();
 
@@ -33,7 +37,7 @@ if (CaptainConstants.isDebug) {
 
     app.use('*', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Access-Control-Allow-Headers', CaptainConstants.header.namespace + ',' + CaptainConstants.header.auth + ',Content-Type');
         next();
     });
@@ -104,12 +108,16 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     }
 });
 
-app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
+app.use(CaptainConstants.netDataRelativePath, function (req:IncomingMessage, res: ServerResponse, next:NextFunction) {
 
     httpProxy.web(req, res, {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999'
     });
-    httpProxy.on('error', function (err, req, res) {
+
+    httpProxy.on('error', function (err, req, resOriginal) {
+
+        const res :{locals:{errorProxyHandled:any}, writeHead:Function, end:Function}= resOriginal as any;
+
         if (res.locals.errorProxyHandled) {
             return;
         }
@@ -169,13 +177,13 @@ app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    let err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    res.locals.err= new Error('Not Found');
+    res.locals.errorStatus = 404;
+    next(new Error('Not Found'));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err:any, req:Request, res:Response, next:NextFunction) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -195,4 +203,4 @@ setTimeout(function () {
 
 }, 1500);
 
-module.exports = app;
+export = app;

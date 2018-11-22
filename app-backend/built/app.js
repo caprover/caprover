@@ -1,18 +1,20 @@
-let express = require('express');
-let path = require('path');
-let favicon = require('serve-favicon');
-let logger = require('morgan');
-let cookieParser = require('cookie-parser');
-let bodyParser = require('body-parser');
-let httpProxy = require('http-proxy').createProxyServer({});
-let CaptainManager = require('./user/CaptainManager');
-let BaseApi = require('./api/BaseApi');
-let ApiStatusCodes = require('./api/ApiStatusCodes');
-let Injector = require('./injection/Injector');
-let Logger = require('./utils/Logger');
-let CaptainConstants = require('./utils/CaptainConstants');
-let LoginRouter = require('./routes/LoginRouter');
-let UserRouter = require('./routes/UserRouter');
+"use strict";
+const express = require("express");
+const path = require("path");
+const favicon = require("serve-favicon");
+const logger = require("morgan");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const httpProxyImport = require("http-proxy");
+const CaptainManager = require("./user/CaptainManager");
+const BaseApi = require("./api/BaseApi");
+const ApiStatusCodes = require("./api/ApiStatusCodes");
+const Injector = require("./injection/Injector");
+const Logger = require("./utils/Logger");
+const CaptainConstants = require("./utils/CaptainConstants");
+const LoginRouter = require("./routes/LoginRouter");
+const UserRouter = require("./routes/UserRouter");
+const httpProxy = httpProxyImport.createProxyServer({});
 let app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -26,7 +28,7 @@ app.use(cookieParser());
 if (CaptainConstants.isDebug) {
     app.use('*', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Access-Control-Allow-Headers', CaptainConstants.header.namespace + ',' + CaptainConstants.header.auth + ',Content-Type');
         next();
     });
@@ -79,7 +81,8 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     httpProxy.web(req, res, {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999'
     });
-    httpProxy.on('error', function (err, req, res) {
+    httpProxy.on('error', function (err, req, resOriginal) {
+        const res = resOriginal;
         if (res.locals.errorProxyHandled) {
             return;
         }
@@ -119,9 +122,9 @@ app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter);
 //  *********************  End of API End Points  *******************************************
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    let err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    res.locals.err = new Error('Not Found');
+    res.locals.errorStatus = 404;
+    next(new Error('Not Found'));
 });
 // error handler
 app.use(function (err, req, res, next) {

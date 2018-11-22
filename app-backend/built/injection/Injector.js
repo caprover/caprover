@@ -13,7 +13,7 @@ const serviceMangerCache = {};
 /**
  * Global dependency injection module
  */
-module.exports.injectGlobal = function () {
+function injectGlobal() {
     return function (req, res, next) {
         const locals = res.locals;
         locals.initialized = CaptainManager.get().isInitialized();
@@ -21,11 +21,13 @@ module.exports.injectGlobal = function () {
         locals.forceSsl = CaptainManager.get().getForceSslValue();
         next();
     };
-};
+}
+exports.injectGlobal = injectGlobal;
+;
 /**
  * User dependency injection module
  */
-module.exports.injectUser = function () {
+function injectUser() {
     return function (req, res, next) {
         if (res.locals.user) {
             next();
@@ -57,11 +59,13 @@ module.exports.injectUser = function () {
             next();
         });
     };
-};
+}
+exports.injectUser = injectUser;
+;
 /**
  * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
  */
-module.exports.injectUserForWebhook = function () {
+function injectUserForWebhook() {
     return function (req, res, next) {
         const token = req.query.token;
         const namespace = req.query.namespace;
@@ -104,12 +108,14 @@ module.exports.injectUserForWebhook = function () {
             next();
         });
     };
-};
+}
+exports.injectUserForWebhook = injectUserForWebhook;
+;
 /**
  * User dependency injection module. This is a less secure way for user injection. But for reverse proxy services,
  * this is the only way that we can secure the call
  */
-module.exports.injectUserUsingCookieDataOnly = function () {
+function injectUserUsingCookieDataOnly() {
     return function (req, res, next) {
         Authenticator.get(CaptainConstants.rootNameSpace)
             .decodeAuthTokenFromCookies(req.cookies[CaptainConstants.header.cookieAuth])
@@ -127,5 +133,7 @@ module.exports.injectUserUsingCookieDataOnly = function () {
             next();
         });
     };
-};
+}
+exports.injectUserUsingCookieDataOnly = injectUserUsingCookieDataOnly;
+;
 //# sourceMappingURL=Injector.js.map
