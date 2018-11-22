@@ -1,8 +1,9 @@
-import ApiStatusCode = require('./ApiStatusCodes');
+import ApiStatusCode = require("./ApiStatusCodes");
 
 class BaseApi {
-    public data:any;
-    constructor(private status:number, private description:string) {
+    public data: any;
+
+    constructor(private status: number, private description: string) {
         //
     }
 }

@@ -34,6 +34,7 @@ class DataStore {
 
     private data: Configstore;
     private appsDataStore: AppsDataStore;
+
     constructor(namespace: string) {
 
         const data = new Configstore("captain-store", {});
@@ -51,7 +52,7 @@ class DataStore {
     setHashedPassword(newHashedPassword: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.data.set(HASHED_PASSWORD, newHashedPassword);
             });
     }
@@ -59,7 +60,7 @@ class DataStore {
     getHashedPassword() {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.data.get(HASHED_PASSWORD);
             });
     }
@@ -90,7 +91,7 @@ class DataStore {
     getNetDataInfo() {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 const netDataInfo = self.data.get(NET_DATA_INFO) || {};
                 netDataInfo.isEnabled = netDataInfo.isEnabled || false;
                 netDataInfo.data = netDataInfo.data || {};
@@ -101,7 +102,7 @@ class DataStore {
     setNetDataInfo(netDataInfo: NetDataInfo) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.data.set(NET_DATA_INFO, netDataInfo);
             });
     }
@@ -109,20 +110,20 @@ class DataStore {
     setRegistryAuthSecretVersion(ver: number) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.data.set(CAPTAIN_REGISTRY_AUTH_SECRET_VER, Number(ver));
             });
     }
 
-    getRegistryAuthSecretVersion():Promise<number> {
+    getRegistryAuthSecretVersion(): Promise<number> {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return (self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0);
             });
     }
 
-    getImageName(authObj: any, appName: string, version: string|undefined|number) {
+    getImageName(authObj: any, appName: string, version: string | undefined | number) {
 
         let authPrefix = "";
 
@@ -133,7 +134,7 @@ class DataStore {
         return authPrefix + this.getImageNameWithoutAuthObj(appName, version);
     }
 
-    getImageNameWithoutAuthObj(appName: string, versionStr: string|undefined|number) {
+    getImageNameWithoutAuthObj(appName: string, versionStr: string | undefined | number) {
 
         if (versionStr === 0) {
             versionStr = "0";
@@ -162,29 +163,29 @@ class DataStore {
         let rootDomain: string;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.getHasRootSsl();
 
             })
-            .then(function (val: boolean) {
+            .then(function(val: boolean) {
 
                 hasRootSsl = val;
 
                 return self.getRootDomain();
 
             })
-            .then(function (val) {
+            .then(function(val) {
 
                 rootDomain = val;
 
             })
-            .then(function () {
+            .then(function() {
 
                 return self.getDefaultAppNginxConfig();
 
             })
-            .then(function (defaultAppNginxConfig) {
+            .then(function(defaultAppNginxConfig) {
                 return self.getAppsDataStore().getAppsServerConfig(defaultAppNginxConfig, hasRootSsl, rootDomain);
             });
     }
@@ -199,7 +200,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.data.get(DEFAULT_DOCKER_REGISTRY);
 
@@ -212,7 +213,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 let found = false;
                 const registries = self.data.get(DOCKER_REGISTRIES) || [];
@@ -238,7 +239,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 const newReg = [];
                 const registries = self.data.get(DOCKER_REGISTRIES) || [];
@@ -263,7 +264,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.data.get(DOCKER_REGISTRIES);
 
@@ -275,14 +276,14 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
-                return new Promise(function (resolve, reject) {
+            .then(function() {
+                return new Promise(function(resolve, reject) {
 
                     resolve(self.data.get(DOCKER_REGISTRIES) || []);
 
                 });
             })
-            .then(function (registries: any[]) {
+            .then(function(registries: any[]) {
 
                 let id: string = uuid();
                 let isAlreadyTaken = true;
@@ -303,7 +304,7 @@ class DataStore {
                     registryUser,
                     registryPasswordEncrypted,
                     registryDomain,
-                    registryImagePrefix
+                    registryImagePrefix,
                 });
 
                 self.data.set(DOCKER_REGISTRIES, registries);
@@ -316,7 +317,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(EMAIL_ADDRESS, emailAddress);
             resolve();
@@ -325,11 +326,11 @@ class DataStore {
 
     }
 
-    getUserEmailAddress(): Promise<string|undefined> {
+    getUserEmailAddress(): Promise<string | undefined> {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             resolve(self.data.get(EMAIL_ADDRESS));
 
@@ -340,7 +341,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(HAS_ROOT_SSL, hasRootSsl);
             resolve();
@@ -351,7 +352,7 @@ class DataStore {
     setForceSsl(forceSsl: boolean) {
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(FORCE_ROOT_SSL, forceSsl);
             resolve();
@@ -363,7 +364,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             resolve(self.data.get(FORCE_ROOT_SSL));
 
@@ -374,7 +375,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(HAS_REGISTRY_SSL, hasRegistrySsl);
             resolve();
@@ -387,7 +388,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return DEFAULT_NGINX_CONFIG_FOR_APP;
             });
     }
@@ -397,16 +398,16 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return ({
                     baseConfig: {
                         byDefault: DEFAULT_NGINX_BASE_CONFIG,
-                        customValue: self.data.get(NGINX_BASE_CONFIG)
+                        customValue: self.data.get(NGINX_BASE_CONFIG),
                     },
                     captainConfig: {
                         byDefault: DEFAULT_NGINX_CAPTAIN_CONFIG,
-                        customValue: self.data.get(NGINX_CAPTAIN_CONFIG)
-                    }
+                        customValue: self.data.get(NGINX_CAPTAIN_CONFIG),
+                    },
                 });
             });
     }
@@ -416,7 +417,7 @@ class DataStore {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 self.data.set(NGINX_BASE_CONFIG, baseConfig);
                 self.data.set(NGINX_CAPTAIN_CONFIG, captainConfig);
             });
@@ -426,7 +427,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             resolve(self.data.get(HAS_ROOT_SSL));
 
@@ -437,7 +438,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(HAS_LOCAL_REGISTRY, hasLocalRegistry);
             resolve();
@@ -447,7 +448,7 @@ class DataStore {
 
     getHasLocalRegistry(): Promise<boolean> {
         const self = this;
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             let value = !!self.data.get(HAS_LOCAL_REGISTRY);
             resolve(value);
         });
@@ -457,7 +458,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             resolve(self.data.get(HAS_REGISTRY_SSL));
 
@@ -468,7 +469,7 @@ class DataStore {
 
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             self.data.set(CUSTOM_DOMAIN, customDomain);
             resolve();

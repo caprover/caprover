@@ -33,12 +33,12 @@ class CaptainManager {
     private certbotManager: CertbotManager;
     private loadBalancerManager: LoadBalancerManager;
     private dockerRegistry: DockerRegistry;
-    private myNodeId: string|undefined;
+    private myNodeId: string | undefined;
     private initRetryCount: number;
     private inited: boolean;
     private waitUntilRestarted: boolean;
     private captainSalt: string;
-    private dockerAuthObj: DockerAuthObj|undefined;
+    private dockerAuthObj: DockerAuthObj | undefined;
     private consecutiveHealthCheckFailCount: number;
     private healthCheckUuid: string;
 
@@ -72,75 +72,75 @@ class CaptainManager {
         const dockerApi = this.dockerApi;
         const loadBalancerManager = this.loadBalancerManager;
         const certbotManager = this.certbotManager;
-        let myNodeId: string|undefined = undefined;
+        let myNodeId: string | undefined = undefined;
 
         self.refreshForceSslState()
-            .then(function () {
-                return dockerApi.getNodeIdByServiceName(CaptainConstants.captainServiceName,0);
+            .then(function() {
+                return dockerApi.getNodeIdByServiceName(CaptainConstants.captainServiceName, 0);
             })
-            .then(function (nodeId) {
+            .then(function(nodeId) {
                 myNodeId = nodeId;
                 self.myNodeId = myNodeId;
                 return dockerApi.isNodeManager(myNodeId);
 
             })
-            .then(function (isManager) {
+            .then(function(isManager) {
 
                 if (!isManager) {
                     throw new Error("Captain should only run on a manager node");
                 }
 
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Emptying generated and temp folders.");
 
                 return fs.emptyDir(CaptainConstants.captainRootDirectoryTemp);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.emptyDir(CaptainConstants.captainRootDirectoryGenerated);
 
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Ensuring directories are available on host. Started.");
 
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.letsEncryptLibPath);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.captainStaticFilesDir);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.perAppNginxConfigPathBase);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureFile(CaptainConstants.baseNginxConfigPath);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.registryPathOnHost);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return dockerApi.ensureOverlayNetwork(CaptainConstants.captainNetworkName);
 
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Ensuring directories are available on host. Finished.");
 
@@ -148,7 +148,7 @@ class CaptainManager {
                     CaptainConstants.captainNetworkName);
 
             })
-            .then(function () {
+            .then(function() {
 
                 if (!myNodeId) {
                     throw new Error("myNodeId is null");
@@ -157,21 +157,21 @@ class CaptainManager {
                 return loadBalancerManager.init(myNodeId, dataStore);
 
             })
-            .then(function () {
+            .then(function() {
 
                 const valueIfNotExist = CaptainConstants.isDebug ? DEBUG_SALT : uuid();
                 return dockerApi.ensureSecret(CaptainConstants.captainSaltSecretKey, valueIfNotExist);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return dockerApi.ensureSecretOnService(CaptainConstants.captainServiceName, CaptainConstants.captainSaltSecretKey);
 
             })
-            .then(function (secretHadExistedBefore) {
+            .then(function(secretHadExistedBefore) {
 
                 if (!secretHadExistedBefore) {
-                    return new Promise(function () {
+                    return new Promise(function() {
                         Logger.d("I am halting here. I expect to get restarted in a few seconds due to a secret (captain salt) being updated.");
                     });
                 }
@@ -179,7 +179,7 @@ class CaptainManager {
                 return dataStore.getRegistryAuthSecretVersion();
 
             })
-            .then(function (currentVersion) {
+            .then(function(currentVersion) {
 
                 const secretName = CaptainConstants.captainRegistryAuthHeaderSecretPrefix + currentVersion;
 
@@ -187,10 +187,10 @@ class CaptainManager {
                     Logger.d("Updating secrets to update docker registry auth.");
                     return dockerApi
                         .ensureSecretOnService(CaptainConstants.captainServiceName, secretName)
-                        .then(function (secretHadExistedBefore) {
+                        .then(function(secretHadExistedBefore) {
 
                             if (!secretHadExistedBefore) {
-                                return new Promise(function () {
+                                return new Promise(function() {
                                     Logger.d("I am halting here. I expect to get restarted in a few seconds due to a secret (registry auth) being updated.");
                                 });
                             }
@@ -201,12 +201,12 @@ class CaptainManager {
                 return false;
 
             })
-            .then(function () {
+            .then(function() {
 
                 return dataStore.getRegistryAuthSecretVersion();
 
             })
-            .then(function (currentVersion) {
+            .then(function(currentVersion) {
 
                 if (currentVersion === 0) {
                     Logger.d("There is no Docker Registry, neither local nor remote.");
@@ -232,7 +232,7 @@ class CaptainManager {
                 return true;
 
             })
-            .then(function () {
+            .then(function() {
 
                 const secretFileName = "/run/secrets/" + CaptainConstants.captainSaltSecretKey;
 
@@ -258,19 +258,19 @@ class CaptainManager {
                 return true;
 
             })
-            .then(function () {
+            .then(function() {
 
                 if (!myNodeId) {
                     throw new Error("NodeID is still not found");
                 }
                 return certbotManager.init(myNodeId);
             })
-            .then(function () {
+            .then(function() {
 
                 return dataStore.getHasLocalRegistry();
 
             })
-            .then(function (hasLocalRegistry) {
+            .then(function(hasLocalRegistry) {
 
                 if (hasLocalRegistry) {
                     Logger.d("Ensuring Docker Registry is running...");
@@ -280,7 +280,7 @@ class CaptainManager {
                 return Promise.resolve(true);
 
             })
-            .then(function () {
+            .then(function() {
 
                 self.inited = true;
 
@@ -289,7 +289,7 @@ class CaptainManager {
                 Logger.d("**** Captain is initialized and ready to serve you! ****");
 
             })
-            .catch(function (error) {
+            .catch(function(error) {
 
                 Logger.e(error);
                 self.initRetryCount++;
@@ -298,7 +298,7 @@ class CaptainManager {
                     process.exit(0);
                 }
 
-                setTimeout(function () {
+                setTimeout(function() {
                     self.initialize();
                 }, 10000);
 
@@ -313,7 +313,7 @@ class CaptainManager {
 
         function scheduleNextHealthCheck() {
             self.healthCheckUuid = uuid();
-            setTimeout(function () {
+            setTimeout(function() {
                 self.performHealthCheck();
             }, HEALTH_CHECK_INTERVAL);
         }
@@ -328,7 +328,7 @@ class CaptainManager {
 
             let callbackCalled = false;
 
-            setTimeout(function () {
+            setTimeout(function() {
 
                 if (callbackCalled) {
                     return;
@@ -342,7 +342,7 @@ class CaptainManager {
 
             request(url,
 
-                function (error, response, body) {
+                function(error, response, body) {
 
                     if (callbackCalled) {
                         return;
@@ -362,7 +362,7 @@ class CaptainManager {
 
             let callbackCalled = false;
 
-            setTimeout(function () {
+            setTimeout(function() {
 
                 if (callbackCalled) {
                     return;
@@ -373,7 +373,7 @@ class CaptainManager {
             }, TIMEOUT_HEALTH_CHECK);
 
             self.verifyCaptainOwnsDomainOrThrow(captainPublicDomain, "-healthcheck")
-                .then(function () {
+                .then(function() {
 
                     if (callbackCalled) {
                         return;
@@ -382,7 +382,7 @@ class CaptainManager {
 
                     callback(true);
                 })
-                .catch(function () {
+                .catch(function() {
                     if (callbackCalled) {
                         return;
                     }
@@ -391,7 +391,12 @@ class CaptainManager {
                     callback(false);
                 });
         }
-        interface IChecks { captainHealth: {value: boolean}; nginxHealth: {value: boolean}; }
+
+        interface IChecks {
+            captainHealth: { value: boolean };
+            nginxHealth: { value: boolean };
+        }
+
         const checksPerformed = {} as IChecks;
 
         function scheduleIfNecessary() {
@@ -425,16 +430,16 @@ class CaptainManager {
             }
         }
 
-        checkCaptainHealth(function (success) {
+        checkCaptainHealth(function(success) {
             checksPerformed.captainHealth = {
-                value: success
+                value: success,
             };
             scheduleIfNecessary();
         });
 
-        checkNginxHealth(function (success) {
+        checkNginxHealth(function(success) {
             checksPerformed.nginxHealth = {
-                value: success
+                value: success,
             };
             scheduleIfNecessary();
         });
@@ -452,11 +457,11 @@ class CaptainManager {
 
         const url = "https://hub.docker.com/v2/repositories/" + CaptainConstants.publishedNameOnDockerHub + "/tags";
 
-        return new Promise<string[]>(function (resolve, reject) {
+        return new Promise<string[]>(function(resolve, reject) {
 
             request(url,
 
-                function (error, response, body) {
+                function(error, response, body) {
 
 
                     if (CaptainConstants.isDebug) {
@@ -483,7 +488,7 @@ class CaptainManager {
     updateCaptain(versionTag: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerApi.updateService(CaptainConstants.captainServiceName,
                     CaptainConstants.publishedNameOnDockerHub + ":" + versionTag,
                     undefined, undefined, undefined, undefined,
@@ -523,29 +528,29 @@ class CaptainManager {
         const dockerApi = this.dockerApi;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return dockerApi.ensureContainerStoppedAndRemoved(CaptainConstants.netDataContainerName,
                     CaptainConstants.captainNetworkName);
 
             })
-            .then(function () {
+            .then(function() {
 
                 if (netDataInfo.isEnabled) {
                     const vols = [{
-                            hostPath: "/proc",
-                            containerPath: "/host/proc",
-                            mode: "ro"
-                        },
+                        hostPath: "/proc",
+                        containerPath: "/host/proc",
+                        mode: "ro",
+                    },
                         {
                             hostPath: "/sys",
                             containerPath: "/host/sys",
-                            mode: "ro"
+                            mode: "ro",
                         },
                         {
                             hostPath: "/var/run/docker.sock",
-                            containerPath: "/var/run/docker.sock"
-                        }
+                            containerPath: "/var/run/docker.sock",
+                        },
                     ];
 
                     const envVars = [];
@@ -553,69 +558,69 @@ class CaptainManager {
                     if (netDataInfo.data.smtp) {
                         envVars.push({
                             key: "SSMTP_TO",
-                            value: netDataInfo.data.smtp.to
+                            value: netDataInfo.data.smtp.to,
                         });
                         envVars.push({
                             key: "SSMTP_HOSTNAME",
-                            value: netDataInfo.data.smtp.hostname
+                            value: netDataInfo.data.smtp.hostname,
                         });
 
                         envVars.push({
                             key: "SSMTP_SERVER",
-                            value: netDataInfo.data.smtp.server
+                            value: netDataInfo.data.smtp.server,
                         });
 
                         envVars.push({
                             key: "SSMTP_PORT",
-                            value: netDataInfo.data.smtp.port
+                            value: netDataInfo.data.smtp.port,
                         });
 
                         envVars.push({
                             key: "SSMTP_TLS",
-                            value: netDataInfo.data.smtp.allowNonTls ? "NO" : "YES"
+                            value: netDataInfo.data.smtp.allowNonTls ? "NO" : "YES",
                         });
 
                         envVars.push({
                             key: "SSMTP_USER",
-                            value: netDataInfo.data.smtp.username
+                            value: netDataInfo.data.smtp.username,
                         });
 
                         envVars.push({
                             key: "SSMTP_PASS",
-                            value: netDataInfo.data.smtp.password
+                            value: netDataInfo.data.smtp.password,
                         });
                     }
 
                     if (netDataInfo.data.slack) {
                         envVars.push({
                             key: "SLACK_WEBHOOK_URL",
-                            value: netDataInfo.data.slack.hook
+                            value: netDataInfo.data.slack.hook,
                         });
                         envVars.push({
                             key: "SLACK_CHANNEL",
-                            value: netDataInfo.data.slack.channel
+                            value: netDataInfo.data.slack.channel,
                         });
                     }
 
                     if (netDataInfo.data.telegram) {
                         envVars.push({
                             key: "TELEGRAM_BOT_TOKEN",
-                            value: netDataInfo.data.telegram.botToken
+                            value: netDataInfo.data.telegram.botToken,
                         });
                         envVars.push({
                             key: "TELEGRAM_CHAT_ID",
-                            value: netDataInfo.data.telegram.chatId
+                            value: netDataInfo.data.telegram.chatId,
                         });
                     }
 
                     if (netDataInfo.data.pushBullet) {
                         envVars.push({
                             key: "PUSHBULLET_ACCESS_TOKEN",
-                            value: netDataInfo.data.pushBullet.apiToken
+                            value: netDataInfo.data.pushBullet.apiToken,
                         });
                         envVars.push({
                             key: "PUSHBULLET_DEFAULT_EMAIL",
-                            value: netDataInfo.data.pushBullet.fallbackEmail
+                            value: netDataInfo.data.pushBullet.fallbackEmail,
                         });
                     }
 
@@ -626,7 +631,7 @@ class CaptainManager {
                 // Just removing the old container. No need to create a new one.
                 return true;
             })
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.setNetDataInfo(netDataInfo);
 
@@ -638,12 +643,12 @@ class CaptainManager {
         const dockerApi = this.dockerApi;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return dockerApi.getNodesInfo();
 
             })
-            .then(function (data) {
+            .then(function(data) {
 
                 if (!data || !data.length) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "No cluster node was found!");
@@ -658,23 +663,23 @@ class CaptainManager {
         const dockerApi = this.dockerApi;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return dockerApi.getJoinToken(isManager);
             })
-            .then(function (token) {
+            .then(function(token) {
 
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
                     const conn = new SshClient();
                     conn
-                        .on("error", function (err) {
+                        .on("error", function(err) {
                             Logger.e(err);
                             reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "SSH Connection error!!"));
                         })
-                        .on("ready", function () {
+                        .on("ready", function() {
 
                             Logger.d("SSH Client :: ready");
 
-                            conn.exec(dockerApi.createJoinCommand(captainIpAddress, token), function (err, stream) {
+                            conn.exec(dockerApi.createJoinCommand(captainIpAddress, token), function(err, stream) {
 
                                 if (err) {
                                     Logger.e(err);
@@ -685,7 +690,7 @@ class CaptainManager {
                                 let hasExisted = false;
 
                                 stream
-                                    .on("close", function (code: string, signal: string) {
+                                    .on("close", function(code: string, signal: string) {
                                         Logger.d("Stream :: close :: code: " + code + ", signal: " + signal);
                                         conn.end();
                                         if (hasExisted) {
@@ -694,11 +699,11 @@ class CaptainManager {
                                         hasExisted = true;
                                         resolve();
                                     })
-                                    .on("data", function (data: string) {
+                                    .on("data", function(data: string) {
                                         Logger.d("STDOUT: " + data);
                                     })
                                     .stderr
-                                    .on("data", function (data) {
+                                    .on("data", function(data) {
                                         Logger.e("STDERR: " + data);
                                         if (hasExisted) {
                                             return;
@@ -712,7 +717,7 @@ class CaptainManager {
                             host: remoteNodeIpAddress,
                             port: 22,
                             username: remoteUserName,
-                            privateKey: privateKey
+                            privateKey: privateKey,
                         });
                 });
             });
@@ -725,7 +730,7 @@ class CaptainManager {
     reloadLoadBalancer(datastore: DataStore) {
         const self = this;
         return self.loadBalancerManager.rePopulateNginxConfigFile(datastore)
-            .then(function () {
+            .then(function() {
                 Logger.d("sendReloadSignal...");
                 return self.loadBalancerManager.sendReloadSignal();
             });
@@ -739,7 +744,7 @@ class CaptainManager {
 
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.setDefaultPushRegistry(registryId);
 
@@ -751,7 +756,7 @@ class CaptainManager {
 
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.getDefaultPushRegistry();
 
@@ -762,12 +767,12 @@ class CaptainManager {
     deleteRegistry(registryId: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.getDefaultPushRegistry();
 
             })
-            .then(function (registryIdDefaultPush) {
+            .then(function(registryIdDefaultPush) {
 
                 if (registryId === registryIdDefaultPush) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, "Cannot remove the default push");
@@ -781,7 +786,7 @@ class CaptainManager {
     getAllRegistries() {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return (self.dataStore.getAllRegistries() || []);
 
@@ -791,7 +796,7 @@ class CaptainManager {
     addRegistry(registryUser: string, registryPassword: string, registryDomain: string, registryImagePrefix: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 if (!registryUser || !registryPassword || !registryDomain) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, "User, password and domain are required.");
@@ -807,27 +812,27 @@ class CaptainManager {
     enableSsl(emailAddress: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.certbotManager.ensureRegistered(emailAddress);
             })
-            .then(function () {
+            .then(function() {
 
                 return self.certbotManager.enableSsl(CaptainConstants.captainSubDomain + "." + self.dataStore.getRootDomain());
             })
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.setUserEmailAddress(emailAddress);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.setHasRootSsl(true);
             })
-            .then(function () {
+            .then(function() {
 
                 return self.loadBalancerManager.rePopulateNginxConfigFile(self.dataStore);
             })
-            .then(function () {
+            .then(function() {
 
                 return self.loadBalancerManager.sendReloadSignal();
 
@@ -838,10 +843,10 @@ class CaptainManager {
     forceSsl(isEnabled: boolean) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dataStore.getHasRootSsl();
             })
-            .then(function (hasRootSsl) {
+            .then(function(hasRootSsl) {
 
                 if (!hasRootSsl) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "You first need to enable SSL on the root domain before forcing it.");
@@ -849,7 +854,7 @@ class CaptainManager {
 
                 return self.dataStore.setForceSsl(isEnabled);
             })
-            .then(function () {
+            .then(function() {
                 return self.refreshForceSslState();
             });
     }
@@ -857,10 +862,10 @@ class CaptainManager {
     refreshForceSslState() {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dataStore.getForceSsl();
             })
-            .then(function (hasForceSsl) {
+            .then(function(hasForceSsl) {
                 self.hasForceSsl = hasForceSsl;
             });
     }
@@ -877,44 +882,44 @@ class CaptainManager {
      *
      * @returns {Promise.<boolean>}
      */
-    verifyCaptainOwnsDomainOrThrow(domainName: string, identifierSuffix: string|undefined) {
+    verifyCaptainOwnsDomainOrThrow(domainName: string, identifierSuffix: string | undefined) {
 
         const self = this;
         const randomUuid = uuid();
         const captainConfirmationPath = CaptainConstants.captainConfirmationPath + (identifierSuffix ? identifierSuffix : "");
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.certbotManager.domainValidOrThrow(domainName);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.outputFile(CaptainConstants.captainStaticFilesDir + CaptainConstants.nginxDomainSpecificHtmlDir +
                     "/" + domainName + captainConfirmationPath, randomUuid);
 
             })
-            .then(function () {
+            .then(function() {
 
-                return new Promise(function (resolve) {
+                return new Promise(function(resolve) {
 
-                    setTimeout(function () {
+                    setTimeout(function() {
                         resolve();
                     }, 1000);
                 });
 
             })
-            .then(function () {
+            .then(function() {
 
                 return new Promise(
-                    function (resolve, reject) {
+                    function(resolve, reject) {
                         const url = "http://" + domainName + ":" +
                             CaptainConstants.nginxPortNumber + captainConfirmationPath;
 
                         request(url,
 
-                            function (error, response, body) {
+                            function(error, response, body) {
 
                                 if (error || !body || (body !== randomUuid)) {
                                     Logger.e("Verification Failed for " + domainName);
@@ -935,7 +940,7 @@ class CaptainManager {
     getNginxConfig() {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dataStore.getNginxConfig();
             });
     }
@@ -943,10 +948,10 @@ class CaptainManager {
     setNginxConfig(baseConfig: string, captainConfig: string) {
         const self = this;
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dataStore.setNginxConfig(baseConfig, captainConfig);
             })
-            .then(function () {
+            .then(function() {
                 self.resetSelf();
             });
     }
@@ -958,14 +963,14 @@ class CaptainManager {
     verifyDomainResolvesToDefaultServerOnHost(domainName: string) {
         const self = this;
         return new Promise(
-            function (resolve, reject) {
+            function(resolve, reject) {
 
                 const url = "http://" + domainName + CaptainConstants.captainConfirmationPath;
 
                 Logger.d("Sending request to " + url);
 
                 request(url,
-                    function (error, response, body) {
+                    function(error, response, body) {
 
                         if (error || !body || (body !== self.loadBalancerManager.getCaptainPublicRandomKey())) {
                             reject(ApiStatusCodes.createError(ApiStatusCodes.VERIFICATION_FAILED, "Verification Failed."));
@@ -988,12 +993,12 @@ class CaptainManager {
             CaptainConstants.nginxPortNumber;
 
         return self.verifyDomainResolvesToDefaultServerOnHost(url)
-            .then(function () {
+            .then(function() {
 
                 return self.dataStore.getHasRootSsl();
 
             })
-            .then(function (hasRootSsl) {
+            .then(function(hasRootSsl) {
 
                 if (hasRootSsl && self.dataStore.getRootDomain() !== requestedCustomDomain) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "SSL is enabled for root. Too late to change your mind!");
@@ -1002,7 +1007,7 @@ class CaptainManager {
                 return self.dataStore.setCustomDomain(requestedCustomDomain);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return self.reloadLoadBalancer(self.dataStore);
 
@@ -1012,8 +1017,8 @@ class CaptainManager {
     resetSelf() {
         const self = this;
         Logger.d("Captain is resetting itself!");
-        return new Promise(function (resolve, reject) {
-            setTimeout(function () {
+        return new Promise(function(resolve, reject) {
+            setTimeout(function() {
                 const promiseToIgnore = self.dockerApi.updateService(CaptainConstants.captainServiceName, undefined, undefined,
                     undefined, undefined, undefined, undefined,
                     undefined, undefined, undefined, undefined,
@@ -1021,6 +1026,7 @@ class CaptainManager {
             }, 2000);
         });
     }
+
     static get(): CaptainManager {
         return captainManagerInstance;
     }

@@ -1,11 +1,11 @@
 import Base64Provider = require("js-base64");
 import Docker = require("dockerode");
 import uuid = require("uuid/v4");
-import util = require("util");
 import CaptainConstants = require("../utils/CaptainConstants");
 import Logger = require("../utils/Logger");
 import EnvVars = require("../utils/EnvVars");
 import BuildLog = require("../user/BuildLog");
+
 const Base = Base64Provider.Base64;
 
 function safeParseChunk(chunk: string) {
@@ -13,7 +13,7 @@ function safeParseChunk(chunk: string) {
         return JSON.parse(chunk);
     } catch (ignore) {
         return {
-            stream: "Cannot parse " + chunk
+            stream: "Cannot parse " + chunk,
         };
     }
 }
@@ -22,6 +22,7 @@ function safeParseChunk(chunk: string) {
 class DockerApi {
 
     private dockerode: Docker;
+
     constructor(connectionParams: Docker.DockerOptions) {
         this.dockerode = new Docker(connectionParams);
     }
@@ -35,14 +36,14 @@ class DockerApi {
         const self = this;
 
         portNumber = portNumber || 2377;
-        let port = ''+portNumber;
+        const port = "" + portNumber;
 
         const advertiseAddr = ip + ":" + port;
 
         const swarmOptions = {
             "ListenAddr": "0.0.0.0:" + port,
             "AdvertiseAddr": advertiseAddr,
-            "ForceNewCluster": false
+            "ForceNewCluster": false,
         };
 
         Logger.d("Starting swarm at " + advertiseAddr);
@@ -56,7 +57,7 @@ class DockerApi {
         const self = this;
 
         return self.dockerode.swarmLeave({
-            force: !!forced
+            force: !!forced,
         });
     }
 
@@ -69,10 +70,10 @@ class DockerApi {
             .listTasks({
                 filters: {
                     service: [serviceName],
-                    "desired-state": ["running"]
-                }
+                    "desired-state": ["running"],
+                },
             })
-            .then(function (data) {
+            .then(function(data) {
 
                 if (data.length > 0) {
 
@@ -82,14 +83,14 @@ class DockerApi {
 
                     if (retryCount < 3) {
                         return new Promise(
-                                function (resolve) {
+                            function(resolve) {
 
-                                    setTimeout(function () {
-                                        resolve();
-                                    }, 3000);
+                                setTimeout(function() {
+                                    resolve();
+                                }, 3000);
 
-                                })
-                            .then(function () {
+                            })
+                            .then(function() {
 
                                 Logger.d("Retrying to get NodeID for " + serviceName + " retry count:" + retryCount);
 
@@ -109,10 +110,10 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.listNodes();
             })
-            .then(function (nodes) {
+            .then(function(nodes) {
 
                 for (let idx = 0; idx < nodes.length; idx++) {
                     const node = nodes[idx];
@@ -133,10 +134,10 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.listNodes();
             })
-            .then(function (nodes) {
+            .then(function(nodes) {
 
                 const ret: ServerDockerInfo[] = [];
 
@@ -158,7 +159,7 @@ class DockerApi {
                         dockerEngineVersion: n.Description.Engine.EngineVersion,
                         ip: n.Status.Addr,
                         state: n.Status.State, // whether down or ready (this means the machine is down)
-                        status: n.Spec.Availability // whether active, drain or pause (this is the expected behavior)
+                        status: n.Spec.Availability, // whether active, drain or pause (this is the expected behavior)
                     });
                 }
 
@@ -171,10 +172,10 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.swarmInspect();
             })
-            .then(function (inspectData) {
+            .then(function(inspectData) {
 
                 if (!inspectData || !inspectData.JoinTokens) {
                     throw new Error("Inspect data does not contain tokens!!");
@@ -195,24 +196,24 @@ class DockerApi {
 
         const self = this;
 
-        let newVersion = "" + newVersionNumber;
+        const newVersion = "" + newVersionNumber;
 
         Logger.d("Building docker image. This might take a few minutes...");
 
         return self.dockerode
             .buildImage(tarballFilePath, {
-                t: imageName
+                t: imageName,
             })
-            .then(function (stream) {
+            .then(function(stream) {
 
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
 
                     let errorMessage = "";
 
                     stream.setEncoding("utf8");
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on("data", function (chunk) {
+                    stream.on("data", function(chunk) {
 
                         Logger.dev("stream data " + chunk);
                         chunk = safeParseChunk(chunk);
@@ -240,7 +241,7 @@ class DockerApi {
                     // IncomingMessage
                     // https://nodejs.org/api/stream.html#stream_event_end
 
-                    stream.on("end", function () {
+                    stream.on("end", function() {
                         if (errorMessage) {
                             reject(errorMessage);
                             return;
@@ -248,19 +249,19 @@ class DockerApi {
                         resolve();
                     });
 
-                    stream.on("error", function (chunk) {
+                    stream.on("error", function(chunk) {
                         errorMessage += chunk;
                     });
 
                 });
 
             })
-            .then(function () {
+            .then(function() {
 
                 return self.dockerode.getImage(imageName)
                     .tag({
                         tag: newVersion,
-                        repo: imageName
+                        repo: imageName,
                     });
 
             });
@@ -271,16 +272,16 @@ class DockerApi {
         tag = tag || "latest";
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.dockerode.createImage({
                     fromImage: imageName,
-                    tag: tag
+                    tag: tag,
                 });
             })
-            .then(function (stream) {
+            .then(function(stream) {
 
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
 
                     let errorMessage = "";
                     const logsBeforeError: string[] = [];
@@ -291,7 +292,7 @@ class DockerApi {
                     stream.setEncoding("utf8");
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on("data", function (chunk) {
+                    stream.on("data", function(chunk) {
 
                         Logger.dev("stream data " + chunk);
                         chunk = safeParseChunk(chunk);
@@ -317,7 +318,7 @@ class DockerApi {
                     // IncomingMessage
                     // https://nodejs.org/api/stream.html#stream_event_end
 
-                    stream.on("end", function () {
+                    stream.on("end", function() {
                         if (errorMessage) {
                             reject(errorMessage);
                             return;
@@ -325,7 +326,7 @@ class DockerApi {
                         resolve();
                     });
 
-                    stream.on("error", function (chunk) {
+                    stream.on("error", function(chunk) {
                         errorMessage += chunk;
                     });
 
@@ -349,70 +350,70 @@ class DockerApi {
         Logger.d("Ensuring Stopped & Removed Container: " + nameOrId);
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Stopping " + nameOrId);
 
                 return self.dockerode.getContainer(nameOrId)
                     .stop({
-                        t: 2
+                        t: 2,
                     });
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Waiting to stop " + nameOrId);
 
                 return Promise.race([
                     self.dockerode.getContainer(nameOrId)
-                    .wait(),
-                    new Promise(function (resolve, reject) {
-                        setTimeout(function () {
+                        .wait(),
+                    new Promise(function(resolve, reject) {
+                        setTimeout(function() {
                             resolve();
                         }, 7000);
-                    })
+                    }),
                 ]);
 
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 if (error && error.statusCode === 304) {
                     Logger.w("Container already stopped: " + nameOrId);
                     return false;
                 }
                 throw error;
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Removing " + nameOrId);
 
                 return self.dockerode.getContainer(nameOrId)
                     .remove({
-                        force: true
+                        force: true,
                     });
 
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Pruning containers...");
 
                 return self.pruneContainers()
-                    .catch(function (err) {
+                    .catch(function(err) {
                         Logger.d("Prune Containers Failed!");
                         Logger.e(err);
                     });
 
             })
-            .then(function () {
+            .then(function() {
 
                 Logger.d("Disconnecting from network: " + nameOrId);
 
                 return self.dockerode.getNetwork(networkIdOrName)
                     .disconnect({
                         Force: true,
-                        Container: nameOrId
+                        Container: nameOrId,
                     });
 
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 if (error && error.statusCode === 404) {
                     Logger.w("Container not found: " + nameOrId);
                     return false;
@@ -438,7 +439,7 @@ class DockerApi {
      * @returns {Promise.<>}
      */
     createStickyContainer(containerName: string, imageName: string, volumes: IAppVolume[], network: string,
-        arrayOfEnvKeyAndValue: IAppEnvVar[], addedCapabilities: string[]) {
+                          arrayOfEnvKeyAndValue: IAppEnvVar[], addedCapabilities: string[]) {
 
         const self = this;
 
@@ -459,13 +460,13 @@ class DockerApi {
         }
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 const nameAndTag = imageName.split(":");
                 return self.pullImage(nameAndTag[0], nameAndTag[1] || "latest");
 
             })
-            .then(function () {
+            .then(function() {
 
                 return self.dockerode.createContainer({
                     name: containerName,
@@ -478,16 +479,16 @@ class DockerApi {
                         LogConfig: {
                             Type: "json-file",
                             Config: {
-                                "max-size": CaptainConstants.defaultMaxLogSize
-                            }
+                                "max-size": CaptainConstants.defaultMaxLogSize,
+                            },
                         },
                         RestartPolicy: {
-                            Name: "always"
-                        }
-                    }
+                            Name: "always",
+                        },
+                    },
                 });
             })
-            .then(function (data) {
+            .then(function(data) {
 
                 return data.start();
 
@@ -498,31 +499,31 @@ class DockerApi {
 
         const self = this;
 
-        let newVersion = "" + newVersionNumber;
+        const newVersion = "" + newVersionNumber;
 
         buildLogs.log("Pushing to remote: " + imageName + ":" + newVersion);
         buildLogs.log("Server: " + (authObj ? authObj.serveraddress : "N/A"));
         buildLogs.log("This might take a few minutes...");
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.dockerode.getImage(imageName + ":" + newVersion)
                     .push({
-                        authconfig: authObj
+                        authconfig: authObj,
                     });
 
             })
-            .then(function (stream) {
+            .then(function(stream) {
 
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
 
                     let errorMessage = "";
 
                     stream.setEncoding("utf8");
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on("data", function (chunk) {
+                    stream.on("data", function(chunk) {
 
                         Logger.dev("stream data " + chunk);
                         chunk = safeParseChunk(chunk);
@@ -549,7 +550,7 @@ class DockerApi {
                     // IncomingMessage
                     // https://nodejs.org/api/stream.html#stream_event_end
 
-                    stream.on("end", function () {
+                    stream.on("end", function() {
                         if (errorMessage) {
                             buildLogs.log("Push failed...");
                             reject(errorMessage);
@@ -559,7 +560,7 @@ class DockerApi {
                         resolve();
                     });
 
-                    stream.on("error", function (chunk) {
+                    stream.on("error", function(chunk) {
                         errorMessage += chunk;
                     });
 
@@ -590,8 +591,8 @@ class DockerApi {
      *
      * ]
      */
-    createServiceOnNodeId(imageName: string, serviceName: string, portsToMap: IAppPort[]|undefined, nodeId: string|undefined,
-        volumeToMount:IAppVolume[] |undefined, arrayOfEnvKeyAndValue:IAppEnvVar[]|undefined , resourcesObject:any ) {
+    createServiceOnNodeId(imageName: string, serviceName: string, portsToMap: IAppPort[] | undefined, nodeId: string | undefined,
+                          volumeToMount: IAppVolume[] | undefined, arrayOfEnvKeyAndValue: IAppEnvVar[] | undefined, resourcesObject: any) {
 
         const self = this;
 
@@ -602,7 +603,7 @@ class DockerApi {
                     const item: any = {
                         Protocol: portsToMap[i].protocol,
                         TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort
+                        PublishedPort: portsToMap[i].hostPort,
                     };
 
                     if (portsToMap[i].publishMode) {
@@ -614,12 +615,12 @@ class DockerApi {
                     const tcpItem: any = {
                         Protocol: "tcp",
                         TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort
+                        PublishedPort: portsToMap[i].hostPort,
                     };
                     const udpItem: any = {
                         Protocol: "udp",
                         TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort
+                        PublishedPort: portsToMap[i].hostPort,
                     };
                     if (portsToMap[i].publishMode) {
                         tcpItem.PublishMode = portsToMap[i].publishMode;
@@ -635,22 +636,22 @@ class DockerApi {
             name: serviceName,
             TaskTemplate: {
                 ContainerSpec: {
-                    Image: imageName
+                    Image: imageName,
                 },
                 Resources: resourcesObject,
                 Placement: {
-                    Constraints: nodeId ? ["node.id == " + nodeId] : []
+                    Constraints: nodeId ? ["node.id == " + nodeId] : [],
                 },
                 LogDriver: {
                     Name: "json-file",
                     Options: {
-                        "max-size": CaptainConstants.defaultMaxLogSize
-                    }
-                }
+                        "max-size": CaptainConstants.defaultMaxLogSize,
+                    },
+                },
             },
             EndpointSpec: {
-                Ports: ports
-            }
+                Ports: ports,
+            },
         };
 
         if (volumeToMount) {
@@ -662,7 +663,7 @@ class DockerApi {
                     Target: v.containerPath,
                     Type: v.type,
                     ReadOnly: false,
-                    Consistency: "default"
+                    Consistency: "default",
                 });
             }
 
@@ -693,10 +694,10 @@ class DockerApi {
         return this.dockerode
             .getService(serviceName)
             .inspect()
-            .then(function () {
+            .then(function() {
                 return true;
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 if (error && error.statusCode === 404) {
                     return false;
                 }
@@ -711,7 +712,7 @@ class DockerApi {
             .remove();
     }
 
-    getContainerIdByServiceName(serviceName: string, retryCountMaybe ? : number) : Promise < string > {
+    getContainerIdByServiceName(serviceName: string, retryCountMaybe ?: number): Promise<string> {
 
         const self = this;
         const retryCount: number = retryCountMaybe || 0;
@@ -720,29 +721,29 @@ class DockerApi {
             .listTasks({
                 filters: {
                     service: [serviceName],
-                    "desired-state": ["running"]
-                }
+                    "desired-state": ["running"],
+                },
             })
-            .then(function (data) {
+            .then(function(data) {
 
                 if (data.length >= 2) {
                     throw new Error("There must be only one instance (not " + data.length + ") of the service running for sendSingleContainerKillHUP. " + serviceName);
                 }
 
                 if (data.length === 1) {
-                   return Promise.resolve(data[0].Status.ContainerStatus.ContainerID);
+                    return Promise.resolve(data[0].Status.ContainerStatus.ContainerID);
                 }
 
                 if (retryCount < 3) {
                     return new Promise(
-                            function (resolve) {
+                        function(resolve) {
 
-                                setTimeout(function () {
-                                    resolve();
-                                }, 3000);
+                            setTimeout(function() {
+                                resolve();
+                            }, 3000);
 
-                            })
-                        .then(function () {
+                        })
+                        .then(function() {
 
                             Logger.d("Retrying to get containerId for " + serviceName + " retry count:" + retryCount);
 
@@ -754,19 +755,19 @@ class DockerApi {
 
 
             });
-    };
+    }
 
     executeCommand(serviceName: string, cmd: string[]) {
 
         const self = this;
 
         return self.getContainerIdByServiceName(serviceName)
-            .then(function (containerIdFound) {
+            .then(function(containerIdFound) {
 
                 Logger.d("executeCommand Container: " + containerIdFound);
 
                 if (!Array.isArray(cmd)) {
-                    throw new Error('Command should be an array. e.g, ["echo", "--help"] ');
+                    throw new Error("Command should be an array. e.g, [\"echo\", \"--help\"] ");
                 }
 
                 return self.dockerode
@@ -776,17 +777,17 @@ class DockerApi {
                         AttachStdout: true,
                         AttachStderr: true,
                         Tty: true,
-                        Cmd: cmd
+                        Cmd: cmd,
                     })
-                    .then(function (execInstance) {
+                    .then(function(execInstance) {
 
                         return execInstance.start({
                             Detach: false,
-                            Tty: true
+                            Tty: true,
                         });
 
                     })
-                    .then(function (data) {
+                    .then(function(data) {
 
                         const output = data.output; // output from the exec command
 
@@ -794,7 +795,7 @@ class DockerApi {
                             throw new Error("No output from service: " + serviceName + " running " + cmd);
                         }
 
-                        return new Promise<string>(function (resolve) {
+                        return new Promise<string>(function(resolve) {
 
                             let finished = false;
                             let outputBody = "";
@@ -804,11 +805,11 @@ class DockerApi {
 
                             output.setEncoding("utf8");
 
-                            output.on("data", function (chunk: any) {
+                            output.on("data", function(chunk: any) {
                                 outputBody += chunk;
                             });
 
-                            output.on("end", function () {
+                            output.on("end", function() {
 
                                 if (finished) {
                                     return;
@@ -819,7 +820,7 @@ class DockerApi {
 
                             });
 
-                            output.on("close", function () {
+                            output.on("close", function() {
 
                                 if (finished) {
                                     return;
@@ -840,12 +841,12 @@ class DockerApi {
 
         return self
             .getContainerIdByServiceName(serviceName)
-            .then(function (containerIdFound) {
+            .then(function(containerIdFound) {
 
                 Logger.d("Kill HUP Container: " + containerIdFound);
 
                 return self.dockerode.getContainer(containerIdFound).kill({
-                    signal: "HUP"
+                    signal: "HUP",
                 });
             });
     }
@@ -864,9 +865,9 @@ class DockerApi {
 
         return self.dockerode
             .listSecrets({
-                name: secretName
+                name: secretName,
             })
-            .then(function (secrets) {
+            .then(function(secrets) {
 
                 // the filter returns all secrets whose name includes the provided secretKey. e.g., if you ask for
                 // captain-me, it also returns captain-me1 and etc if exist
@@ -886,7 +887,7 @@ class DockerApi {
 
                 return self.checkIfServiceHasSecret(serviceName, secretToExpose.ID);
             })
-            .then(function (hasSecret) {
+            .then(function(hasSecret) {
 
                 if (hasSecret) {
                     Logger.d(serviceName + " (service) has already been connected to secret: " + secretName);
@@ -899,9 +900,9 @@ class DockerApi {
                 return self
                     .updateService(serviceName, undefined, undefined, undefined, undefined, [{
                         secretName: secretName,
-                        secretId: secretToExpose.ID
-                    }],undefined,undefined,undefined,undefined,undefined, undefined,undefined)
-                    .then(function () {
+                        secretId: secretToExpose.ID,
+                    }], undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+                    .then(function() {
                         return false;
                     });
 
@@ -913,7 +914,7 @@ class DockerApi {
         return self.dockerode
             .getService(serviceName)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
                 const secrets = data.Spec.TaskTemplate.ContainerSpec.Secrets;
                 if (secrets) {
                     for (let i = 0; i < secrets.length; i++) {
@@ -931,7 +932,7 @@ class DockerApi {
         const self = this;
 
         return this.checkIfSecretExist(secretKey)
-            .then(function (secretExists) {
+            .then(function(secretExists) {
 
                 if (secretExists) {
                     return true;
@@ -940,7 +941,7 @@ class DockerApi {
                         .createSecret({
                             Name: secretKey,
                             Labels: {},
-                            Data: Base64.encode(valueIfNotExist)
+                            Data: Base64.encode(valueIfNotExist),
                         });
                 }
             });
@@ -952,9 +953,9 @@ class DockerApi {
 
         return self.dockerode
             .listSecrets({
-                name: secretKey
+                name: secretKey,
             })
-            .then(function (secrets) {
+            .then(function(secrets) {
 
                 // the filter returns all secrets whose name includes the provided secretKey. e.g., if you ask for
                 // captain-me, it also returns captain-me1 and etc if exist
@@ -982,13 +983,13 @@ class DockerApi {
         return self.dockerode
             .getNetwork(networkName)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
                 networkId = data.Id;
                 return self.dockerode
                     .getService(serviceName)
                     .inspect();
             })
-            .then(function (serviceData) {
+            .then(function(serviceData) {
                 let availableNetworks = serviceData.Spec.TaskTemplate.Networks;
                 const allNetworks = [];
                 availableNetworks = availableNetworks || [];
@@ -1018,22 +1019,22 @@ class DockerApi {
         return self.dockerode
             .getNetwork(networkName)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
                 // Network exists!
                 return true;
             })
-            .catch(function (error) {
+            .catch(function(error) {
 
                 if (error && error.statusCode === 404) {
                     return self.dockerode.createNetwork({
                         Name: networkName,
                         CheckDuplicate: true,
                         Driver: "overlay",
-                        Attachable: true
+                        Attachable: true,
                     });
                 }
 
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
                     reject(error);
                 });
 
@@ -1080,15 +1081,15 @@ class DockerApi {
      * @param namespace: String 'captain' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName: string, imageName: string|undefined, volumes:IAppVolume[]|undefined, networks:string[]|undefined,
-        arrayOfEnvKeyAndValue:IAppEnvVar[]|undefined, secrets:DockerSecret[]|undefined, authObject:DockerAuthObj|undefined, instanceCount:number|undefined,
-        nodeId: string|undefined, namespace: string|undefined, ports:IAppPort[]|undefined, appObject: IAppDefinition|undefined,
-        preDeployFunction: Function|undefined) {
+    updateService(serviceName: string, imageName: string | undefined, volumes: IAppVolume[] | undefined, networks: string[] | undefined,
+                  arrayOfEnvKeyAndValue: IAppEnvVar[] | undefined, secrets: DockerSecret[] | undefined, authObject: DockerAuthObj | undefined, instanceCount: number | undefined,
+                  nodeId: string | undefined, namespace: string | undefined, ports: IAppPort[] | undefined, appObject: IAppDefinition | undefined,
+                  preDeployFunction: Function | undefined) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
             .inspect()
-            .then(function (readData) {
+            .then(function(readData) {
 
                 const data = JSON.parse(JSON.stringify(readData));
 
@@ -1133,18 +1134,18 @@ class DockerApi {
                             updatedData.EndpointSpec.Ports.push({
                                 Protocol: p.protocol,
                                 TargetPort: p.containerPort,
-                                PublishedPort: p.hostPort
+                                PublishedPort: p.hostPort,
                             });
                         } else {
                             updatedData.EndpointSpec.Ports.push({
                                 Protocol: "tcp",
                                 TargetPort: p.containerPort,
-                                PublishedPort: p.hostPort
+                                PublishedPort: p.hostPort,
                             });
                             updatedData.EndpointSpec.Ports.push({
                                 Protocol: "udp",
                                 TargetPort: p.containerPort,
-                                PublishedPort: p.hostPort
+                                PublishedPort: p.hostPort,
                             });
                         }
                     }
@@ -1166,7 +1167,7 @@ class DockerApi {
                                 Target: v.containerPath,
                                 Type: TYPE_BIND,
                                 ReadOnly: false,
-                                Consistency: "default"
+                                Consistency: "default",
                             });
                         } else if (v.type === TYPE_VOLUME) {
 
@@ -1176,7 +1177,7 @@ class DockerApi {
                                 Source: (namespace ? (namespace + "--") : "") + v.volumeName,
                                 Target: v.containerPath,
                                 Type: TYPE_VOLUME,
-                                ReadOnly: false
+                                ReadOnly: false,
                             });
 
                         } else {
@@ -1216,10 +1217,10 @@ class DockerApi {
                                 Name: obj.secretName,
                                 UID: "0",
                                 GID: "0",
-                                Mode: 292 // TODO << what is this! I just added a secret and this is how it came out with... But I don't know what it means
+                                Mode: 292, // TODO << what is this! I just added a secret and this is how it came out with... But I don't know what it means
                             },
                             SecretID: obj.secretId,
-                            SecretName: obj.secretName
+                            SecretName: obj.secretName,
                         };
 
                         if (foundIndexSecret >= 0) {
@@ -1261,19 +1262,19 @@ class DockerApi {
                 return updatedData;
 
             })
-            .then(function (updatedData) {
+            .then(function(updatedData) {
 
                 return self.dockerode.getService(serviceName)
                     .update(updatedData);
             })
-            .then(function (serviceData) {
+            .then(function(serviceData) {
 
                 // give some time such that the new container is updated.
                 // also we don't want to fail the update just because prune failed.
-                setTimeout(function () {
+                setTimeout(function() {
 
                     self.pruneContainers()
-                        .catch(function (err) {
+                        .catch(function(err) {
                             Logger.d("Prune Containers Failed!");
                             Logger.e(err);
                         });
@@ -1295,7 +1296,7 @@ class DockerApi {
         return self.dockerode
             .getNode(nodeId)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
                 return data.Spec.Role === "manager";
             });
     }
@@ -1305,7 +1306,7 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.version();
             });
     }
@@ -1315,7 +1316,7 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.info();
             });
     }
@@ -1324,14 +1325,14 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 const promises = [];
 
                 for (let i = 0; i < imageIds.length; i++) {
                     const imageId = imageIds[i];
                     const p = self.dockerode.getImage(imageId).remove()
-                        .catch(function (err) {
+                        .catch(function(err) {
                             Logger.e(err);
                         });
 
@@ -1346,33 +1347,33 @@ class DockerApi {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return self.dockerode.listImages();
             });
     }
 
-    getNodeLables(nodeId: string){
+    getNodeLables(nodeId: string) {
         const self = this;
         return self.dockerode
             .getNode(nodeId)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
 
                 return data.Spec.Labels;
 
             });
     }
 
-    updateNodeLabels(nodeId: string, labels: ICacheGeneric < string > , nodeName: string) {
+    updateNodeLabels(nodeId: string, labels: ICacheGeneric<string>, nodeName: string) {
 
         const self = this;
         return self.dockerode
             .getNode(nodeId)
             .inspect()
-            .then(function (data) {
+            .then(function(data) {
 
                 const currentLabels = data.Spec.Labels || {};
-                Object.keys(labels).forEach(function (key) {
+                Object.keys(labels).forEach(function(key) {
                     currentLabels[key] = labels[key];
                 });
 
@@ -1383,11 +1384,11 @@ class DockerApi {
                         Name: nodeName,
                         Labels: currentLabels,
                         Role: data.Spec.Role,
-                        Availability: data.Spec.Availability
+                        Availability: data.Spec.Availability,
                     });
 
             })
-            .then(function () {
+            .then(function() {
 
                 return true;
 
@@ -1398,14 +1399,14 @@ class DockerApi {
 
 const dockerApiAddressSplited = (EnvVars.CAPTAIN_DOCKER_API || "").split("\:");
 const connectionParams: Docker.DockerOptions = dockerApiAddressSplited.length < 2 ? {
-        socketPath: CaptainConstants.dockerSocketPath
+        socketPath: CaptainConstants.dockerSocketPath,
     } :
     dockerApiAddressSplited.length === 2 ? {
         host: dockerApiAddressSplited[0],
-        port: Number(dockerApiAddressSplited[1])
+        port: Number(dockerApiAddressSplited[1]),
     } : {
         host: (dockerApiAddressSplited[0] + ":" + dockerApiAddressSplited[1]),
-        port: Number(dockerApiAddressSplited[2])
+        port: Number(dockerApiAddressSplited[2]),
     };
 
 connectionParams.version = "v1.30";

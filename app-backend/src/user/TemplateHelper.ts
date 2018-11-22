@@ -4,17 +4,17 @@ import ApiStatusCodes = require("../api/ApiStatusCodes");
 import Logger = require("../utils/Logger");
 import CaptainConstants = require("../utils/CaptainConstants");
 
-function getTagsForImage(imageBaseName: string, url: string|undefined, allTags: string[]|undefined): Promise<string[]> {
+function getTagsForImage(imageBaseName: string, url: string | undefined, allTags: string[] | undefined): Promise<string[]> {
 
     if (!url) {
         url = "https://hub.docker.com/v2/repositories/" + imageBaseName + "/tags";
     }
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
         request(url!,
 
-            function (error, response, body) {
+            function(error, response, body) {
 
                 if (error || !body) {
                     Logger.e(error);
@@ -94,36 +94,37 @@ class TemplateHelper {
 
     private templates: ITemplate[];
     private cachedImageTags: ICache;
+
     constructor() {
 
         const templates: ITemplate[] = [{
-                templateName: "node",
-                dockerHubImageName: "library/node",
-                dockerFileFromName: "node",
-                displayName: "NodeJS",
-                tagSuffix: "-alpine"
-            },
+            templateName: "node",
+            dockerHubImageName: "library/node",
+            dockerFileFromName: "node",
+            displayName: "NodeJS",
+            tagSuffix: "-alpine",
+        },
             {
                 templateName: "php",
                 dockerHubImageName: "library/php",
                 dockerFileFromName: "php",
                 displayName: "PHP",
-                tagSuffix: "-apache"
+                tagSuffix: "-apache",
             },
             {
                 templateName: "python-django",
                 dockerHubImageName: "library/python",
                 dockerFileFromName: "python-django",
                 displayName: "Python Django",
-                tagSuffix: "-alpine3.6"
+                tagSuffix: "-alpine3.6",
             },
             {
                 templateName: "ruby-rack",
                 dockerHubImageName: "library/ruby",
                 dockerFileFromName: "ruby-rack",
                 displayName: "Ruby Rack",
-                tagSuffix: "-alpine3.7"
-            }
+                tagSuffix: "-alpine3.7",
+            },
         ];
 
         const dockerfilesRoot = __dirname + "/../../dockerfiles/";
@@ -174,7 +175,7 @@ class TemplateHelper {
             const currentImageName = self.templates[i].dockerHubImageName;
 
             getTagsForImage(currentImageName, undefined, undefined)
-                .then(function (tags) {
+                .then(function(tags) {
 
                     tempCache[currentImageName] = tags;
 
@@ -203,7 +204,7 @@ class TemplateHelper {
                     }
 
                 })
-                .catch(function (error) {
+                .catch(function(error) {
 
                     Logger.e(error);
 
@@ -240,7 +241,7 @@ class TemplateHelper {
 const templateHelperInstance = new TemplateHelper();
 
 export = {
-    get: function () {
+    get: function() {
         return templateHelperInstance;
-    }
+    },
 };

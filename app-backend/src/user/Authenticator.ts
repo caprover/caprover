@@ -41,7 +41,7 @@ class Authenticator {
                 if (!oldPass || !newPass || newPass.length < 8) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        "Password is too small."
+                        "Password is too small.",
                     );
                 }
 
@@ -51,7 +51,7 @@ class Authenticator {
                 if (!isPasswordCorrect) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_WRONG_PASSWORD,
-                        "Old password is incorrect."
+                        "Old password is incorrect.",
                     );
                 }
 
@@ -59,7 +59,7 @@ class Authenticator {
 
                 const hashed = bcrypt.hashSync(
                     self.encryptionKey + newPass,
-                    bcrypt.genSaltSync(10)
+                    bcrypt.genSaltSync(10),
                 );
 
                 return self.dataStore.setHashedPassword(hashed);
@@ -80,7 +80,7 @@ class Authenticator {
 
                 return bcrypt.compareSync(
                     self.encryptionKey + password,
-                    savedHashedPassword
+                    savedHashedPassword,
                 );
             });
     }
@@ -100,7 +100,7 @@ class Authenticator {
                 if (!isPasswordCorrect) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_WRONG_PASSWORD,
-                        "Password is incorrect."
+                        "Password is incorrect.",
                     );
                 }
 
@@ -114,7 +114,7 @@ class Authenticator {
                         data: userObj,
                     },
                     self.encryptionKey + (keySuffix ? keySuffix : ""),
-                    { expiresIn: "10000h" }
+                    { expiresIn: "10000h" },
                 );
             });
     }
@@ -136,8 +136,8 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                "Auth token corrupted"
-                            )
+                                "Auth token corrupted",
+                            ),
                         );
                         return;
                     }
@@ -148,8 +148,8 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                "Auth token is not valid anymore. Request for a new auth token"
-                            )
+                                "Auth token is not valid anymore. Request for a new auth token",
+                            ),
                         );
                         return;
                     }
@@ -158,14 +158,14 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                "Auth token does not match the namespace"
-                            )
+                                "Auth token does not match the namespace",
+                            ),
                         );
                         return;
                     }
 
                     resolve(decodedData);
-                }
+                },
             );
         });
     }
@@ -175,7 +175,7 @@ class Authenticator {
 
         return self.getGenericToken(
             dataToSave,
-            WEBHOOK_APP_PUSH_DATASTORE_SUFFIX
+            WEBHOOK_APP_PUSH_DATASTORE_SUFFIX,
         );
     }
 
@@ -191,7 +191,7 @@ class Authenticator {
         if (!appName) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                "App name are required for webhook token.."
+                "App name are required for webhook token..",
             );
         }
 
@@ -200,7 +200,7 @@ class Authenticator {
                 tokenVersion: tokenVersion,
                 appName: appName,
             },
-            WEBHOOK_APP_PUSH_SUFFIX
+            WEBHOOK_APP_PUSH_SUFFIX,
         );
     }
 
@@ -219,7 +219,7 @@ class Authenticator {
                 {
                     data: obj,
                 },
-                self.encryptionKey + (keySuffix ? keySuffix : "")
+                self.encryptionKey + (keySuffix ? keySuffix : ""),
             );
         });
     }
@@ -237,8 +237,8 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                "Token corrupted"
-                            )
+                                "Token corrupted",
+                            ),
                         );
                         return;
                     }
@@ -249,14 +249,14 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                "token does not match the namespace"
-                            )
+                                "token does not match the namespace",
+                            ),
                         );
                         return;
                     }
 
                     resolve(decodedData);
-                }
+                },
             );
         });
     }
@@ -272,7 +272,7 @@ class Authenticator {
                 authenticatorCache[namespace] = new Authenticator(
                     captainSalt,
                     namespace,
-                    DataStoreProvider.getDataStore(namespace)
+                    DataStoreProvider.getDataStore(namespace),
                 );
             }
         }

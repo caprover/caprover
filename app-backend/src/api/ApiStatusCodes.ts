@@ -1,8 +1,8 @@
-import { CaptainError } from './CaptainError'
+import { CaptainError } from "./CaptainError";
 
 let apiStatusCode = {
     createError: function(code: number, message: string) {
-        return new CaptainError(code, message || 'NONE')
+        return new CaptainError(code, message || "NONE");
     },
 
     STATUS_OK: 100,
@@ -34,6 +34,6 @@ let apiStatusCode = {
     ILLEGAL_PARAMETER: 1110,
 
     NOT_FOUND: 1111,
-}
+};
 
 export = apiStatusCode

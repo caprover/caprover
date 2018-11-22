@@ -1,26 +1,27 @@
-import express = require('express');
-import bodyParser = require('body-parser');
-import TokenApi = require('../api/TokenApi');
-import BaseApi = require('../api/BaseApi');
-import Authenticator = require('../user/Authenticator');
-import ApiStatusCodes = require('../api/ApiStatusCodes');
-import Logger = require('../utils/Logger');
-import CaptainConstants = require('../utils/CaptainConstants');
-import ServiceManager = require('../user/ServiceManager');
+import express = require("express");
+import bodyParser = require("body-parser");
+import TokenApi = require("../api/TokenApi");
+import BaseApi = require("../api/BaseApi");
+import Authenticator = require("../user/Authenticator");
+import ApiStatusCodes = require("../api/ApiStatusCodes");
+import Logger = require("../utils/Logger");
+import CaptainConstants = require("../utils/CaptainConstants");
+import ServiceManager = require("../user/ServiceManager");
+
 const router = express.Router();
 
 const urlencodedParser = bodyParser.urlencoded({
-    extended: true
+    extended: true,
 });
 
-router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
+router.post("/triggerbuild", urlencodedParser, function(req, res, next) {
 
     // find which branch is pushed
     // inject it in locals.pushedBranches
 
-    let isGithub = req.header('X-GitHub-Event') === 'push';
-    let isBitbucket = (req.header('X-Event-Key') === 'repo:push') && req.header('X-Request-UUID') && req.header('X-Hook-UUID');
-    let isGitlab = req.header('X-Gitlab-Event') === 'Push Hook';
+    let isGithub = req.header("X-GitHub-Event") === "push";
+    let isBitbucket = (req.header("X-Event-Key") === "repo:push") && req.header("X-Request-UUID") && req.header("X-Hook-UUID");
+    let isGitlab = req.header("X-Gitlab-Event") === "Push Hook";
 
     res.locals.pushedBranches = [];
 
@@ -45,7 +46,7 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
 
 });
 
-router.post('/triggerbuild', function (req, res, next) {
+router.post("/triggerbuild", function(req, res, next) {
 
     res.sendStatus(200);
     let serviceManager = res.locals.user.serviceManager as ServiceManager;
@@ -54,17 +55,17 @@ router.post('/triggerbuild', function (req, res, next) {
     let namespace = res.locals.user.namespace;
 
     if (!app || !serviceManager || !namespace || !appName) {
-        Logger.e('Something went wrong during trigger build. Cannot extract app information from the payload.');
+        Logger.e("Something went wrong during trigger build. Cannot extract app information from the payload.");
         return;
     }
 
     Promise.resolve()
-        .then(function () {
+        .then(function() {
 
             return Authenticator.get(namespace)
                 .decodeAppPushWebhookDatastore(app.appPushWebhook.repoInfo);
         })
-        .then(function (repoInfo:RepoInfo) {
+        .then(function(repoInfo: RepoInfo) {
 
             // if we didn't detect any branches, the POST might have come from another source that we don't
             // explicitly support. Therefore, we just let it go through and triggers a build anyways
@@ -87,16 +88,16 @@ router.post('/triggerbuild', function (req, res, next) {
 
             return serviceManager
                 .createImage(appName, {
-                    repoInfo: repoInfo
-                }, '')
-                .then(function (version) {
+                    repoInfo: repoInfo,
+                }, "")
+                .then(function(version) {
 
                     return serviceManager.ensureServiceInitedAndUpdated(appName, version);
 
                 });
 
         })
-        .catch(function (error) {
+        .catch(function(error) {
             Logger.e(error);
         });
 

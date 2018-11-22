@@ -7,6 +7,7 @@ import DataStore = require("./DataStoreImpl");
 interface ICache {
     [namespace: string]: DataStore;
 }
+
 const dataStoreCache: ICache = {};
 
 export = {

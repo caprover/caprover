@@ -17,7 +17,7 @@ class DockerRegistry {
         private dataStore: DataStore,
         private certbotManager: CertbotManager,
         private loadBalancerManager: LoadBalancerManager,
-        private captainManager: CaptainManager
+        private captainManager: CaptainManager,
     ) {
         // this.dockerApi = dockerApi;
         // this.dataStore = dataStore;
@@ -45,14 +45,14 @@ class DockerRegistry {
                 if (!rootHasSsl) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
-                        "Root must have SSL before enabling ssl for docker registry."
+                        "Root must have SSL before enabling ssl for docker registry.",
                     );
                 }
 
                 return self.certbotManager.enableSsl(
                     CaptainConstants.registrySubDomain +
-                        "." +
-                        self.dataStore.getRootDomain()
+                    "." +
+                    self.dataStore.getRootDomain(),
                 );
             })
             .then(function() {
@@ -60,7 +60,7 @@ class DockerRegistry {
             })
             .then(function() {
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
+                    self.dataStore,
                 );
             })
             .then(function() {
@@ -157,12 +157,12 @@ class DockerRegistry {
 
                 return fs.outputFile(
                     CaptainConstants.registryAuthPathOnHost,
-                    authContent
+                    authContent,
                 );
             })
             .then(function() {
                 return dockerApi.isServiceRunningByName(
-                    CaptainConstants.registryServiceName
+                    CaptainConstants.registryServiceName,
                 );
             })
             .then(function(isRunning) {
@@ -170,29 +170,29 @@ class DockerRegistry {
                     Logger.d("Captain Registry is already running.. ");
 
                     return dockerApi.getNodeIdByServiceName(
-                        CaptainConstants.registryServiceName,0
+                        CaptainConstants.registryServiceName, 0,
                     );
                 } else {
                     Logger.d(
-                        "No Captain Registry service is running. Creating one..."
+                        "No Captain Registry service is running. Creating one...",
                     );
 
                     return createRegistryServiceOnNode().then(
                         function() {
                             return myNodeId;
-                        }
+                        },
                     );
                 }
             })
             .then(function(nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
-                        "Captain Registry is running on a different node. Removing..."
+                        "Captain Registry is running on a different node. Removing...",
                     );
 
                     return dockerApi
                         .removeServiceByName(
-                            CaptainConstants.registryServiceName
+                            CaptainConstants.registryServiceName,
                         )
                         .then(function() {
                             Logger.d("Creating Registry on this node...");
@@ -200,7 +200,7 @@ class DockerRegistry {
                             return createRegistryServiceOnNode().then(
                                 function() {
                                     return true;
-                                }
+                                },
                             );
                         });
                 } else {
@@ -217,7 +217,7 @@ class DockerRegistry {
 
         let secretName: string;
 
-        let userEmailAddress: string|undefined = undefined;
+        let userEmailAddress: string | undefined = undefined;
 
         return Promise.resolve()
             .then(function() {
@@ -241,7 +241,7 @@ class DockerRegistry {
                 if (!username || !password || !domain) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        "user, pass and domain are all required"
+                        "user, pass and domain are all required",
                     );
                 }
 
@@ -250,13 +250,13 @@ class DockerRegistry {
             .then(function(secretExist) {
                 if (secretExist) {
                     Logger.d(
-                        "WARNING! Unexpected secret exist! Perhaps secret was created but Captain was not updated."
+                        "WARNING! Unexpected secret exist! Perhaps secret was created but Captain was not updated.",
                     );
                     return self.updateRegistryAuthHeader(
                         username,
                         password,
                         domain,
-                        nextVersion
+                        nextVersion,
                     );
                 } else {
                     const authObj: DockerAuthObj = {
@@ -271,14 +271,14 @@ class DockerRegistry {
                     return dockerApi
                         .ensureSecret(
                             secretName,
-                            JSON.stringify(authObj)
+                            JSON.stringify(authObj),
                         )
                         .then(function() {
                             Logger.d(
-                                "Updating EnvVars to update docker registry auth."
+                                "Updating EnvVars to update docker registry auth.",
                             );
                             return self.dataStore.setRegistryAuthSecretVersion(
-                                nextVersion
+                                nextVersion,
                             );
                         });
                 }

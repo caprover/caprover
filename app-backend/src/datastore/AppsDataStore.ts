@@ -4,6 +4,7 @@ import CaptainConstants = require("../utils/CaptainConstants");
 import Logger = require("../utils/Logger");
 import configstore = require("configstore");
 import Authenticator = require("../user/Authenticator");
+
 const isValidPath = require("is-valid-path");
 
 const APP_DEFINITIONS = "appDefinitions";
@@ -13,7 +14,7 @@ function isNameAllowed(name: string) {
     return isNameFormattingOk && (["captain", "registry"].indexOf(name) < 0);
 }
 
- class AppsDataStore {
+class AppsDataStore {
 
     constructor(private data: configstore, private namepace: string) {
     }
@@ -24,7 +25,7 @@ function isNameAllowed(name: string) {
 
     getAppDefinitions(): Promise<IAllAppDefinitions> {
         const self = this;
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             resolve(self.data.get(APP_DEFINITIONS) || {});
 
@@ -36,7 +37,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 if (!appName) {
                     throw new Error("App Name should not be empty");
@@ -58,7 +59,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -80,7 +81,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return self.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -110,7 +111,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -148,7 +149,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -168,7 +169,7 @@ function isNameAllowed(name: string) {
 
                 app.customDomain.push({
                     publicDomain: customDomain,
-                    hasSsl: false
+                    hasSsl: false,
                 });
 
                 self.data.set(APP_DEFINITIONS + "." + appName, app);
@@ -182,7 +183,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return self.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -213,7 +214,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -227,7 +228,7 @@ function isNameAllowed(name: string) {
                 versions.push({
                     version: newVersionIndex,
                     gitHash: undefined,
-                    timeStamp: new Date().toString()
+                    timeStamp: new Date().toString(),
                 });
 
                 self.data.set(APP_DEFINITIONS + "." + appName, app);
@@ -238,25 +239,25 @@ function isNameAllowed(name: string) {
     }
 
     updateAppDefinitionInDb(appName: string, instanceCount: number, envVars: IAppEnvVar[], volumes: IAppVolume[],
-         nodeId: string, notExposeAsWebApp: boolean, forceSsl: boolean,
-        ports: IAppPort[], appPushWebhook: IAppPushWebhook, authenticator: Authenticator,
-        customNginxConfig: string, preDeployFunction: string) {
+                            nodeId: string, notExposeAsWebApp: boolean, forceSsl: boolean,
+                            ports: IAppPort[], appPushWebhook: IAppPushWebhook, authenticator: Authenticator,
+                            customNginxConfig: string, preDeployFunction: string) {
         const self = this;
 
         let app: IAppDefinition;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return self.getAppDefinition(appName);
 
             })
-            .then(function (appObj) {
+            .then(function(appObj) {
 
                 app = appObj;
 
             })
-            .then(function () {
+            .then(function() {
 
                 if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch &&
                     appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
@@ -265,14 +266,14 @@ function isNameAllowed(name: string) {
                             repo: appPushWebhook.repoInfo.repo,
                             branch: appPushWebhook.repoInfo.branch,
                             user: appPushWebhook.repoInfo.user,
-                            password: appPushWebhook.repoInfo.password
+                            password: appPushWebhook.repoInfo.password,
                         });
                 }
 
                 return Promise.resolve(undefined);
 
             })
-            .then(function (appPushWebhookRepoInfo) {
+            .then(function(appPushWebhookRepoInfo) {
 
                 instanceCount = Number(instanceCount);
 
@@ -321,7 +322,7 @@ function isNameAllowed(name: string) {
 
                 if (ports) {
 
-                    const isPortValid = function (portNumber: number) {
+                    const isPortValid = function(portNumber: number) {
                         return portNumber > 0 && portNumber < 65535;
                     };
 
@@ -336,7 +337,7 @@ function isNameAllowed(name: string) {
                             if (isPortValid(containerPort) && isPortValid(hostPort)) {
                                 tempPorts.push({
                                     hostPort: hostPort,
-                                    containerPort: containerPort
+                                    containerPort: containerPort,
                                 });
                             }
                         }
@@ -352,7 +353,7 @@ function isNameAllowed(name: string) {
                         if (obj.key && obj.value) {
                             app.envVars.push({
                                 key: obj.key,
-                                value: obj.value
+                                value: obj.value,
                             });
                         }
                     }
@@ -375,7 +376,7 @@ function isNameAllowed(name: string) {
                             }
 
                             const newVol = {
-                                containerPath: obj.containerPath
+                                containerPath: obj.containerPath,
                             } as IAppVolume;
 
                             if (obj.hostPath) {
@@ -404,7 +405,7 @@ function isNameAllowed(name: string) {
                 }
 
             })
-            .then(function () {
+            .then(function() {
 
                 if (app.appPushWebhook.repoInfo) {
                     return authenticator
@@ -413,7 +414,7 @@ function isNameAllowed(name: string) {
 
                 return Promise.resolve(undefined);
             })
-            .then(function (pushWebhookToken) {
+            .then(function(pushWebhookToken) {
 
                 if (pushWebhookToken) {
                     app.appPushWebhook.pushWebhookToken = pushWebhookToken;
@@ -432,7 +433,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinitions()
-            .then(function (allApps) {
+            .then(function(allApps) {
 
                 const app = allApps[appName];
 
@@ -458,7 +459,7 @@ function isNameAllowed(name: string) {
         const self = this;
 
         return this.getAppDefinition(appName)
-            .then(function (app) {
+            .then(function(app) {
 
                 if (!app) {
                     throw new Error("App could not be found " + appName);
@@ -485,7 +486,7 @@ function isNameAllowed(name: string) {
     deleteAppDefinition(appName: string) {
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             if (!isNameAllowed(appName)) {
                 reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
@@ -513,7 +514,7 @@ function isNameAllowed(name: string) {
     registerAppDefinition(appName: string, hasPersistentData: boolean) {
         const self = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
             if (!isNameAllowed(appName)) {
                 reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
@@ -533,7 +534,7 @@ function isNameAllowed(name: string) {
                 volumes: [],
                 ports: [],
                 appPushWebhook: {}, // tokenVersion, repoInfo, pushWebhookToken
-                versions: []
+                versions: [],
             };
 
             self.data.set(APP_DEFINITIONS + "." + appName, defaultAppDefinition);
@@ -549,7 +550,7 @@ function isNameAllowed(name: string) {
         const apps = self.data.get(APP_DEFINITIONS) || {};
         const servers: IServerBlockDetails[] = [];
 
-        Object.keys(apps).forEach(function (appName) {
+        Object.keys(apps).forEach(function(appName) {
 
             const webApp = apps[appName];
 
@@ -581,7 +582,7 @@ function isNameAllowed(name: string) {
                         publicDomain: d.publicDomain,
                         localDomain: localDomain,
                         nginxConfigTemplate: nginxConfigTemplate,
-                        staticWebRoot: ""
+                        staticWebRoot: "",
                     });
 
                 }

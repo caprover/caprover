@@ -1,4 +1,3 @@
-
 import Logger = require("../utils/Logger");
 
 class BuildLog {
@@ -6,6 +5,7 @@ class BuildLog {
     public isBuildFailed: boolean;
     private firstLineNumber: number;
     private lines: string[];
+
     constructor(private size: number) {
         this.clear();
     }
@@ -39,7 +39,7 @@ class BuildLog {
         // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
         return JSON.parse(JSON.stringify({
             lines: self.lines,
-            firstLineNumber: self.firstLineNumber
+            firstLineNumber: self.firstLineNumber,
         }));
     }
 }

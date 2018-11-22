@@ -56,7 +56,7 @@ class CertbotManager {
         self.domainValidOrThrow(domainName);
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 const webrootInCaptainContainer = CaptainConstants.captainStaticFilesDir +
                     CaptainConstants.nginxDomainSpecificHtmlDir +
@@ -65,11 +65,11 @@ class CertbotManager {
                 return fs.ensureDir(webrootInCaptainContainer);
 
             })
-            .then(function () {
+            .then(function() {
 
                 const cmd = ["certbot", "certonly", "--webroot",
                     "-w", CAPTAIN_WEBROOT_PATH_CERTBOT + "/" + domainName,
-                    "-d", domainName, "--non-interactive"
+                    "-d", domainName, "--non-interactive",
                 ];
 
                 if (shouldUseStaging) {
@@ -78,7 +78,7 @@ class CertbotManager {
 
                 return self
                     .runCommand(cmd)
-                    .then(function (output) {
+                    .then(function(output) {
 
                         Logger.d(output);
 
@@ -104,7 +104,7 @@ class CertbotManager {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 const rootPathDir = CaptainConstants.letsEncryptEtcPath + "/accounts/acme-" +
                     (shouldUseStaging ? "staging" : "v01") +
@@ -135,13 +135,13 @@ class CertbotManager {
                 return fs.readJson(regFilePath);
 
             })
-            .then(function (regrContent) {
+            .then(function(regrContent) {
 
                 if (!regrContent) {
 
                     const cmd = ["certbot", "register",
                         "--email", emailAddress,
-                        "--agree-tos", "--no-eff-email", "--non-interactive"
+                        "--agree-tos", "--no-eff-email", "--non-interactive",
                     ];
 
                     if (shouldUseStaging) {
@@ -150,7 +150,7 @@ class CertbotManager {
 
                     return self
                         .runCommand(cmd)
-                        .then(function (registerOutput) {
+                        .then(function(registerOutput) {
 
                             if (registerOutput.indexOf("Your account credentials have been saved in your Certbot") >= 0) {
                                 return true;
@@ -207,7 +207,7 @@ class CertbotManager {
         const self = this;
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
                 return dockerApi.executeCommand(CaptainConstants.certbotServiceName, cmd);
             });
     }
@@ -231,7 +231,7 @@ class CertbotManager {
         // this random schedule helps to avoid retrying at the same time of
         // the day in case if that's our super high traffic time
 
-        setTimeout(function () {
+        setTimeout(function() {
             self.renewAllCerts();
         }, 1000 * 3600 * 20.3);
 
@@ -243,7 +243,7 @@ class CertbotManager {
 
         return self
             .runCommand(cmd)
-            .then(function (output) {
+            .then(function(output) {
 
                 // Ignore output :)
 
@@ -260,13 +260,13 @@ class CertbotManager {
         function createCertbotServiceOnNode(nodeId: string) {
 
             return dockerApi.createServiceOnNodeId(CaptainConstants.certbotImageName,
-                    CaptainConstants.certbotServiceName, undefined, nodeId, undefined, undefined, undefined)
-                .then(function () {
+                CaptainConstants.certbotServiceName, undefined, nodeId, undefined, undefined, undefined)
+                .then(function() {
 
                     const waitTimeInMillis = 5000;
                     Logger.d("Waiting for " + (waitTimeInMillis / 1000) + " seconds for Certbot to start up");
-                    return new Promise(function (resolve, reject) {
-                        setTimeout(function () {
+                    return new Promise(function(resolve, reject) {
+                        setTimeout(function() {
                             resolve(true);
                         }, waitTimeInMillis);
                     });
@@ -274,28 +274,28 @@ class CertbotManager {
         }
 
         return Promise.resolve()
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(CaptainConstants.letsEncryptLibPath);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return fs.ensureDir(domainSpecificRootDirectoryInHost);
 
             })
-            .then(function () {
+            .then(function() {
 
                 return dockerApi
                     .isServiceRunningByName(CaptainConstants.certbotServiceName);
 
             })
-            .then(function (isRunning) {
+            .then(function(isRunning) {
 
                 if (isRunning) {
 
@@ -309,13 +309,13 @@ class CertbotManager {
                     Logger.d("No Captain Certbot service is running. Creating one...");
 
                     return createCertbotServiceOnNode(myNodeId)
-                        .then(function () {
+                        .then(function() {
                             return myNodeId;
                         });
                 }
 
             })
-            .then(function (nodeId) {
+            .then(function(nodeId) {
 
                 if (nodeId !== myNodeId) {
 
@@ -323,10 +323,10 @@ class CertbotManager {
 
                     return dockerApi
                         .removeServiceByName(CaptainConstants.certbotServiceName)
-                        .then(function () {
+                        .then(function() {
 
                             return createCertbotServiceOnNode(myNodeId)
-                                .then(function () {
+                                .then(function() {
 
                                     return true;
 
@@ -339,30 +339,30 @@ class CertbotManager {
 
                 }
             })
-            .then(function () {
+            .then(function() {
                 Logger.d("Updating Certbot service...");
 
                 return dockerApi.updateService(CaptainConstants.certbotServiceName, undefined, [{
-                            hostPath: CaptainConstants.letsEncryptEtcPath,
-                            containerPath: "/etc/letsencrypt"
-                        },
+                        hostPath: CaptainConstants.letsEncryptEtcPath,
+                        containerPath: "/etc/letsencrypt",
+                    },
                         {
                             hostPath: CaptainConstants.letsEncryptLibPath,
-                            containerPath: "/var/lib/letsencrypt"
+                            containerPath: "/var/lib/letsencrypt",
                         },
                         {
                             hostPath: domainSpecificRootDirectoryInHost,
-                            containerPath: CAPTAIN_WEBROOT_PATH_CERTBOT
-                        }
+                            containerPath: CAPTAIN_WEBROOT_PATH_CERTBOT,
+                        },
                     ]
                     // No need to certbot to be connected to the network
-                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 
             })
-            .then(function () {
+            .then(function() {
 
                 // schedule the first attempt to renew certs in 1 minute
-                setTimeout(function () {
+                setTimeout(function() {
                     self.renewAllCerts();
                 }, 1000 * 60);
 

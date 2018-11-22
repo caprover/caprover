@@ -1,4 +1,4 @@
-interface DockerSecret{
-    secretName:string;
-    secretId:string;
+interface DockerSecret {
+    secretName: string;
+    secretId: string;
 }

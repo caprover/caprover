@@ -6,7 +6,7 @@ interface IAppPushWebhook {
     repoInfo: RepoInfo;
 }
 
-interface RepoInfo{
+interface RepoInfo {
     repo: string
     branch: string
     user: string
@@ -21,7 +21,7 @@ interface IAppPushWebhookAsSaved {
         user: string
         passwordEncrypted: string
     };*/
-    repoInfo: string|RepoInfo|{};
+    repoInfo: string | RepoInfo | {};
     pushWebhookToken: string;
 }
 
@@ -52,7 +52,7 @@ class IAppDefinition {
     public appName?: string;
     public isAppBuilding?: boolean;
 
-    
+
     public deployedVersion: number;
     public notExposeAsWebApp: boolean;
     public hasPersistentData: boolean;
@@ -79,7 +79,7 @@ class IAppDefinition {
     public versions: {
         version: number,
         timeStamp: string,
-       /// imageName: string,
-        gitHash: string|undefined,
+        /// imageName: string,
+        gitHash: string | undefined,
     }[];
 }

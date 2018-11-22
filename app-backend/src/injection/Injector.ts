@@ -10,7 +10,8 @@ import Logger = require("../utils/Logger");
 import { NextFunction } from "connect";
 import { Response, Request } from "express";
 import requireFromString = require("require-from-string");
-const dockerApi =  DockerApiProvider.get();
+
+const dockerApi = DockerApiProvider.get();
 
 const serviceMangerCache = {} as ICacheGeneric<ServiceManager>;
 
@@ -19,7 +20,7 @@ const serviceMangerCache = {} as ICacheGeneric<ServiceManager>;
  */
 export function injectGlobal() {
 
-    return function (req: Request, res: Response, next: NextFunction) {
+    return function(req: Request, res: Response, next: NextFunction) {
 
         const locals = res.locals;
 
@@ -35,9 +36,9 @@ export function injectGlobal() {
 /**
  * User dependency injection module
  */
-export function injectUser () {
+export function injectUser() {
 
-    return function (req: Request, res: Response, next: NextFunction) {
+    return function(req: Request, res: Response, next: NextFunction) {
 
         if (res.locals.user) {
             next();
@@ -48,9 +49,9 @@ export function injectUser () {
 
         Authenticator.get(namespace)
             .decodeAuthToken(req.header(CaptainConstants.header.auth) || "")
-            .then(function (userDecoded: UserModel.UserJwt) {
+            .then(function(userDecoded: UserModel.UserJwt) {
 
-                    const user = userDecoded as UserModel.UserInjected  ;
+                const user = userDecoded as UserModel.UserInjected;
 
                 if (user) {
                     user.dataStore = DataStoreProvider.getDataStore(namespace);
@@ -66,7 +67,7 @@ export function injectUser () {
 
                 next();
             })
-            .catch(function (error: any) {
+            .catch(function(error: any) {
                 if (error && error.captainErrorType) {
                     res.send(new BaseApi(error.captainErrorType, error.apiMessage));
                     return;
@@ -84,7 +85,7 @@ export function injectUser () {
  */
 export function injectUserForWebhook() {
 
-    return function (req: Request, res: Response, next: NextFunction) {
+    return function(req: Request, res: Response, next: NextFunction) {
 
         const token = req.query.token;
         const namespace = req.query.namespace;
@@ -101,7 +102,7 @@ export function injectUserForWebhook() {
         let decodedInfo: UserModel.IAppWebHookToken;
 
         Authenticator.get(namespace).decodeAppPushWebhookToken(token)
-            .then(function (data) {
+            .then(function(data) {
 
                 decodedInfo = data as UserModel.IAppWebHookToken;
 
@@ -109,7 +110,7 @@ export function injectUserForWebhook() {
                     .getAppDefinition(decodedInfo.appName);
 
             })
-            .then(function (appFound) {
+            .then(function(appFound) {
 
                 app = appFound;
 
@@ -118,7 +119,7 @@ export function injectUserForWebhook() {
                 }
 
                 const user = {
-                    namespace: namespace
+                    namespace: namespace,
                 } as UserModel.UserInjected;
 
                 user.dataStore = DataStoreProvider.getDataStore(namespace);
@@ -135,7 +136,7 @@ export function injectUserForWebhook() {
                 next();
 
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 Logger.e(error);
                 res.locals.app = undefined;
                 next();
@@ -148,19 +149,19 @@ export function injectUserForWebhook() {
  * User dependency injection module. This is a less secure way for user injection. But for reverse proxy services,
  * this is the only way that we can secure the call
  */
-export function injectUserUsingCookieDataOnly () {
+export function injectUserUsingCookieDataOnly() {
 
-    return function (req: Request, res: Response, next: NextFunction) {
+    return function(req: Request, res: Response, next: NextFunction) {
 
         Authenticator.get(CaptainConstants.rootNameSpace)
             .decodeAuthTokenFromCookies(req.cookies[CaptainConstants.header.cookieAuth])
-            .then(function (user) {
+            .then(function(user) {
 
                 res.locals.user = user;
 
                 next();
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 if (error && error.captainErrorType) {
                     res.send(new BaseApi(error.captainErrorType, error.apiMessage));
                     return;

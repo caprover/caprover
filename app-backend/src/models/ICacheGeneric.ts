@@ -1,3 +1,3 @@
-interface ICacheGeneric< T >  {
+interface ICacheGeneric<T> {
     [id: string]: T;
 }
