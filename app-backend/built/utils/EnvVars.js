@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
     keys: {
         CAPTAIN_DOCKER_API: 'CAPTAIN_DOCKER_API',

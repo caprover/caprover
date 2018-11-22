@@ -1,16 +1,16 @@
 const git = require('simple-git');
 
-module.exports = {
-    getLastHash: function (directory) {
+export = {
+    getLastHash: function (directory:string) {
 
-        return new Promise(function (resolve, reject) {
+        return new Promise<string>(function (resolve, reject) {
 
             git(directory).silent(true)
                 .raw([
                     'rev-parse',
                     'HEAD'
 
-                ], function (err, result) {
+                ], function (err:any, result:string) {
                     if (err) {
                         reject(err);
                     } else {
@@ -20,14 +20,14 @@ module.exports = {
         })
     },
 
-    clone: function (username, pass, repo, branch, directory) {
+    clone: function (username:string, pass:string, repo:string, branch:string, directory:string) {
 
         const USER = encodeURIComponent(username);
         const PASS = encodeURIComponent(pass);
 
         const remote = `https://${USER}:${PASS}@${repo}`;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise<string>(function (resolve, reject) {
 
             git().silent(true)
                 .raw([
@@ -37,7 +37,7 @@ module.exports = {
                     branch,
                     remote,
                     directory
-                ], function (err, result) {
+                ], function (err:any, result:string) {
                     if (err) {
                         reject(err);
                     } else {

@@ -1,4 +1,4 @@
-module.exports = {
+export = {
     keys: {
         CAPTAIN_DOCKER_API: 'CAPTAIN_DOCKER_API',
         CAPTAIN_IS_DEBUG: 'CAPTAIN_IS_DEBUG',
