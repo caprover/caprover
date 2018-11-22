@@ -1,10 +1,11 @@
-const express = require('express');
-const fs = require('fs');
+"use strict";
+const express = require("express");
+const fs = require("fs");
+const BaseApi = require("../api/BaseApi");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
+const Logger = require("../utils/Logger");
+const Authenticator = require("../user/Authenticator");
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const Authenticator = require('../user/Authenticator');
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
     fs.readdir(__dirname + '/../../dist/oneclick-apps', function (err, files) {
@@ -104,7 +105,9 @@ router.get('/', function (req, res, next) {
         .then(function (defaultNginxConfig) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
         baseApi.data = appsArray;
+        //@ts-ignore
         baseApi.rootDomain = dataStore.getRootDomain();
+        //@ts-ignore
         baseApi.defaultNginxConfig = defaultNginxConfig;
         res.send(baseApi);
     })
@@ -224,7 +227,7 @@ router.post('/register/', function (req, res, next) {
         appCreated = true;
     })
         .then(function () {
-        return serviceManager.createImage(appName, { /*use default dockerfile*/});
+        return serviceManager.createImage(appName, { /*use default dockerfile*/}, '');
     })
         .then(function (version) {
         return serviceManager.ensureServiceInitedAndUpdated(appName, version);

@@ -1,10 +1,12 @@
-const express = require('express');
-const fs = require('fs');
+import express = require('express');
+import fs = require('fs');
+import BaseApi = require('../api/BaseApi');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Logger = require('../utils/Logger');
+import Authenticator = require('../user/Authenticator');
+import DataStore = require('../datastore/DataStoreImpl');
+import ServiceManager = require('../user/ServiceManager');
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const Authenticator = require('../user/Authenticator');
 
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
@@ -100,14 +102,14 @@ router.post('/deleteImages', function (req, res, next) {
 // Get All App Definitions
 router.get('/', function (req, res, next) {
 
-    let dataStore = res.locals.user.dataStore;
+    let dataStore = res.locals.user.dataStore as DataStore;
     let serviceManager = res.locals.user.serviceManager;
-    let appsArray = [];
+    let appsArray:IAppDefinition[] = [];
 
     dataStore.getAppsDataStore().getAppDefinitions()
         .then(function (apps) {
 
-            let promises = [];
+            let promises: Promise<void>[] = [];
 
             Object.keys(apps).forEach(function (key, index) {
                 let app = apps[key];
@@ -119,9 +121,9 @@ router.get('/', function (req, res, next) {
                 if (repoInfoEncrypted) {
                     promises.push(
                         Authenticator.get(dataStore.getNameSpace())
-                        .decodeAppPushWebhookDatastore(repoInfoEncrypted)
+                        .decodeAppPushWebhookDatastore(repoInfoEncrypted as string)
                         .then(function (decryptedData) {
-                            app.appPushWebhook.repoInfo = decryptedData;
+                            app.appPushWebhook.repoInfo = decryptedData as RepoInfo;
                         }));
                 } else {
                     app.appPushWebhook.repoInfo = {};
@@ -141,7 +143,9 @@ router.get('/', function (req, res, next) {
 
             let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
             baseApi.data = appsArray;
+            //@ts-ignore
             baseApi.rootDomain = dataStore.getRootDomain();
+            //@ts-ignore
             baseApi.defaultNginxConfig = defaultNginxConfig;
 
             res.send(baseApi);
@@ -308,9 +312,9 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
 router.post('/register/', function (req, res, next) {
 
     let dataStore = res.locals.user.dataStore;
-    let serviceManager = res.locals.user.serviceManager;
+    let serviceManager = res.locals.user.serviceManager as ServiceManager;
 
-    let appName = req.body.appName;
+    let appName = req.body.appName as string;
     let hasPersistentData = !!req.body.hasPersistentData;
 
     let appCreated = false;
@@ -325,10 +329,10 @@ router.post('/register/', function (req, res, next) {
         })
         .then(function () {
 
-            return serviceManager.createImage(appName, { /*use default dockerfile*/ });
+            return serviceManager.createImage(appName, { /*use default dockerfile*/ },'');
 
         })
-        .then(function (version) {
+        .then(function (version:number) {
 
             return serviceManager.ensureServiceInitedAndUpdated(appName, version);
 
@@ -339,7 +343,7 @@ router.post('/register/', function (req, res, next) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved'));
 
         })
-        .catch(function (error) {
+        .catch(function (error: any) {
 
             function createRejectionPromise() {
                 return new Promise(function (resolve, reject) {
@@ -357,7 +361,7 @@ router.post('/register/', function (req, res, next) {
             }
 
         })
-        .catch(function (error) {
+        .catch(function (error: any) {
 
             Logger.e(error);
 
@@ -445,7 +449,7 @@ router.post('/update/', function (req, res, next) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Updated App Definition Saved'));
 
         })
-        .catch(function (error) {
+        .catch(function (error: any) {
 
             Logger.e(error);
 
@@ -460,4 +464,4 @@ router.post('/update/', function (req, res, next) {
 
 });
 
-module.exports = router;
+export = router;

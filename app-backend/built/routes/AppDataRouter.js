@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const multer = require('multer');
-const fs = require('fs-extra');
+"use strict";
+const express = require("express");
+const BaseApi = require("../api/BaseApi");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
+const Logger = require("../utils/Logger");
+const multer = require("multer");
+const fs = require("fs-extra");
 const TEMP_UPLOAD = 'temp_upload/';
+const router = express.Router();
 const upload = multer({
     dest: TEMP_UPLOAD
 });
@@ -103,7 +104,9 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         }
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, error.stack + ''));
         try {
-            fs.removeSync(tarballSourceFilePath);
+            if (tarballSourceFilePath) {
+                fs.removeSync(tarballSourceFilePath);
+            }
         }
         catch (ignore) { }
     });
@@ -113,12 +116,16 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
             pathToSrcTarballFile: tarballSourceFilePath
         }, gitHash)
             .then(function (version) {
-            fs.removeSync(tarballSourceFilePath);
+            if (tarballSourceFilePath) {
+                fs.removeSync(tarballSourceFilePath);
+            }
             return version;
         })
             .catch(function (error) {
             return new Promise(function (resolve, reject) {
-                fs.removeSync(tarballSourceFilePath);
+                if (tarballSourceFilePath) {
+                    fs.removeSync(tarballSourceFilePath);
+                }
                 reject(error);
             });
         })

@@ -21,7 +21,7 @@ interface IAppPushWebhookAsSaved {
         user: string
         passwordEncrypted: string
     };*/
-    repoInfo: string;
+    repoInfo: string|RepoInfo|{};
     pushWebhookToken: string;
 }
 
@@ -49,6 +49,10 @@ interface IAppPort {
 }
 
 class IAppDefinition {
+    public appName?: string;
+    public isAppBuilding?: boolean;
+
+    
     public deployedVersion: number;
     public notExposeAsWebApp: boolean;
     public hasPersistentData: boolean;

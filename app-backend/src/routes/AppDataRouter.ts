@@ -1,11 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const multer = require('multer');
-const fs = require('fs-extra');
+import express = require('express');
+import BaseApi = require('../api/BaseApi');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Logger = require('../utils/Logger');
+import multer = require('multer');
+import fs = require('fs-extra');
+import DataStore = require('../datastore/DataStoreImpl');
+import ServiceManager = require('../user/ServiceManager');
 const TEMP_UPLOAD = 'temp_upload/';
+const router = express.Router();
 const upload = multer({
     dest: TEMP_UPLOAD
 });
@@ -45,7 +47,7 @@ router.get('/:appName/', function (req, res, next) {
 
 router.post('/:appName/', function (req, res, next) {
 
-    let dataStore = res.locals.user.dataStore;
+    let dataStore = res.locals.user.dataStore as DataStore;
     let appName = req.params.appName;
 
     dataStore.getAppsDataStore().getAppDefinitions()
@@ -73,7 +75,7 @@ router.post('/:appName/', function (req, res, next) {
 router.post('/:appName/', upload.single('sourceFile'), function (req, res, next) {
 
     const dataStore = res.locals.user.dataStore;
-    const serviceManager = res.locals.user.serviceManager;
+    const serviceManager = res.locals.user.serviceManager as ServiceManager;
 
     const appName = req.params.appName;
     const isDetachedBuild = !!req.query.detached;
@@ -139,7 +141,9 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
             res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, error.stack + ''));
 
             try {
-                fs.removeSync(tarballSourceFilePath);
+                if (tarballSourceFilePath){
+                    fs.removeSync(tarballSourceFilePath);
+                }
             } catch (ignore) {}
         });
 
@@ -152,19 +156,24 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
             }, gitHash)
             .then(function (version) {
 
-                fs.removeSync(tarballSourceFilePath);
+                if (tarballSourceFilePath){
+                    fs.removeSync(tarballSourceFilePath);
+                }
                 return version;
 
             })
             .catch(function (error) {
 
-                return new Promise(function (resolve, reject) {
-                    fs.removeSync(tarballSourceFilePath);
+                return new Promise<void>(function (resolve, reject) {
+
+                    if (tarballSourceFilePath){
+                        fs.removeSync(tarballSourceFilePath);
+                    }
                     reject(error);
                 })
 
             })
-            .then(function (version) {
+            .then(function (version:number) {
 
                 return serviceManager.ensureServiceInitedAndUpdated(appName, version);
 
@@ -180,4 +189,4 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     }
 });
 
-module.exports = router;
+export = router;
