@@ -144,7 +144,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
     });
 }
 let myIp4;
-module.exports.install = function () {
+function install() {
     Promise.resolve()
         .then(function () {
         return checkSystemReq();
@@ -262,5 +262,7 @@ module.exports.install = function () {
         .then(function () {
         process.exit();
     });
-};
+}
+exports.install = install;
+;
 //# sourceMappingURL=CaptainInstaller.js.map
