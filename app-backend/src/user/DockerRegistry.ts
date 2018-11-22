@@ -209,7 +209,7 @@ class DockerRegistry {
             });
     }
 
-    updateRegistryAuthHeader(username: string, password: string, domain: string, currentVersion: number): Promise<any> {
+    updateRegistryAuthHeader(username: string, password: string, domain: string, currentVersion?: number): Promise<any> {
         const self = this;
         const dockerApi = this.dockerApi;
 

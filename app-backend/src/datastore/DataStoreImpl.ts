@@ -114,7 +114,7 @@ class DataStore {
             });
     }
 
-    getRegistryAuthSecretVersion() {
+    getRegistryAuthSecretVersion():Promise<number> {
         const self = this;
         return Promise.resolve()
             .then(function () {

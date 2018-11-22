@@ -1,23 +1,23 @@
-const express = require('express');
+import express = require('express');
+import BaseApi = require('../api/BaseApi');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Injector = require('../injection/Injector');
+import SystemRouter = require('./SystemRouter');
+import WebhooksRouter = require('./WebhooksRouter');
+import AppDefinitionRouter = require('./AppDefinitionRouter');
+import AppDataRouter = require('./AppDataRouter');
+import Authenticator = require('../user/Authenticator');
+import Logger = require('../utils/Logger');
+import onFinished = require('on-finished');
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Injector = require('../injection/Injector');
-const SystemRouter = require('./SystemRouter');
-const WebhooksRouter = require('./WebhooksRouter');
-const AppDefinitionRouter = require('./AppDefinitionRouter');
-const AppDataRouter = require('./AppDataRouter');
-const Authenticator = require('../user/Authenticator');
-const Logger = require('../utils/Logger');
-const onFinished = require('on-finished');
 
-const threadLockNamespace = {};
+const threadLockNamespace = {} as ICacheGeneric<boolean>;
 
 router.use('/webhooks/', Injector.injectUserForWebhook());
 
 router.use(Injector.injectUser());
 
-function isNotGetRequest(req) {
+function isNotGetRequest(req:express.Request) {
     return req.method !== 'GET';
 }
 
@@ -104,4 +104,4 @@ router.use('/appDefinitions/', AppDefinitionRouter);
 
 router.use('/appData/', AppDataRouter);
 
-module.exports = router;
+export = router;

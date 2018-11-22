@@ -452,7 +452,7 @@ class CaptainManager {
 
         const url = "https://hub.docker.com/v2/repositories/" + CaptainConstants.publishedNameOnDockerHub + "/tags";
 
-        return new Promise(function (resolve, reject) {
+        return new Promise<string[]>(function (resolve, reject) {
 
             request(url,
 

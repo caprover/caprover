@@ -1,12 +1,12 @@
-const express = require('express');
+import express = require('express');
+import BaseApi = require('../api/BaseApi');
+import ApiStatusCodes = require('../api/ApiStatusCodes');
+import Logger = require('../utils/Logger');
+import CaptainManager = require('../user/CaptainManager');
+import Validator = require('validator');
+import CaptainConstants = require('../utils/CaptainConstants');
+import RegistriesRouter = require('./RegistriesRouter');
 const router = express.Router();
-const BaseApi = require('../api/BaseApi');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainManager = require('../user/CaptainManager');
-const Validator = require('validator');
-const CaptainConstants = require('../utils/CaptainConstants');
-const RegistriesRouter = require('./RegistriesRouter');
 
 router.use('/registries/', RegistriesRouter);
 
@@ -14,7 +14,7 @@ router.post('/changerootdomain/', function (req, res, next) {
 
     let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
 
-    function replaceAll(target, search, replacement) {
+    function replaceAll(target:string, search:string, replacement:string) {
         return target.replace(new RegExp(search, 'g'), replacement);
     }
 
@@ -520,7 +520,7 @@ router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager';
     const WORKER = 'worker';
 
-    let isManager = null;
+    let isManager:boolean;
 
     if (req.body.nodeType === MANAGER) {
         isManager = true;
@@ -577,4 +577,4 @@ router.post('/nodes/', function (req, res, next) {
 });
 
 
-module.exports = router;
+export = router;
