@@ -362,7 +362,7 @@ class ServiceManager {
             })
             .catch(function (error) {
                 self.activeBuilds[appName] = false;
-                return new Promise(function (resolve, reject) {
+                return new Promise<number>(function (resolve, reject) {
                     reject(error);
                 });
             });

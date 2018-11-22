@@ -1,12 +1,10 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express = require("express");
+const bodyParser = require("body-parser");
+const Authenticator = require("../user/Authenticator");
+const Logger = require("../utils/Logger");
 const router = express.Router();
-const TokenApi = require('../api/TokenApi');
-const BaseApi = require('../api/BaseApi');
-const Authenticator = require('../user/Authenticator');
-const ApiStatusCodes = require('../api/ApiStatusCodes');
-const Logger = require('../utils/Logger');
-const CaptainConstants = require('../utils/CaptainConstants');
 const urlencodedParser = bodyParser.urlencoded({
     extended: true
 });
@@ -71,7 +69,7 @@ router.post('/triggerbuild', function (req, res, next) {
         return serviceManager
             .createImage(appName, {
             repoInfo: repoInfo
-        })
+        }, '')
             .then(function (version) {
             return serviceManager.ensureServiceInitedAndUpdated(appName, version);
         });

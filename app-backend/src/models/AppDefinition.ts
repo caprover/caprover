@@ -3,12 +3,14 @@ interface IAllAppDefinitions {
 }
 
 interface IAppPushWebhook {
-    repoInfo: {
-        repo: string
-        branch: string
-        user: string
-        password: string
-    };
+    repoInfo: RepoInfo;
+}
+
+interface RepoInfo{
+    repo: string
+    branch: string
+    user: string
+    password: string
 }
 
 interface IAppPushWebhookAsSaved {
