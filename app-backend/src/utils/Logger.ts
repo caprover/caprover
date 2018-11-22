@@ -4,7 +4,7 @@
 const CaptainConstants = require('./CaptainConstants');
 const moment = require('moment');
 
-function errorize(error) {
+function errorize(error:any) {
 
     if (!(error instanceof Error)) {
         return new Error('Wrapped: ' + (error ? error : 'NULL'));
@@ -18,21 +18,21 @@ function getTime() {
 }
 
 
-module.exports = {
+export = {
 
-    d: function (msg) {
-
-        console.log(getTime() + msg + '');
-
-    },
-
-    w: function (msg) {
+    d: function (msg:string) {
 
         console.log(getTime() + msg + '');
 
     },
 
-    dev: function (msg) {
+    w: function (msg:string) {
+
+        console.log(getTime() + msg + '');
+
+    },
+
+    dev: function (msg:string) {
 
         if (CaptainConstants.isDebug) {
             console.log(getTime() + '########### ' + msg + '');
@@ -40,7 +40,7 @@ module.exports = {
 
     },
 
-    e: function (msgOrError) {
+    e: function (msgOrError:any) {
 
         let err = errorize(msgOrError);
         console.error(getTime() + err + '\n' + err.stack);

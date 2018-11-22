@@ -132,7 +132,7 @@ class Authenticator {
                 self.encryptionKey + (keySuffix ? keySuffix : ""),
                 function(err, rawDecoded: any) {
                     if (err) {
-                        Logger.d(err);
+                        Logger.e(err);
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
@@ -233,7 +233,7 @@ class Authenticator {
                 self.encryptionKey + (keySuffix ? keySuffix : ""),
                 function(err, rawDecoded: any) {
                     if (err) {
-                        Logger.d(err);
+                        Logger.e(err);
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,

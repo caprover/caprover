@@ -81,7 +81,7 @@ class Authenticator {
         return new Promise(function (resolve, reject) {
             jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ""), function (err, rawDecoded) {
                 if (err) {
-                    Logger.d(err);
+                    Logger.e(err);
                     reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Auth token corrupted"));
                     return;
                 }
@@ -134,7 +134,7 @@ class Authenticator {
         return new Promise(function (resolve, reject) {
             jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ""), function (err, rawDecoded) {
                 if (err) {
-                    Logger.d(err);
+                    Logger.e(err);
                     reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Token corrupted"));
                     return;
                 }
