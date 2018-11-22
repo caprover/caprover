@@ -1,9 +1,11 @@
-const externalIp = require('public-ip');
-const DockerApi = require('../docker/DockerApi');
-const CaptainConstants = require('./CaptainConstants');
-const EnvVar = require('./EnvVars');
-const http = require('http');
-const request = require('request');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const externalIp = require("public-ip");
+const DockerApi = require("../docker/DockerApi");
+const CaptainConstants = require("./CaptainConstants");
+const EnvVar = require("./EnvVars");
+const http = require("http");
+const request = require("request");
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
 function checkSystemReq() {
@@ -98,7 +100,7 @@ function startServerOnPort_80_443_3000() {
 }
 function checkPortOrThrow(ipAddr, portToTest) {
     if (CaptainConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
-        return;
+        return Promise.resolve(true);
     }
     function printError() {
         console.log(' ');
@@ -141,7 +143,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
         });
     });
 }
-let myIp4 = null;
+let myIp4;
 module.exports.install = function () {
     Promise.resolve()
         .then(function () {
@@ -178,7 +180,7 @@ module.exports.install = function () {
         }
     })
         .then(function (ip4) {
-        myIp4 = ip4;
+        myIp4 = '' + ip4;
         return startServerOnPort_80_443_3000();
     })
         .then(function () {
@@ -231,7 +233,7 @@ module.exports.install = function () {
             captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
             env.push({
                 key: EnvVar.keys.CAPTAIN_IS_DEBUG,
-                value: EnvVar.CAPTAIN_IS_DEBUG
+                value: EnvVar.CAPTAIN_IS_DEBUG + ''
             });
             volumeToMount.push({
                 hostPath: CaptainConstants.debugSourceDirectory,

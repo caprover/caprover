@@ -30,11 +30,12 @@ class DockerApi {
         return dockerApiInstance;
     }
 
-    initSwarm(ip: string, port: string) {
+    initSwarm(ip: string, portNumber?: number) {
 
         const self = this;
 
-        port = port || "2377";
+        portNumber = portNumber || 2377;
+        let port = ''+portNumber;
 
         const advertiseAddr = ip + ":" + port;
 
