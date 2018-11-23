@@ -6,7 +6,8 @@ const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
 function getTagsForImage(imageBaseName, url, allTags) {
     if (!url) {
-        url = "https://hub.docker.com/v2/repositories/" + imageBaseName + "/tags";
+        url =
+            'https://hub.docker.com/v2/repositories/' + imageBaseName + '/tags';
     }
     return new Promise(function (resolve, reject) {
         request(url, function (error, response, body) {
@@ -27,8 +28,8 @@ function getTagsForImage(imageBaseName, url, allTags) {
                 results = body.results;
             }
             if (!results) {
-                Logger.e("NO RESULT");
-                reject(new Error("NO RESULT"));
+                Logger.e('NO RESULT');
+                reject(new Error('NO RESULT'));
                 return;
             }
             if (!allTags) {
@@ -47,10 +48,10 @@ function getTagsForImage(imageBaseName, url, allTags) {
 }
 function firstEndsWithSecond(str1, str2) {
     if (!str1 || !str2) {
-        throw new Error("Str1 or Str2 are null " + !str1 + " " + !str2);
+        throw new Error('Str1 or Str2 are null ' + !str1 + ' ' + !str2);
     }
     const idx = str1.indexOf(str2);
-    return idx >= 0 && (idx + str2.length) === str1.length;
+    return idx >= 0 && idx + str2.length === str1.length;
 }
 function isEmpty(obj) {
     for (const key in obj) {
@@ -62,38 +63,39 @@ function isEmpty(obj) {
 }
 class TemplateHelper {
     constructor() {
-        const templates = [{
-                templateName: "node",
-                dockerHubImageName: "library/node",
-                dockerFileFromName: "node",
-                displayName: "NodeJS",
-                tagSuffix: "-alpine"
+        const templates = [
+            {
+                templateName: 'node',
+                dockerHubImageName: 'library/node',
+                dockerFileFromName: 'node',
+                displayName: 'NodeJS',
+                tagSuffix: '-alpine',
             },
             {
-                templateName: "php",
-                dockerHubImageName: "library/php",
-                dockerFileFromName: "php",
-                displayName: "PHP",
-                tagSuffix: "-apache"
+                templateName: 'php',
+                dockerHubImageName: 'library/php',
+                dockerFileFromName: 'php',
+                displayName: 'PHP',
+                tagSuffix: '-apache',
             },
             {
-                templateName: "python-django",
-                dockerHubImageName: "library/python",
-                dockerFileFromName: "python-django",
-                displayName: "Python Django",
-                tagSuffix: "-alpine3.6"
+                templateName: 'python-django',
+                dockerHubImageName: 'library/python',
+                dockerFileFromName: 'python-django',
+                displayName: 'Python Django',
+                tagSuffix: '-alpine3.6',
             },
             {
-                templateName: "ruby-rack",
-                dockerHubImageName: "library/ruby",
-                dockerFileFromName: "ruby-rack",
-                displayName: "Ruby Rack",
-                tagSuffix: "-alpine3.7"
-            }
+                templateName: 'ruby-rack',
+                dockerHubImageName: 'library/ruby',
+                dockerFileFromName: 'ruby-rack',
+                displayName: 'Ruby Rack',
+                tagSuffix: '-alpine3.7',
+            },
         ];
-        const dockerfilesRoot = __dirname + "/../../dockerfiles/";
+        const dockerfilesRoot = __dirname + '/../../dockerfiles/';
         for (let i = 0; i < templates.length; i++) {
-            templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, "utf8");
+            templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, 'utf8');
         }
         this.templates = templates;
         this.cachedImageTags = {};
@@ -105,7 +107,7 @@ class TemplateHelper {
         const self = this;
         const templateObj = self.getTemplateFromTemplateName(templateName);
         if (isEmpty(this.cachedImageTags)) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Please wait about 30 seconds, then try again.");
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Please wait about 30 seconds, then try again.');
         }
         const tags = self.cachedImageTags[templateObj.dockerHubImageName];
         const dockerVersions = [];
@@ -134,14 +136,16 @@ class TemplateHelper {
                     }
                 }
                 if (isAllDone) {
-                    Logger.d("Template Cache Updated!");
+                    Logger.d('Template Cache Updated!');
                     self.cachedImageTags = tempCache;
                     // Used for README
                     for (let tempIdx = 0; tempIdx < self.templates.length; tempIdx++) {
-                        Logger.d(" ");
-                        Logger.d(self.templates[tempIdx].templateName + "/");
-                        Logger.d(self.getDockerVersionsForTemplateName(self.templates[tempIdx].templateName).join(", "));
-                        Logger.d(" ");
+                        Logger.d(' ');
+                        Logger.d(self.templates[tempIdx].templateName + '/');
+                        Logger.d(self
+                            .getDockerVersionsForTemplateName(self.templates[tempIdx].templateName)
+                            .join(', '));
+                        Logger.d(' ');
                     }
                 }
             })
@@ -156,24 +160,27 @@ class TemplateHelper {
                 return this.templates[i];
             }
         }
-        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "TEMPLATE NAME NOT FOUND: " + templateName);
+        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'TEMPLATE NAME NOT FOUND: ' + templateName);
     }
     getDockerfileContentFromTemplateTag(templateAndVersion) {
         const self = this;
-        const templateName = templateAndVersion.split("/")[0];
-        const templateVersion = templateAndVersion.split("/")[1];
+        const templateName = templateAndVersion.split('/')[0];
+        const templateVersion = templateAndVersion.split('/')[1];
         if (!templateVersion) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Template version field is empty!");
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Template version field is empty!');
         }
         const templateObj = self.getTemplateFromTemplateName(templateName);
-        const fromLine = templateObj.dockerHubImageName + ":" + templateVersion + templateObj.tagSuffix;
-        return "FROM " + fromLine + "\n" + templateObj.postFromLines;
+        const fromLine = templateObj.dockerHubImageName +
+            ':' +
+            templateVersion +
+            templateObj.tagSuffix;
+        return 'FROM ' + fromLine + '\n' + templateObj.postFromLines;
     }
 }
 const templateHelperInstance = new TemplateHelper();
 module.exports = {
     get: function () {
         return templateHelperInstance;
-    }
+    },
 };
 //# sourceMappingURL=TemplateHelper.js.map

@@ -5,13 +5,15 @@ const Authenticator = require("../user/Authenticator");
 const Logger = require("../utils/Logger");
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({
-    extended: true
+    extended: true,
 });
 router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
     // find which branch is pushed
     // inject it in locals.pushedBranches
     let isGithub = req.header('X-GitHub-Event') === 'push';
-    let isBitbucket = (req.header('X-Event-Key') === 'repo:push') && req.header('X-Request-UUID') && req.header('X-Hook-UUID');
+    let isBitbucket = req.header('X-Event-Key') === 'repo:push' &&
+        req.header('X-Request-UUID') &&
+        req.header('X-Hook-UUID');
     let isGitlab = req.header('X-Gitlab-Event') === 'Push Hook';
     res.locals.pushedBranches = [];
     if (isGithub) {
@@ -46,8 +48,7 @@ router.post('/triggerbuild', function (req, res, next) {
     }
     Promise.resolve()
         .then(function () {
-        return Authenticator.get(namespace)
-            .decodeAppPushWebhookDatastore(app.appPushWebhook.repoInfo);
+        return Authenticator.get(namespace).decodeAppPushWebhookDatastore(app.appPushWebhook.repoInfo);
     })
         .then(function (repoInfo) {
         // if we didn't detect any branches, the POST might have come from another source that we don't
@@ -67,7 +68,7 @@ router.post('/triggerbuild', function (req, res, next) {
         }
         return serviceManager
             .createImage(appName, {
-            repoInfo: repoInfo
+            repoInfo: repoInfo,
         }, '')
             .then(function (version) {
             return serviceManager.ensureServiceInitedAndUpdated(appName, version);

@@ -36,7 +36,7 @@ let data = {
     header: {
         cookieAuth: 'captainCookieAuth',
         auth: 'x-captain-auth',
-        namespace: 'x-namespace'
+        namespace: 'x-namespace',
     },
     healthCheckEndPoint: '/checkhealth',
     prefixManagerNode: 'captainManager',
@@ -65,10 +65,10 @@ let data = {
     baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
     rootNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
     perAppNginxConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
-    debugSourceDirectory: '' // Only used in debug mode
+    debugSourceDirectory: '',
 };
 let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
-    throws: false
+    throws: false,
 });
 if (!!overridingValues) {
     for (let prop in overridingValues) {
@@ -81,7 +81,10 @@ if (!!overridingValues) {
     }
 }
 if (data.isDebug) {
-    let devDirectoryOnLocalMachine = fs.readFileSync(__dirname + '/../../currentdirectory').toString().trim();
+    let devDirectoryOnLocalMachine = fs
+        .readFileSync(__dirname + '/../../currentdirectory')
+        .toString()
+        .trim();
     if (!devDirectoryOnLocalMachine) {
         throw new Error('For development purposes, you need to assign your local directory here');
     }

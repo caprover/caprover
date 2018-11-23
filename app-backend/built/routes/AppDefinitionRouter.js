@@ -20,7 +20,7 @@ router.get('/oneclickapps', function (req, res, next) {
                 ret.push(files[i].substring(0, files[i].length - 3));
             }
         }
-        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "One click app list is fetched.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'One click app list is fetched.');
         baseApi.data = ret;
         res.send(baseApi);
     });
@@ -35,7 +35,7 @@ router.get('/unusedImages', function (req, res, next) {
         return serviceManager.getUnusedImages(mostRecentLimit);
     })
         .then(function (unusedImages) {
-        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Unused images retrieved.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Unused images retrieved.');
         baseApi.data = {};
         baseApi.data.unusedImages = unusedImages;
         res.send(baseApi);
@@ -59,7 +59,7 @@ router.post('/deleteImages', function (req, res, next) {
         return serviceManager.deleteImages(imageIds);
     })
         .then(function () {
-        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "Images Deleted.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Images Deleted.');
         res.send(baseApi);
     })
         .catch(function (error) {
@@ -76,7 +76,9 @@ router.get('/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
     let serviceManager = res.locals.user.serviceManager;
     let appsArray = [];
-    dataStore.getAppsDataStore().getAppDefinitions()
+    dataStore
+        .getAppsDataStore()
+        .getAppDefinitions()
         .then(function (apps) {
         let promises = [];
         Object.keys(apps).forEach(function (key, index) {
@@ -84,7 +86,9 @@ router.get('/', function (req, res, next) {
             app.appName = key;
             app.isAppBuilding = serviceManager.isAppBuilding(key);
             app.appPushWebhook = app.appPushWebhook || {};
-            let repoInfoEncrypted = app.appPushWebhook ? app.appPushWebhook.repoInfo : null;
+            let repoInfoEncrypted = app.appPushWebhook
+                ? app.appPushWebhook.repoInfo
+                : null;
             if (repoInfoEncrypted) {
                 promises.push(Authenticator.get(dataStore.getNameSpace())
                     .decodeAppPushWebhookDatastore(repoInfoEncrypted)
@@ -103,7 +107,7 @@ router.get('/', function (req, res, next) {
         return dataStore.getDefaultAppNginxConfig();
     })
         .then(function (defaultNginxConfig) {
-        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, "App definitions are retrieved.");
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App definitions are retrieved.');
         baseApi.data = appsArray;
         //@ts-ignore
         baseApi.rootDomain = dataStore.getRootDomain();
@@ -154,7 +158,10 @@ router.post('/customdomain/', function (req, res, next) {
         return serviceManager.addCustomDomain(appName, customDomain);
     })
         .then(function () {
-        let msg = 'Custom domain is enabled for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain is enabled for: ' +
+            appName +
+            ' at ' +
+            customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -177,7 +184,10 @@ router.post('/removecustomdomain/', function (req, res, next) {
         return serviceManager.removeCustomDomain(appName, customDomain);
     })
         .then(function () {
-        let msg = 'Custom domain is removed for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain is removed for: ' +
+            appName +
+            ' at ' +
+            customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -202,7 +212,10 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
         return serviceManager.enableCustomDomainSsl(appName, customDomain);
     })
         .then(function () {
-        let msg = 'Custom domain SSL is enabled for: ' + appName + ' at ' + customDomain;
+        let msg = 'Custom domain SSL is enabled for: ' +
+            appName +
+            ' at ' +
+            customDomain;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
@@ -222,12 +235,16 @@ router.post('/register/', function (req, res, next) {
     let hasPersistentData = !!req.body.hasPersistentData;
     let appCreated = false;
     Logger.d('Registering app started: ' + appName);
-    dataStore.getAppsDataStore().registerAppDefinition(appName, hasPersistentData)
+    dataStore
+        .getAppsDataStore()
+        .registerAppDefinition(appName, hasPersistentData)
         .then(function () {
         appCreated = true;
     })
         .then(function () {
-        return serviceManager.createImage(appName, { /*use default dockerfile*/}, '');
+        return serviceManager.createImage(appName, {
+        /*use default dockerfile*/
+        }, '');
     })
         .then(function (version) {
         return serviceManager.ensureServiceInitedAndUpdated(appName, version);
@@ -243,7 +260,9 @@ router.post('/register/', function (req, res, next) {
             });
         }
         if (appCreated) {
-            return dataStore.getAppsDataStore().deleteAppDefinition(appName)
+            return dataStore
+                .getAppsDataStore()
+                .deleteAppDefinition(appName)
                 .then(function () {
                 return createRejectionPromise();
             });
@@ -309,7 +328,8 @@ router.post('/update/', function (req, res, next) {
         }
     }
     Logger.d('Updating app started: ' + appName);
-    serviceManager.updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction)
+    serviceManager
+        .updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction)
         .then(function () {
         Logger.d('AppName is updated: ' + appName);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Updated App Definition Saved'));

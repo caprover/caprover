@@ -16,20 +16,23 @@ const LoginRouter = require("./routes/LoginRouter");
 const UserRouter = require("./routes/UserRouter");
 const httpProxy = httpProxyImport.createProxyServer({});
 let app = express();
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, '../public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: false
+    extended: false,
 }));
 app.use(cookieParser());
 if (CaptainConstants.isDebug) {
     app.use('*', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Headers', CaptainConstants.header.namespace + ',' + CaptainConstants.header.auth + ',Content-Type');
+        res.setHeader('Access-Control-Allow-Headers', CaptainConstants.header.namespace +
+            ',' +
+            CaptainConstants.header.auth +
+            ',Content-Type');
         next();
     });
     app.use('/force-exit', function (req, res, next) {
@@ -42,7 +45,7 @@ if (CaptainConstants.isDebug) {
 app.use(Injector.injectGlobal());
 app.use(function (req, res, next) {
     if (res.locals.forceSsl) {
-        let isRequestSsl = (req.secure || req.get('X-Forwarded-Proto') === 'https');
+        let isRequestSsl = req.secure || req.get('X-Forwarded-Proto') === 'https';
         if (!isRequestSsl) {
             let newUrl = 'https://' + req.get('host') + req.originalUrl;
             res.redirect(302, newUrl);
@@ -60,8 +63,12 @@ app.use(CaptainConstants.healthCheckEndPoint, function (req, res, next) {
 });
 //  ************  Beginning of reverse proxy 3rd party services  ****************************************
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
-    if (req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !== 0) {
-        let newUrl = 'https://' + req.get('host') + CaptainConstants.netDataRelativePath + '/';
+    if (req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !==
+        0) {
+        let newUrl = 'https://' +
+            req.get('host') +
+            CaptainConstants.netDataRelativePath +
+            '/';
         res.redirect(302, newUrl);
         return;
     }
@@ -79,7 +86,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 });
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     httpProxy.web(req, res, {
-        target: 'http://' + CaptainConstants.netDataContainerName + ':19999'
+        target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
     });
     httpProxy.on('error', function (err, req, resOriginal) {
         const res = resOriginal;
@@ -91,7 +98,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
         }
         res.locals.errorProxyHandled = true;
         res.writeHead(500, {
-            'Content-Type': 'text/plain'
+            'Content-Type': 'text/plain',
         });
         res.end('Something went wrong... err: \n ' + (err ? err : 'NULL'));
     });
@@ -109,7 +116,8 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         res.send(response);
         return;
     }
-    if (!res.locals.namespace && !req.originalUrl.startsWith(API_PREFIX + CaptainConstants.apiVersion + '/user/webhooks/')) {
+    if (!res.locals.namespace &&
+        !req.originalUrl.startsWith(API_PREFIX + CaptainConstants.apiVersion + '/user/webhooks/')) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'no namespace'));
         return;
     }

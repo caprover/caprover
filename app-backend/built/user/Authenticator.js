@@ -8,31 +8,31 @@ const CaptainManager = require("./CaptainManager");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
 const DataStoreProvider = require("../datastore/DataStoreProvider");
-const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || "captain42";
-const COOKIE_AUTH_SUFFIX = "cookie-";
-const WEBHOOK_APP_PUSH_SUFFIX = "-webhook-app-push";
-const WEBHOOK_APP_PUSH_DATASTORE_SUFFIX = "-webhook-app-datastore";
+const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42';
+const COOKIE_AUTH_SUFFIX = 'cookie-';
+const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push';
+const WEBHOOK_APP_PUSH_DATASTORE_SUFFIX = '-webhook-app-datastore';
 class Authenticator {
     constructor(secret, namespace, dataStore) {
         this.encryptionKey = secret + namespace; // making encryption key unique per namespace!
         this.namespace = namespace;
         this.dataStore = dataStore;
-        this.tokenVersion = CaptainConstants.isDebug ? "test" : uuid();
+        this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid();
     }
     changepass(oldPass, newPass) {
         const self = this;
-        oldPass = oldPass || "";
-        newPass = newPass || "";
+        oldPass = oldPass || '';
+        newPass = newPass || '';
         return Promise.resolve()
             .then(function () {
             if (!oldPass || !newPass || newPass.length < 8) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Password is too small.");
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Password is too small.');
             }
             return self.isPasswordCorrect(oldPass);
         })
             .then(function (isPasswordCorrect) {
             if (!isPasswordCorrect) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_WRONG_PASSWORD, "Old password is incorrect.");
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_WRONG_PASSWORD, 'Old password is incorrect.');
             }
             self.tokenVersion = uuid();
             const hashed = bcrypt.hashSync(self.encryptionKey + newPass, bcrypt.genSaltSync(10));
@@ -44,7 +44,7 @@ class Authenticator {
         return self.dataStore
             .getHashedPassword()
             .then(function (savedHashedPassword) {
-            password = password || "";
+            password = password || '';
             if (!savedHashedPassword) {
                 return captainDefaultPassword === password;
             }
@@ -62,7 +62,7 @@ class Authenticator {
         })
             .then(function (isPasswordCorrect) {
             if (!isPasswordCorrect) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_WRONG_PASSWORD, "Password is incorrect.");
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_WRONG_PASSWORD, 'Password is incorrect.');
             }
             const userObj = {
                 namespace: self.namespace,
@@ -70,7 +70,7 @@ class Authenticator {
             };
             return jwt.sign({
                 data: userObj,
-            }, self.encryptionKey + (keySuffix ? keySuffix : ""), { expiresIn: "10000h" });
+            }, self.encryptionKey + (keySuffix ? keySuffix : ''), { expiresIn: '10000h' });
         });
     }
     decodeAuthTokenFromCookies(token) {
@@ -79,19 +79,19 @@ class Authenticator {
     decodeAuthToken(token, keySuffix) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ""), function (err, rawDecoded) {
+            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded) {
                 if (err) {
                     Logger.e(err);
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Auth token corrupted"));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token corrupted'));
                     return;
                 }
                 const decodedData = rawDecoded.data;
                 if (decodedData.tokenVersion !== self.tokenVersion) {
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Auth token is not valid anymore. Request for a new auth token"));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token is not valid anymore. Request for a new auth token'));
                     return;
                 }
                 if (decodedData.namespace !== self.namespace) {
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Auth token does not match the namespace"));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token does not match the namespace'));
                     return;
                 }
                 resolve(decodedData);
@@ -109,7 +109,7 @@ class Authenticator {
     getAppPushWebhookToken(appName, tokenVersion) {
         const self = this;
         if (!appName) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "App name are required for webhook token..");
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name are required for webhook token..');
         }
         return self.getGenericToken({
             tokenVersion: tokenVersion,
@@ -126,21 +126,21 @@ class Authenticator {
         return Promise.resolve().then(function () {
             return jwt.sign({
                 data: obj,
-            }, self.encryptionKey + (keySuffix ? keySuffix : ""));
+            }, self.encryptionKey + (keySuffix ? keySuffix : ''));
         });
     }
     decodeGenericToken(token, keySuffix) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ""), function (err, rawDecoded) {
+            jwt.verify(token, self.encryptionKey + (keySuffix ? keySuffix : ''), function (err, rawDecoded) {
                 if (err) {
                     Logger.e(err);
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "Token corrupted"));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Token corrupted'));
                     return;
                 }
                 const decodedData = rawDecoded.data;
                 if (decodedData.namespace !== self.namespace) {
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, "token does not match the namespace"));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'token does not match the namespace'));
                     return;
                 }
                 resolve(decodedData);
@@ -149,7 +149,7 @@ class Authenticator {
     }
     static get(namespace) {
         if (!namespace) {
-            throw new Error("namespace is needed");
+            throw new Error('namespace is needed');
         }
         if (!authenticatorCache[namespace]) {
             const captainSalt = CaptainManager.get().getCaptainSalt();

@@ -8,7 +8,7 @@ const fs = require("fs-extra");
 const TEMP_UPLOAD = 'temp_upload/';
 const router = express.Router();
 const upload = multer({
-    dest: TEMP_UPLOAD
+    dest: TEMP_UPLOAD,
 });
 router.get('/:appName/', function (req, res, next) {
     let appName = req.params.appName;
@@ -34,10 +34,14 @@ router.get('/:appName/', function (req, res, next) {
 router.post('/:appName/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
     let appName = req.params.appName;
-    dataStore.getAppsDataStore().getAppDefinitions()
+    dataStore
+        .getAppsDataStore()
+        .getAppDefinitions()
         .then(function (apps) {
         if (!apps[appName]) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "App not found: " + appName + "! Make sure your app is created before deploy!");
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App not found: ' +
+                appName +
+                '! Make sure your app is created before deploy!');
         }
         next();
     })
@@ -57,9 +61,10 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     const isDetachedBuild = !!req.query.detached;
     const captainDefinitionContent = req.body.captainDefinitionContent;
     const gitHash = req.body.gitHash || '';
-    let tarballSourceFilePath = (!!req.file) ? req.file.path : null;
-    if ((!!tarballSourceFilePath && !!captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
-        res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present."));
+    let tarballSourceFilePath = !!req.file ? req.file.path : null;
+    if ((!!tarballSourceFilePath && !!captainDefinitionContent) ||
+        (!tarballSourceFilePath && !captainDefinitionContent)) {
+        res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, 'Either tarballfile or captainDefinitionContent should be present.'));
         return;
     }
     Promise.resolve()
@@ -73,7 +78,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
                 }
             }
             if (!tarballSourceFilePath) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot create a temp file! Something is seriously wrong with the temp folder");
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Cannot create a temp file! Something is seriously wrong with the temp folder');
             }
             return serviceManager.createTarFarFromCaptainContent(captainDefinitionContent, appName, tarballSourceFilePath);
         }
@@ -81,14 +86,12 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         .then(function () {
         if (isDetachedBuild) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK_DEPLOY_STARTED, 'Deploy is started'));
-            startBuildProcess()
-                .catch(function (error) {
+            startBuildProcess().catch(function (error) {
                 Logger.e(error);
             });
         }
         else {
-            return startBuildProcess()
-                .then(function () {
+            return startBuildProcess().then(function () {
                 res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done'));
             });
         }
@@ -113,7 +116,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
     function startBuildProcess() {
         return serviceManager
             .createImage(appName, {
-            pathToSrcTarballFile: tarballSourceFilePath
+            pathToSrcTarballFile: tarballSourceFilePath,
         }, gitHash)
             .then(function (version) {
             if (tarballSourceFilePath) {

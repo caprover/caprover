@@ -15,7 +15,8 @@ router.post('/', function (req, res, next) {
         return;
     }
     let authToken;
-    Authenticator.get(res.locals.namespace).getAuthToken(password)
+    Authenticator.get(res.locals.namespace)
+        .getAuthToken(password)
         .then(function (token) {
         authToken = token;
         return Authenticator.get(res.locals.namespace).getAuthTokenForCookies(password);

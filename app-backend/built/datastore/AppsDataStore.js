@@ -3,11 +3,16 @@ const uuid = require("uuid/v4");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
-const isValidPath = require("is-valid-path");
-const APP_DEFINITIONS = "appDefinitions";
+const isValidPath = require('is-valid-path');
+const APP_DEFINITIONS = 'appDefinitions';
 function isNameAllowed(name) {
-    const isNameFormattingOk = (!!name) && (name.length < 50) && /^[a-z]/.test(name) && /[a-z0-9]$/.test(name) && /^[a-z0-9\-]+$/.test(name) && name.indexOf("--") < 0;
-    return isNameFormattingOk && (["captain", "registry"].indexOf(name) < 0);
+    const isNameFormattingOk = !!name &&
+        name.length < 50 &&
+        /^[a-z]/.test(name) &&
+        /[a-z0-9]$/.test(name) &&
+        /^[a-z0-9\-]+$/.test(name) &&
+        name.indexOf('--') < 0;
+    return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0;
 }
 class AppsDataStore {
     constructor(data, namepace) {
@@ -15,7 +20,7 @@ class AppsDataStore {
         this.namepace = namepace;
     }
     getServiceName(appName) {
-        return "srv-" + this.namepace + "--" + appName;
+        return 'srv-' + this.namepace + '--' + appName;
     }
     getAppDefinitions() {
         const self = this;
@@ -25,59 +30,58 @@ class AppsDataStore {
     }
     getAppDefinition(appName) {
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             if (!appName) {
-                throw new Error("App Name should not be empty");
+                throw new Error('App Name should not be empty');
             }
             const app = allApps[appName];
             if (!app) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, ("App could not be found " + appName));
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App could not be found ' + appName);
             }
             return app;
         });
     }
     enableSslForDefaultSubDomain(appName) {
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.hasDefaultSubDomainSsl = true;
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
             return true;
         });
     }
     enableCustomDomainSsl(appName, customDomain) {
         const self = this;
-        return self.getAppDefinitions()
-            .then(function (allApps) {
+        return self.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
                     if (app.customDomain[idx].publicDomain === customDomain) {
                         app.customDomain[idx].hasSsl = true;
-                        self.data.set(APP_DEFINITIONS + "." + appName, app);
+                        self.data.set(APP_DEFINITIONS + '.' + appName, app);
                         return true;
                     }
                 }
             }
-            throw new Error("customDomain: " + customDomain + " is not attached to app " + appName);
+            throw new Error('customDomain: ' +
+                customDomain +
+                ' is not attached to app ' +
+                appName);
         });
     }
     removeCustomDomainForApp(appName, customDomain) {
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.customDomain = app.customDomain || [];
             const newDomains = [];
@@ -91,44 +95,48 @@ class AppsDataStore {
                 }
             }
             if (!removed) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Custom domain " + customDomain + " does not exist in " + appName);
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Custom domain ' +
+                    customDomain +
+                    ' does not exist in ' +
+                    appName);
             }
             app.customDomain = newDomains;
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
             return true;
         });
     }
     addCustomDomainForApp(appName, customDomain) {
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
                     if (app.customDomain[idx].publicDomain === customDomain) {
-                        throw new Error("App already has customDomain: " + customDomain + " attached to app " + appName);
+                        throw new Error('App already has customDomain: ' +
+                            customDomain +
+                            ' attached to app ' +
+                            appName);
                     }
                 }
             }
             app.customDomain.push({
                 publicDomain: customDomain,
-                hasSsl: false
+                hasSsl: false,
             });
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
             return true;
         });
     }
     verifyCustomDomainBelongsToApp(appName, customDomain) {
         const self = this;
-        return self.getAppDefinitions()
-            .then(function (allApps) {
+        return self.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
@@ -138,28 +146,30 @@ class AppsDataStore {
                     }
                 }
             }
-            throw new Error("customDomain: " + customDomain + " is not attached to app " + appName);
+            throw new Error('customDomain: ' +
+                customDomain +
+                ' is not attached to app ' +
+                appName);
         });
     }
     getNewVersion(appName) {
         if (!appName) {
-            throw new Error("App Name should not be empty");
+            throw new Error('App Name should not be empty');
         }
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             const versions = app.versions;
             const newVersionIndex = versions.length;
             versions.push({
                 version: newVersionIndex,
                 gitHash: undefined,
-                timeStamp: new Date().toString()
+                timeStamp: new Date().toString(),
             });
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
             return newVersionIndex;
         });
     }
@@ -174,14 +184,16 @@ class AppsDataStore {
             app = appObj;
         })
             .then(function () {
-            if (appPushWebhook.repoInfo && appPushWebhook.repoInfo.repo && appPushWebhook.repoInfo.branch &&
-                appPushWebhook.repoInfo.user && appPushWebhook.repoInfo.password) {
-                return authenticator
-                    .getAppPushWebhookDatastore({
+            if (appPushWebhook.repoInfo &&
+                appPushWebhook.repoInfo.repo &&
+                appPushWebhook.repoInfo.branch &&
+                appPushWebhook.repoInfo.user &&
+                appPushWebhook.repoInfo.password) {
+                return authenticator.getAppPushWebhookDatastore({
                     repo: appPushWebhook.repoInfo.repo,
                     branch: appPushWebhook.repoInfo.branch,
                     user: appPushWebhook.repoInfo.user,
-                    password: appPushWebhook.repoInfo.password
+                    password: appPushWebhook.repoInfo.password,
                 });
             }
             return Promise.resolve(undefined);
@@ -207,7 +219,7 @@ class AppsDataStore {
                     }
                 }
                 if (!hasAtLeastOneSslDomain) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, "Cannot force SSL without any SSL-enabled domain!");
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without any SSL-enabled domain!');
                 }
             }
             if (appPushWebhookRepoInfo) {
@@ -230,10 +242,11 @@ class AppsDataStore {
                     if (obj.containerPort && obj.hostPort) {
                         const containerPort = Number(obj.containerPort);
                         const hostPort = Number(obj.hostPort);
-                        if (isPortValid(containerPort) && isPortValid(hostPort)) {
+                        if (isPortValid(containerPort) &&
+                            isPortValid(hostPort)) {
                             tempPorts.push({
                                 hostPort: hostPort,
-                                containerPort: containerPort
+                                containerPort: containerPort,
                             });
                         }
                     }
@@ -247,7 +260,7 @@ class AppsDataStore {
                     if (obj.key && obj.value) {
                         app.envVars.push({
                             key: obj.key,
-                            value: obj.value
+                            value: obj.value,
                         });
                     }
                 }
@@ -256,29 +269,33 @@ class AppsDataStore {
                 app.volumes = [];
                 for (let i = 0; i < volumes.length; i++) {
                     const obj = volumes[i];
-                    if (obj.containerPath && (obj.volumeName || obj.hostPath)) {
+                    if (obj.containerPath &&
+                        (obj.volumeName || obj.hostPath)) {
                         if (obj.volumeName && obj.hostPath) {
-                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Cannot define both host path and volume name!");
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Cannot define both host path and volume name!');
                         }
                         if (!isValidPath(obj.containerPath)) {
-                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid containerPath: " + obj.containerPath);
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid containerPath: ' +
+                                obj.containerPath);
                         }
                         const newVol = {
-                            containerPath: obj.containerPath
+                            containerPath: obj.containerPath,
                         };
                         if (obj.hostPath) {
                             if (!isValidPath(obj.hostPath)) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume host path: " + obj.hostPath);
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume host path: ' +
+                                    obj.hostPath);
                             }
                             newVol.hostPath = obj.hostPath;
-                            newVol.type = "bind";
+                            newVol.type = 'bind';
                         }
                         else {
-                            if (!obj.volumeName || !isNameAllowed(obj.volumeName)) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "Invalid volume name: " + obj.volumeName);
+                            if (!obj.volumeName ||
+                                !isNameAllowed(obj.volumeName)) {
+                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume name: ' + obj.volumeName);
                             }
                             newVol.volumeName = obj.volumeName;
-                            newVol.type = "volume";
+                            newVol.type = 'volume';
                         }
                         app.volumes.push(newVol);
                     }
@@ -287,8 +304,7 @@ class AppsDataStore {
         })
             .then(function () {
             if (app.appPushWebhook.repoInfo) {
-                return authenticator
-                    .getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion);
+                return authenticator.getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion);
             }
             return Promise.resolve(undefined);
         })
@@ -296,58 +312,56 @@ class AppsDataStore {
             if (pushWebhookToken) {
                 app.appPushWebhook.pushWebhookToken = pushWebhookToken;
             }
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
         });
     }
     setDeployedVersion(appName, version) {
         if (!appName) {
-            throw new Error("App Name should not be empty");
+            throw new Error('App Name should not be empty');
         }
         const self = this;
-        return this.getAppDefinitions()
-            .then(function (allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             const app = allApps[appName];
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.deployedVersion = version;
-            self.data.set(APP_DEFINITIONS + "." + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, app);
             return version;
         });
     }
     setGitHash(appName, newVersion, gitHashToSave) {
         if (!appName) {
-            throw new Error("App Name should not be empty");
+            throw new Error('App Name should not be empty');
         }
         const self = this;
-        return this.getAppDefinition(appName)
-            .then(function (app) {
+        return this.getAppDefinition(appName).then(function (app) {
             if (!app) {
-                throw new Error("App could not be found " + appName);
+                throw new Error('App could not be found ' + appName);
             }
             app.versions = app.versions || [];
             for (let i = 0; i < app.versions.length; i++) {
                 if (app.versions[i].version === newVersion) {
                     app.versions[i].gitHash = gitHashToSave;
-                    self.data.set(APP_DEFINITIONS + "." + appName, app);
+                    self.data.set(APP_DEFINITIONS + '.' + appName, app);
                     return;
                 }
             }
-            Logger.e("Failed to set the git hash on the deployed version");
+            Logger.e('Failed to set the git hash on the deployed version');
         });
     }
     deleteAppDefinition(appName) {
         const self = this;
         return new Promise(function (resolve, reject) {
             if (!isNameAllowed(appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, 'App Name is not allow. Only lowercase letters and single hyphen is allow'));
                 return;
             }
-            if (!self.data.get(APP_DEFINITIONS + "." + appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, "App Name does not exist in Database! Cannot be deleted."));
+            if (!self.data.get(APP_DEFINITIONS + '.' + appName)) {
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App Name does not exist in Database! Cannot be deleted.'));
                 return;
             }
-            self.data.delete(APP_DEFINITIONS + "." + appName);
+            self.data.delete(APP_DEFINITIONS + '.' + appName);
             resolve();
         });
     }
@@ -362,11 +376,11 @@ class AppsDataStore {
         const self = this;
         return new Promise(function (resolve, reject) {
             if (!isNameAllowed(appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, "App Name is not allow. Only lowercase letters and single hyphen is allow"));
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_BAD_NAME, 'App Name is not allow. Only lowercase letters and single hyphen is allow'));
                 return;
             }
-            if (!!self.data.get(APP_DEFINITIONS + "." + appName)) {
-                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST, "App Name already exists. Please use a different name"));
+            if (!!self.data.get(APP_DEFINITIONS + '.' + appName)) {
+                reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST, 'App Name already exists. Please use a different name'));
                 return;
             }
             const defaultAppDefinition = {
@@ -377,9 +391,9 @@ class AppsDataStore {
                 volumes: [],
                 ports: [],
                 appPushWebhook: {},
-                versions: []
+                versions: [],
             };
-            self.data.set(APP_DEFINITIONS + "." + appName, defaultAppDefinition);
+            self.data.set(APP_DEFINITIONS + '.' + appName, defaultAppDefinition);
             resolve();
         });
     }
@@ -396,8 +410,9 @@ class AppsDataStore {
             const forceSsl = !!webApp.forceSsl;
             const nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
             const serverWithSubDomain = {};
-            serverWithSubDomain.hasSsl = hasRootSsl && webApp.hasDefaultSubDomainSsl;
-            serverWithSubDomain.publicDomain = appName + "." + rootDomain;
+            serverWithSubDomain.hasSsl =
+                hasRootSsl && webApp.hasDefaultSubDomainSsl;
+            serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
             serverWithSubDomain.localDomain = localDomain;
             serverWithSubDomain.forceSsl = forceSsl;
             serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate;
@@ -413,7 +428,7 @@ class AppsDataStore {
                         publicDomain: d.publicDomain,
                         localDomain: localDomain,
                         nginxConfigTemplate: nginxConfigTemplate,
-                        staticWebRoot: ""
+                        staticWebRoot: '',
                     });
                 }
             }

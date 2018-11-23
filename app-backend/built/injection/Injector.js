@@ -23,7 +23,6 @@ function injectGlobal() {
     };
 }
 exports.injectGlobal = injectGlobal;
-;
 /**
  * User dependency injection module
  */
@@ -35,7 +34,7 @@ function injectUser() {
         }
         const namespace = res.locals.namespace;
         Authenticator.get(namespace)
-            .decodeAuthToken(req.header(CaptainConstants.header.auth) || "")
+            .decodeAuthToken(req.header(CaptainConstants.header.auth) || '')
             .then(function (userDecoded) {
             const user = userDecoded;
             if (user) {
@@ -61,7 +60,6 @@ function injectUser() {
     };
 }
 exports.injectUser = injectUser;
-;
 /**
  * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
  */
@@ -71,25 +69,27 @@ function injectUserForWebhook() {
         const namespace = req.query.namespace;
         let app = undefined;
         if (!token || !namespace) {
-            Logger.e("Trigger build is called with no token/namespace");
+            Logger.e('Trigger build is called with no token/namespace');
             next();
             return;
         }
         const dataStore = DataStoreProvider.getDataStore(namespace);
         let decodedInfo;
-        Authenticator.get(namespace).decodeAppPushWebhookToken(token)
+        Authenticator.get(namespace)
+            .decodeAppPushWebhookToken(token)
             .then(function (data) {
             decodedInfo = data;
-            return dataStore.getAppsDataStore()
+            return dataStore
+                .getAppsDataStore()
                 .getAppDefinition(decodedInfo.appName);
         })
             .then(function (appFound) {
             app = appFound;
             if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
-                throw new Error("Token Info do not match");
+                throw new Error('Token Info do not match');
             }
             const user = {
-                namespace: namespace
+                namespace: namespace,
             };
             user.dataStore = DataStoreProvider.getDataStore(namespace);
             if (!serviceMangerCache[user.namespace]) {
@@ -110,7 +110,6 @@ function injectUserForWebhook() {
     };
 }
 exports.injectUserForWebhook = injectUserForWebhook;
-;
 /**
  * User dependency injection module. This is a less secure way for user injection. But for reverse proxy services,
  * this is the only way that we can secure the call
@@ -135,5 +134,4 @@ function injectUserUsingCookieDataOnly() {
     };
 }
 exports.injectUserUsingCookieDataOnly = injectUserUsingCookieDataOnly;
-;
 //# sourceMappingURL=Injector.js.map

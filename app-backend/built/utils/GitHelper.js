@@ -3,11 +3,9 @@ const git = require('simple-git');
 module.exports = {
     getLastHash: function (directory) {
         return new Promise(function (resolve, reject) {
-            git(directory).silent(true)
-                .raw([
-                'rev-parse',
-                'HEAD'
-            ], function (err, result) {
+            git(directory)
+                .silent(true)
+                .raw(['rev-parse', 'HEAD'], function (err, result) {
                 if (err) {
                     reject(err);
                 }
@@ -22,15 +20,9 @@ module.exports = {
         const PASS = encodeURIComponent(pass);
         const remote = `https://${USER}:${PASS}@${repo}`;
         return new Promise(function (resolve, reject) {
-            git().silent(true)
-                .raw([
-                'clone',
-                '--recursive',
-                '-b',
-                branch,
-                remote,
-                directory
-            ], function (err, result) {
+            git()
+                .silent(true)
+                .raw(['clone', '--recursive', '-b', branch, remote, directory], function (err, result) {
                 if (err) {
                     reject(err);
                 }
@@ -39,6 +31,6 @@ module.exports = {
                 }
             });
         });
-    }
+    },
 };
 //# sourceMappingURL=GitHelper.js.map

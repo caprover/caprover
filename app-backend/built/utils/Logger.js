@@ -11,7 +11,9 @@ function errorize(error) {
     return error;
 }
 function getTime() {
-    return '\x1b[36m' + moment().format('MMMM Do YYYY, h:mm:ss.SSS a    ') + '\x1b[0m';
+    return ('\x1b[36m' +
+        moment().format('MMMM Do YYYY, h:mm:ss.SSS a    ') +
+        '\x1b[0m');
 }
 module.exports = {
     d: function (msg) {
@@ -28,6 +30,6 @@ module.exports = {
     e: function (msgOrError) {
         let err = errorize(msgOrError);
         console.error(getTime() + err + '\n' + err.stack);
-    }
+    },
 };
 //# sourceMappingURL=Logger.js.map

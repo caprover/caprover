@@ -7,7 +7,7 @@ const dataStoreCache = {};
 module.exports = {
     getDataStore: function (namespace) {
         if (!namespace) {
-            throw new Error("NameSpace is empty");
+            throw new Error('NameSpace is empty');
         }
         if (!dataStoreCache[namespace]) {
             dataStoreCache[namespace] = new DataStore(namespace);

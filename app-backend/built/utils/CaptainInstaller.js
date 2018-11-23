@@ -68,25 +68,24 @@ function checkSystemReq() {
 }
 const FIREWALL_PASSED = 'firewall-passed';
 function startServerOnPort_80_443_3000() {
-    return Promise.resolve()
-        .then(function () {
+    return Promise.resolve().then(function () {
         http.createServer(function (req, res) {
             res.writeHead(200, {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'text/plain',
             });
             res.write(FIREWALL_PASSED);
             res.end();
         }).listen(80);
         http.createServer(function (req, res) {
             res.writeHead(200, {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'text/plain',
             });
             res.write(FIREWALL_PASSED);
             res.end();
         }).listen(443);
         http.createServer(function (req, res) {
             res.writeHead(200, {
-                'Content-Type': 'text/plain'
+                'Content-Type': 'text/plain',
             });
             res.write(FIREWALL_PASSED);
             res.end();
@@ -114,7 +113,7 @@ function checkPortOrThrow(ipAddr, portToTest) {
         console.log('See docs for more details on how to fix firewall issues');
         console.log(' ');
         console.log('If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),');
-        console.log('you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK=\'TRUE\'');
+        console.log("you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK='TRUE'");
         console.log(' ');
         console.log(' ');
     }
@@ -126,19 +125,19 @@ function checkPortOrThrow(ipAddr, portToTest) {
             }
             finished = true;
             printError();
-            reject(new Error("Port timed out: " + portToTest));
+            reject(new Error('Port timed out: ' + portToTest));
         }, 5000);
         request('http://' + ipAddr + ':' + portToTest, function (error, response, body) {
             if (finished) {
                 return;
             }
             finished = true;
-            if ((body + '') === FIREWALL_PASSED) {
+            if (body + '' === FIREWALL_PASSED) {
                 resolve();
             }
             else {
                 printError();
-                reject(new Error("Port seems to be closed: " + portToTest));
+                reject(new Error('Port seems to be closed: ' + portToTest));
             }
         });
     });
@@ -161,7 +160,8 @@ function install() {
         }
         if (CaptainConstants.isDebug) {
             return new Promise(function (resolve, reject) {
-                DockerApi.get().swarmLeave(true)
+                DockerApi.get()
+                    .swarmLeave(true)
                     .then(function (ignore) {
                     resolve(ip4);
                 })
@@ -200,59 +200,64 @@ function install() {
         return DockerApi.get().getLeaderNodeId();
     })
         .then(function (nodeId) {
-        let volumeToMount = [{
+        let volumeToMount = [
+            {
                 hostPath: CaptainConstants.captainRootDirectory,
-                containerPath: CaptainConstants.captainRootDirectory
-            }];
+                containerPath: CaptainConstants.captainRootDirectory,
+            },
+        ];
         let env = [];
         env.push({
             key: EnvVar.keys.IS_CAPTAIN_INSTANCE,
-            value: '1'
+            value: '1',
         });
         if (EnvVar.DEFAULT_PASSWORD) {
             env.push({
                 key: EnvVar.keys.DEFAULT_PASSWORD,
-                value: EnvVar.DEFAULT_PASSWORD
+                value: EnvVar.DEFAULT_PASSWORD,
             });
         }
         if (EnvVar.CAPTAIN_DOCKER_API) {
             env.push({
                 key: EnvVar.keys.CAPTAIN_DOCKER_API,
-                value: EnvVar.CAPTAIN_DOCKER_API
+                value: EnvVar.CAPTAIN_DOCKER_API,
             });
         }
         else {
             volumeToMount.push({
                 hostPath: CaptainConstants.dockerSocketPath,
-                containerPath: CaptainConstants.dockerSocketPath
+                containerPath: CaptainConstants.dockerSocketPath,
             });
         }
         let ports = [];
-        let captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub + ':' + CaptainConstants.version;
+        let captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub +
+            ':' +
+            CaptainConstants.version;
         if (CaptainConstants.isDebug) {
-            captainNameAndVersion = CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
+            captainNameAndVersion =
+                CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
             env.push({
                 key: EnvVar.keys.CAPTAIN_IS_DEBUG,
-                value: EnvVar.CAPTAIN_IS_DEBUG + ''
+                value: EnvVar.CAPTAIN_IS_DEBUG + '',
             });
             volumeToMount.push({
                 hostPath: CaptainConstants.debugSourceDirectory,
-                containerPath: CaptainConstants.sourcePathInContainer
+                containerPath: CaptainConstants.sourcePathInContainer,
             });
             ports.push({
                 containerPort: 38000,
-                hostPort: 38000
+                hostPort: 38000,
             });
         }
         ports.push({
             protocol: 'tcp',
             containerPort: CaptainConstants.captainServiceExposedPort,
-            hostPort: CaptainConstants.captainServiceExposedPort
+            hostPort: CaptainConstants.captainServiceExposedPort,
         });
         return DockerApi.get().createServiceOnNodeId(captainNameAndVersion, CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env, {
             Reservation: {
-                MemoryBytes: 100 * 1024 * 1024
-            }
+                MemoryBytes: 100 * 1024 * 1024,
+            },
         });
     })
         .catch(function (error) {
@@ -264,5 +269,4 @@ function install() {
     });
 }
 exports.install = install;
-;
 //# sourceMappingURL=CaptainInstaller.js.map

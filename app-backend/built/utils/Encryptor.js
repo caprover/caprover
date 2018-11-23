@@ -41,6 +41,6 @@ class Encryptor {
 module.exports = {
     create: function (encryptionKey) {
         return new Encryptor(encryptionKey);
-    }
+    },
 };
 //# sourceMappingURL=Encryptor.js.map

@@ -8,28 +8,34 @@ const fs = require("fs-extra");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
 const AppsDataStore = require("./AppsDataStore");
-const NAMESPACE = "namespace";
-const HASHED_PASSWORD = "hashedPassword";
-const CAPTAIN_REGISTRY_AUTH_SECRET_VER = "captainRegistryAuthSecretVer";
-const CUSTOM_DOMAIN = "customDomain";
-const HAS_ROOT_SSL = "hasRootSsl";
-const FORCE_ROOT_SSL = "forceRootSsl";
-const HAS_REGISTRY_SSL = "hasRegistrySsl";
-const HAS_LOCAL_REGISTRY = "hasLocalRegistry";
-const EMAIL_ADDRESS = "emailAddress";
-const DOCKER_REGISTRIES = "dockerRegistries";
-const DEFAULT_DOCKER_REGISTRY = "defaultDockerReg";
-const NET_DATA_INFO = "netDataInfo";
-const NGINX_BASE_CONFIG = "NGINX_BASE_CONFIG";
-const NGINX_CAPTAIN_CONFIG = "NGINX_CAPTAIN_CONFIG";
-const DEFAULT_CAPTAIN_ROOT_DOMAIN = "captain.localhost";
-const DEFAULT_NGINX_BASE_CONFIG = fs.readFileSync(__dirname + "/../../template/base-nginx-conf.ejs").toString();
-const DEFAULT_NGINX_CAPTAIN_CONFIG = fs.readFileSync(__dirname + "/../../template/root-nginx-conf.ejs").toString();
-const DEFAULT_NGINX_CONFIG_FOR_APP = fs.readFileSync(__dirname + "/../../template/server-block-conf.ejs").toString();
+const NAMESPACE = 'namespace';
+const HASHED_PASSWORD = 'hashedPassword';
+const CAPTAIN_REGISTRY_AUTH_SECRET_VER = 'captainRegistryAuthSecretVer';
+const CUSTOM_DOMAIN = 'customDomain';
+const HAS_ROOT_SSL = 'hasRootSsl';
+const FORCE_ROOT_SSL = 'forceRootSsl';
+const HAS_REGISTRY_SSL = 'hasRegistrySsl';
+const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
+const EMAIL_ADDRESS = 'emailAddress';
+const DOCKER_REGISTRIES = 'dockerRegistries';
+const DEFAULT_DOCKER_REGISTRY = 'defaultDockerReg';
+const NET_DATA_INFO = 'netDataInfo';
+const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
+const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
+const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
+const DEFAULT_NGINX_BASE_CONFIG = fs
+    .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
+    .toString();
+const DEFAULT_NGINX_CAPTAIN_CONFIG = fs
+    .readFileSync(__dirname + '/../../template/root-nginx-conf.ejs')
+    .toString();
+const DEFAULT_NGINX_CONFIG_FOR_APP = fs
+    .readFileSync(__dirname + '/../../template/server-block-conf.ejs')
+    .toString();
 class DataStore {
     constructor(namespace) {
-        const data = new Configstore("captain-store", {});
-        data.path = CaptainConstants.captainRootDirectory + "/config.conf";
+        const data = new Configstore('captain-store', {});
+        data.path = CaptainConstants.captainRootDirectory + '/config.conf';
         this.data = data;
         this.data.set(NAMESPACE, namespace);
         this.appsDataStore = new AppsDataStore(this.data, namespace);
@@ -39,15 +45,13 @@ class DataStore {
     }
     setHashedPassword(newHashedPassword) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.set(HASHED_PASSWORD, newHashedPassword);
         });
     }
     getHashedPassword() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.get(HASHED_PASSWORD);
         });
     }
@@ -76,8 +80,7 @@ class DataStore {
      */
     getNetDataInfo() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             const netDataInfo = self.data.get(NET_DATA_INFO) || {};
             netDataInfo.isEnabled = netDataInfo.isEnabled || false;
             netDataInfo.data = netDataInfo.data || {};
@@ -86,40 +89,39 @@ class DataStore {
     }
     setNetDataInfo(netDataInfo) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.set(NET_DATA_INFO, netDataInfo);
         });
     }
     setRegistryAuthSecretVersion(ver) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.set(CAPTAIN_REGISTRY_AUTH_SECRET_VER, Number(ver));
         });
     }
     getRegistryAuthSecretVersion() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
-            return (self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0);
+        return Promise.resolve().then(function () {
+            return self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0;
         });
     }
     getImageName(authObj, appName, version) {
-        let authPrefix = "";
+        let authPrefix = '';
         if (authObj) {
-            authPrefix = authObj.serveraddress + "/" + authObj.username + "/";
+            authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
         }
         return authPrefix + this.getImageNameWithoutAuthObj(appName, version);
     }
     getImageNameWithoutAuthObj(appName, versionStr) {
         if (versionStr === 0) {
-            versionStr = "0";
+            versionStr = '0';
         }
-        return this.getImageNameBase() + appName + (versionStr ? (":" + versionStr) : "");
+        return (this.getImageNameBase() +
+            appName +
+            (versionStr ? ':' + versionStr : ''));
     }
     getImageNameBase() {
-        return "img-" + this.getNameSpace() + "--";
+        return 'img-' + this.getNameSpace() + '--';
     }
     getRootDomain() {
         return this.data.get(CUSTOM_DOMAIN) || DEFAULT_CAPTAIN_ROOT_DOMAIN;
@@ -146,7 +148,9 @@ class DataStore {
             return self.getDefaultAppNginxConfig();
         })
             .then(function (defaultAppNginxConfig) {
-            return self.getAppsDataStore().getAppsServerConfig(defaultAppNginxConfig, hasRootSsl, rootDomain);
+            return self
+                .getAppsDataStore()
+                .getAppsServerConfig(defaultAppNginxConfig, hasRootSsl, rootDomain);
         });
     }
     getAppsDataStore() {
@@ -154,15 +158,13 @@ class DataStore {
     }
     getDefaultPushRegistry() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.get(DEFAULT_DOCKER_REGISTRY);
         });
     }
     setDefaultPushRegistry(registryId) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             let found = false;
             const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
@@ -173,15 +175,14 @@ class DataStore {
             }
             // registryId can be NULL/Empty, meaning that no registry will be the default push registry
             if (!found && !!registryId) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, "Registry not found");
+                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
             }
             self.data.set(DEFAULT_DOCKER_REGISTRY, registryId);
         });
     }
     deleteRegistry(registryId) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             const newReg = [];
             const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
@@ -191,15 +192,14 @@ class DataStore {
                 }
             }
             if (newReg.length === registries.length) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, "Registry not found");
+                throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
             }
             self.data.set(DOCKER_REGISTRIES, newReg);
         });
     }
     getAllRegistries() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return self.data.get(DOCKER_REGISTRIES);
         });
     }
@@ -229,7 +229,7 @@ class DataStore {
                 registryUser,
                 registryPasswordEncrypted,
                 registryDomain,
-                registryImagePrefix
+                registryImagePrefix,
             });
             self.data.set(DOCKER_REGISTRIES, registries);
         });
@@ -276,31 +276,28 @@ class DataStore {
     }
     getDefaultAppNginxConfig() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             return DEFAULT_NGINX_CONFIG_FOR_APP;
         });
     }
     getNginxConfig() {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
-            return ({
+        return Promise.resolve().then(function () {
+            return {
                 baseConfig: {
                     byDefault: DEFAULT_NGINX_BASE_CONFIG,
-                    customValue: self.data.get(NGINX_BASE_CONFIG)
+                    customValue: self.data.get(NGINX_BASE_CONFIG),
                 },
                 captainConfig: {
                     byDefault: DEFAULT_NGINX_CAPTAIN_CONFIG,
-                    customValue: self.data.get(NGINX_CAPTAIN_CONFIG)
-                }
-            });
+                    customValue: self.data.get(NGINX_CAPTAIN_CONFIG),
+                },
+            };
         });
     }
     setNginxConfig(baseConfig, captainConfig) {
         const self = this;
-        return Promise.resolve()
-            .then(function () {
+        return Promise.resolve().then(function () {
             self.data.set(NGINX_BASE_CONFIG, baseConfig);
             self.data.set(NGINX_CAPTAIN_CONFIG, captainConfig);
         });

@@ -6,8 +6,8 @@ class BuildLog {
         this.clear();
     }
     onBuildFailed(error) {
-        this.log("----------------------");
-        this.log("Deploy failed!");
+        this.log('----------------------');
+        this.log('Deploy failed!');
         this.log(error);
         this.isBuildFailed = true;
     }
@@ -16,11 +16,11 @@ class BuildLog {
         this.firstLineNumber = -this.size;
         this.lines = [];
         for (let i = 0; i < this.size; i++) {
-            this.lines.push("");
+            this.lines.push('');
         }
     }
     log(msg) {
-        msg = (msg || "") + "";
+        msg = (msg || '') + '';
         this.lines.shift();
         this.lines.push(msg);
         this.firstLineNumber++;
@@ -31,7 +31,7 @@ class BuildLog {
         // if we don't copy the object, "lines" can get changed but firstLineNumber stay as is, causing bug!
         return JSON.parse(JSON.stringify({
             lines: self.lines,
-            firstLineNumber: self.firstLineNumber
+            firstLineNumber: self.firstLineNumber,
         }));
     }
 }
