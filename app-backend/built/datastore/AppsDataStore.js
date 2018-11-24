@@ -15,11 +15,102 @@ function isNameAllowed(name) {
         name.indexOf('--') < 0;
     return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0;
 }
+function isPortValid(portNumber) {
+    return portNumber > 0 && portNumber < 65535;
+}
 class AppsDataStore {
     constructor(data, namepace) {
         this.data = data;
         this.namepace = namepace;
         this.encryptor = new Encryptor_1.CaptainEncryptor(this.namepace);
+    }
+    saveApp(appName, app) {
+        const self = this;
+        let passwordToBeEncrypted = '';
+        return Promise.resolve()
+            .then(function () {
+            if (!appName) {
+                throw new Error('App Name should not be empty');
+            }
+            let pushWebhook = app.appPushWebhook;
+            if (pushWebhook &&
+                pushWebhook.pushWebhookToken &&
+                pushWebhook.tokenVersion &&
+                pushWebhook.repoInfo &&
+                pushWebhook.repoInfo.repo) {
+                // we have required info
+                passwordToBeEncrypted = pushWebhook.repoInfo.password;
+                pushWebhook.repoInfo.password = '';
+            }
+            else {
+                // some required data is missing. We drop the push data
+                pushWebhook = undefined;
+            }
+            if (app.forceSsl) {
+                let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;
+                const customDomainArray = app.customDomain;
+                if (customDomainArray && customDomainArray.length > 0) {
+                    for (let idx = 0; idx < customDomainArray.length; idx++) {
+                        if (customDomainArray[idx].hasSsl) {
+                            hasAtLeastOneSslDomain = true;
+                        }
+                    }
+                }
+                if (!hasAtLeastOneSslDomain) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without any SSL-enabled domain!');
+                }
+            }
+            if (app.ports) {
+                for (let i = 0; i < app.ports.length; i++) {
+                    const obj = app.ports[i];
+                    if (obj.containerPort && obj.hostPort) {
+                        const containerPort = Number(obj.containerPort);
+                        const hostPort = Number(obj.hostPort);
+                        if (!isPortValid(containerPort) ||
+                            !isPortValid(hostPort)) {
+                            throw new Error(`Invalid ports: ${hostPort} or ${containerPort}`);
+                        }
+                    }
+                    else {
+                        throw new Error('Host or container port is missing');
+                    }
+                }
+            }
+            if (app.volumes) {
+                for (let i = 0; i < app.volumes.length; i++) {
+                    const obj = app.volumes[i];
+                    if (!obj.containerPath ||
+                        !(obj.volumeName || obj.hostPath)) {
+                        throw new Error('containerPath or the source paths (volume name or host path) are missing');
+                    }
+                    if (obj.volumeName && obj.hostPath) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Cannot define both host path and volume name!');
+                    }
+                    if (!isValidPath(obj.containerPath)) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid containerPath: ' + obj.containerPath);
+                    }
+                    if (obj.hostPath && !isValidPath(obj.hostPath)) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume host path: ' + obj.hostPath);
+                    }
+                    else {
+                        if (!obj.volumeName ||
+                            !isNameAllowed(obj.volumeName)) {
+                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume name: ' + obj.volumeName);
+                        }
+                    }
+                }
+            }
+        })
+            .then(function () {
+            const appToSave = app;
+            if (passwordToBeEncrypted) {
+                appToSave.appPushWebhook.repoInfo.passwordEncrypted = self.encryptor.encrypt(passwordToBeEncrypted);
+            }
+            return appToSave;
+        })
+            .then(function (appToSave) {
+            self.data.set(APP_DEFINITIONS + '.' + appName, appToSave);
+        });
     }
     getServiceName(appName) {
         return 'srv-' + this.namepace + '--' + appName;
@@ -67,46 +158,29 @@ class AppsDataStore {
     }
     enableSslForDefaultSubDomain(appName) {
         const self = this;
-        return this.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return this.getAppDefinition(appName).then(function (app) {
             app.hasDefaultSubDomainSsl = true;
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
-            return true;
+            return self.saveApp(appName, app);
         });
     }
     enableCustomDomainSsl(appName, customDomain) {
         const self = this;
-        return self.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return self.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
                     if (app.customDomain[idx].publicDomain === customDomain) {
                         app.customDomain[idx].hasSsl = true;
-                        self.data.set(APP_DEFINITIONS + '.' + appName, app);
-                        return true;
+                        return self.saveApp(appName, app);
                     }
                 }
             }
-            throw new Error('customDomain: ' +
-                customDomain +
-                ' is not attached to app ' +
-                appName);
+            throw new Error(`customDomain: ${customDomain} is not attached to app ${appName}`);
         });
     }
     removeCustomDomainForApp(appName, customDomain) {
         const self = this;
-        return this.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return this.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || [];
             const newDomains = [];
             let removed = false;
@@ -119,31 +193,20 @@ class AppsDataStore {
                 }
             }
             if (!removed) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Custom domain ' +
-                    customDomain +
-                    ' does not exist in ' +
-                    appName);
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, `Custom domain ${customDomain} does not exist in ${appName}`);
             }
             app.customDomain = newDomains;
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
-            return true;
+            return self.saveApp(appName, app);
         });
     }
     addCustomDomainForApp(appName, customDomain) {
         const self = this;
-        return this.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return this.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
                     if (app.customDomain[idx].publicDomain === customDomain) {
-                        throw new Error('App already has customDomain: ' +
-                            customDomain +
-                            ' attached to app ' +
-                            appName);
+                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, `App already has customDomain: ${customDomain} attached to app ${appName}`);
                     }
                 }
             }
@@ -151,17 +214,14 @@ class AppsDataStore {
                 publicDomain: customDomain,
                 hasSsl: false,
             });
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
-            return true;
+            return self.saveApp(appName, app);
         });
     }
     verifyCustomDomainBelongsToApp(appName, customDomain) {
         const self = this;
-        return self.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return self
+            .getAppDefinition(appName)
+            .then(function (app) {
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
@@ -170,10 +230,7 @@ class AppsDataStore {
                     }
                 }
             }
-            throw new Error('customDomain: ' +
-                customDomain +
-                ' is not attached to app ' +
-                appName);
+            throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, `customDomain ${customDomain} is not attached to app ${appName}`);
         });
     }
     getNewVersion(appName) {
@@ -181,11 +238,7 @@ class AppsDataStore {
             throw new Error('App Name should not be empty');
         }
         const self = this;
-        return this.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return this.getAppDefinition(appName).then(function (app) {
             const versions = app.versions;
             const newVersionIndex = versions.length;
             versions.push({
@@ -193,102 +246,77 @@ class AppsDataStore {
                 gitHash: undefined,
                 timeStamp: new Date().toString(),
             });
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
-            return newVersionIndex;
+            return self.saveApp(appName, app).then(function () {
+                return newVersionIndex;
+            });
         });
     }
     updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, authenticator, customNginxConfig, preDeployFunction) {
         const self = this;
-        let appToBeSaved;
-        let appLoaded;
+        let appObj;
         return Promise.resolve()
             .then(function () {
             return self.getAppDefinition(appName);
         })
-            .then(function (appObj) {
-            appToBeSaved = appObj;
-        })
-            .then(function () {
+            .then(function (appLoaded) {
+            appObj = appLoaded;
             if (repoInfo &&
                 repoInfo.repo &&
                 repoInfo.branch &&
                 repoInfo.user &&
                 repoInfo.password) {
-                appToBeSaved.appPushWebhook = {
-                    tokenVersion: appToBeSaved.appPushWebhook &&
-                        appToBeSaved.appPushWebhook.tokenVersion
-                        ? appToBeSaved.appPushWebhook.tokenVersion
+                appObj.appPushWebhook = {
+                    tokenVersion: appObj.appPushWebhook &&
+                        appObj.appPushWebhook.tokenVersion
+                        ? appObj.appPushWebhook.tokenVersion
                         : uuid(),
                     pushWebhookToken: '',
                     repoInfo: {
                         repo: repoInfo.repo,
                         user: repoInfo.user,
                         branch: repoInfo.branch,
-                        passwordEncrypted: self.encryptor.encrypt(repoInfo.password),
+                        password: repoInfo.password,
                     },
                 };
                 return authenticator
-                    .getAppPushWebhookToken(appName, appToBeSaved.appPushWebhook.tokenVersion)
+                    .getAppPushWebhookToken(appName, appObj.appPushWebhook.tokenVersion)
                     .then(function (val) {
-                    appToBeSaved.appPushWebhook.pushWebhookToken = val;
+                    appObj.appPushWebhook.pushWebhookToken = val;
                 });
             }
             else {
-                appToBeSaved.appPushWebhook = undefined;
+                appObj.appPushWebhook = undefined;
                 return Promise.resolve(undefined);
             }
         })
             .then(function () {
             instanceCount = Number(instanceCount);
             if (instanceCount >= 0) {
-                appToBeSaved.instanceCount = instanceCount;
+                appObj.instanceCount = instanceCount;
             }
-            appToBeSaved.notExposeAsWebApp = !!notExposeAsWebApp;
-            appToBeSaved.forceSsl = !!forceSsl;
-            appToBeSaved.nodeId = nodeId;
-            appToBeSaved.customNginxConfig = customNginxConfig;
-            appToBeSaved.preDeployFunction = preDeployFunction;
-            if (appToBeSaved.forceSsl) {
-                let hasAtLeastOneSslDomain = appToBeSaved.hasDefaultSubDomainSsl;
-                const customDomainArray = appToBeSaved.customDomain;
-                if (customDomainArray && customDomainArray.length > 0) {
-                    for (let idx = 0; idx < customDomainArray.length; idx++) {
-                        if (customDomainArray[idx].hasSsl) {
-                            hasAtLeastOneSslDomain = true;
-                        }
-                    }
-                }
-                if (!hasAtLeastOneSslDomain) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without any SSL-enabled domain!');
-                }
-            }
+            appObj.notExposeAsWebApp = !!notExposeAsWebApp;
+            appObj.forceSsl = !!forceSsl;
+            appObj.nodeId = nodeId;
+            appObj.customNginxConfig = customNginxConfig;
+            appObj.preDeployFunction = preDeployFunction;
             if (ports) {
-                const isPortValid = function (portNumber) {
-                    return portNumber > 0 && portNumber < 65535;
-                };
-                const tempPorts = [];
+                appObj.ports = [];
                 for (let i = 0; i < ports.length; i++) {
                     const obj = ports[i];
-                    if (obj.containerPort && obj.hostPort) {
-                        const containerPort = Number(obj.containerPort);
-                        const hostPort = Number(obj.hostPort);
-                        if (isPortValid(containerPort) &&
-                            isPortValid(hostPort)) {
-                            tempPorts.push({
-                                hostPort: hostPort,
-                                containerPort: containerPort,
-                            });
-                        }
-                    }
+                    const containerPort = Number(obj.containerPort);
+                    const hostPort = Number(obj.hostPort);
+                    appObj.ports.push({
+                        hostPort: hostPort,
+                        containerPort: containerPort,
+                    });
                 }
-                appToBeSaved.ports = tempPorts;
             }
             if (envVars) {
-                appToBeSaved.envVars = [];
+                appObj.envVars = [];
                 for (let i = 0; i < envVars.length; i++) {
                     const obj = envVars[i];
                     if (obj.key && obj.value) {
-                        appToBeSaved.envVars.push({
+                        appObj.envVars.push({
                             key: obj.key,
                             value: obj.value,
                         });
@@ -296,76 +324,45 @@ class AppsDataStore {
                 }
             }
             if (volumes) {
-                appToBeSaved.volumes = [];
+                appObj.volumes = [];
                 for (let i = 0; i < volumes.length; i++) {
                     const obj = volumes[i];
-                    if (obj.containerPath &&
-                        (obj.volumeName || obj.hostPath)) {
-                        if (obj.volumeName && obj.hostPath) {
-                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Cannot define both host path and volume name!');
-                        }
-                        if (!isValidPath(obj.containerPath)) {
-                            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid containerPath: ' +
-                                obj.containerPath);
-                        }
-                        const newVol = {
-                            containerPath: obj.containerPath,
-                        };
-                        if (obj.hostPath) {
-                            if (!isValidPath(obj.hostPath)) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume host path: ' +
-                                    obj.hostPath);
-                            }
-                            newVol.hostPath = obj.hostPath;
-                            newVol.type = 'bind';
-                        }
-                        else {
-                            if (!obj.volumeName ||
-                                !isNameAllowed(obj.volumeName)) {
-                                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Invalid volume name: ' + obj.volumeName);
-                            }
-                            newVol.volumeName = obj.volumeName;
-                            newVol.type = 'volume';
-                        }
-                        appToBeSaved.volumes.push(newVol);
+                    const newVol = {
+                        containerPath: obj.containerPath,
+                    };
+                    if (obj.hostPath) {
+                        newVol.hostPath = obj.hostPath;
+                        newVol.type = 'bind';
                     }
+                    else {
+                        newVol.volumeName = obj.volumeName;
+                        newVol.type = 'volume';
+                    }
+                    appObj.volumes.push(newVol);
                 }
             }
         })
             .then(function () {
-            self.data.set(APP_DEFINITIONS + '.' + appName, appToBeSaved);
+            return self.saveApp(appName, appObj);
         });
     }
     setDeployedVersion(appName, version) {
-        if (!appName) {
-            throw new Error('App Name should not be empty');
-        }
         const self = this;
-        return this.getAppDefinitions().then(function (allApps) {
-            const app = allApps[appName];
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
+        return this.getAppDefinition(appName).then(function (app) {
             app.deployedVersion = version;
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
-            return version;
+            return self.saveApp(appName, app).then(function () {
+                return version;
+            });
         });
     }
     setGitHash(appName, newVersion, gitHashToSave) {
-        if (!appName) {
-            throw new Error('App Name should not be empty');
-        }
         const self = this;
         return this.getAppDefinition(appName).then(function (app) {
-            if (!app) {
-                throw new Error('App could not be found ' + appName);
-            }
             app.versions = app.versions || [];
             for (let i = 0; i < app.versions.length; i++) {
                 if (app.versions[i].version === newVersion) {
                     app.versions[i].gitHash = gitHashToSave;
-                    self.data.set(APP_DEFINITIONS + '.' + appName, app);
-                    return;
+                    return self.saveApp(appName, app);
                 }
             }
             Logger.e('Failed to set the git hash on the deployed version');

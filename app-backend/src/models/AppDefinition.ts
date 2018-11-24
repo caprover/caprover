@@ -11,7 +11,7 @@ interface IAppVolume {
     containerPath: string
     volumeName?: string
     hostPath?: string
-    type?: string
+    type?: 'volume' | 'bind'
 
     mode?: string
 }
@@ -72,17 +72,21 @@ abstract class IAppDefinitionBase {
 }
 
 class IAppDef extends IAppDefinitionBase {
-    public appPushWebhook: {
-        tokenVersion: string
-        repoInfo: RepoInfo
-        pushWebhookToken: string
-    }|undefined
+    public appPushWebhook:
+        | {
+              tokenVersion: string
+              repoInfo: RepoInfo
+              pushWebhookToken: string
+          }
+        | undefined
 }
 
 class IAppDefSaved extends IAppDefinitionBase {
-    public appPushWebhook: {
-        tokenVersion: string
-        repoInfo: RepoInfoEncrypted
-        pushWebhookToken: string
-    }|undefined
+    public appPushWebhook:
+        | {
+              tokenVersion: string
+              repoInfo: RepoInfoEncrypted
+              pushWebhookToken: string
+          }
+        | undefined
 }
