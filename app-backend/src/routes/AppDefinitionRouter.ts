@@ -101,7 +101,7 @@ router.post('/deleteImages', function(req, res, next) {
 router.get('/', function(req, res, next) {
     let dataStore = res.locals.user.dataStore as DataStore
     let serviceManager = res.locals.user.serviceManager
-    let appsArray: IAppDefinition[] = []
+    let appsArray: IAppDef[] = []
 
     dataStore
         .getAppsDataStore()
@@ -113,24 +113,7 @@ router.get('/', function(req, res, next) {
                 let app = apps[key]
                 app.appName = key
                 app.isAppBuilding = serviceManager.isAppBuilding(key)
-                app.appPushWebhook = app.appPushWebhook || {}
-
-                let repoInfoEncrypted = app.appPushWebhook
-                    ? app.appPushWebhook.repoInfo
-                    : null
-                if (repoInfoEncrypted) {
-                    promises.push(
-                        Authenticator.get(dataStore.getNameSpace())
-                            .decodeAppPushWebhookDatastore(
-                                repoInfoEncrypted as string
-                            )
-                            .then(function(decryptedData) {
-                                app.appPushWebhook.repoInfo = decryptedData as RepoInfo
-                            })
-                    )
-                } else {
-                    app.appPushWebhook.repoInfo = {}
-                }
+                app.appPushWebhook = app.appPushWebhook || undefined
                 appsArray.push(app)
             })
 
@@ -391,7 +374,7 @@ router.post('/delete/', function(req, res, next) {
 
 router.post('/update/', function(req, res, next) {
     let dataStore = res.locals.user.dataStore
-    let serviceManager = res.locals.user.serviceManager
+    let serviceManager = res.locals.user.serviceManager as ServiceManager
 
     let appName = req.body.appName
     let nodeId = req.body.nodeId

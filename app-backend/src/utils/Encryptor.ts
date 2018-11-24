@@ -6,7 +6,7 @@ import crypto = require('crypto')
 const algorithm = 'aes-256-ctr'
 const IV_LENGTH = 16 // For AES, this is always 16
 
-class Encryptor {
+export class CaptainEncryptor {
     constructor(private encryptionKey: string) {
         if (!encryptionKey || encryptionKey.length < 32) {
             throw new Error('Encryption Key too short!')
@@ -45,10 +45,4 @@ class Encryptor {
 
         return decrypted.toString()
     }
-}
-
-export = {
-    create: function(encryptionKey: string) {
-        return new Encryptor(encryptionKey)
-    },
 }

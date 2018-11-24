@@ -110,7 +110,7 @@ export function injectUserForWebhook() {
                 app = appFound
 
                 if (
-                    app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion
+                    app.appPushWebhook && app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion
                 ) {
                     throw new Error('Token Info do not match')
                 }

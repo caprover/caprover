@@ -1,28 +1,5 @@
 interface IAllAppDefinitions {
-    [appId: string]: IAppDefinition
-}
-
-interface IAppPushWebhook {
-    repoInfo: RepoInfo
-}
-
-interface RepoInfo {
-    repo: string
-    branch: string
-    user: string
-    password: string
-}
-
-interface IAppPushWebhookAsSaved {
-    tokenVersion: string
-    /*repoInfo: {
-        repoAddress: string
-        branch: string
-        user: string
-        passwordEncrypted: string
-    };*/
-    repoInfo: string | RepoInfo | {}
-    pushWebhookToken: string
+    [appId: string]: IAppDef
 }
 
 interface IAppEnvVar {
@@ -47,7 +24,21 @@ interface IAppPort {
     publishMode?: string
 }
 
-class IAppDefinition {
+interface RepoInfo {
+    repo: string
+    branch: string
+    user: string
+    password: string
+}
+
+interface RepoInfoEncrypted {
+    repo: string
+    branch: string
+    user: string
+    passwordEncrypted: string
+}
+
+abstract class IAppDefinitionBase {
     public appName?: string
     public isAppBuilding?: boolean
 
@@ -66,7 +57,6 @@ class IAppDefinition {
         publicDomain: string
         hasSsl: boolean
     }[]
-    public appPushWebhook: IAppPushWebhookAsSaved
 
     public ports: IAppPort[]
 
@@ -79,4 +69,20 @@ class IAppDefinition {
         /// imageName: string,
         gitHash: string | undefined
     }[]
+}
+
+class IAppDef extends IAppDefinitionBase {
+    public appPushWebhook: {
+        tokenVersion: string
+        repoInfo: RepoInfo
+        pushWebhookToken: string
+    }|undefined
+}
+
+class IAppDefSaved extends IAppDefinitionBase {
+    public appPushWebhook: {
+        tokenVersion: string
+        repoInfo: RepoInfoEncrypted
+        pushWebhookToken: string
+    }|undefined
 }

@@ -85,7 +85,7 @@ function injectUserForWebhook() {
         })
             .then(function (appFound) {
             app = appFound;
-            if (app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
+            if (app.appPushWebhook && app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion) {
                 throw new Error('Token Info do not match');
             }
             const user = {

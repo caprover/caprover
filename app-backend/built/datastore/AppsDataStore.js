@@ -3,6 +3,7 @@ const uuid = require("uuid/v4");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
+const Encryptor_1 = require("../utils/Encryptor");
 const isValidPath = require('is-valid-path');
 const APP_DEFINITIONS = 'appDefinitions';
 function isNameAllowed(name) {
@@ -18,6 +19,7 @@ class AppsDataStore {
     constructor(data, namepace) {
         this.data = data;
         this.namepace = namepace;
+        this.encryptor = new Encryptor_1.CaptainEncryptor(this.namepace);
     }
     getServiceName(appName) {
         return 'srv-' + this.namepace + '--' + appName;
@@ -25,7 +27,29 @@ class AppsDataStore {
     getAppDefinitions() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            resolve(self.data.get(APP_DEFINITIONS) || {});
+            let allApps = self.data.get(APP_DEFINITIONS) || {};
+            let allAppsUnencrypted = {};
+            Object.keys(allApps).forEach(function (appName) {
+                allAppsUnencrypted[appName] = allApps[appName];
+                const appUnencrypted = allAppsUnencrypted[appName];
+                const appSave = allApps[appName];
+                if (appSave.appPushWebhook &&
+                    appSave.appPushWebhook.repoInfo &&
+                    appSave.appPushWebhook.repoInfo.passwordEncrypted) {
+                    const repo = appSave.appPushWebhook.repoInfo;
+                    appUnencrypted.appPushWebhook = {
+                        tokenVersion: appSave.appPushWebhook.tokenVersion,
+                        pushWebhookToken: appSave.appPushWebhook.pushWebhookToken,
+                        repoInfo: {
+                            repo: repo.repo,
+                            user: repo.user,
+                            password: self.encryptor.decrypt(repo.passwordEncrypted),
+                            branch: repo.branch,
+                        },
+                    };
+                }
+            });
+            resolve(allAppsUnencrypted);
         });
     }
     getAppDefinition(appName) {
@@ -173,44 +197,60 @@ class AppsDataStore {
             return newVersionIndex;
         });
     }
-    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, authenticator, customNginxConfig, preDeployFunction) {
+    updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, authenticator, customNginxConfig, preDeployFunction) {
         const self = this;
-        let app;
+        let appToBeSaved;
+        let appLoaded;
         return Promise.resolve()
             .then(function () {
             return self.getAppDefinition(appName);
         })
             .then(function (appObj) {
-            app = appObj;
+            appToBeSaved = appObj;
         })
             .then(function () {
-            if (appPushWebhook.repoInfo &&
-                appPushWebhook.repoInfo.repo &&
-                appPushWebhook.repoInfo.branch &&
-                appPushWebhook.repoInfo.user &&
-                appPushWebhook.repoInfo.password) {
-                return authenticator.getAppPushWebhookDatastore({
-                    repo: appPushWebhook.repoInfo.repo,
-                    branch: appPushWebhook.repoInfo.branch,
-                    user: appPushWebhook.repoInfo.user,
-                    password: appPushWebhook.repoInfo.password,
+            if (repoInfo &&
+                repoInfo.repo &&
+                repoInfo.branch &&
+                repoInfo.user &&
+                repoInfo.password) {
+                appToBeSaved.appPushWebhook = {
+                    tokenVersion: appToBeSaved.appPushWebhook &&
+                        appToBeSaved.appPushWebhook.tokenVersion
+                        ? appToBeSaved.appPushWebhook.tokenVersion
+                        : uuid(),
+                    pushWebhookToken: '',
+                    repoInfo: {
+                        repo: repoInfo.repo,
+                        user: repoInfo.user,
+                        branch: repoInfo.branch,
+                        passwordEncrypted: self.encryptor.encrypt(repoInfo.password),
+                    },
+                };
+                return authenticator
+                    .getAppPushWebhookToken(appName, appToBeSaved.appPushWebhook.tokenVersion)
+                    .then(function (val) {
+                    appToBeSaved.appPushWebhook.pushWebhookToken = val;
                 });
             }
-            return Promise.resolve(undefined);
+            else {
+                appToBeSaved.appPushWebhook = undefined;
+                return Promise.resolve(undefined);
+            }
         })
-            .then(function (appPushWebhookRepoInfo) {
+            .then(function () {
             instanceCount = Number(instanceCount);
             if (instanceCount >= 0) {
-                app.instanceCount = instanceCount;
+                appToBeSaved.instanceCount = instanceCount;
             }
-            app.notExposeAsWebApp = !!notExposeAsWebApp;
-            app.forceSsl = !!forceSsl;
-            app.nodeId = nodeId;
-            app.customNginxConfig = customNginxConfig;
-            app.preDeployFunction = preDeployFunction;
-            if (app.forceSsl) {
-                let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl;
-                const customDomainArray = app.customDomain;
+            appToBeSaved.notExposeAsWebApp = !!notExposeAsWebApp;
+            appToBeSaved.forceSsl = !!forceSsl;
+            appToBeSaved.nodeId = nodeId;
+            appToBeSaved.customNginxConfig = customNginxConfig;
+            appToBeSaved.preDeployFunction = preDeployFunction;
+            if (appToBeSaved.forceSsl) {
+                let hasAtLeastOneSslDomain = appToBeSaved.hasDefaultSubDomainSsl;
+                const customDomainArray = appToBeSaved.customDomain;
                 if (customDomainArray && customDomainArray.length > 0) {
                     for (let idx = 0; idx < customDomainArray.length; idx++) {
                         if (customDomainArray[idx].hasSsl) {
@@ -221,16 +261,6 @@ class AppsDataStore {
                 if (!hasAtLeastOneSslDomain) {
                     throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without any SSL-enabled domain!');
                 }
-            }
-            if (appPushWebhookRepoInfo) {
-                app.appPushWebhook = app.appPushWebhook || {};
-                if (!app.appPushWebhook.tokenVersion) {
-                    app.appPushWebhook.tokenVersion = uuid();
-                }
-                app.appPushWebhook.repoInfo = appPushWebhookRepoInfo;
-            }
-            else {
-                app.appPushWebhook = {};
             }
             if (ports) {
                 const isPortValid = function (portNumber) {
@@ -251,14 +281,14 @@ class AppsDataStore {
                         }
                     }
                 }
-                app.ports = tempPorts;
+                appToBeSaved.ports = tempPorts;
             }
             if (envVars) {
-                app.envVars = [];
+                appToBeSaved.envVars = [];
                 for (let i = 0; i < envVars.length; i++) {
                     const obj = envVars[i];
                     if (obj.key && obj.value) {
-                        app.envVars.push({
+                        appToBeSaved.envVars.push({
                             key: obj.key,
                             value: obj.value,
                         });
@@ -266,7 +296,7 @@ class AppsDataStore {
                 }
             }
             if (volumes) {
-                app.volumes = [];
+                appToBeSaved.volumes = [];
                 for (let i = 0; i < volumes.length; i++) {
                     const obj = volumes[i];
                     if (obj.containerPath &&
@@ -297,22 +327,13 @@ class AppsDataStore {
                             newVol.volumeName = obj.volumeName;
                             newVol.type = 'volume';
                         }
-                        app.volumes.push(newVol);
+                        appToBeSaved.volumes.push(newVol);
                     }
                 }
             }
         })
             .then(function () {
-            if (app.appPushWebhook.repoInfo) {
-                return authenticator.getAppPushWebhookToken(appName, app.appPushWebhook.tokenVersion);
-            }
-            return Promise.resolve(undefined);
-        })
-            .then(function (pushWebhookToken) {
-            if (pushWebhookToken) {
-                app.appPushWebhook.pushWebhookToken = pushWebhookToken;
-            }
-            self.data.set(APP_DEFINITIONS + '.' + appName, app);
+            self.data.set(APP_DEFINITIONS + '.' + appName, appToBeSaved);
         });
     }
     setDeployedVersion(appName, version) {

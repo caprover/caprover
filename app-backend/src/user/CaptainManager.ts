@@ -856,9 +856,7 @@ class CaptainManager {
                 )
             }
 
-            const passwordEncrypted = Encryptor.create(
-                self.getCaptainSalt()
-            ).encrypt(registryPassword)
+            const passwordEncrypted =  new Encryptor.CaptainEncryptor(self.getCaptainSalt()).encrypt(registryPassword)
 
             return self.dataStore.addRegistryToDb(
                 registryUser,

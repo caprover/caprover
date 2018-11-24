@@ -592,7 +592,7 @@ class CaptainManager {
             if (!registryUser || !registryPassword || !registryDomain) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
             }
-            const passwordEncrypted = Encryptor.create(self.getCaptainSalt()).encrypt(registryPassword);
+            const passwordEncrypted = new Encryptor.CaptainEncryptor(self.getCaptainSalt()).encrypt(registryPassword);
             return self.dataStore.addRegistryToDb(registryUser, passwordEncrypted, registryDomain, registryImagePrefix);
         });
     }

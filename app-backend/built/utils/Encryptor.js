@@ -1,11 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Content of this file is mostly taken from https://gist.github.com/vlucas/2bd40f62d20c1d49237a109d491974eb
  */
 const crypto = require("crypto");
 const algorithm = 'aes-256-ctr';
 const IV_LENGTH = 16; // For AES, this is always 16
-class Encryptor {
+class CaptainEncryptor {
     constructor(encryptionKey) {
         this.encryptionKey = encryptionKey;
         if (!encryptionKey || encryptionKey.length < 32) {
@@ -38,9 +39,5 @@ class Encryptor {
         return decrypted.toString();
     }
 }
-module.exports = {
-    create: function (encryptionKey) {
-        return new Encryptor(encryptionKey);
-    },
-};
+exports.CaptainEncryptor = CaptainEncryptor;
 //# sourceMappingURL=Encryptor.js.map

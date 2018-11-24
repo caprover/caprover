@@ -4,6 +4,7 @@ import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
 import configstore = require('configstore')
 import Authenticator = require('../user/Authenticator')
+import { CaptainEncryptor } from '../utils/Encryptor'
 
 const isValidPath = require('is-valid-path')
 
@@ -21,16 +22,48 @@ function isNameAllowed(name: string) {
 }
 
 class AppsDataStore {
-    constructor(private data: configstore, private namepace: string) {}
+    private encryptor: CaptainEncryptor
+
+    constructor(private data: configstore, private namepace: string) {
+        this.encryptor = new CaptainEncryptor(this.namepace)
+    }
 
     getServiceName(appName: string) {
         return 'srv-' + this.namepace + '--' + appName
     }
 
-    getAppDefinitions(): Promise<IAllAppDefinitions> {
+    getAppDefinitions() {
         const self = this
-        return new Promise(function(resolve, reject) {
-            resolve(self.data.get(APP_DEFINITIONS) || {})
+        return new Promise<IAllAppDefinitions>(function(resolve, reject) {
+            let allApps = self.data.get(APP_DEFINITIONS) || {}
+            let allAppsUnencrypted: IAllAppDefinitions = {}
+
+            Object.keys(allApps).forEach(function(appName) {
+                allAppsUnencrypted[appName] = allApps[appName]
+                const appUnencrypted = allAppsUnencrypted[appName]
+
+                const appSave = allApps[appName] as IAppDefSaved
+
+                if (
+                    appSave.appPushWebhook &&
+                    appSave.appPushWebhook.repoInfo &&
+                    appSave.appPushWebhook.repoInfo.passwordEncrypted
+                ) {
+                    const repo = appSave.appPushWebhook!.repoInfo
+                    appUnencrypted!.appPushWebhook = {
+                        tokenVersion: appSave.appPushWebhook.tokenVersion,
+                        pushWebhookToken:
+                            appSave.appPushWebhook.pushWebhookToken,
+                        repoInfo: {
+                            repo: repo.repo,
+                            user: repo.user,
+                            password: self.encryptor.decrypt(repo.passwordEncrypted),
+                            branch: repo.branch,
+                        },
+                    }
+                }
+            })
+            resolve(allAppsUnencrypted)
         })
     }
 
@@ -246,56 +279,78 @@ class AppsDataStore {
         notExposeAsWebApp: boolean,
         forceSsl: boolean,
         ports: IAppPort[],
-        appPushWebhook: IAppPushWebhook,
+        repoInfo: RepoInfo,
         authenticator: Authenticator,
         customNginxConfig: string,
         preDeployFunction: string
     ) {
         const self = this
 
-        let app: IAppDefinition
+        let appToBeSaved: IAppDefSaved
+        let appLoaded: IAppDef
 
         return Promise.resolve()
             .then(function() {
                 return self.getAppDefinition(appName)
             })
             .then(function(appObj) {
-                app = appObj
+                appToBeSaved = appObj as any
             })
             .then(function() {
                 if (
-                    appPushWebhook.repoInfo &&
-                    appPushWebhook.repoInfo.repo &&
-                    appPushWebhook.repoInfo.branch &&
-                    appPushWebhook.repoInfo.user &&
-                    appPushWebhook.repoInfo.password
+                    repoInfo &&
+                    repoInfo.repo &&
+                    repoInfo.branch &&
+                    repoInfo.user &&
+                    repoInfo.password
                 ) {
-                    return authenticator.getAppPushWebhookDatastore({
-                        repo: appPushWebhook.repoInfo.repo,
-                        branch: appPushWebhook.repoInfo.branch,
-                        user: appPushWebhook.repoInfo.user,
-                        password: appPushWebhook.repoInfo.password,
-                    })
-                }
+                    appToBeSaved.appPushWebhook = {
+                        tokenVersion:
+                            appToBeSaved.appPushWebhook &&
+                            appToBeSaved.appPushWebhook.tokenVersion
+                                ? appToBeSaved.appPushWebhook.tokenVersion
+                                : uuid(),
+                        pushWebhookToken: '',
+                        repoInfo: {
+                            repo: repoInfo.repo,
+                            user: repoInfo.user,
+                            branch: repoInfo.branch,
+                            passwordEncrypted: self.encryptor.encrypt(
+                                repoInfo.password
+                            ),
+                        },
+                    }
 
-                return Promise.resolve(undefined)
+                    return authenticator
+                        .getAppPushWebhookToken(
+                            appName,
+                            appToBeSaved.appPushWebhook.tokenVersion
+                        )
+                        .then(function(val) {
+                            appToBeSaved.appPushWebhook!.pushWebhookToken = val
+                        })
+                } else {
+                    appToBeSaved.appPushWebhook = undefined
+                    return Promise.resolve(undefined)
+                }
             })
-            .then(function(appPushWebhookRepoInfo) {
+            .then(function() {
                 instanceCount = Number(instanceCount)
 
                 if (instanceCount >= 0) {
-                    app.instanceCount = instanceCount
+                    appToBeSaved.instanceCount = instanceCount
                 }
 
-                app.notExposeAsWebApp = !!notExposeAsWebApp
-                app.forceSsl = !!forceSsl
-                app.nodeId = nodeId
-                app.customNginxConfig = customNginxConfig
-                app.preDeployFunction = preDeployFunction
+                appToBeSaved.notExposeAsWebApp = !!notExposeAsWebApp
+                appToBeSaved.forceSsl = !!forceSsl
+                appToBeSaved.nodeId = nodeId
+                appToBeSaved.customNginxConfig = customNginxConfig
+                appToBeSaved.preDeployFunction = preDeployFunction
 
-                if (app.forceSsl) {
-                    let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl
-                    const customDomainArray = app.customDomain
+                if (appToBeSaved.forceSsl) {
+                    let hasAtLeastOneSslDomain =
+                        appToBeSaved.hasDefaultSubDomainSsl
+                    const customDomainArray = appToBeSaved.customDomain
                     if (customDomainArray && customDomainArray.length > 0) {
                         for (
                             let idx = 0;
@@ -314,18 +369,6 @@ class AppsDataStore {
                             'Cannot force SSL without any SSL-enabled domain!'
                         )
                     }
-                }
-
-                if (appPushWebhookRepoInfo) {
-                    app.appPushWebhook = app.appPushWebhook || {}
-
-                    if (!app.appPushWebhook.tokenVersion) {
-                        app.appPushWebhook.tokenVersion = uuid()
-                    }
-
-                    app.appPushWebhook.repoInfo = appPushWebhookRepoInfo
-                } else {
-                    app.appPushWebhook = {} as IAppPushWebhookAsSaved
                 }
 
                 if (ports) {
@@ -352,15 +395,15 @@ class AppsDataStore {
                         }
                     }
 
-                    app.ports = tempPorts
+                    appToBeSaved.ports = tempPorts
                 }
 
                 if (envVars) {
-                    app.envVars = []
+                    appToBeSaved.envVars = []
                     for (let i = 0; i < envVars.length; i++) {
                         const obj = envVars[i]
                         if (obj.key && obj.value) {
-                            app.envVars.push({
+                            appToBeSaved.envVars.push({
                                 key: obj.key,
                                 value: obj.value,
                             })
@@ -369,7 +412,7 @@ class AppsDataStore {
                 }
 
                 if (volumes) {
-                    app.volumes = []
+                    appToBeSaved.volumes = []
 
                     for (let i = 0; i < volumes.length; i++) {
                         const obj = volumes[i]
@@ -422,27 +465,13 @@ class AppsDataStore {
                                 newVol.type = 'volume'
                             }
 
-                            app.volumes.push(newVol)
+                            appToBeSaved.volumes.push(newVol)
                         }
                     }
                 }
             })
             .then(function() {
-                if (app.appPushWebhook.repoInfo) {
-                    return authenticator.getAppPushWebhookToken(
-                        appName,
-                        app.appPushWebhook.tokenVersion
-                    )
-                }
-
-                return Promise.resolve(undefined)
-            })
-            .then(function(pushWebhookToken) {
-                if (pushWebhookToken) {
-                    app.appPushWebhook.pushWebhookToken = pushWebhookToken
-                }
-
-                self.data.set(APP_DEFINITIONS + '.' + appName, app)
+                self.data.set(APP_DEFINITIONS + '.' + appName, appToBeSaved)
             })
     }
 

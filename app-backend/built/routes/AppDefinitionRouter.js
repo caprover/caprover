@@ -4,7 +4,6 @@ const fs = require("fs");
 const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
-const Authenticator = require("../user/Authenticator");
 const router = express.Router();
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
@@ -85,20 +84,7 @@ router.get('/', function (req, res, next) {
             let app = apps[key];
             app.appName = key;
             app.isAppBuilding = serviceManager.isAppBuilding(key);
-            app.appPushWebhook = app.appPushWebhook || {};
-            let repoInfoEncrypted = app.appPushWebhook
-                ? app.appPushWebhook.repoInfo
-                : null;
-            if (repoInfoEncrypted) {
-                promises.push(Authenticator.get(dataStore.getNameSpace())
-                    .decodeAppPushWebhookDatastore(repoInfoEncrypted)
-                    .then(function (decryptedData) {
-                    app.appPushWebhook.repoInfo = decryptedData;
-                }));
-            }
-            else {
-                app.appPushWebhook.repoInfo = {};
-            }
+            app.appPushWebhook = app.appPushWebhook || undefined;
             appsArray.push(app);
         });
         return Promise.all(promises);

@@ -1122,7 +1122,7 @@ class DockerApi {
         nodeId: string | undefined,
         namespace: string | undefined,
         ports: IAppPort[] | undefined,
-        appObject: IAppDefinition | undefined,
+        appObject: IAppDef | undefined,
         preDeployFunction: Function | undefined
     ) {
         const self = this
