@@ -277,7 +277,7 @@ router.post('/enablecustomdomainssl/', function(req, res, next) {
 })
 
 router.post('/register/', function(req, res, next) {
-    let dataStore = res.locals.user.dataStore
+    let dataStore = res.locals.user.dataStore as DataStore
     let serviceManager = res.locals.user.serviceManager as ServiceManager
 
     let appName = req.body.appName as string

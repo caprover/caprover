@@ -548,7 +548,7 @@ class AppsDataStore {
     registerAppDefinition(appName: string, hasPersistentData: boolean) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<IAppDef>(function(resolve, reject) {
             if (!isNameAllowed(appName)) {
                 reject(
                     ApiStatusCodes.createError(
@@ -569,19 +569,24 @@ class AppsDataStore {
                 return
             }
 
-            const defaultAppDefinition = {
+            const defaultAppDefinition: IAppDef = {
                 hasPersistentData: !!hasPersistentData,
                 instanceCount: 1,
                 networks: [CaptainConstants.captainNetworkName],
                 envVars: [],
                 volumes: [],
                 ports: [],
-                appPushWebhook: {}, // tokenVersion, repoInfo, pushWebhookToken
                 versions: [],
+                deployedVersion: 0,
+                notExposeAsWebApp: false,
+                customDomain: [],
+                hasDefaultSubDomainSsl: false,
+                forceSsl: false,
             }
 
-            self.data.set(APP_DEFINITIONS + '.' + appName, defaultAppDefinition)
-            resolve()
+            resolve(defaultAppDefinition)
+        }).then(function(app) {
+            return self.saveApp(appName, app)
         })
     }
 
@@ -592,49 +597,50 @@ class AppsDataStore {
     ) {
         const self = this
 
-        const apps = self.data.get(APP_DEFINITIONS) || {}
         const servers: IServerBlockDetails[] = []
 
-        Object.keys(apps).forEach(function(appName) {
-            const webApp = apps[appName]
+        return self.getAppDefinitions().then(function(apps) {
+            Object.keys(apps).forEach(function(appName) {
+                const webApp = apps[appName]
 
-            if (webApp.notExposeAsWebApp) {
-                return
-            }
-
-            const localDomain = self.getServiceName(appName)
-            const forceSsl = !!webApp.forceSsl
-            const nginxConfigTemplate =
-                webApp.customNginxConfig || defaultAppNginxConfig
-
-            const serverWithSubDomain = {} as IServerBlockDetails
-            serverWithSubDomain.hasSsl =
-                hasRootSsl && webApp.hasDefaultSubDomainSsl
-            serverWithSubDomain.publicDomain = appName + '.' + rootDomain
-            serverWithSubDomain.localDomain = localDomain
-            serverWithSubDomain.forceSsl = forceSsl
-            serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
-
-            servers.push(serverWithSubDomain)
-
-            // adding custom domains
-            const customDomainArray = webApp.customDomain
-            if (customDomainArray && customDomainArray.length > 0) {
-                for (let idx = 0; idx < customDomainArray.length; idx++) {
-                    const d = customDomainArray[idx]
-                    servers.push({
-                        hasSsl: d.hasSsl,
-                        forceSsl: forceSsl,
-                        publicDomain: d.publicDomain,
-                        localDomain: localDomain,
-                        nginxConfigTemplate: nginxConfigTemplate,
-                        staticWebRoot: '',
-                    })
+                if (webApp.notExposeAsWebApp) {
+                    return
                 }
-            }
-        })
 
-        return servers
+                const localDomain = self.getServiceName(appName)
+                const forceSsl = !!webApp.forceSsl
+                const nginxConfigTemplate =
+                    webApp.customNginxConfig || defaultAppNginxConfig
+
+                const serverWithSubDomain = {} as IServerBlockDetails
+                serverWithSubDomain.hasSsl =
+                    hasRootSsl && webApp.hasDefaultSubDomainSsl
+                serverWithSubDomain.publicDomain = appName + '.' + rootDomain
+                serverWithSubDomain.localDomain = localDomain
+                serverWithSubDomain.forceSsl = forceSsl
+                serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
+
+                servers.push(serverWithSubDomain)
+
+                // adding custom domains
+                const customDomainArray = webApp.customDomain
+                if (customDomainArray && customDomainArray.length > 0) {
+                    for (let idx = 0; idx < customDomainArray.length; idx++) {
+                        const d = customDomainArray[idx]
+                        servers.push({
+                            hasSsl: d.hasSsl,
+                            forceSsl: forceSsl,
+                            publicDomain: d.publicDomain,
+                            localDomain: localDomain,
+                            nginxConfigTemplate: nginxConfigTemplate,
+                            staticWebRoot: '',
+                        })
+                    }
+                }
+            })
+
+            return servers
+        })
     }
 }
 

@@ -408,50 +408,56 @@ class AppsDataStore {
                 envVars: [],
                 volumes: [],
                 ports: [],
-                appPushWebhook: {},
                 versions: [],
+                deployedVersion: 0,
+                notExposeAsWebApp: false,
+                customDomain: [],
+                hasDefaultSubDomainSsl: false,
+                forceSsl: false,
             };
-            self.data.set(APP_DEFINITIONS + '.' + appName, defaultAppDefinition);
-            resolve();
+            resolve(defaultAppDefinition);
+        }).then(function (app) {
+            return self.saveApp(appName, app);
         });
     }
     getAppsServerConfig(defaultAppNginxConfig, hasRootSsl, rootDomain) {
         const self = this;
-        const apps = self.data.get(APP_DEFINITIONS) || {};
         const servers = [];
-        Object.keys(apps).forEach(function (appName) {
-            const webApp = apps[appName];
-            if (webApp.notExposeAsWebApp) {
-                return;
-            }
-            const localDomain = self.getServiceName(appName);
-            const forceSsl = !!webApp.forceSsl;
-            const nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
-            const serverWithSubDomain = {};
-            serverWithSubDomain.hasSsl =
-                hasRootSsl && webApp.hasDefaultSubDomainSsl;
-            serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
-            serverWithSubDomain.localDomain = localDomain;
-            serverWithSubDomain.forceSsl = forceSsl;
-            serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate;
-            servers.push(serverWithSubDomain);
-            // adding custom domains
-            const customDomainArray = webApp.customDomain;
-            if (customDomainArray && customDomainArray.length > 0) {
-                for (let idx = 0; idx < customDomainArray.length; idx++) {
-                    const d = customDomainArray[idx];
-                    servers.push({
-                        hasSsl: d.hasSsl,
-                        forceSsl: forceSsl,
-                        publicDomain: d.publicDomain,
-                        localDomain: localDomain,
-                        nginxConfigTemplate: nginxConfigTemplate,
-                        staticWebRoot: '',
-                    });
+        return self.getAppDefinitions().then(function (apps) {
+            Object.keys(apps).forEach(function (appName) {
+                const webApp = apps[appName];
+                if (webApp.notExposeAsWebApp) {
+                    return;
                 }
-            }
+                const localDomain = self.getServiceName(appName);
+                const forceSsl = !!webApp.forceSsl;
+                const nginxConfigTemplate = webApp.customNginxConfig || defaultAppNginxConfig;
+                const serverWithSubDomain = {};
+                serverWithSubDomain.hasSsl =
+                    hasRootSsl && webApp.hasDefaultSubDomainSsl;
+                serverWithSubDomain.publicDomain = appName + '.' + rootDomain;
+                serverWithSubDomain.localDomain = localDomain;
+                serverWithSubDomain.forceSsl = forceSsl;
+                serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate;
+                servers.push(serverWithSubDomain);
+                // adding custom domains
+                const customDomainArray = webApp.customDomain;
+                if (customDomainArray && customDomainArray.length > 0) {
+                    for (let idx = 0; idx < customDomainArray.length; idx++) {
+                        const d = customDomainArray[idx];
+                        servers.push({
+                            hasSsl: d.hasSsl,
+                            forceSsl: forceSsl,
+                            publicDomain: d.publicDomain,
+                            localDomain: localDomain,
+                            nginxConfigTemplate: nginxConfigTemplate,
+                            staticWebRoot: '',
+                        });
+                    }
+                }
+            });
+            return servers;
         });
-        return servers;
     }
 }
 module.exports = AppsDataStore;

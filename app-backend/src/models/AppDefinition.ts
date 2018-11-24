@@ -48,10 +48,10 @@ abstract class IAppDefinitionBase {
     public hasDefaultSubDomainSsl: boolean
 
     public forceSsl: boolean
-    public nodeId: string
+    public nodeId?: string
     public instanceCount: number
-    public preDeployFunction: string
-    public customNginxConfig: string
+    public preDeployFunction?: string
+    public customNginxConfig?: string
     public networks: string[]
     public customDomain: {
         publicDomain: string
@@ -72,13 +72,11 @@ abstract class IAppDefinitionBase {
 }
 
 class IAppDef extends IAppDefinitionBase {
-    public appPushWebhook:
-        | {
-              tokenVersion: string
-              repoInfo: RepoInfo
-              pushWebhookToken: string
-          }
-        | undefined
+    public appPushWebhook?: {
+        tokenVersion: string
+        repoInfo: RepoInfo
+        pushWebhookToken: string
+    }
 }
 
 class IAppDefSaved extends IAppDefinitionBase {
