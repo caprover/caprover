@@ -175,7 +175,7 @@ class CertbotManager {
         const self = this;
         /*
         From Certbot docs:
-            This command attempts to renew any previously-obtained certificates that expire in less than 30 days.
+            This command attempts to renew all previously-obtained certificates that expire in less than 30 days.
             The same plugin and options that were used at the time the certificate was originally issued will be
             used for the renewal attempt, unless you specify other plugins or options. Unlike certonly, renew
             acts on multiple certificates and always takes into account whether each one is near expiry. Because
@@ -183,7 +183,7 @@ class CertbotManager {
             renew each certificate when appropriate. Since renew only renews certificates that are near expiry
             it can be run as frequently as you want - since it will usually take no action.
          */
-        // before doing anything, let's schedule the next one in 20.3 hours!
+        // before doing renewal, let's schedule the next one in 20.3 hours!
         // this random schedule helps to avoid retrying at the same time of
         // the day in case if that's our super high traffic time
         setTimeout(function () {

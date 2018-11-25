@@ -328,7 +328,7 @@ class DataStore {
     getHasRegistrySsl() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            resolve(self.data.get(HAS_REGISTRY_SSL));
+            resolve(!!self.data.get(HAS_REGISTRY_SSL));
         });
     }
     setCustomDomain(customDomain) {

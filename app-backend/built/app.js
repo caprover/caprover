@@ -14,6 +14,7 @@ const Logger = require("./utils/Logger");
 const CaptainConstants = require("./utils/CaptainConstants");
 const LoginRouter = require("./routes/LoginRouter");
 const UserRouter = require("./routes/UserRouter");
+// import { NextFunction, Request, Response } from 'express'
 const httpProxy = httpProxyImport.createProxyServer({});
 let app = express();
 app.set('views', path.join(__dirname, '../views'));
@@ -89,7 +90,6 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
     });
     httpProxy.on('error', function (err, req, resOriginal) {
-        const res = resOriginal;
         if (res.locals.errorProxyHandled) {
             return;
         }
@@ -144,7 +144,7 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
-// Initializing with delay helps with debugging. Many times, docker didn't see the CAPTAIN service
+// Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
 // if this was done without a delay
 setTimeout(function () {
     CaptainManager.get().initialize();

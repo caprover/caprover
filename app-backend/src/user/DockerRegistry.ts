@@ -214,7 +214,7 @@ class DockerRegistry {
         password: string,
         domain: string,
         currentVersion?: number
-    ): Promise<any> {
+    ): Promise<void> {
         const self = this
         const dockerApi = this.dockerApi
 

@@ -149,7 +149,7 @@ router.post('/enableregistry/', function (req, res, next) {
                 .getDockerRegistry()
                 .enableLocalDockerRegistry();
         }
-        return true;
+        return Promise.resolve();
     })
         .then(function () {
         let msg = 'Local registry is created.';

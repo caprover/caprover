@@ -3,7 +3,7 @@ import ServiceManager = require('../user/ServiceManager')
 
 export interface UserJwt {
     namespace: string
-    tokenVersion: string | undefined
+    tokenVersion: string
 }
 
 export interface UserInjected extends UserJwt {

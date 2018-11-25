@@ -51,8 +51,8 @@ router.post('/triggerbuild', function (req, res, next) {
         return Authenticator.get(namespace).decodeAppPushWebhookDatastore(app.appPushWebhook.repoInfo);
     })
         .then(function (repoInfo) {
-        // if we didn't detect any branches, the POST might have come from another source that we don't
-        // explicitly support. Therefore, we just let it go through and triggers a build anyways
+        // if we didn't detect branches, the POST might have come from another source that we don't
+        // explicitly support. Therefore, we just let it go through and triggers a build regardless
         if (res.locals.pushedBranches.length > 0) {
             let branchIsTracked = false;
             for (let i = 0; i < res.locals.pushedBranches.length; i++) {

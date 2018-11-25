@@ -14,7 +14,7 @@ function getTagsForImage(
             'https://hub.docker.com/v2/repositories/' + imageBaseName + '/tags'
     }
 
-    return new Promise(function(resolve, reject) {
+    return new Promise<string[]>(function(resolve, reject) {
         request(
             url!,
 

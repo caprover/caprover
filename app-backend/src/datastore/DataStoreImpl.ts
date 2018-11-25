@@ -125,7 +125,7 @@ class DataStore {
     }
 
     getImageName(
-        authObj: any,
+        authObj: DockerAuthObj | undefined,
         appName: string,
         version: string | undefined | number
     ) {
@@ -276,11 +276,13 @@ class DataStore {
 
         return Promise.resolve()
             .then(function() {
-                return new Promise(function(resolve, reject) {
+                return new Promise<
+                    IRegistryInfoEncrypted[]
+                >(function(resolve, reject) {
                     resolve(self.data.get(DOCKER_REGISTRIES) || [])
                 })
             })
-            .then(function(registries: any[]) {
+            .then(function(registries) {
                 let id: string = uuid()
                 let isAlreadyTaken = true
 
@@ -310,16 +312,16 @@ class DataStore {
     setUserEmailAddress(emailAddress: string) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(EMAIL_ADDRESS, emailAddress)
             resolve()
         })
     }
 
-    getUserEmailAddress(): Promise<string | undefined> {
+    getUserEmailAddress() {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<string | undefined>(function(resolve, reject) {
             resolve(self.data.get(EMAIL_ADDRESS))
         })
     }
@@ -327,7 +329,7 @@ class DataStore {
     setHasRootSsl(hasRootSsl: boolean) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(HAS_ROOT_SSL, hasRootSsl)
             resolve()
         })
@@ -336,16 +338,16 @@ class DataStore {
     setForceSsl(forceSsl: boolean) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(FORCE_ROOT_SSL, forceSsl)
             resolve()
         })
     }
 
-    getForceSsl(): Promise<boolean> {
+    getForceSsl() {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
             resolve(self.data.get(FORCE_ROOT_SSL))
         })
     }
@@ -353,7 +355,7 @@ class DataStore {
     setHasRegistrySsl(hasRegistrySsl: boolean) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(HAS_REGISTRY_SSL, hasRegistrySsl)
             resolve()
         })
@@ -393,10 +395,10 @@ class DataStore {
         })
     }
 
-    getHasRootSsl(): Promise<boolean> {
+    getHasRootSsl() {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
             resolve(self.data.get(HAS_ROOT_SSL))
         })
     }
@@ -404,15 +406,15 @@ class DataStore {
     setHasLocalRegistry(hasLocalRegistry: boolean) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(HAS_LOCAL_REGISTRY, hasLocalRegistry)
             resolve()
         })
     }
 
-    getHasLocalRegistry(): Promise<boolean> {
+    getHasLocalRegistry() {
         const self = this
-        return new Promise(function(resolve, reject) {
+        return new Promise<boolean>(function(resolve, reject) {
             let value = !!self.data.get(HAS_LOCAL_REGISTRY)
             resolve(value)
         })
@@ -421,15 +423,15 @@ class DataStore {
     getHasRegistrySsl() {
         const self = this
 
-        return new Promise(function(resolve, reject) {
-            resolve(self.data.get(HAS_REGISTRY_SSL))
+        return new Promise<boolean>(function(resolve, reject) {
+            resolve(!!self.data.get(HAS_REGISTRY_SSL))
         })
     }
 
     setCustomDomain(customDomain: string) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             self.data.set(CUSTOM_DOMAIN, customDomain)
             resolve()
         })

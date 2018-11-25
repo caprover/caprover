@@ -108,7 +108,7 @@ function startServerOnPort_80_443_3000() {
             res.end()
         }).listen(3000)
 
-        return new Promise(function(resolve) {
+        return new Promise<void>(function(resolve) {
             setTimeout(function() {
                 resolve()
             }, 4000)
@@ -118,7 +118,7 @@ function startServerOnPort_80_443_3000() {
 
 function checkPortOrThrow(ipAddr: string, portToTest: number) {
     if (CaptainConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
-        return Promise.resolve(true)
+        return Promise.resolve()
     }
 
     function printError() {
@@ -152,7 +152,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
         console.log(' ')
     }
 
-    return new Promise(function(resolve, reject) {
+    return new Promise<void>(function(resolve, reject) {
         let finished = false
 
         setTimeout(function() {
@@ -209,7 +209,7 @@ export function install() {
             }
 
             if (CaptainConstants.isDebug) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<string>(function(resolve, reject) {
                     DockerApi.get()
                         .swarmLeave(true)
                         .then(function(ignore) {
@@ -244,11 +244,11 @@ export function install() {
         .then(function() {
             return DockerApi.get().initSwarm(myIp4)
         })
-        .then(function(swarmId) {
+        .then(function(swarmId: string) {
             console.log('Swarm started: ' + swarmId)
             return DockerApi.get().getLeaderNodeId()
         })
-        .then(function(nodeId) {
+        .then(function(nodeId: string) {
             let volumeToMount = [
                 {
                     hostPath: CaptainConstants.captainRootDirectory,
@@ -281,7 +281,7 @@ export function install() {
                 })
             }
 
-            let ports = []
+            let ports: IAppPort[] = []
 
             let captainNameAndVersion =
                 CaptainConstants.publishedNameOnDockerHub +

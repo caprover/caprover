@@ -87,7 +87,7 @@ class Authenticator {
                 }
                 const decodedData = rawDecoded.data;
                 if (decodedData.tokenVersion !== self.tokenVersion) {
-                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token is not valid anymore. Request for a new auth token'));
+                    reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID, 'Auth token is no longer valid. Request for a new auth token'));
                     return;
                 }
                 if (decodedData.namespace !== self.namespace) {
@@ -97,10 +97,6 @@ class Authenticator {
                 resolve(decodedData);
             });
         });
-    }
-    getAppPushWebhookDatastore(dataToSave) {
-        const self = this;
-        return self.getGenericToken(dataToSave, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX);
     }
     decodeAppPushWebhookDatastore(token) {
         const self = this;

@@ -471,31 +471,35 @@ class DockerApi {
         const ports = [];
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
-                if (portsToMap[i].protocol) {
+                const publishMode = portsToMap[i].publishMode;
+                const protocol = portsToMap[i].protocol;
+                const containerPort = portsToMap[i].containerPort;
+                const hostPort = portsToMap[i].hostPort;
+                if (protocol) {
                     const item = {
-                        Protocol: portsToMap[i].protocol,
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                        Protocol: protocol,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     };
-                    if (portsToMap[i].publishMode) {
-                        item.PublishMode = portsToMap[i].publishMode;
+                    if (publishMode) {
+                        item.PublishMode = publishMode;
                     }
                     ports.push(item);
                 }
                 else {
                     const tcpItem = {
                         Protocol: 'tcp',
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     };
                     const udpItem = {
                         Protocol: 'udp',
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     };
-                    if (portsToMap[i].publishMode) {
-                        tcpItem.PublishMode = portsToMap[i].publishMode;
-                        udpItem.PublishMode = portsToMap[i].publishMode;
+                    if (publishMode) {
+                        tcpItem.PublishMode = publishMode;
+                        udpItem.PublishMode = publishMode;
                     }
                     ports.push(tcpItem);
                     ports.push(udpItem);

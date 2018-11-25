@@ -1,10 +1,12 @@
+import { AnyError } from "../models/OtherTypes";
+
 /**
  * Created by kasra on 27/06/17.
  */
 const CaptainConstants = require('./CaptainConstants')
 const moment = require('moment')
 
-function errorize(error: any) {
+function errorize(error: AnyError) {
     if (!(error instanceof Error)) {
         return new Error('Wrapped: ' + (error ? error : 'NULL'))
     }
@@ -35,7 +37,7 @@ export = {
         }
     },
 
-    e: function(msgOrError: any) {
+    e: function(msgOrError: AnyError) {
         let err = errorize(msgOrError)
         console.error(getTime() + err + '\n' + err.stack)
     },

@@ -1,3 +1,16 @@
+interface ISourceForImageCreationTarFile {
+    pathToSrcTarballFile: string
+}
+
+interface ISourceForImageCreationRepo {
+    repoInfo: RepoInfo
+}
+
+type ISourceForImageCreation =
+    | ISourceForImageCreationRepo
+    | ISourceForImageCreationTarFile
+    | undefined
+
 interface IAllAppDefinitions {
     [appId: string]: IAppDef
 }
@@ -19,9 +32,9 @@ interface IAppVolume {
 interface IAppPort {
     containerPort: number
     hostPort: number
-    protocol?: string
+    protocol?: 'udp' | 'tcp'
 
-    publishMode?: string
+    publishMode?: 'ingress' | 'host'
 }
 
 interface RepoInfo {

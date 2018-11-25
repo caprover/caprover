@@ -15,8 +15,7 @@ import CaptainConstants = require('./utils/CaptainConstants')
 
 import LoginRouter = require('./routes/LoginRouter')
 import UserRouter = require('./routes/UserRouter')
-import { NextFunction, Request, Response } from 'express'
-import { IncomingMessage, ServerResponse } from 'http'
+// import { NextFunction, Request, Response } from 'express'
 
 const httpProxy = httpProxyImport.createProxyServer({})
 
@@ -118,22 +117,12 @@ app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
     }
 })
 
-app.use(CaptainConstants.netDataRelativePath, function(
-    req: IncomingMessage,
-    res: ServerResponse,
-    next: NextFunction
-) {
+app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
     httpProxy.web(req, res, {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
     })
 
     httpProxy.on('error', function(err, req, resOriginal) {
-        const res: {
-            locals: { errorProxyHandled: any }
-            writeHead: Function
-            end: Function
-        } = resOriginal as any
-
         if (res.locals.errorProxyHandled) {
             return
         }
@@ -208,7 +197,7 @@ app.use(function(req, res, next) {
 })
 
 // error handler
-app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message
     res.locals.error = req.app.get('env') === 'development' ? err : {}
@@ -218,9 +207,9 @@ app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
     // render the error page
     res.status(err.status || 500)
     res.render('error')
-})
+} as express.ErrorRequestHandler)
 
-// Initializing with delay helps with debugging. Many times, docker didn't see the CAPTAIN service
+// Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
 // if this was done without a delay
 setTimeout(function() {
     CaptainManager.get().initialize()

@@ -14,6 +14,9 @@ import GitHelper = require('../utils/GitHelper')
 import uuid = require('uuid/v4')
 import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
+import { AnyError } from '../models/OtherTypes'
+import { ICaptainUser } from '../models/ICaptainUser'
+import { ImageInfo } from 'dockerode'
 
 const BUILD_LOG_SIZE = 50
 const SOURCE_FOLDER_NAME = 'src'
@@ -71,12 +74,12 @@ function getCaptainDefinitionTempFolder(
 
 class ServiceManager {
     private dataStore: DataStore
-    private activeBuilds: any
+    private activeBuilds: ICacheGeneric<boolean>
     private buildLogs: ICacheGeneric<BuildLog>
     private isReady: boolean
 
     constructor(
-        private user: any,
+        private user: ICaptainUser,
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager
     ) {
@@ -158,7 +161,11 @@ class ServiceManager {
      * @param gitHash
      * @returns {Promise<void>}
      */
-    createImage(appName: string, source: any, gitHash: string) {
+    createImage(
+        appName: string,
+        source: ISourceForImageCreation,
+        gitHash: string
+    ) {
         Logger.d('Creating image for: ' + appName)
 
         const self = this
@@ -215,17 +222,24 @@ class ServiceManager {
             .then(function(rawImageSourceFolder) {
                 let promiseToFetchDirectory: Promise<string>
 
-                if (source.pathToSrcTarballFile) {
+                if (
+                    source &&
+                    (<ISourceForImageCreationTarFile>source)
+                        .pathToSrcTarballFile
+                ) {
                     promiseToFetchDirectory = tar
                         .x({
-                            file: source.pathToSrcTarballFile,
+                            file:  (<ISourceForImageCreationTarFile>source).pathToSrcTarballFile,
                             cwd: rawImageSourceFolder,
                         })
                         .then(function() {
                             return gitHash
                         })
-                } else if (source.repoInfo) {
-                    const repoInfo = source.repoInfo
+                } else if (
+                    source &&
+                    (<ISourceForImageCreationRepo>source).repoInfo
+                ) {
+                    const repoInfo = (<ISourceForImageCreationRepo>source).repoInfo
                     promiseToFetchDirectory = GitHelper.clone(
                         repoInfo.user,
                         repoInfo.password,
@@ -265,7 +279,7 @@ class ServiceManager {
 
                             let directoryInside: string
 
-                            return new Promise(function(resolve, reject) {
+                            return new Promise<string>(function(resolve, reject) {
                                 fs.readdir(rawImageSourceFolder, function(
                                     err,
                                     files
@@ -404,7 +418,7 @@ class ServiceManager {
                         tarballFilePath,
                         self.buildLogs[appName]
                     )
-                    .catch(function(error: any) {
+                    .catch(function(error: AnyError) {
                         throw ApiStatusCodes.createError(
                             ApiStatusCodes.BUILD_ERROR,
                             ('' + error).trim()
@@ -431,7 +445,7 @@ class ServiceManager {
                     Logger.d(
                         'No Docker Auth is found. Skipping pushing the image.'
                     )
-                    return true
+                    return Promise.resolve()
                 }
 
                 Logger.d('Docker Auth is found. Pushing the image...')
@@ -443,8 +457,8 @@ class ServiceManager {
                         authObj,
                         self.buildLogs[appName]
                     )
-                    .catch(function(error: any) {
-                        return new Promise(function(resolve, reject) {
+                    .catch(function(error: AnyError) {
+                        return new Promise<void>(function(resolve, reject) {
                             Logger.e('PUSH FAILED')
                             Logger.e(error)
                             reject(
@@ -715,7 +729,7 @@ class ServiceManager {
 
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
-        let allImages: any[]
+        let allImages: ImageInfo[]
 
         return Promise.resolve()
             .then(function() {
@@ -795,7 +809,7 @@ class ServiceManager {
         )
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
-        let app: any
+        let app: IAppDef
 
         return dataStore
             .getAppsDataStore()
@@ -861,7 +875,7 @@ class ServiceManager {
                 )
             })
             .then(function() {
-                return new Promise(function(resolve) {
+                return new Promise<void>(function(resolve) {
                     // Waiting 2 extra seconds for docker DNS to pickup the service name
                     setTimeout(resolve, 2000)
                 })
@@ -871,7 +885,7 @@ class ServiceManager {
             })
     }
 
-    createPreDeployFunctionIfExist(app: any) {
+    createPreDeployFunctionIfExist(app: IAppDef): Function | undefined {
         let preDeployFunction = app.preDeployFunction
 
         if (!preDeployFunction) {
@@ -902,13 +916,13 @@ class ServiceManager {
     updateAppDefinition(
         appName: string,
         instanceCount: number,
-        envVars: any[],
-        volumes: any[],
+        envVars: IAppEnvVar[],
+        volumes: IAppVolume[],
         nodeId: string,
         notExposeAsWebApp: boolean,
         forceSsl: boolean,
-        ports: any[],
-        appPushWebhook: any,
+        ports: IAppPort[],
+        repoInfo: RepoInfo,
         customNginxConfig: string,
         preDeployFunction: string
     ) {
@@ -1002,7 +1016,7 @@ class ServiceManager {
                         notExposeAsWebApp,
                         forceSsl,
                         ports,
-                        appPushWebhook,
+                        repoInfo,
                         Authenticator.get(dataStore.getNameSpace()),
                         customNginxConfig,
                         preDeployFunction
@@ -1064,7 +1078,7 @@ class ServiceManager {
 
         const dataStore = this.dataStore
         const dockerApi = this.dockerApi
-        let appFound: any
+        let appFound: IAppDef
 
         return Promise.resolve()
             .then(function() {
@@ -1072,13 +1086,6 @@ class ServiceManager {
             })
             .then(function(app) {
                 appFound = app
-
-                if (!appFound) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'App name not found!'
-                    )
-                }
 
                 return self.createPreDeployFunctionIfExist(app)
             })

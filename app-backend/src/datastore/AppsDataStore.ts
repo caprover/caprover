@@ -79,7 +79,7 @@ class AppsDataStore {
                     if (!hasAtLeastOneSslDomain) {
                         throw ApiStatusCodes.createError(
                             ApiStatusCodes.ILLEGAL_OPERATION,
-                            'Cannot force SSL without any SSL-enabled domain!'
+                            'Cannot force SSL without at least one SSL-enabled domain!'
                         )
                     }
                 }
@@ -151,7 +151,7 @@ class AppsDataStore {
                 }
             })
             .then(function() {
-                const appToSave: IAppDefSaved = app as any
+                const appToSave: IAppDefSaved = <IAppDefSaved>app
                 if (passwordToBeEncrypted) {
                     appToSave.appPushWebhook!.repoInfo!.passwordEncrypted = self.encryptor.encrypt(
                         passwordToBeEncrypted
@@ -219,7 +219,7 @@ class AppsDataStore {
             if (!app) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'App could not be found ' + appName
+                    `App (${appName}) could not be found. Make sure that you have created the app.`
                 )
             }
 
@@ -396,13 +396,19 @@ class AppsDataStore {
                             appObj.appPushWebhook.tokenVersion
                                 ? appObj.appPushWebhook.tokenVersion
                                 : uuid(),
-                        pushWebhookToken: '',
+                        pushWebhookToken: appObj.appPushWebhook
+                            ? appObj.appPushWebhook.pushWebhookToken
+                            : '',
                         repoInfo: {
                             repo: repoInfo.repo,
                             user: repoInfo.user,
                             branch: repoInfo.branch,
                             password: repoInfo.password,
                         },
+                    }
+
+                    if (appObj.appPushWebhook.pushWebhookToken) {
+                        return Promise.resolve(undefined)
                     }
 
                     return authenticator
@@ -516,7 +522,7 @@ class AppsDataStore {
     deleteAppDefinition(appName: string) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             if (!isNameAllowed(appName)) {
                 reject(
                     ApiStatusCodes.createError(

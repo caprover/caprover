@@ -6,6 +6,7 @@ import Logger = require('../utils/Logger')
 import Authenticator = require('../user/Authenticator')
 import DataStore = require('../datastore/DataStoreImpl')
 import ServiceManager = require('../user/ServiceManager')
+import { CaptainError } from '../models/OtherTypes'
 
 const router = express.Router()
 
@@ -296,9 +297,7 @@ router.post('/register/', function(req, res, next) {
         .then(function() {
             return serviceManager.createImage(
                 appName,
-                {
-                    /*use default dockerfile*/
-                },
+                undefined /*use default dockerfile*/,
                 ''
             )
         })
@@ -314,9 +313,9 @@ router.post('/register/', function(req, res, next) {
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
             )
         })
-        .catch(function(error: any) {
+        .catch(function(error: CaptainError) {
             function createRejectionPromise() {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     reject(error)
                 })
             }
@@ -332,7 +331,7 @@ router.post('/register/', function(req, res, next) {
                 return createRejectionPromise()
             }
         })
-        .catch(function(error: any) {
+        .catch(function(error: CaptainError) {
             Logger.e(error)
 
             if (error && error.captainErrorType) {
@@ -381,22 +380,22 @@ router.post('/update/', function(req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp
     let customNginxConfig = req.body.customNginxConfig
     let forceSsl = !!req.body.forceSsl
-    let appPushWebhook = req.body.appPushWebhook || {}
+    let repoInfo = req.body.repoInfo
     let envVars = req.body.envVars || []
     let volumes = req.body.volumes || []
     let ports = req.body.ports || []
     let instanceCount = req.body.instanceCount || '0'
     let preDeployFunction = req.body.preDeployFunction || ''
 
-    if (appPushWebhook.repoInfo) {
-        if (appPushWebhook.repoInfo.user) {
-            appPushWebhook.repoInfo.user = appPushWebhook.repoInfo.user.trim()
+    if (repoInfo) {
+        if (repoInfo.user) {
+            repoInfo.user = repoInfo.user.trim()
         }
-        if (appPushWebhook.repoInfo.repo) {
-            appPushWebhook.repoInfo.repo = appPushWebhook.repoInfo.repo.trim()
+        if (repoInfo.repo) {
+            repoInfo.repo = repoInfo.repo.trim()
         }
-        if (appPushWebhook.repoInfo.branch) {
-            appPushWebhook.repoInfo.branch = appPushWebhook.repoInfo.branch.trim()
+        if (repoInfo.branch) {
+            repoInfo.branch = repoInfo.branch.trim()
         }
     }
 
@@ -412,7 +411,7 @@ router.post('/update/', function(req, res, next) {
             notExposeAsWebApp,
             forceSsl,
             ports,
-            appPushWebhook,
+            repoInfo,
             customNginxConfig,
             preDeployFunction
         )
@@ -425,7 +424,7 @@ router.post('/update/', function(req, res, next) {
                 )
             )
         })
-        .catch(function(error: any) {
+        .catch(function(error: CaptainError) {
             Logger.e(error)
 
             if (error && error.captainErrorType) {

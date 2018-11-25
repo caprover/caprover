@@ -47,16 +47,9 @@ router.post('/:appName/', function(req, res, next) {
 
     dataStore
         .getAppsDataStore()
-        .getAppDefinitions()
-        .then(function(apps) {
-            if (!apps[appName]) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'App not found: ' +
-                        appName +
-                        '! Make sure your app is created before deploy!'
-                )
-            }
+        .getAppDefinition(appName)
+        .then(function(app) {
+            // nothing to do with app, just to make sure that it exists!
             next()
         })
         .catch(function(error) {
@@ -83,7 +76,7 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     const isDetachedBuild = !!req.query.detached
     const captainDefinitionContent = req.body.captainDefinitionContent
     const gitHash = req.body.gitHash || ''
-    let tarballSourceFilePath = !!req.file ? req.file.path : null
+    let tarballSourceFilePath: string = !!req.file ? req.file.path : ''
 
     if (
         (!!tarballSourceFilePath && !!captainDefinitionContent) ||
@@ -199,7 +192,7 @@ router.post('/:appName/', upload.single('sourceFile'), function(
                 )
             })
             .catch(function(error) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     serviceManager.logBuildFailed(appName, error)
                     reject(error)
                 })

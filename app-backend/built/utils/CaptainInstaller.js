@@ -99,7 +99,7 @@ function startServerOnPort_80_443_3000() {
 }
 function checkPortOrThrow(ipAddr, portToTest) {
     if (CaptainConstants.isDebug || !!EnvVar.BY_PASS_PROXY_CHECK) {
-        return Promise.resolve(true);
+        return Promise.resolve();
     }
     function printError() {
         console.log(' ');

@@ -228,9 +228,7 @@ router.post('/register/', function (req, res, next) {
         appCreated = true;
     })
         .then(function () {
-        return serviceManager.createImage(appName, {
-        /*use default dockerfile*/
-        }, '');
+        return serviceManager.createImage(appName, undefined /*use default dockerfile*/, '');
     })
         .then(function (version) {
         return serviceManager.ensureServiceInitedAndUpdated(appName, version);
@@ -296,26 +294,26 @@ router.post('/update/', function (req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp;
     let customNginxConfig = req.body.customNginxConfig;
     let forceSsl = !!req.body.forceSsl;
-    let appPushWebhook = req.body.appPushWebhook || {};
+    let repoInfo = req.body.repoInfo;
     let envVars = req.body.envVars || [];
     let volumes = req.body.volumes || [];
     let ports = req.body.ports || [];
     let instanceCount = req.body.instanceCount || '0';
     let preDeployFunction = req.body.preDeployFunction || '';
-    if (appPushWebhook.repoInfo) {
-        if (appPushWebhook.repoInfo.user) {
-            appPushWebhook.repoInfo.user = appPushWebhook.repoInfo.user.trim();
+    if (repoInfo) {
+        if (repoInfo.user) {
+            repoInfo.user = repoInfo.user.trim();
         }
-        if (appPushWebhook.repoInfo.repo) {
-            appPushWebhook.repoInfo.repo = appPushWebhook.repoInfo.repo.trim();
+        if (repoInfo.repo) {
+            repoInfo.repo = repoInfo.repo.trim();
         }
-        if (appPushWebhook.repoInfo.branch) {
-            appPushWebhook.repoInfo.branch = appPushWebhook.repoInfo.branch.trim();
+        if (repoInfo.branch) {
+            repoInfo.branch = repoInfo.branch.trim();
         }
     }
     Logger.d('Updating app started: ' + appName);
     serviceManager
-        .updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction)
+        .updateAppDefinition(appName, Number(instanceCount), envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, customNginxConfig, preDeployFunction)
         .then(function () {
         Logger.d('AppName is updated: ' + appName);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Updated App Definition Saved'));

@@ -164,7 +164,7 @@ class CaptainManager {
             })
             .then(function(secretHadExistedBefore) {
                 if (!secretHadExistedBefore) {
-                    return new Promise(function() {
+                    return new Promise<number>(function() {
                         Logger.d(
                             'I am halting here. I expect to get restarted in a few seconds due to a secret (captain salt) being updated.'
                         )
@@ -187,7 +187,7 @@ class CaptainManager {
                         )
                         .then(function(secretHadExistedBefore) {
                             if (!secretHadExistedBefore) {
-                                return new Promise(function() {
+                                return new Promise<boolean>(function() {
                                     Logger.d(
                                         'I am halting here. I expect to get restarted in a few seconds due to a secret (registry auth) being updated.'
                                     )
@@ -691,7 +691,7 @@ class CaptainManager {
                 return dockerApi.getJoinToken(isManager)
             })
             .then(function(token) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     const conn = new SshClient()
                     conn.on('error', function(err) {
                         Logger.e(err)
@@ -953,14 +953,14 @@ class CaptainManager {
                 )
             })
             .then(function() {
-                return new Promise(function(resolve) {
+                return new Promise<void>(function(resolve) {
                     setTimeout(function() {
                         resolve()
                     }, 1000)
                 })
             })
             .then(function() {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     const url =
                         'http://' +
                         domainName +
@@ -1019,7 +1019,7 @@ class CaptainManager {
 
     verifyDomainResolvesToDefaultServerOnHost(domainName: string) {
         const self = this
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             const url =
                 'http://' +
                 domainName +
@@ -1088,7 +1088,7 @@ class CaptainManager {
     resetSelf() {
         const self = this
         Logger.d('Captain is resetting itself!')
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             setTimeout(function() {
                 const promiseToIgnore = self.dockerApi.updateService(
                     CaptainConstants.captainServiceName,

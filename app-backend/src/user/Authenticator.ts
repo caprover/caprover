@@ -126,11 +126,11 @@ class Authenticator {
     decodeAuthToken(token: string, keySuffix?: string) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<UserJwt>(function(resolve, reject) {
             jwt.verify(
                 token,
                 self.encryptionKey + (keySuffix ? keySuffix : ''),
-                function(err, rawDecoded: any) {
+                function(err, rawDecoded: { data: UserJwt }) {
                     if (err) {
                         Logger.e(err)
                         reject(
@@ -148,7 +148,7 @@ class Authenticator {
                         reject(
                             ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_AUTH_TOKEN_INVALID,
-                                'Auth token is not valid anymore. Request for a new auth token'
+                                'Auth token is no longer valid. Request for a new auth token'
                             )
                         )
                         return
@@ -168,15 +168,6 @@ class Authenticator {
                 }
             )
         })
-    }
-
-    getAppPushWebhookDatastore(dataToSave: any) {
-        const self = this
-
-        return self.getGenericToken(
-            dataToSave,
-            WEBHOOK_APP_PUSH_DATASTORE_SUFFIX
-        )
     }
 
     decodeAppPushWebhookDatastore(token: string) {
@@ -227,11 +218,11 @@ class Authenticator {
     decodeGenericToken(token: string, keySuffix: string) {
         const self = this
 
-        return new Promise(function(resolve, reject) {
+        return new Promise<any>(function(resolve, reject) {
             jwt.verify(
                 token,
                 self.encryptionKey + (keySuffix ? keySuffix : ''),
-                function(err, rawDecoded: any) {
+                function(err, rawDecoded: { data: any }) {
                     if (err) {
                         Logger.e(err)
                         reject(

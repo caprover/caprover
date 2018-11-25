@@ -61,7 +61,7 @@ class AppsDataStore {
                     }
                 }
                 if (!hasAtLeastOneSslDomain) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without any SSL-enabled domain!');
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot force SSL without at least one SSL-enabled domain!');
                 }
             }
             if (app.ports) {
@@ -155,7 +155,7 @@ class AppsDataStore {
             }
             const app = allApps[appName];
             if (!app) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App could not be found ' + appName);
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, `App (${appName}) could not be found. Make sure that you have created the app.`);
             }
             return app;
         });
@@ -274,7 +274,9 @@ class AppsDataStore {
                         appObj.appPushWebhook.tokenVersion
                         ? appObj.appPushWebhook.tokenVersion
                         : uuid(),
-                    pushWebhookToken: '',
+                    pushWebhookToken: appObj.appPushWebhook
+                        ? appObj.appPushWebhook.pushWebhookToken
+                        : '',
                     repoInfo: {
                         repo: repoInfo.repo,
                         user: repoInfo.user,
@@ -282,6 +284,9 @@ class AppsDataStore {
                         password: repoInfo.password,
                     },
                 };
+                if (appObj.appPushWebhook.pushWebhookToken) {
+                    return Promise.resolve(undefined);
+                }
                 return authenticator
                     .getAppPushWebhookToken(appName, appObj.appPushWebhook.tokenVersion)
                     .then(function (val) {

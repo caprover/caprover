@@ -142,7 +142,9 @@ class ServiceManager {
         })
             .then(function (rawImageSourceFolder) {
             let promiseToFetchDirectory;
-            if (source.pathToSrcTarballFile) {
+            if (source &&
+                source
+                    .pathToSrcTarballFile) {
                 promiseToFetchDirectory = tar
                     .x({
                     file: source.pathToSrcTarballFile,
@@ -152,7 +154,8 @@ class ServiceManager {
                     return gitHash;
                 });
             }
-            else if (source.repoInfo) {
+            else if (source &&
+                source.repoInfo) {
                 const repoInfo = source.repoInfo;
                 promiseToFetchDirectory = GitHelper.clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, rawImageSourceFolder).then(function () {
                     return GitHelper.getLastHash(rawImageSourceFolder);
@@ -272,7 +275,7 @@ class ServiceManager {
             const authObj = CaptainManager.get().getDockerAuthObject();
             if (!authObj) {
                 Logger.d('No Docker Auth is found. Skipping pushing the image.');
-                return true;
+                return Promise.resolve();
             }
             Logger.d('Docker Auth is found. Pushing the image...');
             return dockerApi
@@ -610,7 +613,7 @@ class ServiceManager {
             preDeployFunction + '\n\n module.exports = preDeployFunction';
         return requireFromString(preDeployFunction);
     }
-    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, customNginxConfig, preDeployFunction) {
+    updateAppDefinition(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, customNginxConfig, preDeployFunction) {
         const self = this;
         const dataStore = this.dataStore;
         const dockerApi = this.dockerApi;
@@ -673,7 +676,7 @@ class ServiceManager {
             .then(function () {
             return dataStore
                 .getAppsDataStore()
-                .updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, appPushWebhook, Authenticator.get(dataStore.getNameSpace()), customNginxConfig, preDeployFunction);
+                .updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, Authenticator.get(dataStore.getNameSpace()), customNginxConfig, preDeployFunction);
         })
             .then(function () {
             return self.updateServiceOnDefinitionUpdate(appName);
@@ -729,9 +732,6 @@ class ServiceManager {
         })
             .then(function (app) {
             appFound = app;
-            if (!appFound) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'App name not found!');
-            }
             return self.createPreDeployFunctionIfExist(app);
         })
             .then(function (preDeployFunction) {

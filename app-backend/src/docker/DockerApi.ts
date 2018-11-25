@@ -5,6 +5,7 @@ import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
 import EnvVars = require('../utils/EnvVars')
 import BuildLog = require('../user/BuildLog')
+import { IDockerApiPort, IDockerContainerResource } from '../models/OtherTypes'
 
 const Base = Base64Provider.Base64
 
@@ -75,7 +76,7 @@ class DockerApi {
                     return Promise.resolve(data[0].NodeID)
                 } else {
                     if (retryCount < 3) {
-                        return new Promise(function(resolve) {
+                        return new Promise<void>(function(resolve) {
                             setTimeout(function() {
                                 resolve()
                             }, 3000)
@@ -213,7 +214,7 @@ class DockerApi {
                 t: imageName,
             })
             .then(function(stream) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     let errorMessage = ''
 
                     stream.setEncoding('utf8')
@@ -281,7 +282,7 @@ class DockerApi {
                 })
             })
             .then(function(stream) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     let errorMessage = ''
                     const logsBeforeError: string[] = []
                     for (let i = 0; i < 20; i++) {
@@ -360,7 +361,7 @@ class DockerApi {
 
                 return Promise.race([
                     self.dockerode.getContainer(nameOrId).wait(),
-                    new Promise(function(resolve, reject) {
+                    new Promise<void>(function(resolve, reject) {
                         setTimeout(function() {
                             resolve()
                         }, 7000)
@@ -434,7 +435,7 @@ class DockerApi {
 
         Logger.d('Creating Sticky Container: ' + imageName)
 
-        const volumesMapped: any = []
+        const volumesMapped: string[] = []
         volumes = volumes || []
         for (let i = 0; i < volumes.length; i++) {
             const v = volumes[i]
@@ -446,7 +447,7 @@ class DockerApi {
             )
         }
 
-        const envs: any = []
+        const envs: string[] = []
         arrayOfEnvKeyAndValue = arrayOfEnvKeyAndValue || []
         for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
             const e = arrayOfEnvKeyAndValue[i]
@@ -507,7 +508,7 @@ class DockerApi {
                     })
             })
             .then(function(stream) {
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     let errorMessage = ''
 
                     stream.setEncoding('utf8')
@@ -588,39 +589,44 @@ class DockerApi {
         nodeId: string | undefined,
         volumeToMount: IAppVolume[] | undefined,
         arrayOfEnvKeyAndValue: IAppEnvVar[] | undefined,
-        resourcesObject: any
+        resourcesObject?: IDockerContainerResource
     ) {
         const self = this
+        const ports: IDockerApiPort[] = []
 
-        const ports = []
         if (portsToMap) {
             for (let i = 0; i < portsToMap.length; i++) {
-                if (portsToMap[i].protocol) {
-                    const item: any = {
-                        Protocol: portsToMap[i].protocol,
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                const publishMode = portsToMap[i].publishMode
+                const protocol = portsToMap[i].protocol
+                const containerPort = portsToMap[i].containerPort
+                const hostPort = portsToMap[i].hostPort
+
+                if (protocol) {
+                    const item: IDockerApiPort = {
+                        Protocol: protocol,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     }
 
-                    if (portsToMap[i].publishMode) {
-                        item.PublishMode = portsToMap[i].publishMode
+                    if (publishMode) {
+                        item.PublishMode = publishMode
                     }
 
                     ports.push(item)
                 } else {
-                    const tcpItem: any = {
+                    const tcpItem: IDockerApiPort = {
                         Protocol: 'tcp',
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     }
-                    const udpItem: any = {
+                    const udpItem: IDockerApiPort = {
                         Protocol: 'udp',
-                        TargetPort: portsToMap[i].containerPort,
-                        PublishedPort: portsToMap[i].hostPort,
+                        TargetPort: containerPort,
+                        PublishedPort: hostPort,
                     }
-                    if (portsToMap[i].publishMode) {
-                        tcpItem.PublishMode = portsToMap[i].publishMode
-                        udpItem.PublishMode = portsToMap[i].publishMode
+                    if (publishMode) {
+                        tcpItem.PublishMode = publishMode
+                        udpItem.PublishMode = publishMode
                     }
                     ports.push(tcpItem)
                     ports.push(udpItem)
@@ -734,7 +740,7 @@ class DockerApi {
                 }
 
                 if (retryCount < 3) {
-                    return new Promise(function(resolve) {
+                    return new Promise<void>(function(resolve) {
                         setTimeout(function() {
                             resolve()
                         }, 3000)
@@ -807,7 +813,7 @@ class DockerApi {
 
                             output.setEncoding('utf8')
 
-                            output.on('data', function(chunk: any) {
+                            output.on('data', function(chunk: string) {
                                 outputBody += chunk
                             })
 
@@ -1064,7 +1070,7 @@ class DockerApi {
                     })
                 }
 
-                return new Promise(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
                     reject(error)
                 })
             })

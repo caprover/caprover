@@ -1,3 +1,5 @@
+import { AnyError } from "../models/OtherTypes";
+
 const git = require('simple-git')
 
 export = {
@@ -5,7 +7,7 @@ export = {
         return new Promise<string>(function(resolve, reject) {
             git(directory)
                 .silent(true)
-                .raw(['rev-parse', 'HEAD'], function(err: any, result: string) {
+                .raw(['rev-parse', 'HEAD'], function(err: AnyError, result: string) {
                     if (err) {
                         reject(err)
                     } else {
@@ -32,7 +34,7 @@ export = {
                 .silent(true)
                 .raw(
                     ['clone', '--recursive', '-b', branch, remote, directory],
-                    function(err: any, result: string) {
+                    function(err: AnyError, result: string) {
                         if (err) {
                             reject(err)
                         } else {

@@ -9,7 +9,7 @@ import UserModel = require('../models/InjectionInterfaces')
 import Logger = require('../utils/Logger')
 import { NextFunction } from 'connect'
 import { Response, Request } from 'express'
-import requireFromString = require('require-from-string')
+import { CaptainError } from '../models/OtherTypes'
 
 const dockerApi = DockerApiProvider.get()
 
@@ -44,7 +44,7 @@ export function injectUser() {
 
         Authenticator.get(namespace)
             .decodeAuthToken(req.header(CaptainConstants.header.auth) || '')
-            .then(function(userDecoded: UserModel.UserJwt) {
+            .then(function(userDecoded) {
                 const user = userDecoded as UserModel.UserInjected
 
                 if (user) {
@@ -64,7 +64,7 @@ export function injectUser() {
 
                 next()
             })
-            .catch(function(error: any) {
+            .catch(function(error: CaptainError) {
                 if (error && error.captainErrorType) {
                     res.send(
                         new BaseApi(error.captainErrorType, error.apiMessage)
@@ -110,7 +110,8 @@ export function injectUserForWebhook() {
                 app = appFound
 
                 if (
-                    app.appPushWebhook && app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion
+                    app.appPushWebhook &&
+                    app.appPushWebhook.tokenVersion !== decodedInfo.tokenVersion
                 ) {
                     throw new Error('Token Info do not match')
                 }

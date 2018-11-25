@@ -8,6 +8,7 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import DockerApi = require('../docker/DockerApi')
 import DataStore = require('../datastore/DataStoreImpl')
 import CertbotManager = require('./CertbotManager')
+import { AnyError } from '../models/OtherTypes';
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../template/default-page.ejs')
@@ -41,7 +42,7 @@ class LoadBalancerManager {
     rePopulateNginxConfigFile(dataStoreToQueue: DataStore) {
         const self = this
 
-        return new Promise(function(res, rej) {
+        return new Promise<void>(function(res, rej) {
             self.requestedReloadPromises.push({
                 dataStore: dataStoreToQueue,
                 resolve: res,
@@ -147,7 +148,7 @@ class LoadBalancerManager {
                 q.resolve()
                 self.consumeQueueIfAnyInNginxReloadQueue()
             })
-            .catch(function(error: any) {
+            .catch(function(error: AnyError) {
                 Logger.e(error)
                 Logger.d('Error: UNLocking NGINX configuration reloading...')
                 self.reloadInProcess = false
@@ -183,7 +184,7 @@ class LoadBalancerManager {
     }
 
     getInfo() {
-        return new Promise(function(resolve, reject) {
+        return new Promise<LoadBalancerInfo>(function(resolve, reject) {
             const url =
                 'http://' + CaptainConstants.nginxServiceName + '/nginx_status'
 
@@ -373,7 +374,7 @@ class LoadBalancerManager {
                             waitTimeInMillis / 1000 +
                             ' seconds for nginx to start up'
                     )
-                    return new Promise(function(resolve, reject) {
+                    return new Promise<boolean>(function(resolve, reject) {
                         setTimeout(function() {
                             resolve(true)
                         }, waitTimeInMillis)
@@ -516,7 +517,7 @@ class LoadBalancerManager {
                         waitTimeInMillis / 1000 +
                         ' seconds for nginx reload to take into effect'
                 )
-                return new Promise(function(resolve, reject) {
+                return new Promise<boolean>(function(resolve, reject) {
                     setTimeout(function() {
                         Logger.d('NGINX is fully set up and working...')
                         resolve(true)
