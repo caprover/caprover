@@ -1,8 +1,24 @@
 import { CaptainError } from './CaptainError'
+import { Response } from 'express'
+import BaseApi = require('./BaseApi')
+import Logger = require('../utils/Logger')
 
 let apiStatusCode = {
     createError: function(code: number, message: string) {
         return new CaptainError(code, message || 'NONE')
+    },
+
+    createCatcher: function(res: Response) {
+        return function(error: CaptainError | any) {
+            Logger.e(error)
+
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
+                return
+            }
+
+            res.sendStatus(500)
+        }
     },
 
     STATUS_OK: 100,

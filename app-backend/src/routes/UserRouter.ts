@@ -92,14 +92,7 @@ router.post('/changepassword/', function(req, res, next) {
         .then(function() {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'))
         })
-        .catch(function(error) {
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-            } else {
-                Logger.e(error)
-                res.sendStatus(500)
-            }
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 // semi-secured end points:

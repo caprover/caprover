@@ -29,16 +29,7 @@ router.get('/:appName/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/:appName/', function(req, res, next) {
@@ -52,16 +43,7 @@ router.post('/:appName/', function(req, res, next) {
             // nothing to do with app, just to make sure that it exists!
             next()
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/:appName/', upload.single('sourceFile'), function(

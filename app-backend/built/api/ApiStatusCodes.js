@@ -1,8 +1,20 @@
 "use strict";
 const CaptainError_1 = require("./CaptainError");
+const BaseApi = require("./BaseApi");
+const Logger = require("../utils/Logger");
 let apiStatusCode = {
     createError: function (code, message) {
         return new CaptainError_1.CaptainError(code, message || 'NONE');
+    },
+    createCatcher: function (res) {
+        return function (error) {
+            Logger.e(error);
+            if (error && error.captainErrorType) {
+                res.send(new BaseApi(error.captainErrorType, error.apiMessage));
+                return;
+            }
+            res.sendStatus(500);
+        };
     },
     STATUS_OK: 100,
     STATUS_OK_DEPLOY_STARTED: 101,

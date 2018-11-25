@@ -20,14 +20,7 @@ router.post('/insert/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/all/', function (req, res, next) {
     const captainManager = CaptainManager.get();
@@ -47,14 +40,7 @@ router.get('/all/', function (req, res, next) {
         baseApi.data.defaultPushRegistryId = defaultPush;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/delete/', function (req, res, next) {
     let registryId = req.body.registryId + '';
@@ -67,14 +53,7 @@ router.post('/delete/', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Registry deleted');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/setpush/', function (req, res, next) {
     let registryId = req.body.registryId + '';
@@ -87,14 +66,7 @@ router.post('/setpush/', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Push Registry changed');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 module.exports = router;
 //# sourceMappingURL=RegistriesRouter.js.map

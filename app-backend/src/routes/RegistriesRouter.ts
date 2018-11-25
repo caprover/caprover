@@ -30,16 +30,7 @@ router.post('/insert/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/all/', function(req, res, next) {
@@ -64,16 +55,7 @@ router.get('/all/', function(req, res, next) {
             baseApi.data.defaultPushRegistryId = defaultPush
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/delete/', function(req, res, next) {
@@ -91,16 +73,7 @@ router.post('/delete/', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/setpush/', function(req, res, next) {
@@ -118,16 +91,7 @@ router.post('/setpush/', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 export = router

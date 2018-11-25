@@ -43,14 +43,7 @@ router.post('/changerootdomain/', function(req, res, next) {
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'Root domain changed.')
             )
         })
-        .catch(function(error) {
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-            } else {
-                Logger.e(error)
-                res.sendStatus(500)
-            }
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/enablessl/', function(req, res, next) {
@@ -80,14 +73,7 @@ router.post('/enablessl/', function(req, res, next) {
         .then(function() {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Root SSL Enabled.'))
         })
-        .catch(function(error) {
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-            } else {
-                Logger.e(error) //
-                res.sendStatus(500) //
-            }
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/forcessl/', function(req, res, next) {
@@ -104,14 +90,7 @@ router.post('/forcessl/', function(req, res, next) {
                 )
             )
         })
-        .catch(function(error) {
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-            } else {
-                Logger.e(error)
-                res.sendStatus(500)
-            }
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/enableregistryssl/', function(req, res, next) {
@@ -126,16 +105,7 @@ router.post('/enableregistryssl/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/enableregistry/', function(req, res, next) {
@@ -195,16 +165,7 @@ router.post('/enableregistry/', function(req, res, next) {
         .then(function() {
             return captainManager.resetSelf()
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/info/', function(req, res, next) {
@@ -236,16 +197,7 @@ router.get('/info/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/loadbalancerinfo/', function(req, res, next) {
@@ -265,16 +217,7 @@ router.get('/loadbalancerinfo/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/versionInfo/', function(req, res, next) {
@@ -329,16 +272,7 @@ router.get('/versionInfo/', function(req, res, next) {
 
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/versionInfo/', function(req, res, next) {
@@ -355,16 +289,7 @@ router.post('/versionInfo/', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/netdata/', function(req, res, next) {
@@ -387,16 +312,7 @@ router.get('/netdata/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/netdata/', function(req, res, next) {
@@ -415,16 +331,7 @@ router.post('/netdata/', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/nginxconfig/', function(req, res, next) {
@@ -440,16 +347,7 @@ router.get('/nginxconfig/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/nginxconfig/', function(req, res, next) {
@@ -470,16 +368,7 @@ router.post('/nginxconfig/', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/nodes/', function(req, res, next) {
@@ -495,16 +384,7 @@ router.get('/nodes/', function(req, res, next) {
             baseApi.data = data
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/nodes/', function(req, res, next) {
@@ -570,16 +450,7 @@ router.post('/nodes/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 export = router

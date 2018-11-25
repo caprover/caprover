@@ -39,14 +39,7 @@ router.get('/unusedImages', function (req, res, next) {
         baseApi.data.unusedImages = unusedImages;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 // unused iamges
 router.post('/deleteImages', function (req, res, next) {
@@ -61,14 +54,7 @@ router.post('/deleteImages', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Images Deleted.');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 // Get All App Definitions
 router.get('/', function (req, res, next) {
@@ -101,14 +87,7 @@ router.get('/', function (req, res, next) {
         baseApi.defaultNginxConfig = defaultNginxConfig;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enablebasedomainssl/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -123,14 +102,7 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/customdomain/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -151,14 +123,7 @@ router.post('/customdomain/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/removecustomdomain/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -177,14 +142,7 @@ router.post('/removecustomdomain/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enablecustomdomainssl/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -205,14 +163,7 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/register/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -255,14 +206,7 @@ router.post('/register/', function (req, res, next) {
             return createRejectionPromise();
         }
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/delete/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -277,14 +221,7 @@ router.post('/delete/', function (req, res, next) {
         Logger.d('AppName is deleted: ' + appName);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App is deleted'));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/update/', function (req, res, next) {
     let dataStore = res.locals.user.dataStore;
@@ -318,14 +255,7 @@ router.post('/update/', function (req, res, next) {
         Logger.d('AppName is updated: ' + appName);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Updated App Definition Saved'));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 module.exports = router;
 //# sourceMappingURL=AppDefinitionRouter.js.map

@@ -4,7 +4,6 @@ const TokenApi = require("../api/TokenApi");
 const BaseApi = require("../api/BaseApi");
 const Authenticator = require("../user/Authenticator");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
-const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
 const router = express.Router();
 router.post('/', function (req, res, next) {
@@ -25,15 +24,7 @@ router.post('/', function (req, res, next) {
         res.cookie(CaptainConstants.header.cookieAuth, cookieAuth);
         res.send(new TokenApi(authToken));
     })
-        .catch(function (error) {
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-        }
-        else {
-            Logger.e(error);
-            res.sendStatus(500);
-        }
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 module.exports = router;
 //# sourceMappingURL=LoginRouter.js.map

@@ -1,5 +1,3 @@
-import ApiStatusCode = require('./ApiStatusCodes')
-
 class BaseApi {
     public data: any
 

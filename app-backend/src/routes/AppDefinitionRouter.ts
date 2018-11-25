@@ -57,16 +57,7 @@ router.get('/unusedImages', function(req, res, next) {
 
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 // unused iamges
@@ -86,16 +77,7 @@ router.post('/deleteImages', function(req, res, next) {
             )
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 // Get All App Definitions
@@ -136,16 +118,7 @@ router.get('/', function(req, res, next) {
 
             res.send(baseApi)
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/enablebasedomainssl/', function(req, res, next) {
@@ -163,16 +136,7 @@ router.post('/enablebasedomainssl/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/customdomain/', function(req, res, next) {
@@ -198,16 +162,7 @@ router.post('/customdomain/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/removecustomdomain/', function(req, res, next) {
@@ -230,16 +185,7 @@ router.post('/removecustomdomain/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/enablecustomdomainssl/', function(req, res, next) {
@@ -265,16 +211,7 @@ router.post('/enablecustomdomainssl/', function(req, res, next) {
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/register/', function(req, res, next) {
@@ -331,16 +268,7 @@ router.post('/register/', function(req, res, next) {
                 return createRejectionPromise()
             }
         })
-        .catch(function(error: CaptainError) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/delete/', function(req, res, next) {
@@ -359,16 +287,7 @@ router.post('/delete/', function(req, res, next) {
             Logger.d('AppName is deleted: ' + appName)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App is deleted'))
         })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.post('/update/', function(req, res, next) {
@@ -424,16 +343,7 @@ router.post('/update/', function(req, res, next) {
                 )
             )
         })
-        .catch(function(error: CaptainError) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            res.sendStatus(500)
-        })
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 export = router

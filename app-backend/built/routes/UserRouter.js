@@ -8,7 +8,6 @@ const WebhooksRouter = require("./WebhooksRouter");
 const AppDefinitionRouter = require("./AppDefinitionRouter");
 const AppDataRouter = require("./AppDataRouter");
 const Authenticator = require("../user/Authenticator");
-const Logger = require("../utils/Logger");
 const onFinished = require("on-finished");
 const router = express.Router();
 const threadLockNamespace = {};
@@ -63,15 +62,7 @@ router.post('/changepassword/', function (req, res, next) {
         .then(function () {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'));
     })
-        .catch(function (error) {
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-        }
-        else {
-            Logger.e(error);
-            res.sendStatus(500);
-        }
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 // semi-secured end points:
 router.use('/webhooks/', WebhooksRouter);

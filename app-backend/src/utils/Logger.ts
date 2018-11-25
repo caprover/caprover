@@ -1,4 +1,4 @@
-import { AnyError } from "../models/OtherTypes";
+import { AnyError } from '../models/OtherTypes'
 
 /**
  * Created by kasra on 27/06/17.
@@ -22,23 +22,24 @@ function getTime() {
     )
 }
 
-export = {
-    d: function(msg: string) {
+class Logger {
+    static d(msg: string) {
         console.log(getTime() + msg + '')
-    },
+    }
 
-    w: function(msg: string) {
+    static w(msg: string) {
         console.log(getTime() + msg + '')
-    },
+    }
 
-    dev: function(msg: string) {
+    static dev(msg: string) {
         if (CaptainConstants.isDebug) {
             console.log(getTime() + '########### ' + msg + '')
         }
-    },
+    }
 
-    e: function(msgOrError: AnyError) {
+    static e(msgOrError: AnyError) {
         let err = errorize(msgOrError)
         console.error(getTime() + err + '\n' + err.stack)
-    },
+    }
 }
+export = Logger

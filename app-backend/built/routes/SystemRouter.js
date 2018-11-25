@@ -31,15 +31,7 @@ router.post('/changerootdomain/', function (req, res, next) {
         .then(function () {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Root domain changed.'));
     })
-        .catch(function (error) {
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-        }
-        else {
-            Logger.e(error);
-            res.sendStatus(500);
-        }
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enablessl/', function (req, res, next) {
     const emailAddress = req.body.emailAddress || '';
@@ -59,15 +51,7 @@ router.post('/enablessl/', function (req, res, next) {
         .then(function () {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Root SSL Enabled.'));
     })
-        .catch(function (error) {
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-        }
-        else {
-            Logger.e(error); //
-            res.sendStatus(500); //
-        }
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/forcessl/', function (req, res, next) {
     let isEnabled = !!req.body.isEnabled;
@@ -77,15 +61,7 @@ router.post('/forcessl/', function (req, res, next) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Non-SSL traffic is now ' +
             (isEnabled ? 'rejected.' : 'allowed.')));
     })
-        .catch(function (error) {
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-        }
-        else {
-            Logger.e(error);
-            res.sendStatus(500);
-        }
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enableregistryssl/', function (req, res, next) {
     return Promise.resolve()
@@ -99,14 +75,7 @@ router.post('/enableregistryssl/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enableregistry/', function (req, res, next) {
     const LOCAL = 'local';
@@ -159,14 +128,7 @@ router.post('/enableregistry/', function (req, res, next) {
         .then(function () {
         return captainManager.resetSelf();
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/info/', function (req, res, next) {
     const dataStore = res.locals.user.dataStore;
@@ -192,14 +154,7 @@ router.get('/info/', function (req, res, next) {
         baseApi.data = data;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/loadbalancerinfo/', function (req, res, next) {
     const dataStore = res.locals.user.dataStore;
@@ -214,14 +169,7 @@ router.get('/loadbalancerinfo/', function (req, res, next) {
         baseApi.data = data;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/versionInfo/', function (req, res, next) {
     return Promise.resolve()
@@ -264,14 +212,7 @@ router.get('/versionInfo/', function (req, res, next) {
         };
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/versionInfo/', function (req, res, next) {
     let latestVersion = req.body.latestVersion;
@@ -283,14 +224,7 @@ router.post('/versionInfo/', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Captain update process has started...');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/netdata/', function (req, res, next) {
     const dataStore = res.locals.user.dataStore;
@@ -308,14 +242,7 @@ router.get('/netdata/', function (req, res, next) {
         baseApi.data = data;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/netdata/', function (req, res, next) {
     let netDataInfo = req.body.netDataInfo;
@@ -329,14 +256,7 @@ router.post('/netdata/', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Netdata info is updated');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/nginxconfig/', function (req, res, next) {
     return Promise.resolve()
@@ -348,14 +268,7 @@ router.get('/nginxconfig/', function (req, res, next) {
         baseApi.data = data;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/nginxconfig/', function (req, res, next) {
     let baseConfigCustomValue = req.body.baseConfig.customValue;
@@ -368,14 +281,7 @@ router.post('/nginxconfig/', function (req, res, next) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Nginx config is updated');
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/nodes/', function (req, res, next) {
     return Promise.resolve()
@@ -387,14 +293,7 @@ router.get('/nodes/', function (req, res, next) {
         baseApi.data = data;
         res.send(baseApi);
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager';
@@ -435,14 +334,7 @@ router.post('/nodes/', function (req, res, next) {
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        res.sendStatus(500);
-    });
+        .catch(ApiStatusCodes.createCatcher(res));
 });
 module.exports = router;
 //# sourceMappingURL=SystemRouter.js.map

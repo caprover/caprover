@@ -15,21 +15,22 @@ function getTime() {
         moment().format('MMMM Do YYYY, h:mm:ss.SSS a    ') +
         '\x1b[0m');
 }
-module.exports = {
-    d: function (msg) {
+class Logger {
+    static d(msg) {
         console.log(getTime() + msg + '');
-    },
-    w: function (msg) {
+    }
+    static w(msg) {
         console.log(getTime() + msg + '');
-    },
-    dev: function (msg) {
+    }
+    static dev(msg) {
         if (CaptainConstants.isDebug) {
             console.log(getTime() + '########### ' + msg + '');
         }
-    },
-    e: function (msgOrError) {
+    }
+    static e(msgOrError) {
         let err = errorize(msgOrError);
         console.error(getTime() + err + '\n' + err.stack);
-    },
-};
+    }
+}
+module.exports = Logger;
 //# sourceMappingURL=Logger.js.map
