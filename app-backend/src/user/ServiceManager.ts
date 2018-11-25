@@ -74,8 +74,8 @@ function getCaptainDefinitionTempFolder(
 
 class ServiceManager {
     private dataStore: DataStore
-    private activeBuilds: ICacheGeneric<boolean>
-    private buildLogs: ICacheGeneric<BuildLog>
+    private activeBuilds: IHashMapGeneric<boolean>
+    private buildLogs: IHashMapGeneric<BuildLog>
     private isReady: boolean
 
     constructor(

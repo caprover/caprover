@@ -12,7 +12,7 @@ import onFinished = require('on-finished')
 
 const router = express.Router()
 
-const threadLockNamespace = {} as ICacheGeneric<boolean>
+const threadLockNamespace = {} as IHashMapGeneric<boolean>
 
 router.use('/webhooks/', Injector.injectUserForWebhook())
 

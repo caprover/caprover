@@ -11,9 +11,7 @@ type ISourceForImageCreation =
     | ISourceForImageCreationTarFile
     | undefined
 
-interface IAllAppDefinitions {
-    [appId: string]: IAppDef
-}
+type IAllAppDefinitions = IHashMapGeneric<IAppDef>
 
 interface IAppEnvVar {
     key: string

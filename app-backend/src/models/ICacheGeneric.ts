@@ -1,3 +1,3 @@
-interface ICacheGeneric<T> {
+interface IHashMapGeneric<T> {
     [id: string]: T
 }

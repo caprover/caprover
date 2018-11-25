@@ -13,7 +13,7 @@ import { CaptainError } from '../models/OtherTypes'
 
 const dockerApi = DockerApiProvider.get()
 
-const serviceMangerCache = {} as ICacheGeneric<ServiceManager>
+const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
 /**
  * Global dependency injection module

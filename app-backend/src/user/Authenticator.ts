@@ -272,10 +272,6 @@ class Authenticator {
     }
 }
 
-interface IHash {
-    [details: string]: Authenticator
-}
-
-const authenticatorCache: IHash = {}
+const authenticatorCache: IHashMapGeneric<Authenticator> = {}
 
 export = Authenticator

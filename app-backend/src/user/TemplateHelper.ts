@@ -89,13 +89,11 @@ interface ITemplate {
     postFromLines?: string
 }
 
-interface ICache {
-    [id: string]: any[]
-}
+type AnyHashMap = IHashMapGeneric<any>
 
 class TemplateHelper {
     private templates: ITemplate[]
-    private cachedImageTags: ICache
+    private cachedImageTags: AnyHashMap
 
     constructor() {
         const templates: ITemplate[] = [
@@ -177,7 +175,7 @@ class TemplateHelper {
         const self = this
         self.cachedImageTags = {}
 
-        const tempCache: ICache = {}
+        const tempCache: AnyHashMap = {}
         for (let i = 0; i < self.templates.length; i++) {
             const currentImageName = self.templates[i].dockerHubImageName
 

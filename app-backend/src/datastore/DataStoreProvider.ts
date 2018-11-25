@@ -4,11 +4,7 @@
 
 import DataStore = require('./DataStoreImpl')
 
-interface ICache {
-    [namespace: string]: DataStore
-}
-
-const dataStoreCache: ICache = {}
+const dataStoreCache: IHashMapGeneric<DataStore> = {}
 
 export = {
     getDataStore: function(namespace: string) {

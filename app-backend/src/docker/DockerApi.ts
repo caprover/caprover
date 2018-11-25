@@ -1423,7 +1423,7 @@ class DockerApi {
 
     updateNodeLabels(
         nodeId: string,
-        labels: ICacheGeneric<string>,
+        labels: IHashMapGeneric<string>,
         nodeName: string
     ) {
         const self = this
