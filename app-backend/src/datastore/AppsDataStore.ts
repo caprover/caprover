@@ -28,8 +28,12 @@ function isPortValid(portNumber: number) {
 class AppsDataStore {
     private encryptor: CaptainEncryptor
 
-    constructor(private data: configstore, private namepace: string) {
-        this.encryptor = new CaptainEncryptor(this.namepace)
+    constructor(private data: configstore, private namepace: string) {}
+
+    setEncryptionSalt(salt: string) {
+        if (this.encryptor) return
+
+        this.encryptor = new CaptainEncryptor(this.namepace + salt)
     }
 
     private saveApp(appName: String, app: IAppDef) {

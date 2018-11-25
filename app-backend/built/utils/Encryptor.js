@@ -12,6 +12,13 @@ class CaptainEncryptor {
         if (!encryptionKey || encryptionKey.length < 32) {
             throw new Error('Encryption Key too short!');
         }
+        encryptionKey = crypto
+            .createHash('sha256')
+            .update(encryptionKey)
+            .digest('hex');
+        if (!encryptionKey || encryptionKey.length < 32) {
+            throw new Error('Encryption Key too short after hashing!');
+        }
         encryptionKey = encryptionKey.slice(0, 32);
     }
     encrypt(clearText) {

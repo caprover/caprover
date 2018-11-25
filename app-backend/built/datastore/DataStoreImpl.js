@@ -40,6 +40,9 @@ class DataStore {
         this.data.set(NAMESPACE, namespace);
         this.appsDataStore = new AppsDataStore(this.data, namespace);
     }
+    setEncryptionSalt(salt) {
+        this.appsDataStore.setEncryptionSalt(salt);
+    }
     getNameSpace() {
         return this.data.get(NAMESPACE);
     }

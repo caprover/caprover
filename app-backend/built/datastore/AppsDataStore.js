@@ -22,7 +22,11 @@ class AppsDataStore {
     constructor(data, namepace) {
         this.data = data;
         this.namepace = namepace;
-        this.encryptor = new Encryptor_1.CaptainEncryptor(this.namepace);
+    }
+    setEncryptionSalt(salt) {
+        if (this.encryptor)
+            return;
+        this.encryptor = new Encryptor_1.CaptainEncryptor(this.namepace + salt);
     }
     saveApp(appName, app) {
         const self = this;

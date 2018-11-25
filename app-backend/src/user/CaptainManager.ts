@@ -80,7 +80,7 @@ class CaptainManager {
         const dockerApi = this.dockerApi
         const loadBalancerManager = this.loadBalancerManager
         const certbotManager = this.certbotManager
-        let myNodeId: string | undefined = undefined
+        let myNodeId: string
 
         self.refreshForceSslState()
             .then(function() {
@@ -145,10 +145,6 @@ class CaptainManager {
                 )
             })
             .then(function() {
-                if (!myNodeId) {
-                    throw new Error('myNodeId is null')
-                }
-
                 return loadBalancerManager.init(myNodeId, dataStore)
             })
             .then(function() {
@@ -242,14 +238,6 @@ class CaptainManager {
                     '/run/secrets/' + CaptainConstants.captainSaltSecretKey
 
                 if (!fs.existsSync(secretFileName)) {
-                    if (CaptainConstants.isDebug) {
-                        Logger.d(
-                            'SECURITY WARNING! Setting the salt to default! Perhaps you are running the code outside of the container?'
-                        )
-                        self.captainSalt = DEBUG_SALT
-                        return true
-                    }
-
                     throw new Error(
                         'Secret is attached according to Docker. But file cannot be found. ' +
                             secretFileName
@@ -267,9 +255,9 @@ class CaptainManager {
                 return true
             })
             .then(function() {
-                if (!myNodeId) {
-                    throw new Error('NodeID is still not found')
-                }
+                return dataStore.setEncryptionSalt(self.getCaptainSalt())
+            })
+            .then(function() {
                 return certbotManager.init(myNodeId)
             })
             .then(function() {
