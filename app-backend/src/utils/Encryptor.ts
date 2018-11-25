@@ -7,7 +7,9 @@ const algorithm = 'aes-256-ctr'
 const IV_LENGTH = 16 // For AES, this is always 16
 
 export class CaptainEncryptor {
-    constructor(private encryptionKey: string) {
+    private encryptionKey: string
+    
+    constructor(encryptionKey: string) {
         if (!encryptionKey || encryptionKey.length < 32) {
             throw new Error('Encryption Key too short!')
         }
@@ -21,7 +23,7 @@ export class CaptainEncryptor {
             throw new Error('Encryption Key too short after hashing!')
         }
 
-        encryptionKey = encryptionKey.slice(0, 32)
+        this.encryptionKey = encryptionKey.slice(0, 32)
     }
 
     encrypt(clearText: string) {
