@@ -578,7 +578,7 @@ class ServiceManager {
                 serviceName +
                 ' with image: ' +
                 imageName);
-            return dockerApi.updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, undefined, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace(), undefined, app, preDeployFunction);
+            return dockerApi.updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, undefined, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace(), app.ports, app, preDeployFunction);
         })
             .then(function () {
             return new Promise(function (resolve) {

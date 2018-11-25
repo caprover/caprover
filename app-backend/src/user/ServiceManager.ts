@@ -869,7 +869,7 @@ class ServiceManager {
                     Number(app.instanceCount),
                     app.nodeId,
                     dataStore.getNameSpace(),
-                    undefined,
+                    app.ports,
                     app,
                     preDeployFunction
                 )
