@@ -50,12 +50,8 @@ function getCaptainDefinitionTempFolder(serviceName, randomSuffix) {
         randomSuffix);
 }
 class ServiceManager {
-    constructor(user, dockerApi, loadBalancerManager) {
-        this.user = user;
-        this.dockerApi = dockerApi;
-        this.loadBalancerManager = loadBalancerManager;
-        this.user = user;
-        this.dataStore = user.dataStore;
+    constructor(dataStore, dockerApi, loadBalancerManager) {
+        this.dataStore = dataStore;
         this.dockerApi = dockerApi;
         this.loadBalancerManager = loadBalancerManager;
         this.activeBuilds = {};

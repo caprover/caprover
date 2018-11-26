@@ -73,23 +73,17 @@ function getCaptainDefinitionTempFolder(
 }
 
 class ServiceManager {
-    private dataStore: DataStore
     private activeBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
     private isReady: boolean
 
     constructor(
-        private user: ICaptainUser,
+        private dataStore: DataStore,
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager
     ) {
-        this.user = user
-        this.dataStore = user.dataStore
-        this.dockerApi = dockerApi
-        this.loadBalancerManager = loadBalancerManager
         this.activeBuilds = {}
         this.buildLogs = {}
-
         this.isReady = true
     }
 

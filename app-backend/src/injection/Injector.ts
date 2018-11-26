@@ -45,22 +45,24 @@ export function injectUser() {
         Authenticator.get(namespace)
             .decodeAuthToken(req.header(CaptainConstants.header.auth) || '')
             .then(function(userDecoded) {
-                const user = userDecoded as UserModel.UserInjected
-
-                if (user) {
-                    user.dataStore = DataStoreProvider.getDataStore(namespace)
-                    if (!serviceMangerCache[user.namespace]) {
-                        serviceMangerCache[user.namespace] = new ServiceManager(
-                            user,
+                if (userDecoded) {
+                    const datastore = DataStoreProvider.getDataStore(namespace)
+                    if (!serviceMangerCache[namespace]) {
+                        serviceMangerCache[namespace] = new ServiceManager(
+                            datastore,
                             dockerApi,
                             CaptainManager.get().getLoadBalanceManager()
                         )
                     }
-                    user.serviceManager = serviceMangerCache[user.namespace]
-                    user.initialized = user.serviceManager.isInited()
+                    const user: UserModel.UserInjected = {
+                        tokenVersion: userDecoded.tokenVersion,
+                        namespace: namespace,
+                        dataStore: datastore,
+                        serviceManager: serviceMangerCache[namespace],
+                        initialized: serviceMangerCache[namespace].isInited(),
+                    }
+                    res.locals.user = user
                 }
-
-                res.locals.user = user
 
                 next()
             })
@@ -100,7 +102,7 @@ export function injectUserForWebhook() {
         Authenticator.get(namespace)
             .decodeAppPushWebhookToken(token)
             .then(function(data) {
-                decodedInfo = data as UserModel.IAppWebHookToken
+                decodedInfo = data
 
                 return dataStore
                     .getAppsDataStore()
@@ -116,20 +118,23 @@ export function injectUserForWebhook() {
                     throw new Error('Token Info do not match')
                 }
 
-                const user = {
-                    namespace: namespace,
-                } as UserModel.UserInjected
+                const datastore = DataStoreProvider.getDataStore(namespace)
 
-                user.dataStore = DataStoreProvider.getDataStore(namespace)
-                if (!serviceMangerCache[user.namespace]) {
-                    serviceMangerCache[user.namespace] = new ServiceManager(
-                        user,
+                if (!serviceMangerCache[namespace]) {
+                    serviceMangerCache[namespace] = new ServiceManager(
+                        datastore,
                         dockerApi,
                         CaptainManager.get().getLoadBalanceManager()
                     )
                 }
-                user.serviceManager = serviceMangerCache[user.namespace]
-                user.initialized = user.serviceManager.isInited()
+
+                const user: UserModel.UserInjected = {
+                    tokenVersion: '',
+                    namespace: namespace,
+                    dataStore: datastore,
+                    serviceManager: serviceMangerCache[namespace],
+                    initialized: serviceMangerCache[namespace].isInited(),
+                }
 
                 res.locals.user = user
                 res.locals.app = app

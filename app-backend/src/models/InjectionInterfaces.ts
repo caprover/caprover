@@ -9,7 +9,6 @@ export interface UserJwt {
 export interface UserInjected extends UserJwt {
     dataStore: DataStore
     serviceManager: ServiceManager
-
     initialized: boolean
 }
 
