@@ -42,7 +42,6 @@ function injectUser() {
                     serviceMangerCache[namespace] = new ServiceManager(datastore, dockerApi, CaptainManager.get().getLoadBalanceManager());
                 }
                 const user = {
-                    tokenVersion: userDecoded.tokenVersion,
                     namespace: namespace,
                     dataStore: datastore,
                     serviceManager: serviceMangerCache[namespace],
@@ -98,7 +97,6 @@ function injectUserForWebhook() {
                 serviceMangerCache[namespace] = new ServiceManager(datastore, dockerApi, CaptainManager.get().getLoadBalanceManager());
             }
             const user = {
-                tokenVersion: '',
                 namespace: namespace,
                 dataStore: datastore,
                 serviceManager: serviceMangerCache[namespace],

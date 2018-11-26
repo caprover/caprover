@@ -55,7 +55,6 @@ export function injectUser() {
                         )
                     }
                     const user: UserModel.UserInjected = {
-                        tokenVersion: userDecoded.tokenVersion,
                         namespace: namespace,
                         dataStore: datastore,
                         serviceManager: serviceMangerCache[namespace],
@@ -129,7 +128,6 @@ export function injectUserForWebhook() {
                 }
 
                 const user: UserModel.UserInjected = {
-                    tokenVersion: '',
                     namespace: namespace,
                     dataStore: datastore,
                     serviceManager: serviceMangerCache[namespace],

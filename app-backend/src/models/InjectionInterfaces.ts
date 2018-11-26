@@ -6,7 +6,8 @@ export interface UserJwt {
     tokenVersion: string
 }
 
-export interface UserInjected extends UserJwt {
+export interface UserInjected {
+    namespace: string
     dataStore: DataStore
     serviceManager: ServiceManager
     initialized: boolean
