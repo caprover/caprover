@@ -25,6 +25,8 @@ module.exports = {
 
         const USER = encodeURIComponent(username);
         const PASS = encodeURIComponent(pass);
+        
+        repo = repo.replace(/^(?:https?:\/\/)?/i, '');
 
         const remote = `https://${USER}:${PASS}@${repo}`;
 
