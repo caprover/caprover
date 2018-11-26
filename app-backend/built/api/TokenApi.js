@@ -1,9 +1,9 @@
 "use strict";
-const ApiStatusCode = require("./ApiStatusCodes");
+const ApiStatusCodes = require("./ApiStatusCodes");
 const BaseApi = require("./BaseApi");
 class TokenApi extends BaseApi {
     constructor(token) {
-        super(ApiStatusCode.STATUS_OK, '');
+        super(ApiStatusCodes.STATUS_OK, '');
         this.token = token;
     }
 }
