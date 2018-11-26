@@ -34,7 +34,7 @@
             type: 'text'
         });
         step1next.data.push({
-            label: 'OPTIONAL: Docker Tag for MySQL (default "5.5")',
+            label: 'OPTIONAL: Docker Tag for MySQL (default "5.7")',
             labelDesc: 'https://hub.docker.com/r/library/mysql/tags/',
             id: DOCKER_TAG_MYSQL,
             type: 'text'
@@ -83,7 +83,7 @@
             }
 
             var dockerTagWordPress = data[DOCKER_TAG_WORDPRESS] || '4.9';
-            var dockerTagMySql = data[DOCKER_TAG_MYSQL] || '5.5';
+            var dockerTagMySql = data[DOCKER_TAG_MYSQL] || '5.7';
             var mySqlAppName = data[WORDPRESS_NAME] + '-mysql';
             var envVarsMySql = [{
                 key: MYSQL_ROOT_PASSWORD,
