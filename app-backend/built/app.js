@@ -116,11 +116,6 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         res.send(response);
         return;
     }
-    if (!res.locals.namespace &&
-        !req.originalUrl.startsWith(API_PREFIX + CaptainConstants.apiVersion + '/user/webhooks/')) {
-        res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'no namespace'));
-        return;
-    }
     next();
 });
 // unsecured end points:
@@ -136,13 +131,7 @@ app.use(function (req, res, next) {
 });
 // error handler
 app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    Logger.e(err);
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+    Promise.reject(err).catch(ApiStatusCodes.createCatcher(res));
 });
 // Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
 // if this was done without a delay

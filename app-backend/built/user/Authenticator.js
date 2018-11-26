@@ -145,7 +145,7 @@ class Authenticator {
     }
     static get(namespace) {
         if (!namespace) {
-            throw new Error('namespace is needed');
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Empty namespace');
         }
         if (!authenticatorCache[namespace]) {
             const captainSalt = CaptainManager.get().getCaptainSalt();

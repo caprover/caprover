@@ -5,5 +5,6 @@ export class CaptainError extends Error {
     constructor(code: number, msg: string) {
         super(msg)
         this.captainErrorType = code
+        this.apiMessage = msg
     }
 }

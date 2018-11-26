@@ -254,7 +254,10 @@ class Authenticator {
 
     static get(namespace: string): Authenticator {
         if (!namespace) {
-            throw new Error('namespace is needed')
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                'Empty namespace'
+            )
         }
 
         if (!authenticatorCache[namespace]) {
