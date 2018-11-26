@@ -1,13 +1,16 @@
-import { AnyError } from "../models/OtherTypes";
+import { AnyError } from '../models/OtherTypes'
 
 const git = require('simple-git')
 
-export = {
-    getLastHash: function(directory: string) {
+class GitHelper {
+    static getLastHash(directory: string) {
         return new Promise<string>(function(resolve, reject) {
             git(directory)
                 .silent(true)
-                .raw(['rev-parse', 'HEAD'], function(err: AnyError, result: string) {
+                .raw(['rev-parse', 'HEAD'], function(
+                    err: AnyError,
+                    result: string
+                ) {
                     if (err) {
                         reject(err)
                     } else {
@@ -15,9 +18,9 @@ export = {
                     }
                 })
         })
-    },
+    }
 
-    clone: function(
+    static clone(
         username: string,
         pass: string,
         repo: string,
@@ -27,7 +30,10 @@ export = {
         const USER = encodeURIComponent(username)
         const PASS = encodeURIComponent(pass)
 
-        const remote = `https://${USER}:${PASS}@${repo}`
+        // Some people put https when they are entering their git information
+        const REPO = repo.trim().replace(/^(?:https?:\/\/)?/i, '')
+
+        const remote = `https://${USER}:${PASS}@${REPO}`
 
         return new Promise<string>(function(resolve, reject) {
             git()
@@ -43,5 +49,7 @@ export = {
                     }
                 )
         })
-    },
+    }
 }
+
+export = GitHelper

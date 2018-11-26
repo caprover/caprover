@@ -1,7 +1,7 @@
 "use strict";
 const git = require('simple-git');
-module.exports = {
-    getLastHash: function (directory) {
+class GitHelper {
+    static getLastHash(directory) {
         return new Promise(function (resolve, reject) {
             git(directory)
                 .silent(true)
@@ -14,11 +14,13 @@ module.exports = {
                 }
             });
         });
-    },
-    clone: function (username, pass, repo, branch, directory) {
+    }
+    static clone(username, pass, repo, branch, directory) {
         const USER = encodeURIComponent(username);
         const PASS = encodeURIComponent(pass);
-        const remote = `https://${USER}:${PASS}@${repo}`;
+        // Some people put https when they are entering their git information
+        const REPO = repo.trim().replace(/^(?:https?:\/\/)?/i, '');
+        const remote = `https://${USER}:${PASS}@${REPO}`;
         return new Promise(function (resolve, reject) {
             git()
                 .silent(true)
@@ -31,6 +33,7 @@ module.exports = {
                 }
             });
         });
-    },
-};
+    }
+}
+module.exports = GitHelper;
 //# sourceMappingURL=GitHelper.js.map
