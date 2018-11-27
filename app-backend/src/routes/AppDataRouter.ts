@@ -6,6 +6,7 @@ import multer = require('multer')
 import fs = require('fs-extra')
 import DataStore = require('../datastore/DataStoreImpl')
 import ServiceManager = require('../user/ServiceManager')
+import InjectionExtractor = require('../injection/InjectionExtractor');
 
 const TEMP_UPLOAD = 'temp_upload/'
 const router = express.Router()
@@ -15,7 +16,7 @@ const upload = multer({
 
 router.get('/:appName/', function(req, res, next) {
     let appName = req.params.appName
-    let serviceManager = res.locals.user.serviceManager
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     return Promise.resolve()
         .then(function() {
@@ -33,7 +34,7 @@ router.get('/:appName/', function(req, res, next) {
 })
 
 router.post('/:appName/', function(req, res, next) {
-    let dataStore = res.locals.user.dataStore as DataStore
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let appName = req.params.appName
 
     dataStore
@@ -51,8 +52,8 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     res,
     next
 ) {
-    const dataStore = res.locals.user.dataStore
-    const serviceManager = res.locals.user.serviceManager as ServiceManager
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.params.appName
     const isDetachedBuild = !!req.query.detached

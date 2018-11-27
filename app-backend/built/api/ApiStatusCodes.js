@@ -13,6 +13,10 @@ class ApiStatusCodes {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
                 return;
             }
+            if (error && error.errorStatus) {
+                res.sendStatus(Number(error.errorStatus));
+                return;
+            }
             res.sendStatus(500);
         };
     }

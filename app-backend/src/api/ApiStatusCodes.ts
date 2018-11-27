@@ -17,6 +17,11 @@ class ApiStatusCodes {
                 return
             }
 
+            if (error && error.errorStatus){
+                res.sendStatus(Number(error.errorStatus))
+                return
+            }
+
             res.sendStatus(500)
         }
     }

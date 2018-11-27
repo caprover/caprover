@@ -9,6 +9,7 @@ const AppDefinitionRouter = require("./AppDefinitionRouter");
 const AppDataRouter = require("./AppDataRouter");
 const Authenticator = require("../user/Authenticator");
 const onFinished = require("on-finished");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 const threadLockNamespace = {};
 router.use('/webhooks/', Injector.injectUserForWebhook());
@@ -17,23 +18,24 @@ function isNotGetRequest(req) {
     return req.method !== 'GET';
 }
 router.use(function (req, res, next) {
-    if (!res.locals.user) {
+    const user = InjectionExtractor.extractUserFromInjected(res).user;
+    if (!user) {
         let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'The request is not authorized.');
         res.send(response);
         return;
     }
-    if (!res.locals.user.initialized) {
+    if (!user.initialized) {
         let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_USER_NOT_INITIALIZED, 'User data is being loaded... Please wait...');
         res.send(response);
         return;
     }
-    const namespace = res.locals.user.namespace;
+    const namespace = user.namespace;
     if (!namespace) {
         let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Cannot find the namespace attached to this user');
         res.send(response);
         return;
     }
-    const serviceManager = res.locals.user.serviceManager;
+    const serviceManager = user.serviceManager;
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
     if (isNotGetRequest(req)) {
@@ -57,7 +59,9 @@ router.use(function (req, res, next) {
     next();
 });
 router.post('/changepassword/', function (req, res, next) {
-    Authenticator.get(res.locals.namespace)
+    const namespace = InjectionExtractor.extractUserFromInjected(res).user
+        .namespace;
+    Authenticator.get(namespace)
         .changepass(req.body.oldPassword, req.body.newPassword)
         .then(function () {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'));

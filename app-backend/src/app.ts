@@ -15,6 +15,7 @@ import CaptainConstants = require('./utils/CaptainConstants')
 
 import LoginRouter = require('./routes/LoginRouter')
 import UserRouter = require('./routes/UserRouter')
+import InjectionExtractor = require('./injection/InjectionExtractor')
 // import { NextFunction, Request, Response } from 'express'
 
 const httpProxy = httpProxyImport.createProxyServer({})
@@ -60,7 +61,7 @@ if (CaptainConstants.isDebug) {
 app.use(Injector.injectGlobal())
 
 app.use(function(req, res, next) {
-    if (res.locals.forceSsl) {
+    if (InjectionExtractor.extractGlobalsFromInjected(res).forceSsl) {
         let isRequestSsl =
             req.secure || req.get('X-Forwarded-Proto') === 'https'
 
@@ -109,7 +110,7 @@ app.use(
 )
 
 app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
-    if (!res.locals.user) {
+    if (!InjectionExtractor.extractUserFromInjected(res)) {
         Logger.e('User not logged in for NetData')
         res.sendStatus(500)
     } else {
@@ -157,7 +158,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function(req, res, next) {
         return
     }
 
-    if (!res.locals.initialized) {
+    if (!InjectionExtractor.extractGlobalsFromInjected(res).initialized) {
         let response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED,
             'Captain is not ready yet...'

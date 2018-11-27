@@ -5,6 +5,7 @@ const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
 const multer = require("multer");
 const fs = require("fs-extra");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const TEMP_UPLOAD = 'temp_upload/';
 const router = express.Router();
 const upload = multer({
@@ -12,7 +13,7 @@ const upload = multer({
 });
 router.get('/:appName/', function (req, res, next) {
     let appName = req.params.appName;
-    let serviceManager = res.locals.user.serviceManager;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
     return Promise.resolve()
         .then(function () {
         return serviceManager.getBuildStatus(appName);
@@ -25,7 +26,7 @@ router.get('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/:appName/', function (req, res, next) {
-    let dataStore = res.locals.user.dataStore;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
     let appName = req.params.appName;
     dataStore
         .getAppsDataStore()
@@ -37,8 +38,8 @@ router.post('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/:appName/', upload.single('sourceFile'), function (req, res, next) {
-    const dataStore = res.locals.user.dataStore;
-    const serviceManager = res.locals.user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
     const appName = req.params.appName;
     const isDetachedBuild = !!req.query.detached;
     const captainDefinitionContent = req.body.captainDefinitionContent;

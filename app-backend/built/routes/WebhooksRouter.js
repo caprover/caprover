@@ -1,21 +1,21 @@
 "use strict";
 const express = require("express");
 const bodyParser = require("body-parser");
-const Authenticator = require("../user/Authenticator");
 const Logger = require("../utils/Logger");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({
     extended: true,
 });
-router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
+function getPushedBranches(req) {
+    const pushedBranches = [];
     // find which branch is pushed
-    // inject it in locals.pushedBranches
+    // Add it in pushedBranches
     let isGithub = req.header('X-GitHub-Event') === 'push';
     let isBitbucket = req.header('X-Event-Key') === 'repo:push' &&
         req.header('X-Request-UUID') &&
         req.header('X-Hook-UUID');
     let isGitlab = req.header('X-Gitlab-Event') === 'Push Hook';
-    res.locals.pushedBranches = [];
     if (isGithub) {
         let refPayloadByFormEncoded = req.body.payload;
         let bodyJson = req.body;
@@ -23,40 +23,40 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
             bodyJson = JSON.parse(refPayloadByFormEncoded);
         }
         let ref = bodyJson.ref; // "refs/heads/somebranch"
-        res.locals.pushedBranches.push(ref.substring(11, ref.length));
+        pushedBranches.push(ref.substring(11, ref.length));
     }
     else if (isBitbucket) {
         for (let i = 0; i < req.body.push.changes.length; i++) {
-            res.locals.pushedBranches.push(req.body.push.changes[i].new.name);
+            pushedBranches.push(req.body.push.changes[i].new.name);
         }
     }
     else if (isGitlab) {
         let ref = req.body.ref; // "refs/heads/somebranch"
-        res.locals.pushedBranches.push(ref.substring(11, ref.length));
+        pushedBranches.push(ref.substring(11, ref.length));
     }
-    next();
-});
-router.post('/triggerbuild', function (req, res, next) {
+    return pushedBranches;
+}
+router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
+    // From this point on, we don't want to error out. Just do the build process in the background
     res.sendStatus(200);
-    let serviceManager = res.locals.user.serviceManager;
-    let appName = res.locals.appName;
-    let app = res.locals.app;
-    let namespace = res.locals.user.namespace;
-    if (!app || !serviceManager || !namespace || !appName) {
-        Logger.e('Something went wrong during trigger build. Cannot extract app information from the payload.');
-        return;
-    }
     Promise.resolve()
         .then(function () {
-        return Authenticator.get(namespace).decodeAppPushWebhookDatastore(app.appPushWebhook.repoInfo);
-    })
-        .then(function (repoInfo) {
+        const extracted = InjectionExtractor.extractAppAndUserForWebhook(res);
+        let serviceManager = extracted.user.serviceManager;
+        let namespace = extracted.user.namespace;
+        let appName = extracted.appName;
+        let app = extracted.app;
+        if (!app || !serviceManager || !namespace || !appName) {
+            throw new Error('Something went wrong during trigger build. Cannot extract app information from the payload.');
+        }
+        const repoInfo = app.appPushWebhook.repoInfo;
         // if we didn't detect branches, the POST might have come from another source that we don't
-        // explicitly support. Therefore, we just let it go through and triggers a build regardless
-        if (res.locals.pushedBranches.length > 0) {
+        // explicitly support. Therefore, we just let it go through and triggers a build regardless.
+        const pushedBranches = getPushedBranches(req);
+        if (pushedBranches.length > 0) {
             let branchIsTracked = false;
-            for (let i = 0; i < res.locals.pushedBranches.length; i++) {
-                if (res.locals.pushedBranches[i] === repoInfo.branch) {
+            for (let i = 0; i < pushedBranches.length; i++) {
+                if (pushedBranches[i] === repoInfo.branch) {
                     branchIsTracked = true;
                     break;
                 }

@@ -10,6 +10,7 @@ import Logger = require('../utils/Logger')
 import { NextFunction } from 'connect'
 import { Response, Request } from 'express'
 import { CaptainError } from '../models/OtherTypes'
+import InjectionExtractor = require('./InjectionExtractor')
 
 const dockerApi = DockerApiProvider.get()
 
@@ -35,7 +36,7 @@ export function injectGlobal() {
  */
 export function injectUser() {
     return function(req: Request, res: Response, next: NextFunction) {
-        if (res.locals.user) {
+        if (InjectionExtractor.extractUserFromInjected(res).user) {
             next()
             return // user is already injected by another layer
         }

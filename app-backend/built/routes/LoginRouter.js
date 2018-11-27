@@ -5,6 +5,7 @@ const BaseApi = require("../api/BaseApi");
 const Authenticator = require("../user/Authenticator");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 router.post('/', function (req, res, next) {
     let password = req.body.password || '';
@@ -14,11 +15,12 @@ router.post('/', function (req, res, next) {
         return;
     }
     let authToken;
-    Authenticator.get(res.locals.namespace)
+    const namespace = InjectionExtractor.extractGlobalsFromInjected(res).namespace;
+    Authenticator.get(namespace)
         .getAuthToken(password)
         .then(function (token) {
         authToken = token;
-        return Authenticator.get(res.locals.namespace).getAuthTokenForCookies(password);
+        return Authenticator.get(namespace).getAuthTokenForCookies(password);
     })
         .then(function (cookieAuth) {
         res.cookie(CaptainConstants.header.cookieAuth, cookieAuth);

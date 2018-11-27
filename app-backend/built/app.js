@@ -14,6 +14,7 @@ const Logger = require("./utils/Logger");
 const CaptainConstants = require("./utils/CaptainConstants");
 const LoginRouter = require("./routes/LoginRouter");
 const UserRouter = require("./routes/UserRouter");
+const InjectionExtractor = require("./injection/InjectionExtractor");
 // import { NextFunction, Request, Response } from 'express'
 const httpProxy = httpProxyImport.createProxyServer({});
 let app = express();
@@ -45,7 +46,7 @@ if (CaptainConstants.isDebug) {
 }
 app.use(Injector.injectGlobal());
 app.use(function (req, res, next) {
-    if (res.locals.forceSsl) {
+    if (InjectionExtractor.extractGlobalsFromInjected(res).forceSsl) {
         let isRequestSsl = req.secure || req.get('X-Forwarded-Proto') === 'https';
         if (!isRequestSsl) {
             let newUrl = 'https://' + req.get('host') + req.originalUrl;
@@ -77,7 +78,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 });
 app.use(CaptainConstants.netDataRelativePath, Injector.injectUserUsingCookieDataOnly());
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
-    if (!res.locals.user) {
+    if (!InjectionExtractor.extractUserFromInjected(res)) {
         Logger.e('User not logged in for NetData');
         res.sendStatus(500);
     }
@@ -111,7 +112,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'This captain instance only accepts API V1.'));
         return;
     }
-    if (!res.locals.initialized) {
+    if (!InjectionExtractor.extractGlobalsFromInjected(res).initialized) {
         let response = new BaseApi(ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED, 'Captain is not ready yet...');
         res.send(response);
         return;

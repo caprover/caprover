@@ -8,6 +8,7 @@ const ServiceManager = require("../user/ServiceManager");
 const DockerApiProvider = require("../docker/DockerApi");
 const BaseApi = require("../api/BaseApi");
 const Logger = require("../utils/Logger");
+const InjectionExtractor = require("./InjectionExtractor");
 const dockerApi = DockerApiProvider.get();
 const serviceMangerCache = {};
 /**
@@ -28,7 +29,7 @@ exports.injectGlobal = injectGlobal;
  */
 function injectUser() {
     return function (req, res, next) {
-        if (res.locals.user) {
+        if (InjectionExtractor.extractUserFromInjected(res).user) {
             next();
             return; // user is already injected by another layer
         }

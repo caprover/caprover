@@ -7,6 +7,7 @@ const CaptainManager = require("../user/CaptainManager");
 const Validator = require("validator");
 const CaptainConstants = require("../utils/CaptainConstants");
 const RegistriesRouter = require("./RegistriesRouter");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 router.use('/registries/', RegistriesRouter);
 router.post('/changerootdomain/', function (req, res, next) {
@@ -131,7 +132,8 @@ router.post('/enableregistry/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/info/', function (req, res, next) {
-    const dataStore = res.locals.user.dataStore;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
     return Promise.resolve()
         .then(function () {
         return dataStore.getHasRootSsl();
@@ -157,7 +159,6 @@ router.get('/info/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/loadbalancerinfo/', function (req, res, next) {
-    const dataStore = res.locals.user.dataStore;
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get()
@@ -227,7 +228,8 @@ router.post('/versionInfo/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/netdata/', function (req, res, next) {
-    const dataStore = res.locals.user.dataStore;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
     return Promise.resolve()
         .then(function () {
         return dataStore.getNetDataInfo();

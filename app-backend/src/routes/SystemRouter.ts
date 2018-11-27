@@ -6,6 +6,7 @@ import CaptainManager = require('../user/CaptainManager')
 import Validator = require('validator')
 import CaptainConstants = require('../utils/CaptainConstants')
 import RegistriesRouter = require('./RegistriesRouter')
+import InjectionExtractor = require('../injection/InjectionExtractor')
 
 const router = express.Router()
 
@@ -169,7 +170,8 @@ router.post('/enableregistry/', function(req, res, next) {
 })
 
 router.get('/info/', function(req, res, next) {
-    const dataStore = res.locals.user.dataStore
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
 
     return Promise.resolve()
         .then(function() {
@@ -201,8 +203,6 @@ router.get('/info/', function(req, res, next) {
 })
 
 router.get('/loadbalancerinfo/', function(req, res, next) {
-    const dataStore = res.locals.user.dataStore
-
     return Promise.resolve()
         .then(function() {
             return CaptainManager.get()
@@ -293,7 +293,8 @@ router.post('/versionInfo/', function(req, res, next) {
 })
 
 router.get('/netdata/', function(req, res, next) {
-    const dataStore = res.locals.user.dataStore
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
 
     return Promise.resolve()
         .then(function() {
