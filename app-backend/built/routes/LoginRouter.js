@@ -1,6 +1,5 @@
 "use strict";
 const express = require("express");
-const TokenApi = require("../api/TokenApi");
 const BaseApi = require("../api/BaseApi");
 const Authenticator = require("../user/Authenticator");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
@@ -15,7 +14,8 @@ router.post('/', function (req, res, next) {
         return;
     }
     let authToken;
-    const namespace = InjectionExtractor.extractGlobalsFromInjected(res).namespace;
+    const namespace = InjectionExtractor.extractGlobalsFromInjected(res)
+        .namespace;
     Authenticator.get(namespace)
         .getAuthToken(password)
         .then(function (token) {
@@ -24,7 +24,9 @@ router.post('/', function (req, res, next) {
     })
         .then(function (cookieAuth) {
         res.cookie(CaptainConstants.header.cookieAuth, cookieAuth);
-        res.send(new TokenApi(authToken));
+        let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Login succeeded');
+        baseApi.data = { token: authToken };
+        res.send(baseApi);
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });

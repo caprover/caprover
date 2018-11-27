@@ -1,6 +1,5 @@
 import express = require('express')
 import bodyParser = require('body-parser')
-import TokenApi = require('../api/TokenApi')
 import BaseApi = require('../api/BaseApi')
 import Authenticator = require('../user/Authenticator')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
