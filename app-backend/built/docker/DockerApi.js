@@ -5,7 +5,7 @@ const uuid = require("uuid/v4");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
 const EnvVars = require("../utils/EnvVars");
-const Base = Base64Provider.Base64;
+const Base64 = Base64Provider.Base64;
 function safeParseChunk(chunk) {
     try {
         return JSON.parse(chunk);

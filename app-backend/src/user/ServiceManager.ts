@@ -15,7 +15,6 @@ import uuid = require('uuid/v4')
 import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
 import { AnyError } from '../models/OtherTypes'
-import { ICaptainUser } from '../models/ICaptainUser'
 import { ImageInfo } from 'dockerode'
 
 const BUILD_LOG_SIZE = 50

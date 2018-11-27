@@ -7,7 +7,7 @@ import EnvVars = require('../utils/EnvVars')
 import BuildLog = require('../user/BuildLog')
 import { IDockerApiPort, IDockerContainerResource } from '../models/OtherTypes'
 
-const Base = Base64Provider.Base64
+const Base64 = Base64Provider.Base64
 
 function safeParseChunk(chunk: string) {
     try {
