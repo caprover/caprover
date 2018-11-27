@@ -7,8 +7,7 @@ import DockerApiProvider = require('../docker/DockerApi')
 import BaseApi = require('../api/BaseApi')
 import UserModel = require('../models/InjectionInterfaces')
 import Logger = require('../utils/Logger')
-import { NextFunction } from 'connect'
-import { Response, Request } from 'express'
+import { Response, Request, NextFunction } from 'express'
 import { CaptainError } from '../models/OtherTypes'
 import InjectionExtractor = require('./InjectionExtractor')
 

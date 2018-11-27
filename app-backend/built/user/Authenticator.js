@@ -11,7 +11,6 @@ const DataStoreProvider = require("../datastore/DataStoreProvider");
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42';
 const COOKIE_AUTH_SUFFIX = 'cookie-';
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push';
-const WEBHOOK_APP_PUSH_DATASTORE_SUFFIX = '-webhook-app-datastore';
 class Authenticator {
     constructor(secret, namespace, dataStore) {
         this.encryptionKey = secret + namespace; // making encryption key unique per namespace!
@@ -97,10 +96,6 @@ class Authenticator {
                 resolve(decodedData);
             });
         });
-    }
-    decodeAppPushWebhookDatastore(token) {
-        const self = this;
-        return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_DATASTORE_SUFFIX);
     }
     getAppPushWebhookToken(appName, tokenVersion) {
         const self = this;
