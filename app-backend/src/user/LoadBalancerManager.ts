@@ -6,7 +6,7 @@ import uuid = require('uuid/v4')
 import request = require('request')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import DockerApi = require('../docker/DockerApi')
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../models/OtherTypes';
 

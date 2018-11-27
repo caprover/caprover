@@ -2,7 +2,7 @@
 /**
  * Created by kasra on 27/06/17.
  */
-const DataStore = require("./DataStoreImpl");
+const DataStore = require("./DataStore");
 const dataStoreCache = {};
 module.exports = {
     getDataStore: function (namespace) {

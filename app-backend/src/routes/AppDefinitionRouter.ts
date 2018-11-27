@@ -4,7 +4,7 @@ import BaseApi = require('../api/BaseApi')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
 import Authenticator = require('../user/Authenticator')
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import ServiceManager = require('../user/ServiceManager')
 import { CaptainError } from '../models/OtherTypes'
 import InjectionExtractor = require('../injection/InjectionExtractor');

@@ -4,7 +4,7 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
 import multer = require('multer')
 import fs = require('fs-extra')
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import ServiceManager = require('../user/ServiceManager')
 import InjectionExtractor = require('../injection/InjectionExtractor');
 

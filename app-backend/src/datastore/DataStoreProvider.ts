@@ -2,7 +2,7 @@
  * Created by kasra on 27/06/17.
  */
 
-import DataStore = require('./DataStoreImpl')
+import DataStore = require('./DataStore')
 
 const dataStoreCache: IHashMapGeneric<DataStore> = {}
 

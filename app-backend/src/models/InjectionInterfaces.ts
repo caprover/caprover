@@ -1,4 +1,4 @@
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import ServiceManager = require('../user/ServiceManager')
 
 export interface UserJwt {

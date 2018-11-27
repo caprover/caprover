@@ -11,7 +11,7 @@ import CertbotManager = require('./CertbotManager')
 import DockerRegistry = require('./DockerRegistry')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import DataStoreProvider = require('../datastore/DataStoreProvider')
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import DockerApi = require('../docker/DockerApi')
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'

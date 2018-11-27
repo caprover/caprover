@@ -1,5 +1,5 @@
 import jwt = require('jsonwebtoken')
-import DataStore = require('../datastore/DataStoreImpl')
+import DataStore = require('../datastore/DataStore')
 import uuid = require('uuid/v4')
 import bcrypt = require('bcryptjs')
 
