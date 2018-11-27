@@ -151,6 +151,8 @@ class ServiceManager {
      *                 pathToSrcTarballFile
      *                   OR
      *                 repoInfo : {repo, user, password, branch}
+     *                   OR
+     *                 undefined
      * @param gitHash
      * @returns {Promise<void>}
      */
@@ -222,7 +224,8 @@ class ServiceManager {
                 ) {
                     promiseToFetchDirectory = tar
                         .x({
-                            file:  (<ISourceForImageCreationTarFile>source).pathToSrcTarballFile,
+                            file: (<ISourceForImageCreationTarFile>source)
+                                .pathToSrcTarballFile,
                             cwd: rawImageSourceFolder,
                         })
                         .then(function() {
@@ -232,7 +235,8 @@ class ServiceManager {
                     source &&
                     (<ISourceForImageCreationRepo>source).repoInfo
                 ) {
-                    const repoInfo = (<ISourceForImageCreationRepo>source).repoInfo
+                    const repoInfo = (<ISourceForImageCreationRepo>source)
+                        .repoInfo
                     promiseToFetchDirectory = GitHelper.clone(
                         repoInfo.user,
                         repoInfo.password,
@@ -272,7 +276,10 @@ class ServiceManager {
 
                             let directoryInside: string
 
-                            return new Promise<string>(function(resolve, reject) {
+                            return new Promise<string>(function(
+                                resolve,
+                                reject
+                            ) {
                                 fs.readdir(rawImageSourceFolder, function(
                                     err,
                                     files
@@ -488,9 +495,6 @@ class ServiceManager {
                 )
             })
             .then(function() {
-                if (!appName) {
-                    throw new Error('No App Name! Cannot verify domain')
-                }
 
                 Logger.d('Enabling SSL for: ' + appName + ' on ' + customDomain)
 
@@ -560,9 +564,6 @@ class ServiceManager {
                 )
             })
             .then(function() {
-                if (!appName) {
-                    throw new Error('No App Name! Cannot verify domain')
-                }
 
                 Logger.d('Enabling custom domain for: ' + appName)
 
@@ -580,9 +581,6 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
-                if (!appName) {
-                    throw new Error('No App Name! Cannot verify domain')
-                }
 
                 Logger.d('Removing custom domain for: ' + appName)
 
@@ -606,10 +604,6 @@ class ServiceManager {
             })
             .then(function() {
                 Logger.d('Enabling SSL for: ' + appName)
-
-                if (!appName) {
-                    throw new Error('No App Name! Cannot verify domain')
-                }
 
                 return self.dataStore.getRootDomain()
             })
@@ -651,9 +645,6 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
-                if (!appName) {
-                    throw new Error('No App Name! Cannot verify domain')
-                }
 
                 return self.dataStore.getRootDomain()
             })

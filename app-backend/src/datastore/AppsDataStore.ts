@@ -316,7 +316,6 @@ class AppsDataStore {
 
         return self
             .getAppDefinition(appName)
-
             .then(function(app) {
                 app.customDomain = app.customDomain || []
 
