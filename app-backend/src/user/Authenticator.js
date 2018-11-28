@@ -225,7 +225,11 @@ module.exports = {
             }
         }
 
-        return authenticatorCache[namespace];
+        if (namespace === CaptainConstants.rootNameSpace) {
+            return authenticatorCache[namespace];
+        }
+
+        return null;
 
     }
 };
