@@ -336,7 +336,7 @@ class AppsDataStore {
             })
     }
 
-    getNewVersion(appName: string) {
+    createNewVersion(appName: string) {
         if (!appName) {
             throw new Error('App Name should not be empty')
         }

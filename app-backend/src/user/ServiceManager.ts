@@ -189,7 +189,7 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
-                return dataStore.getAppsDataStore().getNewVersion(appName)
+                return dataStore.getAppsDataStore().createNewVersion(appName)
             })
             .then(function(newVersionPulled) {
                 newVersion = newVersionPulled

@@ -237,7 +237,7 @@ class AppsDataStore {
             throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, `customDomain ${customDomain} is not attached to app ${appName}`);
         });
     }
-    getNewVersion(appName) {
+    createNewVersion(appName) {
         if (!appName) {
             throw new Error('App Name should not be empty');
         }
