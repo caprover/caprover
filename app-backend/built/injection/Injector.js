@@ -9,6 +9,7 @@ const DockerApiProvider = require("../docker/DockerApi");
 const BaseApi = require("../api/BaseApi");
 const Logger = require("../utils/Logger");
 const InjectionExtractor = require("./InjectionExtractor");
+const ApiStatusCodes = require("../api/ApiStatusCodes");
 const dockerApi = DockerApiProvider.get();
 const serviceMangerCache = {};
 /**
@@ -20,6 +21,10 @@ function injectGlobal() {
         locals.initialized = CaptainManager.get().isInitialized();
         locals.namespace = req.header(CaptainConstants.header.namespace);
         locals.forceSsl = CaptainManager.get().getForceSslValue();
+        if (locals.namespace &&
+            locals.namespace !== CaptainConstants.rootNameSpace) {
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Namespace unknown');
+        }
         next();
     };
 }

@@ -10,6 +10,7 @@ import Logger = require('../utils/Logger')
 import { Response, Request, NextFunction } from 'express'
 import { CaptainError } from '../models/OtherTypes'
 import InjectionExtractor = require('./InjectionExtractor')
+import ApiStatusCodes = require('../api/ApiStatusCodes')
 
 const dockerApi = DockerApiProvider.get()
 
@@ -25,6 +26,16 @@ export function injectGlobal() {
         locals.initialized = CaptainManager.get().isInitialized()
         locals.namespace = req.header(CaptainConstants.header.namespace)
         locals.forceSsl = CaptainManager.get().getForceSslValue()
+
+        if (
+            locals.namespace &&
+            locals.namespace !== CaptainConstants.rootNameSpace
+        ) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'Namespace unknown'
+            )
+        }
 
         next()
     }
