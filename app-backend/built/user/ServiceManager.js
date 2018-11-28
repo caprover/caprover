@@ -100,6 +100,8 @@ class ServiceManager {
      *                 pathToSrcTarballFile
      *                   OR
      *                 repoInfo : {repo, user, password, branch}
+     *                   OR
+     *                 undefined
      * @param gitHash
      * @returns {Promise<void>}
      */
@@ -143,7 +145,8 @@ class ServiceManager {
                     .pathToSrcTarballFile) {
                 promiseToFetchDirectory = tar
                     .x({
-                    file: source.pathToSrcTarballFile,
+                    file: source
+                        .pathToSrcTarballFile,
                     cwd: rawImageSourceFolder,
                 })
                     .then(function () {
@@ -152,7 +155,8 @@ class ServiceManager {
             }
             else if (source &&
                 source.repoInfo) {
-                const repoInfo = source.repoInfo;
+                const repoInfo = source
+                    .repoInfo;
                 promiseToFetchDirectory = GitHelper.clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, rawImageSourceFolder).then(function () {
                     return GitHelper.getLastHash(rawImageSourceFolder);
                 });
@@ -303,9 +307,6 @@ class ServiceManager {
             return CaptainManager.get().verifyCaptainOwnsDomainOrThrow(customDomain, undefined);
         })
             .then(function () {
-            if (!appName) {
-                throw new Error('No App Name! Cannot verify domain');
-            }
             Logger.d('Enabling SSL for: ' + appName + ' on ' + customDomain);
             return self.dataStore
                 .getAppsDataStore()
@@ -349,9 +350,6 @@ class ServiceManager {
             return CaptainManager.get().verifyDomainResolvesToDefaultServerOnHost(customDomain);
         })
             .then(function () {
-            if (!appName) {
-                throw new Error('No App Name! Cannot verify domain');
-            }
             Logger.d('Enabling custom domain for: ' + appName);
             return self.dataStore
                 .getAppsDataStore()
@@ -365,9 +363,6 @@ class ServiceManager {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            if (!appName) {
-                throw new Error('No App Name! Cannot verify domain');
-            }
             Logger.d('Removing custom domain for: ' + appName);
             return self.dataStore
                 .getAppsDataStore()
@@ -386,9 +381,6 @@ class ServiceManager {
         })
             .then(function () {
             Logger.d('Enabling SSL for: ' + appName);
-            if (!appName) {
-                throw new Error('No App Name! Cannot verify domain');
-            }
             return self.dataStore.getRootDomain();
         })
             .then(function (val) {
@@ -423,9 +415,6 @@ class ServiceManager {
         let rootDomain;
         return Promise.resolve()
             .then(function () {
-            if (!appName) {
-                throw new Error('No App Name! Cannot verify domain');
-            }
             return self.dataStore.getRootDomain();
         })
             .then(function (val) {
