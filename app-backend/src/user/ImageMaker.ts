@@ -42,12 +42,10 @@ import tar = require('tar')
 import path = require('path')
 import TemplateHelper = require('./TemplateHelper')
 import GitHelper = require('../utils/GitHelper')
-import uuid = require('uuid/v4')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import { AnyError } from '../models/OtherTypes'
 import BuildLog = require('./BuildLog')
 import DataStore = require('../datastore/DataStore')
-import ServiceManager = require('./ServiceManager');
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'

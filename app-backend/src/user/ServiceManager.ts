@@ -11,7 +11,6 @@ import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
 import ImageMaker = require('./ImageMaker')
 
-
 class ServiceManager {
     private activeBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
@@ -533,7 +532,8 @@ class ServiceManager {
     getBuildStatus(appName: string) {
         const self = this
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize)
+            this.buildLogs[appName] ||
+            new BuildLog(CaptainConstants.buildLogSize)
 
         return {
             isAppBuilding: self.isAppBuilding(appName),
@@ -545,7 +545,8 @@ class ServiceManager {
     logBuildFailed(appName: string, error: string) {
         error = (error || '') + ''
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize)
+            this.buildLogs[appName] ||
+            new BuildLog(CaptainConstants.buildLogSize)
         this.buildLogs[appName].onBuildFailed(error)
     }
 
@@ -591,6 +592,22 @@ class ServiceManager {
                             'ImageName for deployed version is not available, this is impossible!'
                         )
                     }
+
+                    Logger.d(
+                        `Creating service ${serviceName} with default image, we will update image later`
+                    )
+
+                    // if we pass in networks here. Almost always it results in a delayed update which causes
+                    // update errors if they happen right away!
+                    return dockerApi.createServiceOnNodeId(
+                        CaptainConstants.appPlaceholderImageName,
+                        serviceName,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined
+                    )
                 }
             })
             .then(function() {
@@ -600,22 +617,6 @@ class ServiceManager {
             })
             .then(function(data) {
                 dockerAuthObject = data
-                
-                Logger.d(
-                    `Creating service ${serviceName} with image ${imageName}`
-                )
-
-                // if we pass in networks here. Almost always it results in a delayed update which causes
-                // update errors if they happen right away!
-                return dockerApi.createServiceOnNodeId(
-                    CaptainConstants.appPlaceholderImageName,
-                    serviceName,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined
-                )
             })
             .then(function() {
                 return self.createPreDeployFunctionIfExist(app)
