@@ -21,8 +21,6 @@ let data = {
 
     nginxImageName: 'nginx',
 
-    defaultImageForApp: 'nginx:1.15-alpine-perl',
-
     defaultEmail: 'runner@captainduckduck.com',
 
     defaultMaxLogSize: '512m',

@@ -440,7 +440,7 @@ class ServiceManager {
             Logger.d(`Creating service ${serviceName} with image ${imageName}`);
             // if we pass in networks here. Almost always it results in a delayed update which causes
             // update errors if they happen right away!
-            return dockerApi.createServiceOnNodeId(CaptainConstants.defaultImageForApp, serviceName, undefined, undefined, undefined, undefined, undefined);
+            return dockerApi.createServiceOnNodeId(CaptainConstants.appPlaceholderImageName, serviceName, undefined, undefined, undefined, undefined, undefined);
         })
             .then(function () {
             return self.createPreDeployFunctionIfExist(app);

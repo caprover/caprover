@@ -13,7 +13,6 @@ let data = {
     registryImageName: 'registry:2',
     appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
     nginxImageName: 'nginx',
-    defaultImageForApp: 'nginx:1.15-alpine-perl',
     defaultEmail: 'runner@captainduckduck.com',
     defaultMaxLogSize: '512m',
     buildLogSize: 50,
