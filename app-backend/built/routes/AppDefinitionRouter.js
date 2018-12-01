@@ -4,8 +4,16 @@ const fs = require("fs");
 const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
+const CaptainConstants = require("../utils/CaptainConstants");
 const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
+const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
+    schemaVersion: 1,
+    dockerfileLines: [
+        'FROM ' + CaptainConstants.appPlaceholderImageName,
+        'CMD [ "npm", "start" ]',
+    ],
+});
 // Get a list of oneclickspps
 router.get('/oneclickapps', function (req, res, next) {
     fs.readdir(__dirname + '/../../dist/oneclick-apps', function (err, files) {
@@ -27,8 +35,10 @@ router.get('/oneclickapps', function (req, res, next) {
 });
 // unused iamges
 router.get('/unusedImages', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     Promise.resolve()
         .then(function () {
         let mostRecentLimit = Number(req.query.mostRecentLimit || '0');
@@ -44,8 +54,10 @@ router.get('/unusedImages', function (req, res, next) {
 });
 // unused iamges
 router.post('/deleteImages', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let imageIds = req.body.imageIds || [];
     Promise.resolve()
         .then(function () {
@@ -59,8 +71,10 @@ router.post('/deleteImages', function (req, res, next) {
 });
 // Get All App Definitions
 router.get('/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appsArray = [];
     dataStore
         .getAppsDataStore()
@@ -91,8 +105,10 @@ router.get('/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enablebasedomainssl/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     const appName = req.body.appName;
     return Promise.resolve()
         .then(function () {
@@ -106,8 +122,10 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/customdomain/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     let customDomain = (req.body.customDomain || '').toLowerCase();
     // verify customdomain.com going through the default NGINX
@@ -127,8 +145,10 @@ router.post('/customdomain/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/removecustomdomain/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     let customDomain = (req.body.customDomain || '').toLowerCase();
     return Promise.resolve()
@@ -146,8 +166,10 @@ router.post('/removecustomdomain/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/enablecustomdomainssl/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     let customDomain = (req.body.customDomain || '').toLowerCase();
     // Check if customdomain is already associated with app. If not, error out.
@@ -157,18 +179,17 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
         return serviceManager.enableCustomDomainSsl(appName, customDomain);
     })
         .then(function () {
-        let msg = 'Custom domain SSL is enabled for: ' +
-            appName +
-            ' at ' +
-            customDomain;
+        let msg = `Custom domain SSL is enabled for: ${appName} at ${customDomain} `;
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/register/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     let hasPersistentData = !!req.body.hasPersistentData;
     let appCreated = false;
@@ -180,10 +201,9 @@ router.post('/register/', function (req, res, next) {
         appCreated = true;
     })
         .then(function () {
-        return serviceManager.createImage(appName, undefined /*use default dockerfile*/, '');
-    })
-        .then(function (version) {
-        return serviceManager.ensureServiceInitedAndUpdated(appName, version);
+        return serviceManager.deployNewVersion(appName, {
+            captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
+        }, undefined);
     })
         .then(function () {
         Logger.d('AppName is saved: ' + appName);
@@ -210,8 +230,10 @@ router.post('/register/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/delete/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     Logger.d('Deleting app started: ' + appName);
     Promise.resolve()
@@ -225,8 +247,10 @@ router.post('/delete/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/update/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     let appName = req.body.appName;
     let nodeId = req.body.nodeId;
     let notExposeAsWebApp = req.body.notExposeAsWebApp;

@@ -314,26 +314,59 @@ class AppsDataStore {
     verifyCustomDomainBelongsToApp(appName: string, customDomain: string) {
         const self = this
 
-        return self
-            .getAppDefinition(appName)
-            .then(function(app) {
-                app.customDomain = app.customDomain || []
+        return self.getAppDefinition(appName).then(function(app) {
+            app.customDomain = app.customDomain || []
 
-                if (app.customDomain.length > 0) {
-                    for (let idx = 0; idx < app.customDomain.length; idx++) {
-                        if (
-                            app.customDomain[idx].publicDomain === customDomain
-                        ) {
-                            return true
-                        }
+            if (app.customDomain.length > 0) {
+                for (let idx = 0; idx < app.customDomain.length; idx++) {
+                    if (app.customDomain[idx].publicDomain === customDomain) {
+                        return true
                     }
                 }
+            }
 
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_PARAMETER,
-                    `customDomain ${customDomain} is not attached to app ${appName}`
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                `customDomain ${customDomain} is not attached to app ${appName}`
+            )
+        })
+    }
+
+    setDeployedVersionAndImage(
+        appName: string,
+        deployedVersion: number,
+        imageName: string
+    ) {
+        if (!appName) {
+            throw new Error('App Name should not be empty')
+        }
+        const self = this
+
+        return this.getAppDefinition(appName).then(function(app) {
+            const versions = app.versions
+            const newVersionIndex = versions.length
+
+            let found = false
+
+            for (let i = 0; i < versions.length; i++) {
+                const element = versions[i]
+                if (element.version === deployedVersion) {
+                    element.imageName = imageName
+                    found = true
+                    break
+                }
+            }
+
+            if (!found) {
+                throw new Error(
+                    `Version trying to deploy not found ${deployedVersion}`
                 )
-            })
+            }
+
+            app.deployedVersion = deployedVersion
+
+            return self.saveApp(appName, app)
+        })
     }
 
     createNewVersion(appName: string) {
@@ -487,18 +520,6 @@ class AppsDataStore {
             .then(function() {
                 return self.saveApp(appName, appObj)
             })
-    }
-
-    setDeployedVersion(appName: string, version: number) {
-        const self = this
-
-        return this.getAppDefinition(appName).then(function(app) {
-            app.deployedVersion = version
-
-            return self.saveApp(appName, app).then(function() {
-                return version
-            })
-        })
     }
 
     setGitHash(appName: string, newVersion: number, gitHashToSave: string) {

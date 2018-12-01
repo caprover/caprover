@@ -86,20 +86,13 @@ router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
                 }
             }
 
-            return serviceManager
-                .createImage(
-                    appName,
-                    {
-                        repoInfo: repoInfo,
-                    },
-                    ''
-                )
-                .then(function(version) {
-                    return serviceManager.ensureServiceInitedAndUpdated(
-                        appName,
-                        version
-                    )
-                })
+            return serviceManager.deployNewVersion(
+                appName,
+                {
+                    repoInfo: repoInfo,
+                },
+                undefined
+            )
         })
         .catch(function(error) {
             Logger.e(error)

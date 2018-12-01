@@ -223,9 +223,7 @@ class AppsDataStore {
     }
     verifyCustomDomainBelongsToApp(appName, customDomain) {
         const self = this;
-        return self
-            .getAppDefinition(appName)
-            .then(function (app) {
+        return self.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || [];
             if (app.customDomain.length > 0) {
                 for (let idx = 0; idx < app.customDomain.length; idx++) {
@@ -235,6 +233,30 @@ class AppsDataStore {
                 }
             }
             throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, `customDomain ${customDomain} is not attached to app ${appName}`);
+        });
+    }
+    setDeployedVersionAndImage(appName, deployedVersion, imageName) {
+        if (!appName) {
+            throw new Error('App Name should not be empty');
+        }
+        const self = this;
+        return this.getAppDefinition(appName).then(function (app) {
+            const versions = app.versions;
+            const newVersionIndex = versions.length;
+            let found = false;
+            for (let i = 0; i < versions.length; i++) {
+                const element = versions[i];
+                if (element.version === deployedVersion) {
+                    element.imageName = imageName;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new Error(`Version trying to deploy not found ${deployedVersion}`);
+            }
+            app.deployedVersion = deployedVersion;
+            return self.saveApp(appName, app);
         });
     }
     createNewVersion(appName) {
@@ -353,15 +375,6 @@ class AppsDataStore {
         })
             .then(function () {
             return self.saveApp(appName, appObj);
-        });
-    }
-    setDeployedVersion(appName, version) {
-        const self = this;
-        return this.getAppDefinition(appName).then(function (app) {
-            app.deployedVersion = version;
-            return self.saveApp(appName, app).then(function () {
-                return version;
-            });
         });
     }
     setGitHash(appName, newVersion, gitHashToSave) {

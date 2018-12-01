@@ -124,25 +124,9 @@ class DataStore {
         })
     }
 
-    getImageName(
-        authObj: DockerAuthObj | undefined,
-        appName: string,
-        version: string | undefined | number
-    ) {
-        let authPrefix = ''
-
-        if (authObj) {
-            authPrefix = authObj.serveraddress + '/' + authObj.username + '/'
-        }
-
-        return authPrefix + this.getImageNameWithoutAuthObj(appName, version)
-    }
-
-    getImageNameWithoutAuthObj(
-        appName: string,
-        versionStr: string | undefined | number
-    ) {
-        if (versionStr === 0) {
+    getImageNameAndTag(appName: string, version: number) {
+        let versionStr = '' + version
+        if (version === 0) {
             versionStr = '0'
         }
 

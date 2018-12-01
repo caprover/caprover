@@ -66,13 +66,9 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
                 return;
             }
         }
-        return serviceManager
-            .createImage(appName, {
+        return serviceManager.deployNewVersion(appName, {
             repoInfo: repoInfo,
-        }, '')
-            .then(function (version) {
-            return serviceManager.ensureServiceInitedAndUpdated(appName, version);
-        });
+        }, undefined);
     })
         .catch(function (error) {
         Logger.e(error);

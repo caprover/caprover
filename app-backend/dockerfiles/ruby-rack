@@ -3,9 +3,9 @@ RUN apk --update add make g++
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY ./src/Gemfile /usr/src/app/
+COPY ./Gemfile /usr/src/app/
 RUN bundle install
-COPY ./src /usr/src/app
+COPY ./ /usr/src/app
 ENV RACK_ENV production
 EXPOSE 80
 

@@ -6,7 +6,7 @@ import multer = require('multer')
 import fs = require('fs-extra')
 import DataStore = require('../datastore/DataStore')
 import ServiceManager = require('../user/ServiceManager')
-import InjectionExtractor = require('../injection/InjectionExtractor');
+import InjectionExtractor = require('../injection/InjectionExtractor')
 
 const TEMP_UPLOAD = 'temp_upload/'
 const router = express.Router()
@@ -16,7 +16,8 @@ const upload = multer({
 
 router.get('/:appName/', function(req, res, next) {
     let appName = req.params.appName
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager
 
     return Promise.resolve()
         .then(function() {
@@ -34,7 +35,8 @@ router.get('/:appName/', function(req, res, next) {
 })
 
 router.post('/:appName/', function(req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
     let appName = req.params.appName
 
     dataStore
@@ -52,8 +54,8 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     res,
     next
 ) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager
 
     const appName = req.params.appName
     const isDetachedBuild = !!req.query.detached
@@ -74,113 +76,33 @@ router.post('/:appName/', upload.single('sourceFile'), function(
         return
     }
 
-    Promise.resolve()
-        .then(function() {
-            if (captainDefinitionContent) {
-                for (let i = 0; i < 1000; i++) {
-                    let tempPath =
-                        __dirname + '/../../' + TEMP_UPLOAD + appName + i
-                    if (!fs.pathExistsSync(tempPath)) {
-                        tarballSourceFilePath = tempPath
-                        break
-                    }
-                }
+    Promise.resolve().then(function() {
+        const promiseToDeployNewVer = serviceManager.deployNewVersion(
+            appName,
+            {
+                uploadedTarPath: tarballSourceFilePath,
+                captainDefinitionContent: captainDefinitionContent,
+            },
+            gitHash
+        )
 
-                if (!tarballSourceFilePath) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Cannot create a temp file! Something is seriously wrong with the temp folder'
-                    )
-                }
-
-                return serviceManager.createTarFarFromCaptainContent(
-                    captainDefinitionContent,
-                    appName,
-                    tarballSourceFilePath
+        if (isDetachedBuild) {
+            res.send(
+                new BaseApi(
+                    ApiStatusCodes.STATUS_OK_DEPLOY_STARTED,
+                    'Deploy is started'
                 )
-            }
-        })
-        .then(function() {
-            if (isDetachedBuild) {
-                res.send(
-                    new BaseApi(
-                        ApiStatusCodes.STATUS_OK_DEPLOY_STARTED,
-                        'Deploy is started'
-                    )
-                )
-                startBuildProcess().catch(function(error) {
-                    Logger.e(error)
-                })
-            } else {
-                return startBuildProcess().then(function() {
+            )
+        } else {
+            promiseToDeployNewVer
+                .then(function() {
                     res.send(
                         new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done')
                     )
                 })
-            }
-        })
-        .catch(function(error) {
-            Logger.e(error)
-
-            if (error && error.captainErrorType) {
-                res.send(new BaseApi(error.captainErrorType, error.apiMessage))
-                return
-            }
-
-            if (!error) {
-                error = new Error('ERROR: NULL')
-            }
-
-            res.send(
-                new BaseApi(
-                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    error.stack + ''
-                )
-            )
-
-            try {
-                if (tarballSourceFilePath) {
-                    fs.removeSync(tarballSourceFilePath)
-                }
-            } catch (ignore) {}
-        })
-
-    function startBuildProcess() {
-        return serviceManager
-            .createImage(
-                appName,
-                {
-                    pathToSrcTarballFile: tarballSourceFilePath,
-                },
-                gitHash
-            )
-            .then(function(version) {
-                if (tarballSourceFilePath) {
-                    fs.removeSync(tarballSourceFilePath)
-                }
-                return version
-            })
-            .catch(function(error) {
-                return new Promise<void>(function(resolve, reject) {
-                    if (tarballSourceFilePath) {
-                        fs.removeSync(tarballSourceFilePath)
-                    }
-                    reject(error)
-                })
-            })
-            .then(function(version: number) {
-                return serviceManager.ensureServiceInitedAndUpdated(
-                    appName,
-                    version
-                )
-            })
-            .catch(function(error) {
-                return new Promise<void>(function(resolve, reject) {
-                    serviceManager.logBuildFailed(appName, error)
-                    reject(error)
-                })
-            })
-    }
+                .catch(ApiStatusCodes.createCatcher(res))
+        }
+    })
 })
 
 export = router

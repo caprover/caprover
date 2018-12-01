@@ -2,9 +2,7 @@
 const express = require("express");
 const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
-const Logger = require("../utils/Logger");
 const multer = require("multer");
-const fs = require("fs-extra");
 const InjectionExtractor = require("../injection/InjectionExtractor");
 const TEMP_UPLOAD = 'temp_upload/';
 const router = express.Router();
@@ -13,7 +11,8 @@ const upload = multer({
 });
 router.get('/:appName/', function (req, res, next) {
     let appName = req.params.appName;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     return Promise.resolve()
         .then(function () {
         return serviceManager.getBuildStatus(appName);
@@ -26,7 +25,8 @@ router.get('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/:appName/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
     let appName = req.params.appName;
     dataStore
         .getAppsDataStore()
@@ -38,8 +38,8 @@ router.post('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.post('/:appName/', upload.single('sourceFile'), function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user.dataStore;
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user.serviceManager;
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager;
     const appName = req.params.appName;
     const isDetachedBuild = !!req.query.detached;
     const captainDefinitionContent = req.body.captainDefinitionContent;
@@ -50,81 +50,22 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, 'Either tarballfile or captainDefinitionContent should be present.'));
         return;
     }
-    Promise.resolve()
-        .then(function () {
-        if (captainDefinitionContent) {
-            for (let i = 0; i < 1000; i++) {
-                let tempPath = __dirname + '/../../' + TEMP_UPLOAD + appName + i;
-                if (!fs.pathExistsSync(tempPath)) {
-                    tarballSourceFilePath = tempPath;
-                    break;
-                }
-            }
-            if (!tarballSourceFilePath) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Cannot create a temp file! Something is seriously wrong with the temp folder');
-            }
-            return serviceManager.createTarFarFromCaptainContent(captainDefinitionContent, appName, tarballSourceFilePath);
-        }
-    })
-        .then(function () {
+    Promise.resolve().then(function () {
+        const promiseToDeployNewVer = serviceManager.deployNewVersion(appName, {
+            uploadedTarPath: tarballSourceFilePath,
+            captainDefinitionContent: captainDefinitionContent,
+        }, gitHash);
         if (isDetachedBuild) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK_DEPLOY_STARTED, 'Deploy is started'));
-            startBuildProcess().catch(function (error) {
-                Logger.e(error);
-            });
         }
         else {
-            return startBuildProcess().then(function () {
+            promiseToDeployNewVer
+                .then(function () {
                 res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done'));
-            });
+            })
+                .catch(ApiStatusCodes.createCatcher(res));
         }
-    })
-        .catch(function (error) {
-        Logger.e(error);
-        if (error && error.captainErrorType) {
-            res.send(new BaseApi(error.captainErrorType, error.apiMessage));
-            return;
-        }
-        if (!error) {
-            error = new Error('ERROR: NULL');
-        }
-        res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, error.stack + ''));
-        try {
-            if (tarballSourceFilePath) {
-                fs.removeSync(tarballSourceFilePath);
-            }
-        }
-        catch (ignore) { }
     });
-    function startBuildProcess() {
-        return serviceManager
-            .createImage(appName, {
-            pathToSrcTarballFile: tarballSourceFilePath,
-        }, gitHash)
-            .then(function (version) {
-            if (tarballSourceFilePath) {
-                fs.removeSync(tarballSourceFilePath);
-            }
-            return version;
-        })
-            .catch(function (error) {
-            return new Promise(function (resolve, reject) {
-                if (tarballSourceFilePath) {
-                    fs.removeSync(tarballSourceFilePath);
-                }
-                reject(error);
-            });
-        })
-            .then(function (version) {
-            return serviceManager.ensureServiceInitedAndUpdated(appName, version);
-        })
-            .catch(function (error) {
-            return new Promise(function (resolve, reject) {
-                serviceManager.logBuildFailed(appName, error);
-                reject(error);
-            });
-        });
-    }
 });
 module.exports = router;
 //# sourceMappingURL=AppDataRouter.js.map

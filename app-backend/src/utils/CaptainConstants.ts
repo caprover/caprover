@@ -21,9 +21,13 @@ let data = {
 
     nginxImageName: 'nginx',
 
+    defaultImageForApp: 'nginx:1.15-alpine-perl',
+
     defaultEmail: 'runner@captainduckduck.com',
 
     defaultMaxLogSize: '512m',
+
+    buildLogSize: 50,
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
@@ -109,7 +113,7 @@ let data = {
 
     captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
 
-    captainRawImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_raw',
+    captainRawSourceDirectoryBase: CAPTAIN_ROOT_DIRECTORY_TEMP + '/image_raw',
 
     captainTarImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_tar',
 

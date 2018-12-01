@@ -108,15 +108,9 @@ class DataStore {
             return self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0;
         });
     }
-    getImageName(authObj, appName, version) {
-        let authPrefix = '';
-        if (authObj) {
-            authPrefix = authObj.serveraddress + '/' + authObj.username + '/';
-        }
-        return authPrefix + this.getImageNameWithoutAuthObj(appName, version);
-    }
-    getImageNameWithoutAuthObj(appName, versionStr) {
-        if (versionStr === 0) {
+    getImageNameAndTag(appName, version) {
+        let versionStr = '' + version;
+        if (version === 0) {
             versionStr = '0';
         }
         return (this.getImageNameBase() +

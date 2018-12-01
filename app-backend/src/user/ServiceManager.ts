@@ -1,482 +1,73 @@
-import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
-import fs = require('fs-extra')
-import tar = require('tar')
-import path = require('path')
+import CaptainConstants = require('../utils/CaptainConstants')
 import CaptainManager = require('./CaptainManager')
 import LoadBalancerManager = require('./LoadBalancerManager')
 import DockerApi = require('../docker/DockerApi')
 import DataStore = require('../datastore/DataStore')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
-import TemplateHelper = require('./TemplateHelper')
 import Authenticator = require('./Authenticator')
-import GitHelper = require('../utils/GitHelper')
-import uuid = require('uuid/v4')
 import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
-import { AnyError } from '../models/OtherTypes'
 import { ImageInfo } from 'dockerode'
+import ImageMaker = require('./ImageMaker')
 
-const BUILD_LOG_SIZE = 50
-const SOURCE_FOLDER_NAME = 'src'
-const DOCKER_FILE = 'Dockerfile'
-const CAPTAIN_DEFINITION_FILE = 'captain-definition'
-const PLACEHOLDER_DOCKER_FILE_CONTENT =
-    'FROM ' +
-    CaptainConstants.appPlaceholderImageName +
-    '\nCMD [ "npm", "start" ]'
-
-function getRawImageSourceFolder(imageName: string, newVersionPulled: number) {
-    return (
-        CaptainConstants.captainRawImagesDir +
-        '/' +
-        imageName +
-        '/' +
-        newVersionPulled +
-        '/' +
-        SOURCE_FOLDER_NAME
-    )
-}
-
-function getRawImageBaseFolder(imageName: string, newVersionPulled: number) {
-    return (
-        CaptainConstants.captainRawImagesDir +
-        '/' +
-        imageName +
-        '/' +
-        newVersionPulled
-    )
-}
-
-function getTarImageBaseFolder(imageName: string, newVersionPulled: number) {
-    return (
-        CaptainConstants.captainTarImagesDir +
-        '/' +
-        imageName +
-        '/' +
-        newVersionPulled
-    )
-}
-
-function getCaptainDefinitionTempFolder(
-    serviceName: string,
-    randomSuffix: string
-) {
-    return (
-        CaptainConstants.captainDefinitionTempDir +
-        '/' +
-        serviceName +
-        '/' +
-        randomSuffix
-    )
-}
 
 class ServiceManager {
     private activeBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
     private isReady: boolean
+    private imageMaker: ImageMaker
+    private dockerRegistryHelper: DockerRegistryHelper
 
     constructor(
         private dataStore: DataStore,
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager
     ) {
+        this.dockerRegistryHelper = new DockerRegistryHelper()
         this.activeBuilds = {}
         this.buildLogs = {}
         this.isReady = true
+        this.imageMaker = new ImageMaker(
+            this.dockerRegistryHelper,
+            this.dockerApi,
+            this.dataStore,
+            this.buildLogs,
+            this.activeBuilds
+        )
     }
 
     isInited() {
         return this.isReady
     }
 
-    createTarFarFromCaptainContent(
-        captainDefinitionContent: string,
-        appName: string,
-        tarDestination: string
-    ) {
-        const serviceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName)
-
-        let captainDefinitionDirPath: string | undefined = undefined
-
-        return Promise.resolve()
-            .then(function() {
-                for (let i = 0; i < 100; i++) {
-                    const temp = getCaptainDefinitionTempFolder(
-                        serviceName,
-                        uuid()
-                    )
-                    if (!fs.pathExistsSync(temp)) {
-                        captainDefinitionDirPath = temp
-                        break
-                    }
-                }
-
-                if (!captainDefinitionDirPath) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Cannot create a temp file! Something is seriously wrong with the temp folder'
-                    )
-                }
-
-                return fs.outputFile(
-                    captainDefinitionDirPath + '/' + CAPTAIN_DEFINITION_FILE,
-                    captainDefinitionContent
-                )
-            })
-            .then(function() {
-                return tar.c(
-                    {
-                        file: tarDestination,
-                        cwd: captainDefinitionDirPath,
-                    },
-                    [CAPTAIN_DEFINITION_FILE]
-                )
-            })
-            .then(function() {
-                if (!captainDefinitionDirPath) {
-                    throw new Error('captainDefinitionDirPath is NULL')
-                }
-
-                return fs.remove(captainDefinitionDirPath)
-            })
-    }
-
-    /**
-     *
-     * @param appName
-     * @param source
-     *                 pathToSrcTarballFile
-     *                   OR
-     *                 repoInfo : {repo, user, password, branch}
-     *                   OR
-     *                 undefined
-     * @param gitHash
-     * @returns {Promise<void>}
-     */
-    createImage(
-        appName: string,
-        source: ISourceForImageCreation,
-        gitHash: string
-    ) {
-        Logger.d('Creating image for: ' + appName)
-
+    deployNewVersion(appName: string, source: IImageSource, gitHash?: string) {
         const self = this
-
-        const imageName = this.dataStore.getImageName(
-            CaptainManager.get().getDockerAuthObject(),
-            appName,
-            undefined
-        )
-        const dockerApi = this.dockerApi
         const dataStore = this.dataStore
-        let newVersion: number
-        let rawImageSourceFolder: string
-        let rawImageBaseFolder: string
-        let tarImageBaseFolder: string
-        let tarballFilePath: string
-        let dockerFilePath: string
-
-        this.activeBuilds[appName] = true
-        this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE)
-
-        this.buildLogs[appName].clear()
-        this.buildLogs[appName].log('------------------------- ' + new Date())
-        this.buildLogs[appName].log('Build started for ' + appName)
-
-        return Promise.resolve()
+        let deployedVersion: number
+        return Promise.resolve() //
             .then(function() {
                 return dataStore.getAppsDataStore().createNewVersion(appName)
             })
-            .then(function(newVersionPulled) {
-                newVersion = newVersionPulled
-
-                rawImageSourceFolder = getRawImageSourceFolder(
-                    imageName,
-                    newVersionPulled
-                )
-                rawImageBaseFolder = getRawImageBaseFolder(
-                    imageName,
-                    newVersionPulled
-                )
-                dockerFilePath = rawImageBaseFolder + '/' + DOCKER_FILE
-
-                tarImageBaseFolder = getTarImageBaseFolder(
-                    imageName,
-                    newVersionPulled
-                )
-                tarballFilePath = tarImageBaseFolder + '/image.tar'
-
-                return fs.ensureDir(rawImageSourceFolder).then(function() {
-                    return rawImageSourceFolder
-                })
+            .then(function(appVersion) {
+                deployedVersion = appVersion
+                return self.imageMaker.ensureImage(source, appName, appVersion)
             })
-            .then(function(rawImageSourceFolder) {
-                let promiseToFetchDirectory: Promise<string>
-
-                if (
-                    source &&
-                    (<ISourceForImageCreationTarFile>source)
-                        .pathToSrcTarballFile
-                ) {
-                    promiseToFetchDirectory = tar
-                        .x({
-                            file: (<ISourceForImageCreationTarFile>source)
-                                .pathToSrcTarballFile,
-                            cwd: rawImageSourceFolder,
-                        })
-                        .then(function() {
-                            return gitHash
-                        })
-                } else if (
-                    source &&
-                    (<ISourceForImageCreationRepo>source).repoInfo
-                ) {
-                    const repoInfo = (<ISourceForImageCreationRepo>source)
-                        .repoInfo
-                    promiseToFetchDirectory = GitHelper.clone(
-                        repoInfo.user,
-                        repoInfo.password,
-                        repoInfo.repo,
-                        repoInfo.branch,
-                        rawImageSourceFolder
-                    ).then(function() {
-                        return GitHelper.getLastHash(rawImageSourceFolder)
-                    })
-                } else {
-                    return PLACEHOLDER_DOCKER_FILE_CONTENT
-                }
-
-                return promiseToFetchDirectory
-                    .then(function(gitHashToSave) {
-                        return dataStore
-                            .getAppsDataStore()
-                            .setGitHash(appName, newVersion, gitHashToSave)
-                    })
-                    .then(function() {
-                        return fs.pathExists(
-                            rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE
-                        )
-                    })
-                    .then(function(exists) {
-                        if (!exists) {
-                            Logger.d(
-                                'Captain Definition does not exist in the base tar. Looking inside...'
-                            )
-
-                            // check if there is only one child
-                            // check if it's a directory
-                            // check if captain definition exists in it
-                            // rename rawImageSourceFolder to rawImageSourceFolder+'.bak'
-                            // move the child directory out to base and rename it to rawImageSourceFolder
-                            // read captain definition from the folder and return it.
-
-                            let directoryInside: string
-
-                            return new Promise<string>(function(
-                                resolve,
-                                reject
-                            ) {
-                                fs.readdir(rawImageSourceFolder, function(
-                                    err,
-                                    files
-                                ) {
-                                    if (err) {
-                                        reject(err)
-                                        return
-                                    }
-
-                                    if (
-                                        files.length !== 1 ||
-                                        !fs
-                                            .statSync(
-                                                path.join(
-                                                    rawImageSourceFolder,
-                                                    files[0]
-                                                )
-                                            )
-                                            .isDirectory()
-                                    ) {
-                                        reject(
-                                            ApiStatusCodes.createError(
-                                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                                'Captain Definition file does not exist!'
-                                            )
-                                        )
-                                        return
-                                    }
-
-                                    resolve(files[0])
-                                })
-                            })
-                                .then(function(directory: string) {
-                                    directoryInside = directory
-
-                                    return fs.pathExists(
-                                        path.join(
-                                            path.join(
-                                                rawImageSourceFolder,
-                                                directoryInside
-                                            ),
-                                            CAPTAIN_DEFINITION_FILE
-                                        )
-                                    )
-                                })
-                                .then(function(captainDefinitionExists) {
-                                    if (!captainDefinitionExists) {
-                                        throw ApiStatusCodes.createError(
-                                            ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                            'Captain Definition file does not exist!'
-                                        )
-                                    }
-
-                                    const BAK = '.bak'
-
-                                    fs.renameSync(
-                                        rawImageSourceFolder,
-                                        rawImageSourceFolder + BAK
-                                    )
-                                    fs.renameSync(
-                                        path.join(
-                                            rawImageSourceFolder + BAK,
-                                            directoryInside
-                                        ),
-                                        rawImageSourceFolder
-                                    )
-                                })
-                        }
-                    })
-                    .then(function() {
-                        return fs.readJson(
-                            rawImageSourceFolder + '/' + CAPTAIN_DEFINITION_FILE
-                        )
-                    })
-                    .then(function(data) {
-                        if (!data) {
-                            throw ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Captain Definition File is empty!'
-                            )
-                        }
-
-                        if (!data.schemaVersion) {
-                            throw ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Captain Definition version is empty!'
-                            )
-                        }
-
-                        if (data.schemaVersion === 1) {
-                            const templateIdTag = data.templateId
-                            const dockerfileLines = data.dockerfileLines
-                            const hasDockerfileLines =
-                                dockerfileLines && dockerfileLines.length > 0
-
-                            if (hasDockerfileLines && !templateIdTag) {
-                                return dockerfileLines.join('\n')
-                            } else if (!hasDockerfileLines && templateIdTag) {
-                                return TemplateHelper.get().getDockerfileContentFromTemplateTag(
-                                    templateIdTag
-                                )
-                            } else {
-                                throw ApiStatusCodes.createError(
-                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                    'Dockerfile or TemplateId must be present. Both should not be present at the same time'
-                                )
-                            }
-                        } else {
-                            throw ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Captain Definition version is not supported!'
-                            )
-                        }
-                    })
-            })
-            .then(function(dockerfileContent) {
-                return fs.outputFile(dockerFilePath, dockerfileContent)
-            })
-            .then(function() {
-                return fs.ensureDir(tarImageBaseFolder)
-            })
-            .then(function() {
-                return tar.c(
-                    {
-                        file: tarballFilePath,
-                        cwd: rawImageBaseFolder,
-                    },
-                    [SOURCE_FOLDER_NAME, DOCKER_FILE]
-                )
-            })
-            .then(function() {
-                return dockerApi
-                    .buildImageFromDockerFile(
-                        imageName,
-                        newVersion,
-                        tarballFilePath,
-                        self.buildLogs[appName]
+            .then(function(imageName) {
+                return dataStore
+                    .getAppsDataStore()
+                    .setDeployedVersionAndImage(
+                        appName,
+                        deployedVersion,
+                        imageName
                     )
-                    .catch(function(error: AnyError) {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.BUILD_ERROR,
-                            ('' + error).trim()
-                        )
-                    })
             })
             .then(function() {
-                Logger.d(
-                    'Cleaning up up the files... ' +
-                        tarImageBaseFolder +
-                        '  and  ' +
-                        rawImageBaseFolder
-                )
-
-                return fs.remove(tarImageBaseFolder)
-            })
-            .then(function() {
-                return fs.remove(rawImageBaseFolder)
-            })
-            .then(function() {
-                const authObj = CaptainManager.get().getDockerAuthObject()
-
-                if (!authObj) {
-                    Logger.d(
-                        'No Docker Auth is found. Skipping pushing the image.'
-                    )
-                    return Promise.resolve()
-                }
-
-                Logger.d('Docker Auth is found. Pushing the image...')
-
-                return dockerApi
-                    .pushImage(
-                        imageName,
-                        newVersion,
-                        authObj,
-                        self.buildLogs[appName]
-                    )
-                    .catch(function(error: AnyError) {
-                        return new Promise<void>(function(resolve, reject) {
-                            Logger.e('PUSH FAILED')
-                            Logger.e(error)
-                            reject(
-                                ApiStatusCodes.createError(
-                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                    'Push failed: ' + error
-                                )
-                            )
-                        })
-                    })
-            })
-            .then(function() {
-                self.activeBuilds[appName] = false
-                return newVersion
+                return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function(error) {
-                self.activeBuilds[appName] = false
-                return new Promise<number>(function(resolve, reject) {
+                return new Promise<void>(function(resolve, reject) {
+                    self.logBuildFailed(appName, error)
                     reject(error)
                 })
             })
@@ -495,7 +86,6 @@ class ServiceManager {
                 )
             })
             .then(function() {
-
                 Logger.d('Enabling SSL for: ' + appName + ' on ' + customDomain)
 
                 return self.dataStore
@@ -564,7 +154,6 @@ class ServiceManager {
                 )
             })
             .then(function() {
-
                 Logger.d('Enabling custom domain for: ' + appName)
 
                 return self.dataStore
@@ -581,7 +170,6 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
-
                 Logger.d('Removing custom domain for: ' + appName)
 
                 return self.dataStore
@@ -645,7 +233,6 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
-
                 return self.dataStore.getRootDomain()
             })
             .then(function(val) {
@@ -739,7 +326,7 @@ class ServiceManager {
                                 for (let k = 0; k < mostRecentLimit + 1; k++) {
                                     if (
                                         repoTag.indexOf(
-                                            dataStore.getImageNameWithoutAuthObj(
+                                            dataStore.getImageNameAndTag(
                                                 appName,
                                                 Number(app.deployedVersion) - k
                                             )
@@ -776,97 +363,6 @@ class ServiceManager {
         return Promise.resolve().then(function() {
             return dockerApi.deleteImages(imageIds)
         })
-    }
-
-    ensureServiceInitedAndUpdated(appName: string, version: number) {
-        Logger.d('Ensure service inited and Updated for: ' + appName)
-        const self = this
-
-        const serviceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName)
-        const dockerAuthObject = CaptainManager.get().getDockerAuthObject()
-        const imageName = this.dataStore.getImageName(
-            dockerAuthObject,
-            appName,
-            version
-        )
-        const dockerApi = this.dockerApi
-        const dataStore = this.dataStore
-        let app: IAppDef
-
-        return dataStore
-            .getAppsDataStore()
-            .setDeployedVersion(appName, version)
-            .then(function() {
-                return dataStore.getAppsDataStore().getAppDefinition(appName)
-            })
-            .then(function(appFound) {
-                app = appFound
-
-                Logger.d('Check if service is running: ' + serviceName)
-                return dockerApi.isServiceRunningByName(serviceName)
-            })
-            .then(function(isRunning) {
-                if (isRunning) {
-                    Logger.d('Service is already running: ' + serviceName)
-                    return true
-                } else {
-                    Logger.d(
-                        'Creating service: ' +
-                            serviceName +
-                            ' with image: ' +
-                            imageName
-                    )
-                    // if we pass in networks here. Almost always it results in a delayed update which causes
-                    // update errors if they happen right away!
-                    return dockerApi.createServiceOnNodeId(
-                        imageName,
-                        serviceName,
-                        undefined,
-                        undefined,
-                        undefined,
-                        undefined,
-                        undefined
-                    )
-                }
-            })
-            .then(function() {
-                return self.createPreDeployFunctionIfExist(app)
-            })
-            .then(function(preDeployFunction) {
-                Logger.d(
-                    'Updating service: ' +
-                        serviceName +
-                        ' with image: ' +
-                        imageName
-                )
-
-                return dockerApi.updateService(
-                    serviceName,
-                    imageName,
-                    app.volumes,
-                    app.networks,
-                    app.envVars,
-                    undefined,
-                    dockerAuthObject,
-                    Number(app.instanceCount),
-                    app.nodeId,
-                    dataStore.getNameSpace(),
-                    app.ports,
-                    app,
-                    preDeployFunction
-                )
-            })
-            .then(function() {
-                return new Promise<void>(function(resolve) {
-                    // Waiting 2 extra seconds for docker DNS to pickup the service name
-                    setTimeout(resolve, 2000)
-                })
-            })
-            .then(function() {
-                return self.reloadLoadBalancer()
-            })
     }
 
     createPreDeployFunctionIfExist(app: IAppDef): Function | undefined {
@@ -1007,7 +503,7 @@ class ServiceManager {
                     )
             })
             .then(function() {
-                return self.updateServiceOnDefinitionUpdate(appName)
+                return self.ensureServiceInitedAndUpdated(appName)
             })
             .then(function() {
                 return self.reloadLoadBalancer()
@@ -1037,7 +533,7 @@ class ServiceManager {
     getBuildStatus(appName: string) {
         const self = this
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE)
+            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize)
 
         return {
             isAppBuilding: self.isAppBuilding(appName),
@@ -1049,53 +545,110 @@ class ServiceManager {
     logBuildFailed(appName: string, error: string) {
         error = (error || '') + ''
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(BUILD_LOG_SIZE)
+            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize)
         this.buildLogs[appName].onBuildFailed(error)
     }
 
-    updateServiceOnDefinitionUpdate(appName: string) {
+    ensureServiceInitedAndUpdated(appName: string) {
+        Logger.d('Ensure service inited and Updated for: ' + appName)
         const self = this
+
         const serviceName = this.dataStore
             .getAppsDataStore()
             .getServiceName(appName)
-        const dockerAuthObject = CaptainManager.get().getDockerAuthObject()
 
-        const dataStore = this.dataStore
+        let imageName: string | undefined
         const dockerApi = this.dockerApi
-        let appFound: IAppDef
+        const dataStore = this.dataStore
+        let app: IAppDef
+        let dockerAuthObject: DockerAuthObj | undefined
 
-        return Promise.resolve()
+        return Promise.resolve() //
             .then(function() {
                 return dataStore.getAppsDataStore().getAppDefinition(appName)
             })
-            .then(function(app) {
-                appFound = app
+            .then(function(appFound) {
+                app = appFound
 
+                Logger.d(`Check if service is running: ${serviceName}`)
+                return dockerApi.isServiceRunningByName(serviceName)
+            })
+            .then(function(isRunning) {
+                if (isRunning) {
+                    Logger.d('Service is already running: ' + serviceName)
+                    return true
+                } else {
+                    for (let i = 0; i < app.versions.length; i++) {
+                        const element = app.versions[i]
+                        if (element.version == app.deployedVersion) {
+                            imageName = element.imageName
+                            break
+                        }
+                    }
+
+                    if (!imageName) {
+                        throw new Error(
+                            'ImageName for deployed version is not available, this is impossible!'
+                        )
+                    }
+                }
+            })
+            .then(function() {
+                return self.dockerRegistryHelper.getDockerAuthObjectForImageName(
+                    imageName!
+                )
+            })
+            .then(function(data) {
+                dockerAuthObject = data
+                
+                Logger.d(
+                    `Creating service ${serviceName} with image ${imageName}`
+                )
+
+                // if we pass in networks here. Almost always it results in a delayed update which causes
+                // update errors if they happen right away!
+                return dockerApi.createServiceOnNodeId(
+                    CaptainConstants.defaultImageForApp,
+                    serviceName,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined
+                )
+            })
+            .then(function() {
                 return self.createPreDeployFunctionIfExist(app)
             })
             .then(function(preDeployFunction) {
-                if (!appFound) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'App name not found!'
-                    )
-                }
+                Logger.d(
+                    `Updating service ${serviceName} with image ${imageName}`
+                )
 
                 return dockerApi.updateService(
                     serviceName,
-                    undefined,
-                    appFound.volumes,
-                    appFound.networks,
-                    appFound.envVars,
+                    imageName,
+                    app.volumes,
+                    app.networks,
+                    app.envVars,
                     undefined,
                     dockerAuthObject,
-                    Number(appFound.instanceCount),
-                    appFound.nodeId,
+                    Number(app.instanceCount),
+                    app.nodeId,
                     dataStore.getNameSpace(),
-                    appFound.ports,
-                    appFound,
+                    app.ports,
+                    app,
                     preDeployFunction
                 )
+            })
+            .then(function() {
+                return new Promise<void>(function(resolve) {
+                    // Waiting 2 extra seconds for docker DNS to pickup the service name
+                    setTimeout(resolve, 2000)
+                })
+            })
+            .then(function() {
+                return self.reloadLoadBalancer()
             })
     }
 
