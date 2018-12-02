@@ -30,10 +30,10 @@ class AppsDataStore {
 
     constructor(private data: configstore, private namepace: string) {}
 
-    setEncryptionSalt(salt: string) {
+    setEncryptor(encryptor: CaptainEncryptor) {
         if (this.encryptor) return
 
-        this.encryptor = new CaptainEncryptor(this.namepace + salt)
+        this.encryptor = encryptor
     }
 
     private saveApp(appName: String, app: IAppDef) {

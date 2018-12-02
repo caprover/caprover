@@ -2,9 +2,7 @@ import express = require('express')
 import BaseApi = require('../api/BaseApi')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
-import CaptainManager = require('../user/CaptainManager')
-import Validator = require('validator')
-import CaptainConstants = require('../utils/CaptainConstants')
+import InjectionExtractor = require('../injection/InjectionExtractor');
 
 const router = express.Router()
 
@@ -14,11 +12,11 @@ router.post('/insert/', function(req, res, next) {
     let registryDomain = req.body.registryDomain + ''
     let registryImagePrefix = req.body.registryImagePrefix + ''
 
-    const captainManager = CaptainManager.get()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {
-            return captainManager.addRegistry(
+            return registryHelper.addRegistry(
                 registryUser,
                 registryPassword,
                 registryDomain,
@@ -34,16 +32,16 @@ router.post('/insert/', function(req, res, next) {
 })
 
 router.get('/all/', function(req, res, next) {
-    const captainManager = CaptainManager.get()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
     let registries: IRegistryInfo[] = []
 
     return Promise.resolve()
         .then(function() {
-            return captainManager.getAllRegistries()
+            return registryHelper.getAllRegistries()
         })
         .then(function(registriesAll) {
             registries = registriesAll
-            return captainManager.getDefaultPushRegistry()
+            return registryHelper.getDefaultPushRegistry()
         })
         .then(function(defaultPush) {
             let baseApi = new BaseApi(
@@ -60,11 +58,11 @@ router.get('/all/', function(req, res, next) {
 
 router.post('/delete/', function(req, res, next) {
     let registryId = req.body.registryId + ''
-    const captainManager = CaptainManager.get()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {
-            return captainManager.deleteRegistry(registryId)
+            return registryHelper.deleteRegistry(registryId)
         })
         .then(function() {
             let baseApi = new BaseApi(
@@ -78,11 +76,11 @@ router.post('/delete/', function(req, res, next) {
 
 router.post('/setpush/', function(req, res, next) {
     let registryId = req.body.registryId + ''
-    const captainManager = CaptainManager.get()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {
-            return captainManager.setDefaultPushRegistry(registryId)
+            return registryHelper.setDefaultPushRegistry(registryId)
         })
         .then(function() {
             let baseApi = new BaseApi(

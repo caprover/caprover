@@ -6,7 +6,6 @@ const fs = require("fs-extra");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
 const LoadBalancerManager = require("./LoadBalancerManager");
-const Encryptor = require("../utils/Encryptor");
 const CertbotManager = require("./CertbotManager");
 const DockerRegistry = require("./DockerRegistry");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
@@ -546,47 +545,6 @@ class CaptainManager {
     }
     getDockerRegistry() {
         return this.dockerRegistry;
-    }
-    setDefaultPushRegistry(registryId) {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.dataStore.setDefaultPushRegistry(registryId);
-        });
-    }
-    getDefaultPushRegistry() {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.dataStore.getDefaultPushRegistry();
-        });
-    }
-    deleteRegistry(registryId) {
-        const self = this;
-        return Promise.resolve()
-            .then(function () {
-            return self.getDefaultPushRegistry();
-        })
-            .then(function (registryIdDefaultPush) {
-            if (registryId === registryIdDefaultPush) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push');
-            }
-            return self.dataStore.deleteRegistry(registryId);
-        });
-    }
-    getAllRegistries() {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.dataStore.getAllRegistries() || [];
-        });
-    }
-    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
-        const self = this;
-        return Promise.resolve().then(function () {
-            if (!registryUser || !registryPassword || !registryDomain) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
-            }
-            const passwordEncrypted = new Encryptor.CaptainEncryptor(self.getCaptainSalt()).encrypt(registryPassword);
-            return self.dataStore.addRegistryToDb(registryUser, passwordEncrypted, registryDomain, registryImagePrefix);
-        });
     }
     enableSsl(emailAddress) {
         const self = this;

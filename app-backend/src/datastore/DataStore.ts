@@ -37,6 +37,8 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .toString()
 
 class DataStore {
+    private encryptor: Encryptor.CaptainEncryptor
+    private namespace: string
     private data: Configstore
     private appsDataStore: AppsDataStore
 
@@ -45,11 +47,13 @@ class DataStore {
         data.path = CaptainConstants.captainRootDirectory + '/config.conf'
 
         this.data = data
+        this.namespace = namespace
         this.data.set(NAMESPACE, namespace)
         this.appsDataStore = new AppsDataStore(this.data, namespace)
     }
     setEncryptionSalt(salt: string) {
-        this.appsDataStore.setEncryptionSalt(salt)
+        this.encryptor = new Encryptor.CaptainEncryptor(this.namespace + salt)
+        this.appsDataStore.setEncryptor(this.encryptor)
     }
 
     getNameSpace(): string {
@@ -252,7 +256,7 @@ class DataStore {
 
     addRegistryToDb(
         registryUser: string,
-        registryPasswordEncrypted: string,
+        registryPassword: string,
         registryDomain: string,
         registryImagePrefix: string
     ) {
@@ -284,7 +288,9 @@ class DataStore {
                 registries.push({
                     id,
                     registryUser,
-                    registryPasswordEncrypted,
+                    registryPasswordEncrypted: self.encryptor.encrypt(
+                        registryPassword
+                    ),
                     registryDomain,
                     registryImagePrefix,
                 })

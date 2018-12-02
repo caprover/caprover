@@ -3,17 +3,17 @@ const express = require("express");
 const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
-const CaptainManager = require("../user/CaptainManager");
+const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 router.post('/insert/', function (req, res, next) {
     let registryUser = req.body.registryUser + '';
     let registryPassword = req.body.registryPassword + '';
     let registryDomain = req.body.registryDomain + '';
     let registryImagePrefix = req.body.registryImagePrefix + '';
-    const captainManager = CaptainManager.get();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return captainManager.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix);
+        return registryHelper.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix);
     })
         .then(function () {
         let msg = 'Registry is added.';
@@ -23,15 +23,15 @@ router.post('/insert/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res));
 });
 router.get('/all/', function (req, res, next) {
-    const captainManager = CaptainManager.get();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     let registries = [];
     return Promise.resolve()
         .then(function () {
-        return captainManager.getAllRegistries();
+        return registryHelper.getAllRegistries();
     })
         .then(function (registriesAll) {
         registries = registriesAll;
-        return captainManager.getDefaultPushRegistry();
+        return registryHelper.getDefaultPushRegistry();
     })
         .then(function (defaultPush) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');
@@ -44,10 +44,10 @@ router.get('/all/', function (req, res, next) {
 });
 router.post('/delete/', function (req, res, next) {
     let registryId = req.body.registryId + '';
-    const captainManager = CaptainManager.get();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return captainManager.deleteRegistry(registryId);
+        return registryHelper.deleteRegistry(registryId);
     })
         .then(function () {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Registry deleted');
@@ -57,10 +57,10 @@ router.post('/delete/', function (req, res, next) {
 });
 router.post('/setpush/', function (req, res, next) {
     let registryId = req.body.registryId + '';
-    const captainManager = CaptainManager.get();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return captainManager.setDefaultPushRegistry(registryId);
+        return registryHelper.setDefaultPushRegistry(registryId);
     })
         .then(function () {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Push Registry changed');

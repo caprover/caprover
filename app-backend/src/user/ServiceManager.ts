@@ -10,6 +10,7 @@ import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
 import ImageMaker = require('./ImageMaker')
+import DockerRegistryHelper = require('./DockerRegistryHelper')
 
 class ServiceManager {
     private activeBuilds: IHashMapGeneric<boolean>
@@ -23,7 +24,7 @@ class ServiceManager {
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager
     ) {
-        this.dockerRegistryHelper = new DockerRegistryHelper()
+        this.dockerRegistryHelper = new DockerRegistryHelper(this.dataStore)
         this.activeBuilds = {}
         this.buildLogs = {}
         this.isReady = true
@@ -34,6 +35,10 @@ class ServiceManager {
             this.buildLogs,
             this.activeBuilds
         )
+    }
+
+    getRegistryHelper() {
+        return this.dockerRegistryHelper
     }
 
     isInited() {

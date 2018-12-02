@@ -3,7 +3,6 @@ const uuid = require("uuid/v4");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
-const Encryptor_1 = require("../utils/Encryptor");
 const isValidPath = require('is-valid-path');
 const APP_DEFINITIONS = 'appDefinitions';
 function isNameAllowed(name) {
@@ -23,10 +22,10 @@ class AppsDataStore {
         this.data = data;
         this.namepace = namepace;
     }
-    setEncryptionSalt(salt) {
+    setEncryptor(encryptor) {
         if (this.encryptor)
             return;
-        this.encryptor = new Encryptor_1.CaptainEncryptor(this.namepace + salt);
+        this.encryptor = encryptor;
     }
     saveApp(appName, app) {
         const self = this;

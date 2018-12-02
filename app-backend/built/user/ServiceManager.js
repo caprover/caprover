@@ -7,16 +7,20 @@ const Authenticator = require("./Authenticator");
 const requireFromString = require("require-from-string");
 const BuildLog = require("./BuildLog");
 const ImageMaker = require("./ImageMaker");
+const DockerRegistryHelper = require("./DockerRegistryHelper");
 class ServiceManager {
     constructor(dataStore, dockerApi, loadBalancerManager) {
         this.dataStore = dataStore;
         this.dockerApi = dockerApi;
         this.loadBalancerManager = loadBalancerManager;
-        this.dockerRegistryHelper = new DockerRegistryHelper();
+        this.dockerRegistryHelper = new DockerRegistryHelper(this.dataStore);
         this.activeBuilds = {};
         this.buildLogs = {};
         this.isReady = true;
         this.imageMaker = new ImageMaker(this.dockerRegistryHelper, this.dockerApi, this.dataStore, this.buildLogs, this.activeBuilds);
+    }
+    getRegistryHelper() {
+        return this.dockerRegistryHelper;
     }
     isInited() {
         return this.isReady;

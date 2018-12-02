@@ -5,12 +5,9 @@ import Logger = require('../utils/Logger')
 import CaptainManager = require('../user/CaptainManager')
 import Validator = require('validator')
 import CaptainConstants = require('../utils/CaptainConstants')
-import RegistriesRouter = require('./RegistriesRouter')
 import InjectionExtractor = require('../injection/InjectionExtractor')
 
 const router = express.Router()
-
-router.use('/registries/', RegistriesRouter)
 
 router.post('/changerootdomain/', function(req, res, next) {
     let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase()

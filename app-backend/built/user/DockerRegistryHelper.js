@@ -1,4 +1,10 @@
+"use strict";
+const ApiStatusCodes = require("../api/ApiStatusCodes");
 class DockerRegistryHelper {
+    constructor(dataStore) {
+        this.dataStore = dataStore;
+        //
+    }
     retagAndPushIfDefaultPushExist(imageName, version) {
         return Promise.resolve() //
             .then(function () {
@@ -13,7 +19,48 @@ class DockerRegistryHelper {
             return undefined;
         });
     }
+    setDefaultPushRegistry(registryId) {
+        const self = this;
+        return Promise.resolve().then(function () {
+            return self.dataStore.setDefaultPushRegistry(registryId);
+        });
+    }
+    getDefaultPushRegistry() {
+        const self = this;
+        return Promise.resolve().then(function () {
+            return self.dataStore.getDefaultPushRegistry();
+        });
+    }
+    deleteRegistry(registryId) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+            return self.getDefaultPushRegistry();
+        })
+            .then(function (registryIdDefaultPush) {
+            if (registryId === registryIdDefaultPush) {
+                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push');
+            }
+            return self.dataStore.deleteRegistry(registryId);
+        });
+    }
+    getAllRegistries() {
+        const self = this;
+        return Promise.resolve().then(function () {
+            return self.dataStore.getAllRegistries() || [];
+        });
+    }
+    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+        const self = this;
+        return Promise.resolve().then(function () {
+            if (!registryUser || !registryPassword || !registryDomain) {
+                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
+            }
+            return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix);
+        });
+    }
 }
+module.exports = DockerRegistryHelper;
 /**
  *
  

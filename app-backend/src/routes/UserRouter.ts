@@ -8,6 +8,7 @@ import AppDefinitionRouter = require('./AppDefinitionRouter')
 import AppDataRouter = require('./AppDataRouter')
 import Authenticator = require('../user/Authenticator')
 import Logger = require('../utils/Logger')
+import RegistriesRouter = require('./RegistriesRouter')
 import onFinished = require('on-finished')
 import InjectionExtractor = require('../injection/InjectionExtractor')
 
@@ -100,13 +101,15 @@ router.post('/changepassword/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-// semi-secured end points:
-router.use('/webhooks/', WebhooksRouter)
-
-router.use('/system/', SystemRouter)
-
 router.use('/appDefinitions/', AppDefinitionRouter)
 
 router.use('/appData/', AppDataRouter)
+
+router.use('/registries/', RegistriesRouter)
+
+router.use('/system/', SystemRouter)
+
+// semi-secured end points:
+router.use('/webhooks/', WebhooksRouter)
 
 export = router

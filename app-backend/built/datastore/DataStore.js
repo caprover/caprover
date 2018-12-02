@@ -7,6 +7,7 @@ const uuid = require("uuid/v4");
 const fs = require("fs-extra");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
+const Encryptor = require("../utils/Encryptor");
 const AppsDataStore = require("./AppsDataStore");
 const NAMESPACE = 'namespace';
 const HASHED_PASSWORD = 'hashedPassword';
@@ -37,11 +38,13 @@ class DataStore {
         const data = new Configstore('captain-store', {});
         data.path = CaptainConstants.captainRootDirectory + '/config.conf';
         this.data = data;
+        this.namespace = namespace;
         this.data.set(NAMESPACE, namespace);
         this.appsDataStore = new AppsDataStore(this.data, namespace);
     }
     setEncryptionSalt(salt) {
-        this.appsDataStore.setEncryptionSalt(salt);
+        this.encryptor = new Encryptor.CaptainEncryptor(this.namespace + salt);
+        this.appsDataStore.setEncryptor(this.encryptor);
     }
     getNameSpace() {
         return this.data.get(NAMESPACE);
@@ -200,7 +203,7 @@ class DataStore {
             return self.data.get(DOCKER_REGISTRIES);
         });
     }
-    addRegistryToDb(registryUser, registryPasswordEncrypted, registryDomain, registryImagePrefix) {
+    addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix) {
         const self = this;
         return Promise.resolve()
             .then(function () {
@@ -224,7 +227,7 @@ class DataStore {
             registries.push({
                 id,
                 registryUser,
-                registryPasswordEncrypted,
+                registryPasswordEncrypted: self.encryptor.encrypt(registryPassword),
                 registryDomain,
                 registryImagePrefix,
             });

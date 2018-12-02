@@ -8,6 +8,7 @@ const WebhooksRouter = require("./WebhooksRouter");
 const AppDefinitionRouter = require("./AppDefinitionRouter");
 const AppDataRouter = require("./AppDataRouter");
 const Authenticator = require("../user/Authenticator");
+const RegistriesRouter = require("./RegistriesRouter");
 const onFinished = require("on-finished");
 const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
@@ -68,10 +69,11 @@ router.post('/changepassword/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
-// semi-secured end points:
-router.use('/webhooks/', WebhooksRouter);
-router.use('/system/', SystemRouter);
 router.use('/appDefinitions/', AppDefinitionRouter);
 router.use('/appData/', AppDataRouter);
+router.use('/registries/', RegistriesRouter);
+router.use('/system/', SystemRouter);
+// semi-secured end points:
+router.use('/webhooks/', WebhooksRouter);
 module.exports = router;
 //# sourceMappingURL=UserRouter.js.map
