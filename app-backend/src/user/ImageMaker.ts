@@ -78,10 +78,6 @@ class ImageMaker {
      * Creates image if necessary, or just simply passes the image name
      */
     ensureImage(source: IImageSource, appName: string, appVersion: number) {
-        if (source.sourceImageName) {
-            return Promise.resolve(source.sourceImageName)
-        }
-
         const self = this
 
         this.activeBuilds[appName] = true
@@ -97,7 +93,7 @@ class ImageMaker {
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
-        const baseImageNameWithoutVersionAndReg = self.datastore.getImageNameBase(
+        const baseImageNameWithoutVerAndReg = self.datastore.getImageNameBase(
             appName
         ) // img-captain--myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
@@ -112,35 +108,22 @@ class ImageMaker {
                 return self.correctDirectoryAndEnsureCaptainDefinition(rawDir)
             })
             .then(function(correctedDir) {
-                return self.convertCaptainDefinitionToDockerfile(correctedDir)
-            })
-            .then(function(correctedDir) {
-                return self.convertContentOfDirectoryIntoTar(
-                    correctedDir,
-                    tarFilePath
-                )
-            })
-            .then(function() {
-                return self.dockerApi
-                    .buildImageFromDockerFile(
-                        baseImageNameWithoutVersionAndReg,
-                        appVersion,
-                        tarFilePath,
-                        self.buildLogs[appName]
-                    )
-                    .catch(function(error: AnyError) {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.BUILD_ERROR,
-                            ('' + error).trim()
+                return self
+                    .getCaptainDefinition(correctedDir)
+                    .then(function(captainDefinition) {
+                        if (captainDefinition.imageName) {
+                            return captainDefinition.imageName + ''
+                        }
+
+                        return self.getBuildPushAndReturnImageName(
+                            captainDefinition,
+                            correctedDir,
+                            tarFilePath,
+                            baseImageNameWithoutVerAndReg,
+                            appName,
+                            appVersion
                         )
                     })
-            })
-            .then(function() {
-                return self.dockerRegistryHelper.retagAndPushIfDefaultPushExist(
-                    baseImageNameWithoutVersionAndReg,
-                    appVersion,
-                    self.buildLogs[appName]
-                )
             })
             .then(function(ret) {
                 fullImageName = ret
@@ -185,6 +168,53 @@ class ImageMaker {
                 return new Promise<string>(function(resolve, reject) {
                     reject(error)
                 })
+            })
+    }
+
+    private getBuildPushAndReturnImageName(
+        captainDefinition: ICaptainDefinition,
+        correctedDirProvided: string,
+        tarFilePath: string,
+        baseImageNameWithoutVersionAndReg: string,
+        appName: string,
+        appVersion: number
+    ) {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                return self
+                    .convertCaptainDefinitionToDockerfile(
+                        captainDefinition,
+                        correctedDirProvided
+                    )
+                    .then(function() {
+                        return self.convertContentOfDirectoryIntoTar(
+                            correctedDirProvided,
+                            tarFilePath
+                        )
+                    })
+                    .then(function() {
+                        return self.dockerApi
+                            .buildImageFromDockerFile(
+                                baseImageNameWithoutVersionAndReg,
+                                appVersion,
+                                tarFilePath,
+                                self.buildLogs[appName]
+                            )
+                            .catch(function(error: AnyError) {
+                                throw ApiStatusCodes.createError(
+                                    ApiStatusCodes.BUILD_ERROR,
+                                    ('' + error).trim()
+                                )
+                            })
+                    })
+                    .then(function() {
+                        return self.dockerRegistryHelper.retagAndPushIfDefaultPushExist(
+                            baseImageNameWithoutVersionAndReg,
+                            appVersion,
+                            self.buildLogs[appName]
+                        )
+                    })
             })
     }
 
@@ -270,9 +300,7 @@ class ImageMaker {
             })
     }
 
-    private convertCaptainDefinitionToDockerfile(
-        directoryWithCaptainDefinition: string
-    ) {
+    private getCaptainDefinition(directoryWithCaptainDefinition: string) {
         return Promise.resolve() //
             .then(function() {
                 return fs.readJson(
@@ -281,7 +309,7 @@ class ImageMaker {
                         CAPTAIN_DEFINITION_FILE
                 )
             })
-            .then(function(data) {
+            .then(function(data: ICaptainDefinition) {
                 if (!data) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -296,39 +324,65 @@ class ImageMaker {
                     )
                 }
 
-                if (data.schemaVersion === 1) {
-                    const templateIdTag = data.templateId
-                    const dockerfileLines: string[] = data.dockerfileLines
-                    const hasDockerfileLines =
-                        dockerfileLines && dockerfileLines.length > 0
-
-                    if (hasDockerfileLines && !templateIdTag) {
-                        return dockerfileLines.join('\n')
-                    } else if (!hasDockerfileLines && templateIdTag) {
-                        return TemplateHelper.get().getDockerfileContentFromTemplateTag(
-                            templateIdTag
-                        )
-                    } else {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.STATUS_ERROR_GENERIC,
-                            'Dockerfile or TemplateId must be present. Both should not be present at the same time'
-                        )
-                    }
+                if (data.schemaVersion !== 2) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'Captain Definition version is not supported! Read migration guides to schemaVersion 2'
+                    )
                 }
 
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'Captain Definition version is not supported!'
-                )
+                const hasTemplateIdTag = !!data.templateId
+                const hasImageName = !!data.imageName
+                const hasDockerfileLines =
+                    data.dockerfileLines && data.dockerfileLines.length > 0
+
+                let numberOfProperties =
+                    (hasTemplateIdTag ? 1 : 0) +
+                    (hasImageName ? 1 : 0) +
+                    (hasDockerfileLines ? 1 : 0)
+
+                if (numberOfProperties !== 1) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'One, and only one, of these properties should be present in captain-definition: templateId, imageName, or, hasDockerfileLines'
+                    )
+                }
+
+                return data
+            })
+    }
+
+    private convertCaptainDefinitionToDockerfile(
+        captainDefinition: ICaptainDefinition,
+        directoryWithCaptainDefinition: string
+    ) {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                let data = captainDefinition
+                if (data.templateId) {
+                    return TemplateHelper.get().getDockerfileContentFromTemplateTag(
+                        data.templateId
+                    )
+                } else if (data.dockerfileLines) {
+                    return data.dockerfileLines.join('\n')
+                } else if (data.imageName) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'ImageName cannot lead to a dockerfile'
+                    )
+                } else {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'Dockerfile or TemplateId must be present. Both should not be present at the same time'
+                    )
+                }
             })
             .then(function(dockerfileContent) {
                 return fs.outputFile(
                     directoryWithCaptainDefinition + '/' + DOCKER_FILE,
                     dockerfileContent
                 )
-            })
-            .then(function() {
-                return directoryWithCaptainDefinition
             })
     }
 
