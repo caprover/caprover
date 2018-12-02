@@ -387,17 +387,14 @@ class DockerApi {
             return data.start();
         });
     }
-    pushImage(imageName, newVersionNumber, authObj, buildLogs) {
+    pushImage(imageName, authObj, buildLogs) {
         const self = this;
-        const newVersion = '' + newVersionNumber;
-        buildLogs.log('Pushing to remote: ' + imageName + ':' + newVersion);
+        buildLogs.log('Pushing to remote: ' + imageName);
         buildLogs.log('Server: ' + (authObj ? authObj.serveraddress : 'N/A'));
         buildLogs.log('This might take a few minutes...');
         return Promise.resolve()
             .then(function () {
-            return self.dockerode
-                .getImage(imageName + ':' + newVersion)
-                .push({
+            return self.dockerode.getImage(imageName).push({
                 authconfig: authObj,
             });
         })

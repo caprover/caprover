@@ -73,15 +73,16 @@ class ImageMaker {
         const self = this;
         this.activeBuilds[appName] = true;
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize);
+            this.buildLogs[appName] ||
+                new BuildLog(CaptainConstants.buildLogSize);
         this.buildLogs[appName].clear();
         this.buildLogs[appName].log('------------------------- ' + new Date());
         this.buildLogs[appName].log('Build started for ' + appName);
         const baseDir = self.getDirectoryForRawSource(appName, appVersion);
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY;
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER;
-        const imageName = self.datastore.getImageNameAndTag(appName, appVersion); // img-captain--myapp:3
-        let imageNameToPush = ''; // repo.domain.com:998/username/reponame
+        const baseImageNameWithoutVersionAndReg = self.datastore.getImageNameBase(appName); // img-captain--myapp
+        let fullImageName = ''; // repo.domain.com:998/username/reponame:8
         return Promise.resolve() //
             .then(function () {
             return self.ensureDirectoryWithCaptainDefinition(source, rawDir);
@@ -99,16 +100,16 @@ class ImageMaker {
         })
             .then(function () {
             return self.dockerApi
-                .buildImageFromDockerFile(imageName, appVersion, tarFilePath, self.buildLogs[appName])
+                .buildImageFromDockerFile(baseImageNameWithoutVersionAndReg, appVersion, tarFilePath, self.buildLogs[appName])
                 .catch(function (error) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.BUILD_ERROR, ('' + error).trim());
             });
         })
             .then(function () {
-            return self.dockerRegistryHelper.retagAndPushIfDefaultPushExist(imageName, appVersion);
+            return self.dockerRegistryHelper.retagAndPushIfDefaultPushExist(baseImageNameWithoutVersionAndReg, appVersion, self.buildLogs[appName]);
         })
             .then(function (ret) {
-            imageNameToPush = ret;
+            fullImageName = ret;
         })
             .then(function () {
             return fs.remove(baseDir);
@@ -143,10 +144,7 @@ class ImageMaker {
         })
             .then(function () {
             self.activeBuilds[appName] = false;
-            if (imageNameToPush) {
-                return imageNameToPush;
-            }
-            return imageName + ':' + appVersion;
+            return fullImageName;
         })
             .catch(function (error) {
             self.activeBuilds[appName] = false;

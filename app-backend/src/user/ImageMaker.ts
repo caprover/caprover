@@ -46,7 +46,7 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import { AnyError } from '../models/OtherTypes'
 import BuildLog = require('./BuildLog')
 import DataStore = require('../datastore/DataStore')
-import DockerRegistryHelper = require('./DockerRegistryHelper');
+import DockerRegistryHelper = require('./DockerRegistryHelper')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -54,8 +54,6 @@ const CAPTAIN_DEFINITION_FILE = 'captain-definition'
 const DOCKER_FILE = 'Dockerfile'
 
 class ImageMaker {
-    
-
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
@@ -88,7 +86,8 @@ class ImageMaker {
 
         this.activeBuilds[appName] = true
         this.buildLogs[appName] =
-            this.buildLogs[appName] || new BuildLog(CaptainConstants.buildLogSize)
+            this.buildLogs[appName] ||
+            new BuildLog(CaptainConstants.buildLogSize)
 
         this.buildLogs[appName].clear()
         this.buildLogs[appName].log('------------------------- ' + new Date())
@@ -98,8 +97,10 @@ class ImageMaker {
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
-        const imageName = self.datastore.getImageNameAndTag(appName, appVersion) // img-captain--myapp:3
-        let imageNameToPush = '' // repo.domain.com:998/username/reponame
+        const baseImageNameWithoutVersionAndReg = self.datastore.getImageNameBase(
+            appName
+        ) // img-captain--myapp
+        let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
         return Promise.resolve() //
             .then(function() {
@@ -122,7 +123,7 @@ class ImageMaker {
             .then(function() {
                 return self.dockerApi
                     .buildImageFromDockerFile(
-                        imageName,
+                        baseImageNameWithoutVersionAndReg,
                         appVersion,
                         tarFilePath,
                         self.buildLogs[appName]
@@ -136,12 +137,13 @@ class ImageMaker {
             })
             .then(function() {
                 return self.dockerRegistryHelper.retagAndPushIfDefaultPushExist(
-                    imageName,
-                    appVersion
+                    baseImageNameWithoutVersionAndReg,
+                    appVersion,
+                    self.buildLogs[appName]
                 )
             })
             .then(function(ret) {
-                imageNameToPush = ret
+                fullImageName = ret
             })
             .then(function() {
                 return fs.remove(baseDir)
@@ -176,10 +178,7 @@ class ImageMaker {
             })
             .then(function() {
                 self.activeBuilds[appName] = false
-                if (imageNameToPush) {
-                    return imageNameToPush
-                }
-                return imageName + ':' + appVersion
+                return fullImageName
             })
             .catch(function(error) {
                 self.activeBuilds[appName] = false

@@ -111,17 +111,18 @@ class DataStore {
             return self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0;
         });
     }
+    //TODO lookup usage of this method
     getImageNameAndTag(appName, version) {
         let versionStr = '' + version;
         if (version === 0) {
             versionStr = '0';
         }
-        return (this.getImageNameBase() +
+        return (this.getImageNameBase(appName) +
             appName +
             (versionStr ? ':' + versionStr : ''));
     }
-    getImageNameBase() {
-        return 'img-' + this.getNameSpace() + '--';
+    getImageNameBase(appName) {
+        return 'img-' + this.getNameSpace() + '--' + appName;
     }
     getRootDomain() {
         return this.data.get(CUSTOM_DOMAIN) || DEFAULT_CAPTAIN_ROOT_DOMAIN;
@@ -164,9 +165,12 @@ class DataStore {
     }
     setDefaultPushRegistry(registryId) {
         const self = this;
-        return Promise.resolve().then(function () {
+        return Promise.resolve()
+            .then(function () {
+            return self.getAllRegistries();
+        })
+            .then(function (registries) {
             let found = false;
-            const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
                 const registry = registries[i];
                 if (registry.id === registryId) {
@@ -182,9 +186,12 @@ class DataStore {
     }
     deleteRegistry(registryId) {
         const self = this;
-        return Promise.resolve().then(function () {
+        return Promise.resolve()
+            .then(function () {
+            return self.getAllRegistries();
+        })
+            .then(function (registries) {
             const newReg = [];
-            const registries = self.data.get(DOCKER_REGISTRIES) || [];
             for (let i = 0; i < registries.length; i++) {
                 const registry = registries[i];
                 if (registry.id !== registryId) {
@@ -194,22 +201,35 @@ class DataStore {
             if (newReg.length === registries.length) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
             }
-            self.data.set(DOCKER_REGISTRIES, newReg);
+            self.saveAllRegistries(newReg);
         });
     }
     getAllRegistries() {
         const self = this;
-        return Promise.resolve().then(function () {
-            return self.data.get(DOCKER_REGISTRIES);
+        return Promise.resolve()
+            .then(function () {
+            return self.data.get(DOCKER_REGISTRIES) || [];
+        })
+            .then(function (registries) {
+            const unencryptedList = [];
+            for (let i = 0; i < registries.length; i++) {
+                const element = registries[i];
+                unencryptedList.push({
+                    id: element.id,
+                    registryDomain: element.registryDomain,
+                    registryImagePrefix: element.registryImagePrefix,
+                    registryUser: element.registryUser,
+                    registryPassword: self.encryptor.decrypt(element.registryPasswordEncrypted),
+                });
+            }
+            return unencryptedList;
         });
     }
     addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix) {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            return new Promise(function (resolve, reject) {
-                resolve(self.data.get(DOCKER_REGISTRIES) || []);
-            });
+            return self.getAllRegistries();
         })
             .then(function (registries) {
             let id = uuid();
@@ -227,11 +247,29 @@ class DataStore {
             registries.push({
                 id,
                 registryUser,
-                registryPasswordEncrypted: self.encryptor.encrypt(registryPassword),
+                registryPassword,
                 registryDomain,
                 registryImagePrefix,
             });
-            self.data.set(DOCKER_REGISTRIES, registries);
+            return self.saveAllRegistries(registries);
+        });
+    }
+    saveAllRegistries(registries) {
+        const self = this;
+        return Promise.resolve() //
+            .then(function () {
+            const encryptedList = [];
+            for (let i = 0; i < registries.length; i++) {
+                const element = registries[i];
+                encryptedList.push({
+                    id: element.id,
+                    registryDomain: element.registryDomain,
+                    registryImagePrefix: element.registryImagePrefix,
+                    registryUser: element.registryUser,
+                    registryPasswordEncrypted: self.encryptor.encrypt(element.registryPassword),
+                });
+            }
+            self.data.set(DOCKER_REGISTRIES, encryptedList);
         });
     }
     setUserEmailAddress(emailAddress) {

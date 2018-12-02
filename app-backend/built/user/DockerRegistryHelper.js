@@ -1,21 +1,93 @@
 "use strict";
 const ApiStatusCodes = require("../api/ApiStatusCodes");
+const Logger = require("../utils/Logger");
+const CaptainConstants = require("../utils/CaptainConstants");
 class DockerRegistryHelper {
-    constructor(dataStore) {
+    constructor(dataStore, dockerApi) {
         this.dataStore = dataStore;
+        this.dockerApi = dockerApi;
         //
     }
-    retagAndPushIfDefaultPushExist(imageName, version) {
+    retagAndPushIfDefaultPushExist(imageName, version, buildLogs) {
+        const self = this;
+        let allRegistries;
+        let fullImageName = imageName + ':' + version;
         return Promise.resolve() //
             .then(function () {
-            //
-            return '';
+            if (!imageName)
+                throw new Error('no image name! cannot re-tag!');
+            if (imageName.indexOf('/') >= 0 || imageName.indexOf(':') >= 0)
+                throw new Error('ImageName should not contain "/" or ":" before re-tagging!');
+            return self.getAllRegistries();
+        })
+            .then(function (data) {
+            allRegistries = data;
+            return self.getDefaultPushRegistry();
+        })
+            .then(function (defaultRegId) {
+            let ret = undefined;
+            for (let idx = 0; idx < allRegistries.length; idx++) {
+                const element = allRegistries[idx];
+                if (defaultRegId && element.id === defaultRegId) {
+                    return element;
+                }
+            }
+            return ret;
+        })
+            .then(function (data) {
+            if (!data)
+                return fullImageName;
+            fullImageName =
+                data.registryDomain +
+                    '/' +
+                    data.registryImagePrefix +
+                    '/' +
+                    fullImageName;
+            return self
+                .getDockerAuthObjectForImageName(fullImageName)
+                .then(function (authObj) {
+                if (!authObj) {
+                    throw new Error('Docker Auth Object is NULL just after re-tagging! Something is wrong!');
+                }
+                Logger.d('Docker Auth is found. Pushing the image...');
+                return self.dockerApi
+                    .pushImage(fullImageName, authObj, buildLogs)
+                    .catch(function (error) {
+                    return new Promise(function (resolve, reject) {
+                        Logger.e('PUSH FAILED');
+                        Logger.e(error);
+                        reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Push failed: ' + error));
+                    });
+                });
+            })
+                .then(function () {
+                return fullImageName;
+            });
         });
     }
     getDockerAuthObjectForImageName(imageName) {
+        const self = this;
         return Promise.resolve() //
             .then(function () {
             //
+            return self.getAllRegistries();
+        })
+            .then(function (regs) {
+            for (let index = 0; index < regs.length; index++) {
+                const element = regs[index];
+                const prefix = element.registryImagePrefix;
+                const registryIdentifierPrefix = element.registryDomain +
+                    (prefix ? '/' + prefix : '') +
+                    '/';
+                if (imageName.startsWith(registryIdentifierPrefix)) {
+                    return {
+                        serveraddress: element.registryDomain,
+                        username: element.registryUser,
+                        password: element.registryPassword,
+                        email: CaptainConstants.defaultEmail,
+                    };
+                }
+            }
             return undefined;
         });
     }
@@ -47,7 +119,7 @@ class DockerRegistryHelper {
     getAllRegistries() {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.getAllRegistries() || [];
+            return self.dataStore.getAllRegistries();
         });
     }
     addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
@@ -61,41 +133,4 @@ class DockerRegistryHelper {
     }
 }
 module.exports = DockerRegistryHelper;
-/**
- *
- 
- 
-                const authObj = CaptainManager.get().getDockerAuthObject()
-
-                if (!authObj) {
-                    Logger.d(
-                        'No Docker Auth is found. Skipping pushing the image.'
-                    )
-                    return Promise.resolve()
-                }
-
-                Logger.d('Docker Auth is found. Pushing the image...')
-
-                return dockerApi
-                    .pushImage(
-                        imageName,
-                        newVersion,
-                        authObj,
-                        self.buildLogs[appName]
-                    )
-                    .catch(function(error: AnyError) {
-                        return new Promise<void>(function(resolve, reject) {
-                            Logger.e('PUSH FAILED')
-                            Logger.e(error)
-                            reject(
-                                ApiStatusCodes.createError(
-                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                    'Push failed: ' + error
-                                )
-                            )
-                        })
-                    })
-
-
- */
 //# sourceMappingURL=DockerRegistryHelper.js.map

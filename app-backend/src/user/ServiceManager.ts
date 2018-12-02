@@ -24,10 +24,13 @@ class ServiceManager {
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager
     ) {
-        this.dockerRegistryHelper = new DockerRegistryHelper(this.dataStore)
         this.activeBuilds = {}
         this.buildLogs = {}
         this.isReady = true
+        this.dockerRegistryHelper = new DockerRegistryHelper(
+            this.dataStore,
+            this.dockerApi
+        )
         this.imageMaker = new ImageMaker(
             this.dockerRegistryHelper,
             this.dockerApi,

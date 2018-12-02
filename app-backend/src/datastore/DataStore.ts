@@ -128,6 +128,7 @@ class DataStore {
         })
     }
 
+    //TODO lookup usage of this method
     getImageNameAndTag(appName: string, version: number) {
         let versionStr = '' + version
         if (version === 0) {
@@ -135,14 +136,14 @@ class DataStore {
         }
 
         return (
-            this.getImageNameBase() +
+            this.getImageNameBase(appName) +
             appName +
             (versionStr ? ':' + versionStr : '')
         )
     }
 
-    getImageNameBase() {
-        return 'img-' + this.getNameSpace() + '--'
+    getImageNameBase(appName: string) {
+        return 'img-' + this.getNameSpace() + '--' + appName
     }
 
     getRootDomain() {
@@ -189,7 +190,7 @@ class DataStore {
         return this.appsDataStore
     }
 
-    getDefaultPushRegistry() {
+    getDefaultPushRegistry(): Promise<string | undefined> {
         const self = this
 
         return Promise.resolve().then(function() {
@@ -200,58 +201,82 @@ class DataStore {
     setDefaultPushRegistry(registryId: string) {
         const self = this
 
-        return Promise.resolve().then(function() {
-            let found = false
-            const registries = self.data.get(DOCKER_REGISTRIES) || []
-            for (let i = 0; i < registries.length; i++) {
-                const registry = registries[i]
-                if (registry.id === registryId) {
-                    found = true
+        return Promise.resolve()
+            .then(function() {
+                return self.getAllRegistries()
+            })
+            .then(function(registries) {
+                let found = false
+
+                for (let i = 0; i < registries.length; i++) {
+                    const registry = registries[i]
+                    if (registry.id === registryId) {
+                        found = true
+                    }
                 }
-            }
 
-            // registryId can be NULL/Empty, meaning that no registry will be the default push registry
-            if (!found && !!registryId) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.NOT_FOUND,
-                    'Registry not found'
-                )
-            }
+                // registryId can be NULL/Empty, meaning that no registry will be the default push registry
+                if (!found && !!registryId) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'Registry not found'
+                    )
+                }
 
-            self.data.set(DEFAULT_DOCKER_REGISTRY, registryId)
-        })
+                self.data.set(DEFAULT_DOCKER_REGISTRY, registryId)
+            })
     }
 
     deleteRegistry(registryId: string) {
         const self = this
 
-        return Promise.resolve().then(function() {
-            const newReg = []
-            const registries = self.data.get(DOCKER_REGISTRIES) || []
-            for (let i = 0; i < registries.length; i++) {
-                const registry = registries[i]
-                if (registry.id !== registryId) {
-                    newReg.push(registry)
+        return Promise.resolve()
+            .then(function() {
+                return self.getAllRegistries()
+            })
+            .then(function(registries) {
+                const newReg = []
+                for (let i = 0; i < registries.length; i++) {
+                    const registry = registries[i]
+                    if (registry.id !== registryId) {
+                        newReg.push(registry)
+                    }
                 }
-            }
 
-            if (newReg.length === registries.length) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.NOT_FOUND,
-                    'Registry not found'
-                )
-            }
+                if (newReg.length === registries.length) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'Registry not found'
+                    )
+                }
 
-            self.data.set(DOCKER_REGISTRIES, newReg)
-        })
+                self.saveAllRegistries(newReg)
+            })
     }
 
     getAllRegistries() {
         const self = this
 
-        return Promise.resolve().then(function() {
-            return self.data.get(DOCKER_REGISTRIES)
-        })
+        return Promise.resolve()
+            .then(function() {
+                return self.data.get(DOCKER_REGISTRIES) || []
+            })
+            .then(function(registries: IRegistryInfoEncrypted[]) {
+                const unencryptedList: IRegistryInfo[] = []
+                for (let i = 0; i < registries.length; i++) {
+                    const element = registries[i]
+                    unencryptedList.push({
+                        id: element.id,
+                        registryDomain: element.registryDomain,
+                        registryImagePrefix: element.registryImagePrefix,
+                        registryUser: element.registryUser,
+                        registryPassword: self.encryptor.decrypt(
+                            element.registryPasswordEncrypted
+                        ),
+                    })
+                }
+                return unencryptedList
+            })
     }
 
     addRegistryToDb(
@@ -264,11 +289,7 @@ class DataStore {
 
         return Promise.resolve()
             .then(function() {
-                return new Promise<
-                    IRegistryInfoEncrypted[]
-                >(function(resolve, reject) {
-                    resolve(self.data.get(DOCKER_REGISTRIES) || [])
-                })
+                return self.getAllRegistries()
             })
             .then(function(registries) {
                 let id: string = uuid()
@@ -288,14 +309,33 @@ class DataStore {
                 registries.push({
                     id,
                     registryUser,
-                    registryPasswordEncrypted: self.encryptor.encrypt(
-                        registryPassword
-                    ),
+                    registryPassword,
                     registryDomain,
                     registryImagePrefix,
                 })
 
-                self.data.set(DOCKER_REGISTRIES, registries)
+                return self.saveAllRegistries(registries)
+            })
+    }
+
+    private saveAllRegistries(registries: IRegistryInfo[]) {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                const encryptedList: IRegistryInfoEncrypted[] = []
+                for (let i = 0; i < registries.length; i++) {
+                    const element = registries[i]
+                    encryptedList.push({
+                        id: element.id,
+                        registryDomain: element.registryDomain,
+                        registryImagePrefix: element.registryImagePrefix,
+                        registryUser: element.registryUser,
+                        registryPasswordEncrypted: self.encryptor.encrypt(
+                            element.registryPassword
+                        ),
+                    })
+                }
+                self.data.set(DOCKER_REGISTRIES, encryptedList)
             })
     }
 
