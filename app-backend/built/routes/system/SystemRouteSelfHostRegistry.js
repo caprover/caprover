@@ -8,25 +8,16 @@ const CaptainConstants = require("../../utils/CaptainConstants");
 const InjectionExtractor = require("../../injection/InjectionExtractor");
 const uuid = require("uuid/v4");
 const router = express.Router();
-router.post('/enableregistryssl/', function (req, res, next) {
+router.post('/enableregistry/', function (req, res, next) {
+    const captainManager = CaptainManager.get();
+    const password = uuid();
+    const registryHelper = InjectionExtractor.extractAppAndUserForWebhook(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get()
             .getDockerRegistry()
             .enableRegistrySsl();
     })
-        .then(function () {
-        let msg = 'General SSL is enabled for docker registry.';
-        Logger.d(msg);
-        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
-    })
-        .catch(ApiStatusCodes.createCatcher(res));
-});
-router.post('/enableregistry/', function (req, res, next) {
-    const captainManager = CaptainManager.get();
-    const password = uuid();
-    const registryHelper = InjectionExtractor.extractAppAndUserForWebhook(res).user.serviceManager.getRegistryHelper();
-    return Promise.resolve()
         .then(function () {
         return captainManager
             .getDockerRegistry()
@@ -41,6 +32,42 @@ router.post('/enableregistry/', function (req, res, next) {
     })
         .then(function () {
         let msg = 'Local registry is created.';
+        Logger.d(msg);
+        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
+    })
+        .catch(ApiStatusCodes.createCatcher(res));
+});
+router.post('/disableregistry/', function (req, res, next) {
+    const captainManager = CaptainManager.get();
+    const registryHelper = InjectionExtractor.extractAppAndUserForWebhook(res).user.serviceManager.getRegistryHelper();
+    let localRegistryId = '';
+    return Promise.resolve()
+        .then(function () {
+        return registryHelper.getAllRegistries();
+    })
+        .then(function (regs) {
+        for (let idx = 0; idx < regs.length; idx++) {
+            const element = regs[idx];
+            if (element.registryType == IRegistryTypes.LOCAL_REG) {
+                // If local is already removed, localRegistryId will be empty even after this for loop
+                localRegistryId = element.id;
+            }
+        }
+        return registryHelper.getDefaultPushRegistryId();
+    })
+        .then(function (defaultId) {
+        if (!!defaultId && defaultId === localRegistryId) {
+            throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'Cannot remove DEFAULT PUSH registry. First demote from default, then delete');
+        }
+        return captainManager.getDockerRegistry().ensureServiceRemoved();
+    })
+        .then(function () {
+        if (localRegistryId) {
+            return registryHelper.deleteRegistry(localRegistryId);
+        }
+    })
+        .then(function () {
+        let msg = 'Local registry is removed.';
         Logger.d(msg);
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
     })

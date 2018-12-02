@@ -68,6 +68,24 @@ class DockerRegistry {
         )
     }
 
+    ensureServiceRemoved() {
+        const dockerApi = this.dockerApi
+
+        return Promise.resolve() //
+            .then(function() {
+                return dockerApi.isServiceRunningByName(
+                    CaptainConstants.registryServiceName
+                )
+            })
+            .then(function(isRunning) {
+                if (!isRunning) return
+
+                return dockerApi.removeServiceByName(
+                    CaptainConstants.registryServiceName
+                )
+            })
+    }
+
     ensureDockerRegistryRunningOnThisNode(password: string) {
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore

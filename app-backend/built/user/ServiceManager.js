@@ -202,7 +202,7 @@ class ServiceManager {
         })
             .then(function (isRunning) {
             if (isRunning) {
-                return dockerApi.removeService(serviceName);
+                return dockerApi.removeServiceByName(serviceName);
             }
             else {
                 Logger.w('Cannot delete service... It is not running: ' +

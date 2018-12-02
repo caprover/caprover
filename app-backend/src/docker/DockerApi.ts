@@ -675,9 +675,10 @@ class DockerApi {
 
         return self.dockerode.createService(dataToCreate)
     }
-
-    removeService(serviceName: string) {
-        return this.dockerode.getService(serviceName).remove()
+    
+    removeServiceByName(serviceName: string) {
+        const self = this
+        return self.dockerode.getService(serviceName).remove()
     }
 
     isServiceRunningByName(serviceName: string) {
@@ -693,11 +694,6 @@ class DockerApi {
                 }
                 throw error
             })
-    }
-
-    removeServiceByName(serviceName: string) {
-        const self = this
-        return self.dockerode.getService(serviceName).remove()
     }
 
     getContainerIdByServiceName(

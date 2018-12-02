@@ -548,8 +548,9 @@ class DockerApi {
         }
         return self.dockerode.createService(dataToCreate);
     }
-    removeService(serviceName) {
-        return this.dockerode.getService(serviceName).remove();
+    removeServiceByName(serviceName) {
+        const self = this;
+        return self.dockerode.getService(serviceName).remove();
     }
     isServiceRunningByName(serviceName) {
         return this.dockerode
@@ -564,10 +565,6 @@ class DockerApi {
             }
             throw error;
         });
-    }
-    removeServiceByName(serviceName) {
-        const self = this;
-        return self.dockerode.getService(serviceName).remove();
     }
     getContainerIdByServiceName(serviceName, retryCountMaybe) {
         const self = this;
