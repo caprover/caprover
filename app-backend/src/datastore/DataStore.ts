@@ -216,6 +216,8 @@ class DataStore {
 
         return Promise.resolve()
             .then(function() {
+                if (!registryId) throw new Error('Empty registry id to delete!')
+
                 return self.getAllRegistries()
             })
             .then(function(registries) {
@@ -264,6 +266,66 @@ class DataStore {
             })
     }
 
+    updateRegistry(
+        id: string,
+        registryUser: string,
+        registryPassword: string,
+        registryDomain: string,
+        registryImagePrefix: string,
+        registryType: IRegistryType
+    ) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function() {
+                if (
+                    !id ||
+                    !registryUser ||
+                    !registryPassword ||
+                    !registryDomain ||
+                    !registryType
+                ) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'User, password and domain are required.'
+                    )
+                }
+
+                return self.getAllRegistries()
+            })
+            .then(function(registries) {
+                let found = false
+                for (let idx = 0; idx < registries.length; idx++) {
+                    const element = registries[idx]
+                    if (element.id === id) {
+                        element.registryUser = registryUser
+                        element.registryPassword = registryPassword
+                        element.registryDomain = registryDomain
+                        element.registryImagePrefix = registryImagePrefix
+                        element.registryType = registryType
+                        found = true
+                    }
+                }
+
+                if (!found)
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'Registry ID not found'
+                    )
+
+                registries.push({
+                    id,
+                    registryUser,
+                    registryPassword,
+                    registryDomain,
+                    registryImagePrefix,
+                    registryType,
+                })
+
+                return self.saveAllRegistries(registries)
+            })
+    }
+
     addRegistryToDb(
         registryUser: string,
         registryPassword: string,
@@ -275,6 +337,18 @@ class DataStore {
 
         return Promise.resolve()
             .then(function() {
+                if (
+                    !registryUser ||
+                    !registryPassword ||
+                    !registryDomain ||
+                    !registryType
+                ) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'User, password and domain are required.'
+                    )
+                }
+
                 return self.getAllRegistries()
             })
             .then(function(registries) {

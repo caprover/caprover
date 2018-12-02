@@ -167,14 +167,29 @@ class DockerRegistryHelper {
     ) {
         const self = this
         return Promise.resolve().then(function() {
-            if (!registryUser || !registryPassword || !registryDomain) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_PARAMETER,
-                    'User, password and domain are required.'
-                )
-            }
-
             return self.dataStore.addRegistryToDb(
+                registryUser,
+                registryPassword,
+                registryDomain,
+                registryImagePrefix,
+                registryType
+            )
+        })
+    }
+
+    updateRegistry(
+        id: string,
+        registryUser: string,
+        registryPassword: string,
+        registryDomain: string,
+        registryImagePrefix: string,
+        registryType: IRegistryType
+    ) {
+        const self = this
+        return Promise.resolve().then(function() {
+
+            return self.dataStore.updateRegistry(
+                id,
                 registryUser,
                 registryPassword,
                 registryDomain,

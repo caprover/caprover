@@ -22,6 +22,24 @@ router.post('/insert/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
+router.post('/update/', function (req, res, next) {
+    let registryId = req.body.id + '';
+    let registryUser = req.body.registryUser + '';
+    let registryPassword = req.body.registryPassword + '';
+    let registryDomain = req.body.registryDomain + '';
+    let registryImagePrefix = req.body.registryImagePrefix + '';
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
+    return Promise.resolve()
+        .then(function () {
+        return registryHelper.updateRegistry(registryId, registryUser, registryPassword, registryDomain, registryImagePrefix, IRegistryTypes.REMOTE_REG);
+    })
+        .then(function () {
+        let msg = 'Registry is updated.';
+        Logger.d(msg);
+        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
+    })
+        .catch(ApiStatusCodes.createCatcher(res));
+});
 router.get('/all/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     let registries = [];

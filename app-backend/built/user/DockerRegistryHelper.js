@@ -125,10 +125,13 @@ class DockerRegistryHelper {
     addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
         return Promise.resolve().then(function () {
-            if (!registryUser || !registryPassword || !registryDomain) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
-            }
             return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
+        });
+    }
+    updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
+        const self = this;
+        return Promise.resolve().then(function () {
+            return self.dataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
         });
     }
 }
