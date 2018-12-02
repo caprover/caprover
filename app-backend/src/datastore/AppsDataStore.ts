@@ -31,8 +31,6 @@ class AppsDataStore {
     constructor(private data: configstore, private namepace: string) {}
 
     setEncryptor(encryptor: CaptainEncryptor) {
-        if (this.encryptor) return
-
         this.encryptor = encryptor
     }
 

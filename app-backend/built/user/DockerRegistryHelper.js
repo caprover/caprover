@@ -4,9 +4,8 @@ const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
 class DockerRegistryHelper {
     constructor(dataStore, dockerApi) {
-        this.dataStore = dataStore;
         this.dockerApi = dockerApi;
-        //
+        this.registriesDataStore = dataStore.getRegistriesDataStore();
     }
     retagAndPushIfDefaultPushExist(imageName, version, buildLogs) {
         const self = this;
@@ -94,13 +93,13 @@ class DockerRegistryHelper {
     setDefaultPushRegistry(registryId) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.setDefaultPushRegistryId(registryId);
+            return self.registriesDataStore.setDefaultPushRegistryId(registryId);
         });
     }
     getDefaultPushRegistryId() {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.getDefaultPushRegistryId();
+            return self.registriesDataStore.getDefaultPushRegistryId();
         });
     }
     deleteRegistry(registryId) {
@@ -113,25 +112,25 @@ class DockerRegistryHelper {
             if (registryId === registryIdDefaultPush) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push');
             }
-            return self.dataStore.deleteRegistry(registryId);
+            return self.registriesDataStore.deleteRegistry(registryId);
         });
     }
     getAllRegistries() {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.getAllRegistries();
+            return self.registriesDataStore.getAllRegistries();
         });
     }
     addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
+            return self.registriesDataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
         });
     }
     updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
+            return self.registriesDataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
         });
     }
 }

@@ -195,7 +195,7 @@ class CaptainManager {
                 return certbotManager.init(myNodeId)
             })
             .then(function() {
-                return dataStore.getAllRegistries()
+                return dataStore.getRegistriesDataStore().getAllRegistries()
             })
             .then(function(registries) {
                 let localRegistry: IRegistryInfo | undefined = undefined

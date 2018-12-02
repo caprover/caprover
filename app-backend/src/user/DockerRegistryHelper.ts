@@ -5,10 +5,12 @@ import CaptainConstants = require('../utils/CaptainConstants')
 import DockerApi = require('../docker/DockerApi')
 import BuildLog = require('./BuildLog')
 import { AnyError } from '../models/OtherTypes'
+import RegistriesDataStore = require('../datastore/RegistriesDataStore')
 
 class DockerRegistryHelper {
-    constructor(private dataStore: DataStore, private dockerApi: DockerApi) {
-        //
+    private registriesDataStore: RegistriesDataStore
+    constructor(dataStore: DataStore, private dockerApi: DockerApi) {
+        this.registriesDataStore = dataStore.getRegistriesDataStore()
     }
 
     retagAndPushIfDefaultPushExist(
@@ -122,14 +124,14 @@ class DockerRegistryHelper {
     setDefaultPushRegistry(registryId: string) {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.setDefaultPushRegistryId(registryId)
+            return self.registriesDataStore.setDefaultPushRegistryId(registryId)
         })
     }
 
     getDefaultPushRegistryId() {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.getDefaultPushRegistryId()
+            return self.registriesDataStore.getDefaultPushRegistryId()
         })
     }
 
@@ -147,14 +149,14 @@ class DockerRegistryHelper {
                     )
                 }
 
-                return self.dataStore.deleteRegistry(registryId)
+                return self.registriesDataStore.deleteRegistry(registryId)
             })
     }
 
     getAllRegistries() {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.getAllRegistries()
+            return self.registriesDataStore.getAllRegistries()
         })
     }
 
@@ -167,7 +169,7 @@ class DockerRegistryHelper {
     ) {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.addRegistryToDb(
+            return self.registriesDataStore.addRegistryToDb(
                 registryUser,
                 registryPassword,
                 registryDomain,
@@ -187,8 +189,7 @@ class DockerRegistryHelper {
     ) {
         const self = this
         return Promise.resolve().then(function() {
-
-            return self.dataStore.updateRegistry(
+            return self.registriesDataStore.updateRegistry(
                 id,
                 registryUser,
                 registryPassword,

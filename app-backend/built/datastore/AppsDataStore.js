@@ -23,8 +23,6 @@ class AppsDataStore {
         this.namepace = namepace;
     }
     setEncryptor(encryptor) {
-        if (this.encryptor)
-            return;
         this.encryptor = encryptor;
     }
     saveApp(appName, app) {
