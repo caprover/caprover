@@ -32,11 +32,9 @@ class CaptainManager {
     private loadBalancerManager: LoadBalancerManager
     private dockerRegistry: DockerRegistry
     private myNodeId: string | undefined
-    private initRetryCount: number
     private inited: boolean
     private waitUntilRestarted: boolean
     private captainSalt: string
-    private dockerAuthObj: DockerAuthObj | undefined
     private consecutiveHealthCheckFailCount: number
     private healthCheckUuid: string
 
@@ -62,11 +60,9 @@ class CaptainManager {
             this
         )
         this.myNodeId = undefined
-        this.initRetryCount = 0
         this.inited = false
         this.waitUntilRestarted = false
         this.captainSalt = ''
-        this.dockerAuthObj = undefined
         this.consecutiveHealthCheckFailCount = 0
         this.healthCheckUuid = uuid()
     }
@@ -164,74 +160,12 @@ class CaptainManager {
             })
             .then(function(secretHadExistedBefore) {
                 if (!secretHadExistedBefore) {
-                    return new Promise<number>(function() {
+                    return new Promise<void>(function() {
                         Logger.d(
                             'I am halting here. I expect to get restarted in a few seconds due to a secret (captain salt) being updated.'
                         )
                     })
                 }
-
-                return dataStore.getRegistryAuthSecretVersion()
-            })
-            .then(function(currentVersion) {
-                const secretName =
-                    CaptainConstants.captainRegistryAuthHeaderSecretPrefix +
-                    currentVersion
-
-                if (currentVersion > 0) {
-                    Logger.d('Updating secrets to update docker registry auth.')
-                    return dockerApi
-                        .ensureSecretOnService(
-                            CaptainConstants.captainServiceName,
-                            secretName
-                        )
-                        .then(function(secretHadExistedBefore) {
-                            if (!secretHadExistedBefore) {
-                                return new Promise<boolean>(function() {
-                                    Logger.d(
-                                        'I am halting here. I expect to get restarted in a few seconds due to a secret (registry auth) being updated.'
-                                    )
-                                })
-                            }
-
-                            return false
-                        })
-                }
-                return false
-            })
-            .then(function() {
-                return dataStore.getRegistryAuthSecretVersion()
-            })
-            .then(function(currentVersion) {
-                if (currentVersion === 0) {
-                    Logger.d(
-                        'There is no Docker Registry, neither local nor remote.'
-                    )
-                    return true
-                }
-
-                const secretName =
-                    CaptainConstants.captainRegistryAuthHeaderSecretPrefix +
-                    currentVersion
-
-                const secretFileName = '/run/secrets/' + secretName
-
-                if (!fs.existsSync(secretFileName)) {
-                    throw new Error(
-                        'Secret is attached according to Docker. But file cannot be found. ' +
-                            secretFileName
-                    )
-                }
-
-                const secretContent = fs.readFileSync(secretFileName).toString()
-
-                if (!secretContent) {
-                    throw new Error('Docker Auth content is empty!')
-                }
-
-                self.dockerAuthObj = JSON.parse(secretContent)
-
-                return true
             })
             .then(function() {
                 const secretFileName =
@@ -261,12 +195,23 @@ class CaptainManager {
                 return certbotManager.init(myNodeId)
             })
             .then(function() {
-                return dataStore.getHasLocalRegistry()
+                return dataStore.getAllRegistries()
             })
-            .then(function(hasLocalRegistry) {
-                if (hasLocalRegistry) {
+            .then(function(registries) {
+                let localRegistry: IRegistryInfo | undefined = undefined
+
+                for (let idx = 0; idx < registries.length; idx++) {
+                    const element = registries[idx]
+                    if (element.registryType == IRegistryTypes.LOCAL_REG) {
+                        localRegistry = element
+                    }
+                }
+
+                if (!!localRegistry) {
                     Logger.d('Ensuring Docker Registry is running...')
-                    return self.dockerRegistry.ensureDockerRegistryRunningOnThisNode()
+                    return self.dockerRegistry.ensureDockerRegistryRunningOnThisNode(
+                        localRegistry.registryPassword
+                    )
                 }
 
                 return Promise.resolve(true)
@@ -282,15 +227,10 @@ class CaptainManager {
             })
             .catch(function(error) {
                 Logger.e(error)
-                self.initRetryCount++
-
-                if (self.initRetryCount > 5) {
-                    process.exit(0)
-                }
 
                 setTimeout(function() {
-                    self.initialize()
-                }, 10000)
+                    process.exit(0)
+                }, 5000)
             })
     }
 
@@ -531,10 +471,6 @@ class CaptainManager {
         }
 
         return this.captainSalt
-    }
-
-    getDockerAuthObject() {
-        return this.dockerAuthObj
     }
 
     updateNetDataInfo(netDataInfo: NetDataInfo) {

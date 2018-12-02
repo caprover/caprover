@@ -22,7 +22,7 @@ class DockerRegistryHelper {
         })
             .then(function (data) {
             allRegistries = data;
-            return self.getDefaultPushRegistry();
+            return self.getDefaultPushRegistryId();
         })
             .then(function (defaultRegId) {
             let ret = undefined;
@@ -94,20 +94,20 @@ class DockerRegistryHelper {
     setDefaultPushRegistry(registryId) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.setDefaultPushRegistry(registryId);
+            return self.dataStore.setDefaultPushRegistryId(registryId);
         });
     }
-    getDefaultPushRegistry() {
+    getDefaultPushRegistryId() {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dataStore.getDefaultPushRegistry();
+            return self.dataStore.getDefaultPushRegistryId();
         });
     }
     deleteRegistry(registryId) {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            return self.getDefaultPushRegistry();
+            return self.getDefaultPushRegistryId();
         })
             .then(function (registryIdDefaultPush) {
             if (registryId === registryIdDefaultPush) {
@@ -122,13 +122,13 @@ class DockerRegistryHelper {
             return self.dataStore.getAllRegistries();
         });
     }
-    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+    addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
         return Promise.resolve().then(function () {
             if (!registryUser || !registryPassword || !registryDomain) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
             }
-            return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix);
+            return self.dataStore.addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
         });
     }
 }

@@ -32,7 +32,7 @@ class DockerRegistryHelper {
             })
             .then(function(data) {
                 allRegistries = data
-                return self.getDefaultPushRegistry()
+                return self.getDefaultPushRegistryId()
             })
             .then(function(defaultRegId) {
                 let ret: IRegistryInfo | undefined = undefined
@@ -122,14 +122,14 @@ class DockerRegistryHelper {
     setDefaultPushRegistry(registryId: string) {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.setDefaultPushRegistry(registryId)
+            return self.dataStore.setDefaultPushRegistryId(registryId)
         })
     }
 
-    getDefaultPushRegistry() {
+    getDefaultPushRegistryId() {
         const self = this
         return Promise.resolve().then(function() {
-            return self.dataStore.getDefaultPushRegistry()
+            return self.dataStore.getDefaultPushRegistryId()
         })
     }
 
@@ -137,7 +137,7 @@ class DockerRegistryHelper {
         const self = this
         return Promise.resolve()
             .then(function() {
-                return self.getDefaultPushRegistry()
+                return self.getDefaultPushRegistryId()
             })
             .then(function(registryIdDefaultPush) {
                 if (registryId === registryIdDefaultPush) {
@@ -162,7 +162,8 @@ class DockerRegistryHelper {
         registryUser: string,
         registryPassword: string,
         registryDomain: string,
-        registryImagePrefix: string
+        registryImagePrefix: string,
+        registryType: IRegistryType
     ) {
         const self = this
         return Promise.resolve().then(function() {
@@ -177,7 +178,8 @@ class DockerRegistryHelper {
                 registryUser,
                 registryPassword,
                 registryDomain,
-                registryImagePrefix
+                registryImagePrefix,
+                registryType
             )
         })
     }

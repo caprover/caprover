@@ -1,3 +1,10 @@
+class IRegistryTypes {
+    static readonly LOCAL_REG = 'LOCAL_REG'
+    static readonly REMOTE_REG = 'REMOTE_REG'
+}
+
+type IRegistryType = 'LOCAL_REG' | 'REMOTE_REG'
+
 interface IRegistryInfo {
     id: string
     registryUser: string
@@ -6,6 +13,8 @@ interface IRegistryInfo {
     registryDomain: string // TODO check if we need to remove HTTP / HTTPS entered by the user
 
     registryImagePrefix: string
+
+    registryType: IRegistryType
 }
 
 interface IRegistryInfoEncrypted {
@@ -16,4 +25,6 @@ interface IRegistryInfoEncrypted {
     registryDomain: string
 
     registryImagePrefix: string
+
+    registryType: IRegistryType
 }

@@ -2,7 +2,7 @@ import express = require('express')
 import BaseApi = require('../api/BaseApi')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
-import InjectionExtractor = require('../injection/InjectionExtractor');
+import InjectionExtractor = require('../injection/InjectionExtractor')
 
 const router = express.Router()
 
@@ -12,7 +12,9 @@ router.post('/insert/', function(req, res, next) {
     let registryDomain = req.body.registryDomain + ''
     let registryImagePrefix = req.body.registryImagePrefix + ''
 
-    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(
+        res
+    ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {
@@ -20,7 +22,8 @@ router.post('/insert/', function(req, res, next) {
                 registryUser,
                 registryPassword,
                 registryDomain,
-                registryImagePrefix
+                registryImagePrefix,
+                IRegistryTypes.REMOTE_REG
             )
         })
         .then(function() {
@@ -32,7 +35,9 @@ router.post('/insert/', function(req, res, next) {
 })
 
 router.get('/all/', function(req, res, next) {
-    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(
+        res
+    ).user.serviceManager.getRegistryHelper()
     let registries: IRegistryInfo[] = []
 
     return Promise.resolve()
@@ -41,7 +46,7 @@ router.get('/all/', function(req, res, next) {
         })
         .then(function(registriesAll) {
             registries = registriesAll
-            return registryHelper.getDefaultPushRegistry()
+            return registryHelper.getDefaultPushRegistryId()
         })
         .then(function(defaultPush) {
             let baseApi = new BaseApi(
@@ -58,7 +63,9 @@ router.get('/all/', function(req, res, next) {
 
 router.post('/delete/', function(req, res, next) {
     let registryId = req.body.registryId + ''
-    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(
+        res
+    ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {
@@ -76,7 +83,9 @@ router.post('/delete/', function(req, res, next) {
 
 router.post('/setpush/', function(req, res, next) {
     let registryId = req.body.registryId + ''
-    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper()
+    const registryHelper = InjectionExtractor.extractUserFromInjected(
+        res
+    ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function() {

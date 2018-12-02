@@ -11,15 +11,13 @@ const Encryptor = require("../utils/Encryptor");
 const AppsDataStore = require("./AppsDataStore");
 const NAMESPACE = 'namespace';
 const HASHED_PASSWORD = 'hashedPassword';
-const CAPTAIN_REGISTRY_AUTH_SECRET_VER = 'captainRegistryAuthSecretVer';
 const CUSTOM_DOMAIN = 'customDomain';
 const HAS_ROOT_SSL = 'hasRootSsl';
 const FORCE_ROOT_SSL = 'forceRootSsl';
 const HAS_REGISTRY_SSL = 'hasRegistrySsl';
-const HAS_LOCAL_REGISTRY = 'hasLocalRegistry';
 const EMAIL_ADDRESS = 'emailAddress';
 const DOCKER_REGISTRIES = 'dockerRegistries';
-const DEFAULT_DOCKER_REGISTRY = 'defaultDockerReg';
+const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId';
 const NET_DATA_INFO = 'netDataInfo';
 const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
 const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
@@ -99,18 +97,6 @@ class DataStore {
             return self.data.set(NET_DATA_INFO, netDataInfo);
         });
     }
-    setRegistryAuthSecretVersion(ver) {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.data.set(CAPTAIN_REGISTRY_AUTH_SECRET_VER, Number(ver));
-        });
-    }
-    getRegistryAuthSecretVersion() {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0;
-        });
-    }
     //TODO lookup usage of this method
     getImageNameAndTag(appName, version) {
         let versionStr = '' + version;
@@ -157,13 +143,13 @@ class DataStore {
     getAppsDataStore() {
         return this.appsDataStore;
     }
-    getDefaultPushRegistry() {
+    getDefaultPushRegistryId() {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.data.get(DEFAULT_DOCKER_REGISTRY);
+            return self.data.get(DEFAULT_DOCKER_REGISTRY_ID);
         });
     }
-    setDefaultPushRegistry(registryId) {
+    setDefaultPushRegistryId(registryId) {
         const self = this;
         return Promise.resolve()
             .then(function () {
@@ -181,7 +167,7 @@ class DataStore {
             if (!found && !!registryId) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
             }
-            self.data.set(DEFAULT_DOCKER_REGISTRY, registryId);
+            self.data.set(DEFAULT_DOCKER_REGISTRY_ID, registryId);
         });
     }
     deleteRegistry(registryId) {
@@ -220,12 +206,13 @@ class DataStore {
                     registryImagePrefix: element.registryImagePrefix,
                     registryUser: element.registryUser,
                     registryPassword: self.encryptor.decrypt(element.registryPasswordEncrypted),
+                    registryType: element.registryType,
                 });
             }
             return unencryptedList;
         });
     }
-    addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix) {
+    addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
         return Promise.resolve()
             .then(function () {
@@ -250,6 +237,7 @@ class DataStore {
                 registryPassword,
                 registryDomain,
                 registryImagePrefix,
+                registryType,
             });
             return self.saveAllRegistries(registries);
         });
@@ -267,6 +255,7 @@ class DataStore {
                     registryImagePrefix: element.registryImagePrefix,
                     registryUser: element.registryUser,
                     registryPasswordEncrypted: self.encryptor.encrypt(element.registryPassword),
+                    registryType: element.registryType,
                 });
             }
             self.data.set(DOCKER_REGISTRIES, encryptedList);
@@ -344,20 +333,6 @@ class DataStore {
         const self = this;
         return new Promise(function (resolve, reject) {
             resolve(self.data.get(HAS_ROOT_SSL));
-        });
-    }
-    setHasLocalRegistry(hasLocalRegistry) {
-        const self = this;
-        return new Promise(function (resolve, reject) {
-            self.data.set(HAS_LOCAL_REGISTRY, hasLocalRegistry);
-            resolve();
-        });
-    }
-    getHasLocalRegistry() {
-        const self = this;
-        return new Promise(function (resolve, reject) {
-            let value = !!self.data.get(HAS_LOCAL_REGISTRY);
-            resolve(value);
         });
     }
     getHasRegistrySsl() {

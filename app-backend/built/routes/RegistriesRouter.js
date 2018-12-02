@@ -13,7 +13,7 @@ router.post('/insert/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return registryHelper.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix);
+        return registryHelper.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, IRegistryTypes.REMOTE_REG);
     })
         .then(function () {
         let msg = 'Registry is added.';
@@ -31,7 +31,7 @@ router.get('/all/', function (req, res, next) {
     })
         .then(function (registriesAll) {
         registries = registriesAll;
-        return registryHelper.getDefaultPushRegistry();
+        return registryHelper.getDefaultPushRegistryId();
     })
         .then(function (defaultPush) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'All registries retrieved');

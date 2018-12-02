@@ -12,15 +12,13 @@ import AppsDataStore = require('./AppsDataStore')
 
 const NAMESPACE = 'namespace'
 const HASHED_PASSWORD = 'hashedPassword'
-const CAPTAIN_REGISTRY_AUTH_SECRET_VER = 'captainRegistryAuthSecretVer'
 const CUSTOM_DOMAIN = 'customDomain'
 const HAS_ROOT_SSL = 'hasRootSsl'
 const FORCE_ROOT_SSL = 'forceRootSsl'
 const HAS_REGISTRY_SSL = 'hasRegistrySsl'
-const HAS_LOCAL_REGISTRY = 'hasLocalRegistry'
 const EMAIL_ADDRESS = 'emailAddress'
 const DOCKER_REGISTRIES = 'dockerRegistries'
-const DEFAULT_DOCKER_REGISTRY = 'defaultDockerReg'
+const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
 const NET_DATA_INFO = 'netDataInfo'
 const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG'
 const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG'
@@ -114,20 +112,6 @@ class DataStore {
         })
     }
 
-    setRegistryAuthSecretVersion(ver: number) {
-        const self = this
-        return Promise.resolve().then(function() {
-            return self.data.set(CAPTAIN_REGISTRY_AUTH_SECRET_VER, Number(ver))
-        })
-    }
-
-    getRegistryAuthSecretVersion(): Promise<number> {
-        const self = this
-        return Promise.resolve().then(function() {
-            return self.data.get(CAPTAIN_REGISTRY_AUTH_SECRET_VER) || 0
-        })
-    }
-
     //TODO lookup usage of this method
     getImageNameAndTag(appName: string, version: number) {
         let versionStr = '' + version
@@ -190,15 +174,15 @@ class DataStore {
         return this.appsDataStore
     }
 
-    getDefaultPushRegistry(): Promise<string | undefined> {
+    getDefaultPushRegistryId(): Promise<string | undefined> {
         const self = this
 
         return Promise.resolve().then(function() {
-            return self.data.get(DEFAULT_DOCKER_REGISTRY)
+            return self.data.get(DEFAULT_DOCKER_REGISTRY_ID)
         })
     }
 
-    setDefaultPushRegistry(registryId: string) {
+    setDefaultPushRegistryId(registryId: string) {
         const self = this
 
         return Promise.resolve()
@@ -223,7 +207,7 @@ class DataStore {
                     )
                 }
 
-                self.data.set(DEFAULT_DOCKER_REGISTRY, registryId)
+                self.data.set(DEFAULT_DOCKER_REGISTRY_ID, registryId)
             })
     }
 
@@ -273,6 +257,7 @@ class DataStore {
                         registryPassword: self.encryptor.decrypt(
                             element.registryPasswordEncrypted
                         ),
+                        registryType: element.registryType,
                     })
                 }
                 return unencryptedList
@@ -283,7 +268,8 @@ class DataStore {
         registryUser: string,
         registryPassword: string,
         registryDomain: string,
-        registryImagePrefix: string
+        registryImagePrefix: string,
+        registryType: IRegistryType
     ) {
         const self = this
 
@@ -312,6 +298,7 @@ class DataStore {
                     registryPassword,
                     registryDomain,
                     registryImagePrefix,
+                    registryType,
                 })
 
                 return self.saveAllRegistries(registries)
@@ -333,6 +320,7 @@ class DataStore {
                         registryPasswordEncrypted: self.encryptor.encrypt(
                             element.registryPassword
                         ),
+                        registryType: element.registryType,
                     })
                 }
                 self.data.set(DOCKER_REGISTRIES, encryptedList)
@@ -430,23 +418,6 @@ class DataStore {
 
         return new Promise<boolean>(function(resolve, reject) {
             resolve(self.data.get(HAS_ROOT_SSL))
-        })
-    }
-
-    setHasLocalRegistry(hasLocalRegistry: boolean) {
-        const self = this
-
-        return new Promise<void>(function(resolve, reject) {
-            self.data.set(HAS_LOCAL_REGISTRY, hasLocalRegistry)
-            resolve()
-        })
-    }
-
-    getHasLocalRegistry() {
-        const self = this
-        return new Promise<boolean>(function(resolve, reject) {
-            let value = !!self.data.get(HAS_LOCAL_REGISTRY)
-            resolve(value)
         })
     }
 

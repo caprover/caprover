@@ -57,8 +57,6 @@ let data = {
 
     registrySubDomainPort: 996,
 
-    captainRegistryAuthHeaderSecretPrefix: 'captain-reg-auth',
-
     captainRegistryUsername: 'captain',
 
     captainNetworkName: 'captain-overlay-network',

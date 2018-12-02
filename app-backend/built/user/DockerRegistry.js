@@ -11,17 +11,7 @@ class DockerRegistry {
         this.certbotManager = certbotManager;
         this.loadBalancerManager = loadBalancerManager;
         this.captainManager = captainManager;
-        // this.dockerApi = dockerApi;
-        // this.dataStore = dataStore;
-        // this.certbotManager = certbotManager;
-        // this.loadBalancerManager = loadBalancerManager;
-        // this.captainManager = captainManager;
-    }
-    enableLocalDockerRegistry() {
-        const self = this;
-        return Promise.resolve().then(function () {
-            return self.dataStore.setHasLocalRegistry(true);
-        });
+        //
     }
     enableRegistrySsl() {
         const self = this;
@@ -55,11 +45,10 @@ class DockerRegistry {
             ':' +
             CaptainConstants.registrySubDomainPort);
     }
-    ensureDockerRegistryRunningOnThisNode() {
+    ensureDockerRegistryRunningOnThisNode(password) {
         const dockerApi = this.dockerApi;
         const dataStore = this.dataStore;
         const myNodeId = this.captainManager.getMyNodeId();
-        const captainSalt = this.captainManager.getCaptainSalt();
         function createRegistryServiceOnNode() {
             return dockerApi.createServiceOnNodeId(CaptainConstants.registryImageName, CaptainConstants.registryServiceName, [
                 {
@@ -115,7 +104,7 @@ class DockerRegistry {
             .then(function () {
             const authContent = CaptainConstants.captainRegistryUsername +
                 ':' +
-                bcrypt.hashSync(captainSalt, bcrypt.genSaltSync(5));
+                bcrypt.hashSync(password, bcrypt.genSaltSync(5));
             return fs.outputFile(CaptainConstants.registryAuthPathOnHost, authContent);
         })
             .then(function () {
@@ -147,54 +136,6 @@ class DockerRegistry {
             }
             else {
                 return true;
-            }
-        });
-    }
-    updateRegistryAuthHeader(username, password, domain, currentVersion) {
-        const self = this;
-        const dockerApi = this.dockerApi;
-        let nextVersion;
-        let secretName;
-        let userEmailAddress = undefined;
-        return Promise.resolve()
-            .then(function () {
-            return self.dataStore.getUserEmailAddress();
-        })
-            .then(function (emailAddress) {
-            userEmailAddress = emailAddress;
-            if (currentVersion) {
-                return currentVersion;
-            }
-            return self.dataStore.getRegistryAuthSecretVersion();
-        })
-            .then(function (versionSaved) {
-            nextVersion = versionSaved + 1;
-            secretName =
-                CaptainConstants.captainRegistryAuthHeaderSecretPrefix +
-                    nextVersion;
-            if (!username || !password || !domain) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'user, pass and domain are all required');
-            }
-            return dockerApi.checkIfSecretExist(secretName);
-        })
-            .then(function (secretExist) {
-            if (secretExist) {
-                Logger.d('WARNING! Unexpected secret exist! Perhaps secret was created but Captain was not updated.');
-                return self.updateRegistryAuthHeader(username, password, domain, nextVersion);
-            }
-            else {
-                const authObj = {
-                    username: username,
-                    password: password,
-                    email: userEmailAddress || CaptainConstants.defaultEmail,
-                    serveraddress: domain,
-                };
-                return dockerApi
-                    .ensureSecret(secretName, JSON.stringify(authObj))
-                    .then(function () {
-                    Logger.d('Updating EnvVars to update docker registry auth.');
-                    return self.dataStore.setRegistryAuthSecretVersion(nextVersion);
-                });
             }
         });
     }

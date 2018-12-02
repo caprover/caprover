@@ -5,9 +5,11 @@ const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
 const CaptainManager = require("../user/CaptainManager");
 const Validator = require("validator");
+const SystemRouteSelfHostRegistry = require("./SystemRouteSelfHostRegistry");
 const CaptainConstants = require("../utils/CaptainConstants");
 const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
+router.use('/selfhostregistry/', SystemRouteSelfHostRegistry);
 router.post('/changerootdomain/', function (req, res, next) {
     let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
     function replaceAll(target, search, replacement) {
@@ -62,73 +64,6 @@ router.post('/forcessl/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
-router.post('/enableregistryssl/', function (req, res, next) {
-    return Promise.resolve()
-        .then(function () {
-        return CaptainManager.get()
-            .getDockerRegistry()
-            .enableRegistrySsl();
-    })
-        .then(function () {
-        let msg = 'General SSL is enabled for docker registry.';
-        Logger.d(msg);
-        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
-    })
-        .catch(ApiStatusCodes.createCatcher(res));
-});
-router.post('/enableregistry/', function (req, res, next) {
-    const LOCAL = 'local';
-    const REMOTE = 'remote';
-    let isLocal = req.body.registryType === LOCAL;
-    let isRemote = req.body.registryType === REMOTE;
-    const captainManager = CaptainManager.get();
-    return Promise.resolve()
-        .then(function () {
-        if (isLocal) {
-            return captainManager
-                .getDockerRegistry()
-                .ensureDockerRegistryRunningOnThisNode();
-        }
-        else if (isRemote) {
-            return true; // remote registry is already created :p we just need to update the credentials
-        }
-        else {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Registry type is not known.');
-        }
-    })
-        .then(function () {
-        let user = req.body.registryUser;
-        let pass = req.body.registryPassword;
-        let domain = req.body.registryDomain;
-        if (isLocal) {
-            user = CaptainConstants.captainRegistryUsername;
-            pass = captainManager.getCaptainSalt();
-            domain = captainManager
-                .getDockerRegistry()
-                .getLocalRegistryDomainAndPort();
-        }
-        return captainManager
-            .getDockerRegistry()
-            .updateRegistryAuthHeader(user, pass, domain);
-    })
-        .then(function () {
-        if (isLocal) {
-            return captainManager
-                .getDockerRegistry()
-                .enableLocalDockerRegistry();
-        }
-        return Promise.resolve();
-    })
-        .then(function () {
-        let msg = 'Local registry is created.';
-        Logger.d(msg);
-        res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg));
-    })
-        .then(function () {
-        return captainManager.resetSelf();
-    })
-        .catch(ApiStatusCodes.createCatcher(res));
-});
 router.get('/info/', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore;
@@ -137,11 +72,7 @@ router.get('/info/', function (req, res, next) {
         return dataStore.getHasRootSsl();
     })
         .then(function (hasRootSsl) {
-        let dockerRegistryAuthObj = CaptainManager.get().getDockerAuthObject();
         return {
-            dockerRegistryDomain: dockerRegistryAuthObj
-                ? dockerRegistryAuthObj.serveraddress
-                : '',
             hasRootSsl: hasRootSsl,
             forceSsl: CaptainManager.get().getForceSslValue(),
             rootDomain: dataStore.hasCustomDomain()
@@ -298,6 +229,7 @@ router.get('/nodes/', function (req, res, next) {
 router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager';
     const WORKER = 'worker';
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     let isManager;
     if (req.body.nodeType === MANAGER) {
         isManager = true;
@@ -322,8 +254,11 @@ router.post('/nodes/', function (req, res, next) {
     }
     return Promise.resolve()
         .then(function () {
-        if (!CaptainManager.get().getDockerAuthObject()) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Docker Registry is not attached yet. To add a node, you must first enable a docker registry');
+        return registryHelper.getDefaultPushRegistryId();
+    })
+        .then(function (defaultRegistry) {
+        if (!defaultRegistry) {
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'There is no default Docker Registry. You need a repository for your images before adding nodes. Read docs.');
         }
     })
         .then(function () {
