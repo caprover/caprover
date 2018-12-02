@@ -2,10 +2,8 @@ import express = require('express')
 import BaseApi = require('../api/BaseApi')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Injector = require('../injection/Injector')
-import SystemRouter = require('./SystemRouter')
-import WebhooksRouter = require('./WebhooksRouter')
-import AppDefinitionRouter = require('./AppDefinitionRouter')
-import AppDataRouter = require('./AppDataRouter')
+import SystemRouter = require('./system/SystemRouter')
+import AppsRouter = require('./apps/AppsRouter')
 import Authenticator = require('../user/Authenticator')
 import Logger = require('../utils/Logger')
 import RegistriesRouter = require('./RegistriesRouter')
@@ -16,7 +14,7 @@ const router = express.Router()
 
 const threadLockNamespace = {} as IHashMapGeneric<boolean>
 
-router.use('/webhooks/', Injector.injectUserForWebhook())
+router.use('/apps/webhooks/', Injector.injectUserForWebhook())
 
 router.use(Injector.injectUser())
 
@@ -101,15 +99,11 @@ router.post('/changepassword/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.use('/appDefinitions/', AppDefinitionRouter)
-
-router.use('/appData/', AppDataRouter)
+router.use('/apps/', AppsRouter)
 
 router.use('/registries/', RegistriesRouter)
 
 router.use('/system/', SystemRouter)
 
-// semi-secured end points:
-router.use('/webhooks/', WebhooksRouter)
 
 export = router

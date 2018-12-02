@@ -3,17 +3,15 @@ const express = require("express");
 const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Injector = require("../injection/Injector");
-const SystemRouter = require("./SystemRouter");
-const WebhooksRouter = require("./WebhooksRouter");
-const AppDefinitionRouter = require("./AppDefinitionRouter");
-const AppDataRouter = require("./AppDataRouter");
+const SystemRouter = require("./system/SystemRouter");
+const AppsRouter = require("./apps/AppsRouter");
 const Authenticator = require("../user/Authenticator");
 const RegistriesRouter = require("./RegistriesRouter");
 const onFinished = require("on-finished");
 const InjectionExtractor = require("../injection/InjectionExtractor");
 const router = express.Router();
 const threadLockNamespace = {};
-router.use('/webhooks/', Injector.injectUserForWebhook());
+router.use('/apps/webhooks/', Injector.injectUserForWebhook());
 router.use(Injector.injectUser());
 function isNotGetRequest(req) {
     return req.method !== 'GET';
@@ -69,11 +67,8 @@ router.post('/changepassword/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
-router.use('/appDefinitions/', AppDefinitionRouter);
-router.use('/appData/', AppDataRouter);
+router.use('/apps/', AppsRouter);
 router.use('/registries/', RegistriesRouter);
 router.use('/system/', SystemRouter);
-// semi-secured end points:
-router.use('/webhooks/', WebhooksRouter);
 module.exports = router;
 //# sourceMappingURL=UserRouter.js.map
