@@ -1,16 +1,3 @@
-interface ISourceForImageCreationTarFile {
-    pathToSrcTarballFile: string
-}
-
-interface ISourceForImageCreationRepo {
-    repoInfo: RepoInfo
-}
-
-type ISourceForImageCreation =
-    | ISourceForImageCreationRepo
-    | ISourceForImageCreationTarFile
-    | undefined
-
 type IAllAppDefinitions = IHashMapGeneric<IAppDef>
 
 interface IAppEnvVar {
@@ -50,9 +37,6 @@ interface RepoInfoEncrypted {
 }
 
 abstract class IAppDefinitionBase {
-    public appName?: string
-    public isAppBuilding?: boolean
-
     public deployedVersion: number
     public notExposeAsWebApp: boolean
     public hasPersistentData: boolean
@@ -89,6 +73,8 @@ class IAppDef extends IAppDefinitionBase {
         repoInfo: RepoInfo
         pushWebhookToken: string
     }
+    public appName?: string
+    public isAppBuilding?: boolean
 }
 
 class IAppDefSaved extends IAppDefinitionBase {
