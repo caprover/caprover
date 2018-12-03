@@ -36,6 +36,18 @@ interface RepoInfoEncrypted {
     passwordEncrypted: string
 }
 
+interface IAppVersion {
+    version: number
+    deployedImageName?: string // empty if the deploy is not completed
+    timeStamp: string
+    gitHash: string | undefined // TODO make sure we are capturing the right git hash
+}
+
+interface IAppCustomDomain {
+    publicDomain: string
+    hasSsl: boolean
+}
+
 abstract class IAppDefinitionBase {
     public deployedVersion: number
     public notExposeAsWebApp: boolean
@@ -48,22 +60,13 @@ abstract class IAppDefinitionBase {
     public preDeployFunction?: string
     public customNginxConfig?: string
     public networks: string[]
-    public customDomain: {
-        publicDomain: string
-        hasSsl: boolean
-    }[]
+    public customDomain: IAppCustomDomain[]
 
     public ports: IAppPort[]
-
     public volumes: IAppVolume[]
     public envVars: IAppEnvVar[]
 
-    public versions: {
-        version: number
-        deployedImageName?: string // empty if the deploy is not completed
-        timeStamp: string
-        gitHash: string | undefined // TODO make sure we are capturing the right git hash
-    }[]
+    public versions: IAppVersion[]
 }
 
 class IAppDef extends IAppDefinitionBase {
