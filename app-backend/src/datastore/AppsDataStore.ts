@@ -338,33 +338,38 @@ class AppsDataStore {
         if (!appName) {
             throw new Error('App Name should not be empty')
         }
+
+        if (!imageName) {
+            throw new Error('ImageName Name should not be empty')
+        }
+
         const self = this
 
-        return this.getAppDefinition(appName).then(function(app) {
-            const versions = app.versions
-            const newVersionIndex = versions.length
+        return this.getAppDefinition(appName) //
+            .then(function(app) {
+                const versions = app.versions
 
-            let found = false
+                let found = false
 
-            for (let i = 0; i < versions.length; i++) {
-                const element = versions[i]
-                if (element.version === deployedVersion) {
-                    element.imageName = imageName
-                    found = true
-                    break
+                for (let i = 0; i < versions.length; i++) {
+                    const element = versions[i]
+                    if (element.version === deployedVersion) {
+                        element.deployedImageName = imageName
+                        found = true
+                        break
+                    }
                 }
-            }
 
-            if (!found) {
-                throw new Error(
-                    `Version trying to deploy not found ${deployedVersion}`
-                )
-            }
+                if (!found) {
+                    throw new Error(
+                        `Version trying to deploy not found ${deployedVersion}`
+                    )
+                }
 
-            app.deployedVersion = deployedVersion
+                app.deployedVersion = deployedVersion
 
-            return self.saveApp(appName, app)
-        })
+                return self.saveApp(appName, app)
+            })
     }
 
     createNewVersion(appName: string) {
@@ -518,23 +523,6 @@ class AppsDataStore {
             .then(function() {
                 return self.saveApp(appName, appObj)
             })
-    }
-
-    setGitHash(appName: string, newVersion: number, gitHashToSave: string) {
-        const self = this
-
-        return this.getAppDefinition(appName).then(function(app) {
-            app.versions = app.versions || []
-
-            for (let i = 0; i < app.versions.length; i++) {
-                if (app.versions[i].version === newVersion) {
-                    app.versions[i].gitHash = gitHashToSave
-                    return self.saveApp(appName, app)
-                }
-            }
-
-            Logger.e('Failed to set the git hash on the deployed version')
-        })
     }
 
     deleteAppDefinition(appName: string) {

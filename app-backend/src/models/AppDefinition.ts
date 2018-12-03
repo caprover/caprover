@@ -60,10 +60,9 @@ abstract class IAppDefinitionBase {
 
     public versions: {
         version: number
-        imageName?: string // empty if the deploy is not completed
+        deployedImageName?: string // empty if the deploy is not completed
         timeStamp: string
-        /// imageName: string,
-        gitHash: string | undefined
+        gitHash: string | undefined // TODO make sure we are capturing the right git hash
     }[]
 }
 

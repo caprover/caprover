@@ -2,7 +2,6 @@
 const uuid = require("uuid/v4");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
-const Logger = require("../utils/Logger");
 const isValidPath = require('is-valid-path');
 const APP_DEFINITIONS = 'appDefinitions';
 function isNameAllowed(name) {
@@ -236,15 +235,18 @@ class AppsDataStore {
         if (!appName) {
             throw new Error('App Name should not be empty');
         }
+        if (!imageName) {
+            throw new Error('ImageName Name should not be empty');
+        }
         const self = this;
-        return this.getAppDefinition(appName).then(function (app) {
+        return this.getAppDefinition(appName) //
+            .then(function (app) {
             const versions = app.versions;
-            const newVersionIndex = versions.length;
             let found = false;
             for (let i = 0; i < versions.length; i++) {
                 const element = versions[i];
                 if (element.version === deployedVersion) {
-                    element.imageName = imageName;
+                    element.deployedImageName = imageName;
                     found = true;
                     break;
                 }
@@ -372,19 +374,6 @@ class AppsDataStore {
         })
             .then(function () {
             return self.saveApp(appName, appObj);
-        });
-    }
-    setGitHash(appName, newVersion, gitHashToSave) {
-        const self = this;
-        return this.getAppDefinition(appName).then(function (app) {
-            app.versions = app.versions || [];
-            for (let i = 0; i < app.versions.length; i++) {
-                if (app.versions[i].version === newVersion) {
-                    app.versions[i].gitHash = gitHashToSave;
-                    return self.saveApp(appName, app);
-                }
-            }
-            Logger.e('Failed to set the git hash on the deployed version');
         });
     }
     deleteAppDefinition(appName) {

@@ -429,12 +429,12 @@ class ServiceManager {
                 for (let i = 0; i < app.versions.length; i++) {
                     const element = app.versions[i];
                     if (element.version == app.deployedVersion) {
-                        imageName = element.imageName;
+                        imageName = element.deployedImageName;
                         break;
                     }
                 }
                 if (!imageName) {
-                    throw new Error('ImageName for deployed version is not available, this is impossible!');
+                    throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'ImageName for deployed version is not available, this version was probably failed due to an unsuccessful build!');
                 }
                 Logger.d(`Creating service ${serviceName} with default image, we will update image later`);
                 // if we pass in networks here. Almost always it results in a delayed update which causes
