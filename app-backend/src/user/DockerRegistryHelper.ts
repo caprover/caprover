@@ -168,15 +168,35 @@ class DockerRegistryHelper {
         registryType: IRegistryType
     ) {
         const self = this
-        return Promise.resolve().then(function() {
-            return self.registriesDataStore.addRegistryToDb(
-                registryUser,
-                registryPassword,
-                registryDomain,
-                registryImagePrefix,
-                registryType
-            )
-        })
+
+        return Promise.resolve()
+            .then(function() {
+                return self.registriesDataStore.getAllRegistries()
+            })
+            .then(function(allRegs) {
+                let promiseToAddRegistry = self.registriesDataStore.addRegistryToDb(
+                    registryUser,
+                    registryPassword,
+                    registryDomain,
+                    registryImagePrefix,
+                    registryType
+                )
+
+                // Product decision. We want to make the first added registry the default one,
+                // this way, it's easier for new users to grasp the concept of default push registry.
+                if (allRegs.length === 0) {
+                    promiseToAddRegistry = promiseToAddRegistry //
+                        .then(function(idOfNewReg) {
+                            return self.registriesDataStore
+                                .setDefaultPushRegistryId(idOfNewReg)
+                                .then(function() {
+                                    return idOfNewReg
+                                })
+                        })
+                }
+
+                return promiseToAddRegistry
+            })
     }
 
     updateRegistry(

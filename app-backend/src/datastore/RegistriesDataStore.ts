@@ -1,13 +1,12 @@
-import { CaptainEncryptor } from "../utils/Encryptor";
+import { CaptainEncryptor } from '../utils/Encryptor'
 import configstore = require('configstore')
 import uuid = require('uuid/v4')
-import ApiStatusCodes = require("../api/ApiStatusCodes");
+import ApiStatusCodes = require('../api/ApiStatusCodes')
 
 const DOCKER_REGISTRIES = 'dockerRegistries'
 const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
 
-class RegistriesDataStore{
-
+class RegistriesDataStore {
     private encryptor: CaptainEncryptor
 
     constructor(private data: configstore, private namepace: string) {}
@@ -177,6 +176,8 @@ class RegistriesDataStore{
     ) {
         const self = this
 
+        let savedId: string | undefined = undefined
+
         return Promise.resolve()
             .then(function() {
                 if (
@@ -208,6 +209,7 @@ class RegistriesDataStore{
                     }
                 }
 
+                savedId = id
                 registries.push({
                     id,
                     registryUser,
@@ -218,6 +220,13 @@ class RegistriesDataStore{
                 })
 
                 return self.saveAllRegistries(registries)
+            })
+            .then(function() {
+                if (!savedId)
+                    throw new Error(
+                        'Saved registry, but ID is null. This should never happen'
+                    )
+                return savedId
             })
     }
 
@@ -242,8 +251,6 @@ class RegistriesDataStore{
                 self.data.set(DOCKER_REGISTRIES, encryptedList)
             })
     }
-
-
 }
 
 export = RegistriesDataStore

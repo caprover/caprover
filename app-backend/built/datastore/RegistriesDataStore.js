@@ -123,6 +123,7 @@ class RegistriesDataStore {
     }
     addRegistryToDb(registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
         const self = this;
+        let savedId = undefined;
         return Promise.resolve()
             .then(function () {
             if (!registryUser ||
@@ -146,6 +147,7 @@ class RegistriesDataStore {
                     }
                 }
             }
+            savedId = id;
             registries.push({
                 id,
                 registryUser,
@@ -155,6 +157,11 @@ class RegistriesDataStore {
                 registryType,
             });
             return self.saveAllRegistries(registries);
+        })
+            .then(function () {
+            if (!savedId)
+                throw new Error('Saved registry, but ID is null. This should never happen');
+            return savedId;
         });
     }
     saveAllRegistries(registries) {
