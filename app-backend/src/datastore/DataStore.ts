@@ -40,8 +40,14 @@ class DataStore {
     private registriesDataStore: RegistriesDataStore
 
     constructor(namespace: string) {
-        const data = new Configstore('captain-store', {})
-        data.path = CaptainConstants.captainRootDirectory + '/config.conf'
+        const data = new Configstore(
+            'captain-store',
+            {},
+            {
+                configPath:
+                    CaptainConstants.captainRootDirectory + '/config.json',
+            }
+        )
 
         this.data = data
         this.namespace = namespace

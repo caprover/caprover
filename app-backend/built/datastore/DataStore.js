@@ -30,8 +30,9 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .toString();
 class DataStore {
     constructor(namespace) {
-        const data = new Configstore('captain-store', {});
-        data.path = CaptainConstants.captainRootDirectory + '/config.conf';
+        const data = new Configstore('captain-store', {}, {
+            configPath: CaptainConstants.captainRootDirectory + '/config.json',
+        });
         this.data = data;
         this.namespace = namespace;
         this.data.set(NAMESPACE, namespace);
