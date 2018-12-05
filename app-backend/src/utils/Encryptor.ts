@@ -8,7 +8,7 @@ const IV_LENGTH = 16 // For AES, this is always 16
 
 export class CaptainEncryptor {
     private encryptionKey: string
-    
+
     constructor(encryptionKey: string) {
         if (!encryptionKey || encryptionKey.length < 32) {
             throw new Error('Encryption Key too short!')

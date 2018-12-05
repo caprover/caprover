@@ -97,7 +97,7 @@ class DataStore {
             return self.data.set(NET_DATA_INFO, netDataInfo);
         });
     }
-    //TODO lookup usage of this method
+    // TODO lookup usage of this method
     getImageNameAndTag(appName, version) {
         let versionStr = '' + version;
         if (version === 0) {

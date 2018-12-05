@@ -235,7 +235,7 @@ function install() {
             CaptainConstants.version;
         if (CaptainConstants.isDebug) {
             captainNameAndVersion =
-                CaptainConstants.publishedNameOnDockerHub; //debug doesn't have version.
+                CaptainConstants.publishedNameOnDockerHub; // debug doesn't have version.
             env.push({
                 key: EnvVar.keys.CAPTAIN_IS_DEBUG,
                 value: EnvVar.CAPTAIN_IS_DEBUG + '',

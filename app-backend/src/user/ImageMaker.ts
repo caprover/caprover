@@ -249,7 +249,7 @@ class ImageMaker {
                             cwd: destDirectory,
                         })
                         .then(function() {
-                            //just to convert to return Promise<void>
+                            // just to convert to return Promise<void>
                         })
                 }
 
@@ -262,7 +262,7 @@ class ImageMaker {
                         repoInfo.branch,
                         destDirectory
                     ).then(function() {
-                        //just to convert to return Promise<void>
+                        // just to convert to return Promise<void>
                     })
                     // TODO?? Where should we get the hash :/ It doesn't seem to belong to ImageMaker
                     // .then(function() {
@@ -277,7 +277,7 @@ class ImageMaker {
                             source.captainDefinitionContent
                         )
                         .then(function() {
-                            //just to convert to return Promise<void>
+                            // just to convert to return Promise<void>
                         })
                 }
                 // we should never get here!

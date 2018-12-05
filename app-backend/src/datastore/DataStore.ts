@@ -120,7 +120,7 @@ class DataStore {
         })
     }
 
-    //TODO lookup usage of this method
+    // TODO lookup usage of this method
     getImageNameAndTag(appName: string, version: number) {
         let versionStr = '' + version
         if (version === 0) {

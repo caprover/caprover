@@ -675,7 +675,7 @@ class DockerApi {
 
         return self.dockerode.createService(dataToCreate)
     }
-    
+
     removeServiceByName(serviceName: string) {
         const self = this
         return self.dockerode.getService(serviceName).remove()

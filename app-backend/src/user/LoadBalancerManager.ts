@@ -8,7 +8,7 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import DockerApi = require('../docker/DockerApi')
 import DataStore = require('../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
-import { AnyError } from '../models/OtherTypes';
+import { AnyError } from '../models/OtherTypes'
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../template/default-page.ejs')

@@ -96,9 +96,9 @@ router.get('/', function (req, res, next) {
         .then(function (defaultNginxConfig) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App definitions are retrieved.');
         baseApi.data = appsArray;
-        //@ts-ignore
+        // @ts-ignore
         baseApi.rootDomain = dataStore.getRootDomain();
-        //@ts-ignore
+        // @ts-ignore
         baseApi.defaultNginxConfig = defaultNginxConfig;
         res.send(baseApi);
     })

@@ -192,13 +192,13 @@ class ImageMaker {
                     cwd: destDirectory,
                 })
                     .then(function () {
-                    //just to convert to return Promise<void>
+                    // just to convert to return Promise<void>
                 });
             }
             if (source.repoInfo) {
                 const repoInfo = source.repoInfo;
                 return GitHelper.clone(repoInfo.user, repoInfo.password, repoInfo.repo, repoInfo.branch, destDirectory).then(function () {
-                    //just to convert to return Promise<void>
+                    // just to convert to return Promise<void>
                 });
                 // TODO?? Where should we get the hash :/ It doesn't seem to belong to ImageMaker
                 // .then(function() {
@@ -209,7 +209,7 @@ class ImageMaker {
                 return fs
                     .outputFile(destDirectory + '/' + CAPTAIN_DEFINITION_FILE, source.captainDefinitionContent)
                     .then(function () {
-                    //just to convert to return Promise<void>
+                    // just to convert to return Promise<void>
                 });
             }
             // we should never get here!
