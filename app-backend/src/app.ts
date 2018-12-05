@@ -41,9 +41,9 @@ if (CaptainConstants.isDebug) {
         res.setHeader('Access-Control-Allow-Credentials', 'true')
         res.setHeader(
             'Access-Control-Allow-Headers',
-            CaptainConstants.header.namespace +
+            CaptainConstants.headerNamespace +
                 ',' +
-                CaptainConstants.header.auth +
+                CaptainConstants.headerAuth +
                 ',Content-Type'
         )
         next()

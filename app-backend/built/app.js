@@ -31,9 +31,9 @@ if (CaptainConstants.isDebug) {
     app.use('*', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Headers', CaptainConstants.header.namespace +
+        res.setHeader('Access-Control-Allow-Headers', CaptainConstants.headerNamespace +
             ',' +
-            CaptainConstants.header.auth +
+            CaptainConstants.headerAuth +
             ',Content-Type');
         next();
     });

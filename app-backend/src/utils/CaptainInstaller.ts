@@ -251,8 +251,8 @@ export function install() {
         .then(function(nodeId: string) {
             let volumeToMount = [
                 {
-                    hostPath: CaptainConstants.captainRootDirectory,
-                    containerPath: CaptainConstants.captainRootDirectory,
+                    hostPath: CaptainConstants.captainBaseDirectory,
+                    containerPath: CaptainConstants.captainBaseDirectory,
                 },
             ]
 

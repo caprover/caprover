@@ -23,7 +23,7 @@ router.post('/', function (req, res, next) {
         return Authenticator.get(namespace).getAuthTokenForCookies(password);
     })
         .then(function (cookieAuth) {
-        res.cookie(CaptainConstants.header.cookieAuth, cookieAuth);
+        res.cookie(CaptainConstants.headerCookieAuth, cookieAuth);
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Login succeeded');
         baseApi.data = { token: authToken };
         res.send(baseApi);

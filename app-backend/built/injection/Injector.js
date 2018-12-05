@@ -19,7 +19,7 @@ function injectGlobal() {
     return function (req, res, next) {
         const locals = res.locals;
         locals.initialized = CaptainManager.get().isInitialized();
-        locals.namespace = req.header(CaptainConstants.header.namespace);
+        locals.namespace = req.header(CaptainConstants.headerNamespace);
         locals.forceSsl = CaptainManager.get().getForceSslValue();
         if (locals.namespace &&
             locals.namespace !== CaptainConstants.rootNameSpace) {
@@ -40,7 +40,7 @@ function injectUser() {
         }
         const namespace = res.locals.namespace;
         Authenticator.get(namespace)
-            .decodeAuthToken(req.header(CaptainConstants.header.auth) || '')
+            .decodeAuthToken(req.header(CaptainConstants.headerAuth) || '')
             .then(function (userDecoded) {
             if (userDecoded) {
                 const datastore = DataStoreProvider.getDataStore(namespace);
@@ -128,7 +128,7 @@ exports.injectUserForWebhook = injectUserForWebhook;
 function injectUserUsingCookieDataOnly() {
     return function (req, res, next) {
         Authenticator.get(CaptainConstants.rootNameSpace)
-            .decodeAuthTokenFromCookies(req.cookies[CaptainConstants.header.cookieAuth])
+            .decodeAuthTokenFromCookies(req.cookies[CaptainConstants.headerCookieAuth])
             .then(function (user) {
             res.locals.user = user;
             next();

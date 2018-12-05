@@ -45,7 +45,7 @@ class DataStore {
             {},
             {
                 configPath:
-                    CaptainConstants.captainRootDirectory + '/config.json',
+                    CaptainConstants.captainDataDirectory + '/config.json',
             }
         )
 

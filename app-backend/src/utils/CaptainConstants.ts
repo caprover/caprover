@@ -1,13 +1,77 @@
 import fs = require('fs-extra')
 import EnvVars = require('./EnvVars')
 
-const CAPTAIN_ROOT_DIRECTORY = '/captain'
-const CONSTANT_FILE_OVERRIDE = CAPTAIN_ROOT_DIRECTORY + '/constants.conf'
-const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_ROOT_DIRECTORY + '/temp'
-const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_ROOT_DIRECTORY + '/generated'
+const CAPTAIN_BASE_DIRECTORY = '/captain'
+const CAPTAIN_DATA_DIRECTORY = +CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
+const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
+const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
+
+const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/constants.json'
 
 let data = {
+    // ******************** Global Constants *********************
+
     apiVersion: 'v1',
+
+    version: '0.7.3',
+
+    isDebug: EnvVars.CAPTAIN_IS_DEBUG,
+
+    captainServiceExposedPort: 3000,
+
+    rootNameSpace: 'captain',
+
+    // *********************** Disk Paths ************************
+
+    dockerSocketPath: '/var/run/docker.sock',
+
+    sourcePathInContainer: '/usr/src/app',
+
+    nginxStaticRootDir: '/usr/share/nginx',
+
+    nginxDefaultHtmlDir: '/default',
+
+    letsEncryptEtcPathOnNginx: '/letencrypt/etc',
+
+    nginxSharedPathOnNginx: '/nginx-shared',
+
+    nginxDomainSpecificHtmlDir: '/domains',
+
+    captainConfirmationPath: '/.well-known/captain-identifier',
+
+    captainBaseDirectory: CAPTAIN_BASE_DIRECTORY,
+
+    captainRootDirectoryTemp: CAPTAIN_ROOT_DIRECTORY_TEMP,
+
+    captainRawSourceDirectoryBase: CAPTAIN_ROOT_DIRECTORY_TEMP + '/image_raw',
+
+    captainRootDirectoryGenerated: CAPTAIN_ROOT_DIRECTORY_GENERATED,
+
+    registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
+
+    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
+
+    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
+
+    rootNginxConfigPath:
+        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
+
+    perAppNginxConfigPathBase:
+        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
+
+    captainDataDirectory: CAPTAIN_DATA_DIRECTORY,
+
+    letsEncryptLibPath: CAPTAIN_DATA_DIRECTORY + '/letencrypt/lib',
+
+    letsEncryptEtcPath: CAPTAIN_DATA_DIRECTORY + '/letencrypt/etc',
+
+    registryPathOnHost: CAPTAIN_DATA_DIRECTORY + '/registry',
+
+    nginxSharedPathOnHost: CAPTAIN_DATA_DIRECTORY + '/nginx-shared',
+
+    debugSourceDirectory: '', // Only used in debug mode
+
+    // **************** DockerHub Image Names ********************
 
     publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
 
@@ -21,23 +85,17 @@ let data = {
 
     nginxImageName: 'nginx',
 
+    // ********************* Local Docker Constants  ************************
+
     defaultEmail: 'runner@captainduckduck.com',
 
     defaultMaxLogSize: '512m',
 
     buildLogSize: 50,
 
-    isDebug: EnvVars.CAPTAIN_IS_DEBUG,
-
-    version: '0.7.3',
-
     captainSaltSecretKey: 'captain-salt',
 
     nginxServiceName: 'captain-nginx',
-
-    nginxPortNumber: 80,
-
-    rootNameSpace: 'captain',
 
     captainServiceName: 'captain-captain',
 
@@ -45,86 +103,33 @@ let data = {
 
     netDataContainerName: 'captain-netdata-container',
 
-    netDataRelativePath: '/net-data-monitor',
+    registryServiceName: 'captain-registry',
+
+    captainNetworkName: 'captain-overlay-network',
+
+    captainRegistryUsername: 'captain',
+
+    // ********************* HTTP Related Constants  ************************
 
     preCheckForWildCard: true,
+
+    nginxPortNumber: 80,
+
+    registrySubDomainPort: 996,
+
+    netDataRelativePath: '/net-data-monitor',
+
+    healthCheckEndPoint: '/checkhealth',
 
     captainSubDomain: 'captain',
 
     registrySubDomain: 'registry',
 
-    registryServiceName: 'captain-registry',
+    headerCookieAuth: 'captainCookieAuth',
 
-    registrySubDomainPort: 996,
+    headerAuth: 'x-captain-auth',
 
-    captainRegistryUsername: 'captain',
-
-    captainNetworkName: 'captain-overlay-network',
-
-    header: {
-        cookieAuth: 'captainCookieAuth',
-        auth: 'x-captain-auth',
-        namespace: 'x-namespace',
-    },
-
-    healthCheckEndPoint: '/checkhealth',
-
-    prefixManagerNode: 'captainManager',
-
-    prefixWorkerNode: 'captainWorker',
-
-    dockerSocketPath: '/var/run/docker.sock',
-
-    sourcePathInContainer: '/usr/src/app',
-
-    captainServiceExposedPort: 3000,
-
-    nginxStaticRootDir: '/usr/share/nginx',
-
-    nginxDefaultHtmlDir: '/default',
-
-    nginxDomainSpecificHtmlDir: '/domains',
-
-    captainConfirmationPath: '/.well-known/captain-identifier',
-
-    captainRootDirectory: CAPTAIN_ROOT_DIRECTORY,
-
-    captainRootDirectoryTemp: CAPTAIN_ROOT_DIRECTORY_TEMP,
-
-    captainRootDirectoryGenerated: CAPTAIN_ROOT_DIRECTORY_GENERATED,
-
-    letsEncryptLibPath: CAPTAIN_ROOT_DIRECTORY + '/letencrypt/lib',
-
-    letsEncryptEtcPath: CAPTAIN_ROOT_DIRECTORY + '/letencrypt/etc',
-
-    registryPathOnHost: CAPTAIN_ROOT_DIRECTORY + '/registry',
-
-    registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
-
-    nginxSharedPathOnHost: CAPTAIN_ROOT_DIRECTORY + '/nginx-shared',
-
-    letsEncryptEtcPathOnNginx: '/letencrypt/etc',
-
-    nginxSharedPathOnNginx: '/nginx-shared',
-
-    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
-
-    captainRawSourceDirectoryBase: CAPTAIN_ROOT_DIRECTORY_TEMP + '/image_raw',
-
-    captainTarImagesDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/img_tar',
-
-    captainDefinitionTempDir:
-        CAPTAIN_ROOT_DIRECTORY_TEMP + '/captain_definition',
-
-    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
-
-    rootNginxConfigPath:
-        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
-
-    perAppNginxConfigPathBase:
-        CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
-
-    debugSourceDirectory: '', // Only used in debug mode
+    headerNamespace: 'x-namespace',
 }
 
 let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
