@@ -398,7 +398,7 @@ class CaptainManager {
     getCaptainImageTags() {
         const url =
             'https://hub.docker.com/v2/repositories/' +
-            CaptainConstants.publishedNameOnDockerHub +
+            CaptainConstants.configs.publishedNameOnDockerHub +
             '/tags'
 
         return new Promise<string[]>(function(resolve, reject) {
@@ -437,7 +437,7 @@ class CaptainManager {
         return Promise.resolve().then(function() {
             return self.dockerApi.updateService(
                 CaptainConstants.captainServiceName,
-                CaptainConstants.publishedNameOnDockerHub + ':' + versionTag,
+                CaptainConstants.configs.publishedNameOnDockerHub + ':' + versionTag,
                 undefined,
                 undefined,
                 undefined,
@@ -925,7 +925,7 @@ class CaptainManager {
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
         const url =
-            (CaptainConstants.preCheckForWildCard
+            (CaptainConstants.configs.preCheckForWildCard
                 ? uuid()
                 : CaptainConstants.captainSubDomain) +
             '.' +

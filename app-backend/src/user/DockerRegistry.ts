@@ -64,7 +64,7 @@ class DockerRegistry {
             '.' +
             self.dataStore.getRootDomain() +
             ':' +
-            CaptainConstants.registrySubDomainPort
+            CaptainConstants.configs.registrySubDomainPort
         )
     }
 
@@ -100,7 +100,7 @@ class DockerRegistry {
                     {
                         protocol: 'tcp',
                         containerPort: 5000,
-                        hostPort: CaptainConstants.registrySubDomainPort,
+                        hostPort: CaptainConstants.configs.registrySubDomainPort,
                     },
                 ],
                 myNodeId,

@@ -386,7 +386,7 @@ class ServiceManager {
         const self = this;
         this.buildLogs[appName] =
             this.buildLogs[appName] ||
-                new BuildLog(CaptainConstants.buildLogSize);
+                new BuildLog(CaptainConstants.configs.buildLogSize);
         return {
             isAppBuilding: self.isAppBuilding(appName),
             logs: self.buildLogs[appName].getLogs(),
@@ -397,7 +397,7 @@ class ServiceManager {
         error = (error || '') + '';
         this.buildLogs[appName] =
             this.buildLogs[appName] ||
-                new BuildLog(CaptainConstants.buildLogSize);
+                new BuildLog(CaptainConstants.configs.buildLogSize);
         this.buildLogs[appName].onBuildFailed(error);
     }
     ensureServiceInitedAndUpdated(appName) {

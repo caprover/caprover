@@ -71,7 +71,7 @@ class ImageMaker {
         this.activeBuilds[appName] = true;
         this.buildLogs[appName] =
             this.buildLogs[appName] ||
-                new BuildLog(CaptainConstants.buildLogSize);
+                new BuildLog(CaptainConstants.configs.buildLogSize);
         this.buildLogs[appName].clear();
         this.buildLogs[appName].log('------------------------- ' + new Date());
         this.buildLogs[appName].log('Build started for ' + appName);

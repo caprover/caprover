@@ -273,7 +273,7 @@ class CaptainManager {
     }
     getCaptainImageTags() {
         const url = 'https://hub.docker.com/v2/repositories/' +
-            CaptainConstants.publishedNameOnDockerHub +
+            CaptainConstants.configs.publishedNameOnDockerHub +
             '/tags';
         return new Promise(function (resolve, reject) {
             request(url, function (error, response, body) {
@@ -301,7 +301,7 @@ class CaptainManager {
     updateCaptain(versionTag) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.publishedNameOnDockerHub + ':' + versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+            return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.configs.publishedNameOnDockerHub + ':' + versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         });
     }
     getMyNodeId() {
@@ -651,7 +651,7 @@ class CaptainManager {
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
-        const url = (CaptainConstants.preCheckForWildCard
+        const url = (CaptainConstants.configs.preCheckForWildCard
             ? uuid()
             : CaptainConstants.captainSubDomain) +
             '.' +

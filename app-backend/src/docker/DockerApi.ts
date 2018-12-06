@@ -471,7 +471,7 @@ class DockerApi {
                         LogConfig: {
                             Type: 'json-file',
                             Config: {
-                                'max-size': CaptainConstants.defaultMaxLogSize,
+                                'max-size': CaptainConstants.configs.defaultMaxLogSize,
                             },
                         },
                         RestartPolicy: {
@@ -638,7 +638,7 @@ class DockerApi {
                 LogDriver: {
                     Name: 'json-file',
                     Options: {
-                        'max-size': CaptainConstants.defaultMaxLogSize,
+                        'max-size': CaptainConstants.configs.defaultMaxLogSize,
                     },
                 },
             },

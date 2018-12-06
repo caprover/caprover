@@ -8,10 +8,24 @@ const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
 
 const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/constants.json'
 
+const configs = {
+    publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
+
+    defaultMaxLogSize: '512m',
+
+    buildLogSize: 50,
+
+    preCheckForWildCard: true,
+
+    registrySubDomainPort: 996,
+}
+
 let data = {
+    configs: configs, // values that can be overridden
+
     // ******************** Global Constants *********************
 
-    apiVersion: 'v1',
+    apiVersion: 'v2',
 
     version: '0.7.3',
 
@@ -29,11 +43,13 @@ let data = {
 
     nginxStaticRootDir: '/usr/share/nginx',
 
+    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
+
+    nginxSharedPathOnNginx: '/nginx-shared',
+
     nginxDefaultHtmlDir: '/default',
 
     letsEncryptEtcPathOnNginx: '/letencrypt/etc',
-
-    nginxSharedPathOnNginx: '/nginx-shared',
 
     nginxDomainSpecificHtmlDir: '/domains',
 
@@ -49,9 +65,7 @@ let data = {
 
     registryAuthPathOnHost: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/registry-auth', // this is a file
 
-    captainStaticFilesDir: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/static',
-
-    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf',
+    baseNginxConfigPath: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/nginx.conf', // this is a file
 
     rootNginxConfigPath:
         CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d/captain-root',
@@ -73,8 +87,6 @@ let data = {
 
     // **************** DockerHub Image Names ********************
 
-    publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
-
     certbotImageName: 'dockersaturn/certbot-sleeping:v0.17.0',
 
     netDataImageName: 'titpetric/netdata:1.8',
@@ -88,10 +100,6 @@ let data = {
     // ********************* Local Docker Constants  ************************
 
     defaultEmail: 'runner@captainduckduck.com',
-
-    defaultMaxLogSize: '512m',
-
-    buildLogSize: 50,
 
     captainSaltSecretKey: 'captain-salt',
 
@@ -111,11 +119,7 @@ let data = {
 
     // ********************* HTTP Related Constants  ************************
 
-    preCheckForWildCard: true,
-
     nginxPortNumber: 80,
-
-    registrySubDomainPort: 996,
 
     netDataRelativePath: '/net-data-monitor',
 
@@ -161,7 +165,7 @@ if (data.isDebug) {
     }
 
     data.debugSourceDirectory = devDirectoryOnLocalMachine
-    data.publishedNameOnDockerHub = 'captain-debug'
+    data.configs.publishedNameOnDockerHub = 'captain-debug'
     data.nginxPortNumber = 80
 }
 

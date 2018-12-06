@@ -43,7 +43,7 @@ class DockerRegistry {
             '.' +
             self.dataStore.getRootDomain() +
             ':' +
-            CaptainConstants.registrySubDomainPort);
+            CaptainConstants.configs.registrySubDomainPort);
     }
     ensureServiceRemoved() {
         const dockerApi = this.dockerApi;
@@ -66,7 +66,7 @@ class DockerRegistry {
                 {
                     protocol: 'tcp',
                     containerPort: 5000,
-                    hostPort: CaptainConstants.registrySubDomainPort,
+                    hostPort: CaptainConstants.configs.registrySubDomainPort,
                 },
             ], myNodeId, [
                 {

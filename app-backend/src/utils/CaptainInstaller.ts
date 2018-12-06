@@ -284,13 +284,13 @@ export function install() {
             let ports: IAppPort[] = []
 
             let captainNameAndVersion =
-                CaptainConstants.publishedNameOnDockerHub +
+                CaptainConstants.configs.publishedNameOnDockerHub +
                 ':' +
                 CaptainConstants.version
 
             if (CaptainConstants.isDebug) {
                 captainNameAndVersion =
-                    CaptainConstants.publishedNameOnDockerHub // debug doesn't have version.
+                    CaptainConstants.configs.publishedNameOnDockerHub // debug doesn't have version.
 
                 env.push({
                     key: EnvVar.keys.CAPTAIN_IS_DEBUG,
