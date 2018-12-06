@@ -2,7 +2,7 @@
 const fs = require("fs-extra");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
-const TemplateHelperVersionPrinter = require("./TemplateHelperVersionPrinter");
+const TemplateHelperVersionPrinter = require("../utils/TemplateHelperVersionPrinter");
 class TemplateHelper {
     constructor() {
         const templates = [

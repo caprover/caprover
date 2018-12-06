@@ -4,7 +4,7 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
 import CaptainConstants = require('../utils/CaptainConstants')
 import { ITemplate } from '../models/OtherTypes'
-import TemplateHelperVersionPrinter = require('./TemplateHelperVersionPrinter')
+import TemplateHelperVersionPrinter = require('../utils/TemplateHelperVersionPrinter')
 
 class TemplateHelper {
     private templates: ITemplate[]

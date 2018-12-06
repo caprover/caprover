@@ -6,7 +6,7 @@ import cookieParser = require('cookie-parser')
 import bodyParser = require('body-parser')
 import httpProxyImport = require('http-proxy')
 
-import CaptainManager = require('./user/CaptainManager')
+import CaptainManager = require('./user/system/CaptainManager')
 import BaseApi = require('./api/BaseApi')
 import ApiStatusCodes = require('./api/ApiStatusCodes')
 import Injector = require('./injection/Injector')

@@ -5,7 +5,7 @@ import bcrypt = require('bcryptjs')
 
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import EnvVar = require('../utils/EnvVars')
-import CaptainManager = require('./CaptainManager')
+import CaptainManager = require('./system/CaptainManager')
 import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
 import DataStoreProvider = require('../datastore/DataStoreProvider')

@@ -2,17 +2,17 @@ import uuid = require('uuid/v4')
 import SshClientImport = require('ssh2')
 import request = require('request')
 import fs = require('fs-extra')
-import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
+import CaptainConstants = require('../../utils/CaptainConstants')
+import Logger = require('../../utils/Logger')
 import LoadBalancerManager = require('./LoadBalancerManager')
-import EnvVars = require('../utils/EnvVars')
-import Encryptor = require('../utils/Encryptor')
+import EnvVars = require('../../utils/EnvVars')
+import Encryptor = require('../../utils/Encryptor')
 import CertbotManager = require('./CertbotManager')
-import DockerRegistry = require('./DockerRegistry')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import DataStoreProvider = require('../datastore/DataStoreProvider')
-import DataStore = require('../datastore/DataStore')
-import DockerApi = require('../docker/DockerApi')
+import SelfHostedDockerRegistry = require('./SelfHostedDockerRegistry')
+import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import DataStoreProvider = require('../../datastore/DataStoreProvider')
+import DataStore = require('../../datastore/DataStore')
+import DockerApi = require('../../docker/DockerApi')
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 const SshClient = SshClientImport.Client
@@ -30,7 +30,7 @@ class CaptainManager {
     private dockerApi: DockerApi
     private certbotManager: CertbotManager
     private loadBalancerManager: LoadBalancerManager
-    private dockerRegistry: DockerRegistry
+    private dockerRegistry: SelfHostedDockerRegistry
     private myNodeId: string | undefined
     private inited: boolean
     private waitUntilRestarted: boolean
@@ -52,7 +52,7 @@ class CaptainManager {
             this.certbotManager,
             this.dataStore
         )
-        this.dockerRegistry = new DockerRegistry(
+        this.dockerRegistry = new SelfHostedDockerRegistry(
             dockerApi,
             this.dataStore,
             this.certbotManager,

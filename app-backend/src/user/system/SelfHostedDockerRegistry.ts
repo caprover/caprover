@@ -1,17 +1,17 @@
-import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
-import EnvVars = require('../utils/EnvVars')
+import CaptainConstants = require('../../utils/CaptainConstants')
+import Logger = require('../../utils/Logger')
+import EnvVars = require('../../utils/EnvVars')
 import fs = require('fs-extra')
 import uuid = require('uuid/v4')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
+import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import bcrypt = require('bcryptjs')
-import DockerApi = require('../docker/DockerApi')
-import DataStore = require('../datastore/DataStore')
-import CertbotManager = require('../user/CertbotManager')
-import LoadBalancerManager = require('../user/LoadBalancerManager')
-import CaptainManager = require('../user/CaptainManager')
+import DockerApi = require('../../docker/DockerApi')
+import DataStore = require('../../datastore/DataStore')
+import CertbotManager = require('./CertbotManager')
+import LoadBalancerManager = require('./LoadBalancerManager')
+import CaptainManager = require('./CaptainManager')
 
-class DockerRegistry {
+class SelfHostedDockerRegistry {
     constructor(
         private dockerApi: DockerApi,
         private dataStore: DataStore,
@@ -215,4 +215,4 @@ class DockerRegistry {
     }
 }
 
-export = DockerRegistry
+export = SelfHostedDockerRegistry

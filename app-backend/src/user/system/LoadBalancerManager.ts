@@ -1,14 +1,14 @@
 import ejs = require('ejs')
-import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
+import CaptainConstants = require('../../utils/CaptainConstants')
+import Logger = require('../../utils/Logger')
 import fs = require('fs-extra')
 import uuid = require('uuid/v4')
 import request = require('request')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import DockerApi = require('../docker/DockerApi')
-import DataStore = require('../datastore/DataStore')
+import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import DockerApi = require('../../docker/DockerApi')
+import DataStore = require('../../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
-import { AnyError } from '../models/OtherTypes'
+import { AnyError } from '../../models/OtherTypes'
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../template/default-page.ejs')

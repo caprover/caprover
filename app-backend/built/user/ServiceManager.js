@@ -1,7 +1,7 @@
 "use strict";
 const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
-const CaptainManager = require("./CaptainManager");
+const CaptainManager = require("./system/CaptainManager");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Authenticator = require("./Authenticator");
 const requireFromString = require("require-from-string");

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const DataStoreProvider = require("../datastore/DataStoreProvider");
 const Authenticator = require("../user/Authenticator");
 const CaptainConstants = require("../utils/CaptainConstants");
-const CaptainManager = require("../user/CaptainManager");
+const CaptainManager = require("../user/system/CaptainManager");
 const ServiceManager = require("../user/ServiceManager");
 const DockerApiProvider = require("../docker/DockerApi");
 const BaseApi = require("../api/BaseApi");
