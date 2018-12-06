@@ -168,15 +168,6 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function(req, res, next) {
         return
     }
 
-    if (!InjectionExtractor.extractGlobalsFromInjected(res).namespace) {
-        let response = new BaseApi(
-            ApiStatusCodes.STATUS_ERROR_GENERIC,
-            'No namespace is defined'
-        )
-        res.send(response)
-        return
-    }
-
     next()
 })
 

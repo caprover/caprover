@@ -11,7 +11,7 @@ import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../../models/OtherTypes'
 
 const defaultPageTemplate = fs
-    .readFileSync(__dirname + '/../../template/default-page.ejs')
+    .readFileSync(__dirname + '/../../../template/default-page.ejs')
     .toString()
 
 class LoadBalancerManager {
