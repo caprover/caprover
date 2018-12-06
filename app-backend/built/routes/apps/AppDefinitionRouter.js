@@ -95,11 +95,11 @@ router.get('/', function (req, res, next) {
     })
         .then(function (defaultNginxConfig) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'App definitions are retrieved.');
-        baseApi.data = appsArray;
-        // @ts-ignore
-        baseApi.rootDomain = dataStore.getRootDomain();
-        // @ts-ignore
-        baseApi.defaultNginxConfig = defaultNginxConfig;
+        baseApi.data = {
+            appDefinitions: appsArray,
+            rootDomain: dataStore.getRootDomain(),
+            defaultNginxConfig: defaultNginxConfig,
+        };
         res.send(baseApi);
     })
         .catch(ApiStatusCodes.createCatcher(res));
