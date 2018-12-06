@@ -16,3 +16,10 @@ export interface IDockerContainerResource {
     Limits?: { NanoCPUs?: number; MemoryBytes?: number }
     Reservation?: { NanoCPUs?: number; MemoryBytes?: number }
 }
+
+export interface ITemplate {
+    templateName: string
+    dockerHubImageName: string
+    tagSuffix: string
+    postFromLines?: string
+}
