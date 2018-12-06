@@ -2,7 +2,7 @@
 const fs = require("fs-extra");
 const EnvVars = require("./EnvVars");
 const CAPTAIN_BASE_DIRECTORY = '/captain';
-const CAPTAIN_DATA_DIRECTORY = +CAPTAIN_BASE_DIRECTORY + '/data'; // data that sits here can be backed up
+const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data'; // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp';
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated';
 const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/override.json';
