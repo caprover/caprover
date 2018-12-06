@@ -57,7 +57,7 @@ app.use(function (req, res, next) {
     next();
 });
 if (!CaptainConstants.isDebug) {
-    app.use(express.static(path.join(__dirname, 'dist-frontend')));
+    app.use(express.static(path.join(__dirname, '../dist-frontend')));
 }
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(CaptainConstants.healthCheckEndPoint, function (req, res, next) {
@@ -109,7 +109,8 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 let API_PREFIX = '/api/';
 app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
     if (req.params.apiVersionFromRequest !== CaptainConstants.apiVersion) {
-        res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'This captain instance only accepts API V1.'));
+        res.send(new BaseApi(ApiStatusCodes.STATUS_ERROR_GENERIC, 'This captain instance only accepts API ' +
+            CaptainConstants.apiVersion));
         return;
     }
     if (!InjectionExtractor.extractGlobalsFromInjected(res).initialized) {
@@ -127,8 +128,8 @@ app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     res.locals.err = new Error('Not Found');
-    res.locals.errorStatus = 404;
-    next(new Error('Not Found'));
+    res.locals.err.errorStatus = 404;
+    next(res.locals.err);
 });
 // error handler
 app.use(function (err, req, res, next) {
