@@ -5,7 +5,7 @@ const CAPTAIN_BASE_DIRECTORY = '/captain';
 const CAPTAIN_DATA_DIRECTORY = +CAPTAIN_BASE_DIRECTORY + '/data'; // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp';
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated';
-const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/constants.json';
+const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/override.json';
 const configs = {
     publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
     defaultMaxLogSize: '512m',
@@ -71,17 +71,17 @@ let data = {
     headerAuth: 'x-captain-auth',
     headerNamespace: 'x-namespace',
 };
-let overridingValues = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
+let overridingValuesConfigs = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
     throws: false,
 });
-if (!!overridingValues) {
-    for (let prop in overridingValues) {
-        if (!overridingValues.hasOwnProperty(prop)) {
+if (!!overridingValuesConfigs) {
+    for (let prop in overridingValuesConfigs) {
+        if (!overridingValuesConfigs.hasOwnProperty(prop)) {
             continue;
         }
         console.log('Overriding ' + prop);
         // @ts-ignore
-        data[prop] = overridingValues[prop];
+        configs[prop] = overridingValuesConfigs[prop];
     }
 }
 if (data.isDebug) {
