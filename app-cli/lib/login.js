@@ -5,13 +5,14 @@ const {
   printError
 } = require("../utils/messageHandler")
 const inquirer = require("inquirer")
+const DeployApi = require("../api/DeployApi")
 const { cleanUpUrl, findDefaultCaptainName } = require("../utils/loginHelpers")
 const { SAMPLE_DOMAIN } = require("../utils/constants")
 const LoginApi = require("../api/LoginApi")
 
 // In case the token is expired
 function requestLogin() {
-  const { baseUrl, name } = this.machineToDeploy
+  const { baseUrl, name } = DeployApi.machineToDeploy
 
   printMessage("Your auth token is not valid anymore. Try to login again.")
 
@@ -152,6 +153,6 @@ function login() {
   })
 }
 
-module.exports = login
+module.exports = { login, requestLogin }
 
-module.exports = requestLogin
+// module.exports = requestLogin

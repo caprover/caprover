@@ -9,7 +9,7 @@ updateNotifier({ pkg: packagejson }).notify({ isGlobal: true })
 
 // Command actions
 const serversetup = require("./lib/serversetup")
-const login = require("./lib/login")
+const { login } = require("./lib/login")
 const logout = require("./lib/logout")
 const list = require("./lib/list")
 const deploy = require("./lib/deploy")

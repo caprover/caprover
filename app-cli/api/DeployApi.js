@@ -16,7 +16,11 @@ class DeployApi {
     this.appUrl = ""
   }
 
-  setMachineToDeploy(machineToDeploy) {
+  setMachineToDeeploy(machineToDeploy) {
+    this.machineToDeploy = machineToDeploy
+  }
+
+  updateMachineToDeploy(machineToDeploy) {
     let temp = []
 
     // Look machine by host
@@ -93,6 +97,8 @@ class DeployApi {
   // This is not moved to LoginAPI since it's related only for machineToDeploy
   async isAuthTokenValid() {
     try {
+      if (!this.machineToDeploy) return false
+
       const url = `${this.machineToDeploy.baseUrl}/api/v1/user/appDefinitions/`
       const currentToken = this.machineToDeploy.authToken
       const options = {

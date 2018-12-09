@@ -11,6 +11,7 @@ const { exec } = require("child_process")
 const ProgressBar = require("progress")
 const ora = require("ora")
 const DeployApi = require("../api/DeployApi")
+const MachineHelper = require("../helpers/MachineHelper")
 let lastLineNumberPrinted = -10000 // we want to show all lines to begin with!
 
 function gitArchiveFile(zipFileFullPath, branchToPush) {
@@ -133,34 +134,70 @@ function getFileStream(zipFileFullPath) {
   return fileStream
 }
 
+// Saves the app directory into local storage
+function saveMachineToLocalStorage() {
+  const apps = MachineHelper.apps
+  const currentDirectory = process.cwd()
+  let appExists = false
+
+  // Update app
+  apps.map(app => {
+    if (app.cwd === currentDirectory) {
+      appExists = true
+
+      return {
+        cwd: app.cwd,
+        appName: DeployApi.appName,
+        branchToPush: DeployApi.branchToPush,
+        machineToDeploy: DeployApi.machineToDeploy
+      }
+    }
+
+    return app
+  })
+
+  if (!appExists) {
+    const newApp = {
+      cwd: process.cwd(),
+      appName: DeployApi.appName,
+      branchToPush: DeployApi.branchToPush,
+      machineToDeploy: DeployApi.machineToDeploy
+    }
+
+    apps.push(newApp)
+
+    MachineHelper.setApps(apps)
+  }
+}
+
 async function uploadFile(filePath, fileStream, gitHash) {
-  printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
+  try {
+    printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
 
-  const response = await DeployApi.sendFile(fileStream, gitHash)
-  const data = JSON.parse(response)
-  const somethingWentWrong = data.status !== 100 && data.status !== 101
-  const isDeployedAndBuilding = data.status === 101
-  const isDeployedSuccessfully = data.status === 100
+    const response = await DeployApi.sendFile(fileStream, gitHash)
+    const data = JSON.parse(response)
+    const somethingWentWrong = data.status !== 100 && data.status !== 101
+    const isDeployedAndBuilding = data.status === 101
+    const isDeployedSuccessfully = data.status === 100
 
-  if (somethingWentWrong) {
-    throw new Error(JSON.stringify(data, null, 2))
-  }
+    if (somethingWentWrong) {
+      throw new Error(JSON.stringify(data, null, 2))
+    }
 
-  // deleteFileFromDisk(filePath) // Uncomment this
+    // deleteFileFromDisk(filePath) // Uncomment this
 
-  // Save app to local storage
-  // savePropForDirectory(DEFAULT_APP_NAME, DeployApi.appName)
+    // Save app to local storage
+    saveMachineToLocalStorage()
 
-  // savePropForDirectory(DEFAULT_BRANCH_TO_PUSH, DeployApi.branchToPush)
+    if (isDeployedAndBuilding) {
+      startFetchingBuildLogs()
+    }
 
-  // savePropForDirectory(MACHINE_TO_DEPLOY, DeployApi.machineToDeploy)
-
-  if (isDeployedAndBuilding) {
-    startFetchingBuildLogs()
-  }
-
-  if (isDeployedSuccessfully) {
-    printGreenMessage(`Deployed successfully: ${DeployApi.appName}\n`, true)
+    if (isDeployedSuccessfully) {
+      printGreenMessage(`Deployed successfully: ${DeployApi.appName}\n`, true)
+    }
+  } catch (e) {
+    printError(e.message, true)
   }
 }
 

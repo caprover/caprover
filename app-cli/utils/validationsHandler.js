@@ -56,10 +56,6 @@ function validateDefinitionFile() {
   }
 }
 
-function isTarFileProvided(tarFilePath) {
-  return tarFilePath
-}
-
 // Only show that question if there is no option given as argument
 function optionIsGiven(allOptions, option) {
   if (allOptions[option]) {
@@ -85,6 +81,5 @@ module.exports = {
   validateIsGitRepository,
   validateDefinitionFile,
   isIpAddress,
-  isTarFileProvided,
   optionIsGiven
 }
