@@ -16,26 +16,26 @@ class DeployApi {
     this.appUrl = ""
   }
 
-  setMachineToDeeploy(machineToDeploy) {
+  setMachineToDeploy(machineToDeploy) {
     this.machineToDeploy = machineToDeploy
   }
 
   updateMachineToDeploy(machineToDeploy) {
-    let temp = []
+    let possibleMachine = {}
 
     // Look machine by host
     if (machineToDeploy.startsWith("http")) {
-      temp = MachineHelper.machines.find(
+      possibleMachine = MachineHelper.machines.find(
         machine => machine.baseUrl === machineToDeploy
       )
     } else {
       // Look machine by name
-      temp = MachineHelper.machines.find(
+      possibleMachine = MachineHelper.machines.find(
         machine => machine.name === machineToDeploy
       )
     }
 
-    this.machineToDeploy = temp
+    this.machineToDeploy = possibleMachine
   }
 
   setBranchToPush(branchToPush) {

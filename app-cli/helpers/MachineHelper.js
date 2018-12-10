@@ -38,18 +38,40 @@ class MachineHelper {
   }
 
   updateMachineAuthToken(machineName, authToken) {
+    let updatedMachine = {}
     const newMachines = this.machines.map(machine => {
       if (machine.name === machineName) {
-        return {
+        updatedMachine = {
           ...machine,
           authToken
         }
+
+        return updatedMachine
       }
 
       return machine
     })
 
     this.setMachines(newMachines)
+
+    this.updateAppsAuthToken(updatedMachine)
+  }
+
+  updateAppsAuthToken(updatedMachine) {
+    if (!updatedMachine) return
+
+    const newApps = this.apps.map(app => {
+      if (app.machineToDeploy.name === updatedMachine.name) {
+        return {
+          ...app,
+          machineToDeploy: updatedMachine
+        }
+      }
+
+      return app
+    })
+
+    this.setApps(newApps)
   }
 
   setApps(newApps) {

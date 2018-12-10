@@ -1,5 +1,7 @@
 const fs = require("fs-extra")
+const DeployApi = require("../api/DeployApi")
 const { printError } = require("./messageHandler")
+const { requestLogin } = require("../lib/login")
 
 function validateIsGitRepository() {
   const gitFolderExists = fs.pathExistsSync("./.git")
@@ -77,7 +79,26 @@ function isIpAddress(ipaddress) {
   return false
 }
 
+async function validateAuthentication() {
+  // 1. Check if valid auth
+  const isAuthenticated = await DeployApi.isAuthTokenValid()
+
+  // 2. Request login
+  // 3. Login
+  // 4. Update token
+  if (!isAuthenticated) {
+    const loggedInStatus = await requestLogin()
+
+    console.log("UpdatedEverything", loggedInStatus)
+
+    return loggedInStatus
+  } else {
+    return Boolean(isAuthenticated)
+  }
+}
+
 module.exports = {
+  validateAuthentication,
   validateIsGitRepository,
   validateDefinitionFile,
   isIpAddress,

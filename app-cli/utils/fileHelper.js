@@ -5,7 +5,6 @@ const {
   printGreenMessage,
   printMagentaMessage
 } = require("./messageHandler")
-const { isTarFileProvided } = require("../utils/validationsHandler")
 const SpinnerHelper = require("../helpers/SpinnerHelper")
 const { exec } = require("child_process")
 const ProgressBar = require("progress")
@@ -39,7 +38,7 @@ function gitArchiveFile(zipFileFullPath, branchToPush) {
 
         printMessage(`Pushing last commit on ${branchToPush}: ${gitHash}`)
 
-        // checkAuthAndSendFile(zipFileFullPath, gitHash)
+        uploadFile(zipFileFullPath, gitHash)
       })
     }
   )
@@ -170,10 +169,11 @@ function saveMachineToLocalStorage() {
   }
 }
 
-async function uploadFile(filePath, fileStream, gitHash) {
+async function uploadFile(filePath, gitHash) {
   try {
     printMessage(`Uploading file to ${DeployApi.machineToDeploy.baseUrl}`)
 
+    const fileStream = getFileStream(filePath)
     const response = await DeployApi.sendFile(fileStream, gitHash)
     const data = JSON.parse(response)
     const somethingWentWrong = data.status !== 100 && data.status !== 101
@@ -184,7 +184,7 @@ async function uploadFile(filePath, fileStream, gitHash) {
       throw new Error(JSON.stringify(data, null, 2))
     }
 
-    // deleteFileFromDisk(filePath) // Uncomment this
+    deleteFileFromDisk(filePath) // Uncomment this
 
     // Save app to local storage
     saveMachineToLocalStorage()
@@ -203,9 +203,7 @@ async function uploadFile(filePath, fileStream, gitHash) {
 
 function deleteFileFromDisk(filePath) {
   if (fs.pathExistsSync(filePath)) {
-    if (!isTarFileProvided()) {
-      fs.removeSync(filePath)
-    }
+    fs.removeSync(filePath)
   }
 }
 

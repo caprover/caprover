@@ -11,7 +11,7 @@ const { SAMPLE_DOMAIN } = require("../utils/constants")
 const LoginApi = require("../api/LoginApi")
 
 // In case the token is expired
-function requestLogin() {
+async function requestLogin() {
   const { baseUrl, name } = DeployApi.machineToDeploy
 
   printMessage("Your auth token is not valid anymore. Try to login again.")
@@ -30,16 +30,18 @@ function requestLogin() {
       }
     }
   ]
+  const loginPassword = await inquirer.prompt(questions)
+  const password = loginPassword.captainPassword
+  const response = await LoginApi.loginMachine(baseUrl, password)
+  const data = JSON.parse(response)
+  const newToken = data.token
 
-  inquirer.prompt(questions).then(async passwordAnswers => {
-    const password = passwordAnswers.captainPassword
-    const response = await LoginApi.loginMachine(baseUrl, password)
-    const data = JSON.parse(response)
-    const newToken = data.token
+  if (!newToken) return false
 
-    // Update the token to the machine that corresponds
-    MachineHelper.updateMachineAuthToken(name, newToken)
-  })
+  // Update the token to the machine that corresponds
+  MachineHelper.updateMachineAuthToken(name, newToken)
+
+  return true
 }
 
 function login() {
