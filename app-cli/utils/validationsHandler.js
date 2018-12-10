@@ -89,8 +89,6 @@ async function validateAuthentication() {
   if (!isAuthenticated) {
     const loggedInStatus = await requestLogin()
 
-    console.log("UpdatedEverything", loggedInStatus)
-
     return loggedInStatus
   } else {
     return Boolean(isAuthenticated)

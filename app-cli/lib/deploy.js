@@ -33,7 +33,7 @@ async function deployAsDefaultValues() {
     const isValidAuthentication = await validateAuthentication()
 
     if (isValidAuthentication) {
-      // Refresh token in DeployApi
+      // REFACTOR - Refresh token in DeployApi
       initMachineFromLocalStorage()
 
       const { appName, branchToPush, machineToDeploy } = DeployApi
@@ -56,18 +56,35 @@ async function deployAsDefaultValues() {
   }
 }
 
-async function deployAsStateless(stateless, host, appName, branch, pass) {
-  const isStateless = stateless && host && appName && pass
+async function deployAsStateless(host, appName, branch, pass) {
+  const isStateless = host && appName && branch && pass
 
   if (isStateless) {
     // login first
     printMessage(`Trying to login to ${host}\n`)
 
-    await LoginApi.loginMachine(host, pass)
+    const { name } = DeployApi.machineToDeploy
+    const response = await LoginApi.loginMachine(host, pass)
+    const data = JSON.parse(response)
+    const newToken = data.token
 
-    printMessage(`Starting stateless deploy to\n${host}\n${branch}\n${appName}`)
+    // Update the token to the machine that corresponds (if needed)
+    MachineHelper.updateMachineAuthToken(name, newToken)
 
-    deployFromGitProject()
+    // REFACTOR - Refresh token in DeployApi
+    initMachineFromLocalStorage()
+
+    if (data) {
+      printMessage(
+        `Starting stateless deploy to\n${host}\n${branch}\n${appName}`
+      )
+
+      deployFromGitProject()
+    }
+  } else {
+    printError(
+      "You are missing parameters for deploying on stateless. <host> <password> <app name> <branch>"
+    )
   }
 }
 
@@ -122,7 +139,7 @@ async function deploy(options) {
   // Reads local storage and sets the machine if found
   initMachineFromLocalStorage()
 
-  if (!options.tarFile) {
+  if (!options.tarFile || !options.stateless) {
     validateIsGitRepository()
 
     validateDefinitionFile()
@@ -132,6 +149,15 @@ async function deploy(options) {
 
   if (options.default) {
     deployAsDefaultValues()
+  } else if (options.stateless) {
+    deployAsStateless(
+      options.host,
+      options.appName,
+      options.branch,
+      options.pass
+    )
+  } else if (options.tarFile) {
+    deployFromTarFile(options.tarFile)
   } else {
     const questions = [
       {
@@ -168,7 +194,7 @@ async function deploy(options) {
     ]
     const answers = await inquirer.prompt(questions)
 
-    if (!answers.confirmedToDeploy) {
+    if (!answers.confirmedToDeploy && !options.stateless) {
       printMessage("\nOperation cancelled by the user...\n")
 
       process.exit(0)
@@ -186,16 +212,8 @@ async function deploy(options) {
 
     printMessage(`Deploying to ${DeployApi.machineToDeploy.name}`)
 
-    if (options.tarFile) {
-      deployFromTarFile(options.tarFile)
-    }
-
-    // if (options.stateless) {
-    //   deployAsStateless()
-    // }
-
     // Normal deploy
-    deployFromGitProject()
+    // deployFromGitProject()
   }
 }
 
