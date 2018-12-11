@@ -2,6 +2,7 @@ const fs = require("fs-extra")
 const DeployApi = require("../api/DeployApi")
 const { printError } = require("./messageHandler")
 const { requestLogin } = require("../lib/login")
+const { initMachineFromLocalStorage } = require("../utils/machineUtils")
 
 function validateIsGitRepository() {
   const gitFolderExists = fs.pathExistsSync("./.git")
@@ -88,6 +89,9 @@ async function validateAuthentication() {
   // 4. Update token
   if (!isAuthenticated) {
     const loggedInStatus = await requestLogin()
+
+    // Refresh token in DeployApi
+    initMachineFromLocalStorage()
 
     return loggedInStatus
   } else {

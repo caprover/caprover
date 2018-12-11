@@ -22,9 +22,6 @@ async function deployAsDefaultValues() {
     const isValidAuthentication = await validateAuthentication()
 
     if (isValidAuthentication) {
-      // REFACTOR - Refresh token in DeployApi
-      initMachineFromLocalStorage()
-
       const { appName, branchToPush, machineToDeploy } = DeployApi
 
       if (!appName || !branchToPush || !machineToDeploy) {
@@ -59,9 +56,6 @@ async function deployAsStateless(host, appName, branch, pass) {
 
     // Update the token to the machine that corresponds (if needed)
     MachineHelper.updateMachineAuthToken(name, newToken)
-
-    // REFACTOR - Refresh token in DeployApi
-    initMachineFromLocalStorage()
 
     if (data) {
       printMessage(
@@ -207,13 +201,12 @@ async function deploy(options) {
         const isValidAuthentication = await validateAuthentication()
 
         if (isValidAuthentication) {
-          // REFACTOR - Refresh token in DeployApi
-          initMachineFromLocalStorage()
-
           deployFromGitProject()
+        } else {
+          printError("Incorrect login details", true)
         }
       } catch (e) {
-        printError("Incorrect login details", true)
+        printError(e.message, true)
       }
     }
   }
