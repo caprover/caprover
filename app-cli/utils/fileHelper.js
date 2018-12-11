@@ -8,9 +8,8 @@ const {
 const SpinnerHelper = require("../helpers/SpinnerHelper")
 const { exec } = require("child_process")
 const ProgressBar = require("progress")
-const ora = require("ora")
 const DeployApi = require("../api/DeployApi")
-const MachineHelper = require("../helpers/MachineHelper")
+const { saveMachineToLocalStorage } = require("../utils/machineUtils")
 let lastLineNumberPrinted = -10000 // we want to show all lines to begin with!
 
 function gitArchiveFile(zipFileFullPath, branchToPush) {
@@ -63,7 +62,7 @@ function onLogRetrieved(data) {
 
     lastLineNumberPrinted = firstLineNumberOfLogs + lines.length
 
-    for (var i = firstLinesToPrint; i < lines.length; i++) {
+    for (let i = firstLinesToPrint; i < lines.length; i++) {
       printMessage((lines[i] || "").trim())
     }
   }
@@ -131,42 +130,6 @@ function getFileStream(zipFileFullPath) {
   })
 
   return fileStream
-}
-
-// Saves the app directory into local storage
-function saveMachineToLocalStorage() {
-  const apps = MachineHelper.apps
-  const currentDirectory = process.cwd()
-  let appExists = false
-
-  // Update app
-  apps.map(app => {
-    if (app.cwd === currentDirectory) {
-      appExists = true
-
-      return {
-        cwd: app.cwd,
-        appName: DeployApi.appName,
-        branchToPush: DeployApi.branchToPush,
-        machineToDeploy: DeployApi.machineToDeploy
-      }
-    }
-
-    return app
-  })
-
-  if (!appExists) {
-    const newApp = {
-      cwd: process.cwd(),
-      appName: DeployApi.appName,
-      branchToPush: DeployApi.branchToPush,
-      machineToDeploy: DeployApi.machineToDeploy
-    }
-
-    apps.push(newApp)
-
-    MachineHelper.setApps(apps)
-  }
 }
 
 async function uploadFile(filePath, gitHash) {

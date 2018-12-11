@@ -15,18 +15,7 @@ const fs = require("fs-extra")
 const path = require("path")
 const inquirer = require("inquirer")
 const commandExistsSync = require("command-exists").sync
-
-function initMachineFromLocalStorage() {
-  const possibleApp = MachineHelper.apps.find(app => app.cwd === process.cwd())
-
-  if (possibleApp) {
-    DeployApi.setMachineToDeploy(possibleApp.machineToDeploy)
-
-    DeployApi.setAppName(possibleApp.appName)
-
-    DeployApi.setBranchToPush(possibleApp.branchToPush)
-  }
-}
+const { initMachineFromLocalStorage } = require("../utils/machineUtils")
 
 async function deployAsDefaultValues() {
   try {
@@ -213,7 +202,20 @@ async function deploy(options) {
     printMessage(`Deploying to ${DeployApi.machineToDeploy.name}`)
 
     // Normal deploy
-    // deployFromGitProject()
+    if (answers.confirmedToDeploy) {
+      try {
+        const isValidAuthentication = await validateAuthentication()
+
+        if (isValidAuthentication) {
+          // REFACTOR - Refresh token in DeployApi
+          initMachineFromLocalStorage()
+
+          deployFromGitProject()
+        }
+      } catch (e) {
+        printError("Incorrect login details", true)
+      }
+    }
   }
 }
 

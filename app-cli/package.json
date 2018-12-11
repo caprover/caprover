@@ -4,7 +4,7 @@
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "bin": {
     "captainduckduck": "./captainduckduck.js"
@@ -50,6 +50,7 @@
   "devDependencies": {
     "eslint": "^5.8.0",
     "eslint-plugin-jest": "^21.26.2",
+    "jest": "^23.6.0",
     "prettier": "^1.14.3"
   }
 }

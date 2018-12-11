@@ -20,25 +20,27 @@ function cleanUpUrl(url) {
 function findDefaultCaptainName() {
   let currentSuffix = MachineHelper.machines.length + 1
 
-  while (!_isSuffixValid(currentSuffix)) {
+  while (!isSuffixValid(currentSuffix)) {
     currentSuffix++
   }
 
-  return _getCaptainFullName(currentSuffix)
+  return getCaptainFullName(currentSuffix)
 }
 
-function _getCaptainFullName(suffix) {
+function getCaptainFullName(suffix) {
   const formatSuffix = suffix < 10 ? `0${suffix}` : suffix
 
   return `captain-${formatSuffix}`
 }
 
-const _isSuffixValid = suffixNumber =>
+const isSuffixValid = suffixNumber =>
   MachineHelper.machines.map(machine => {
-    machine.name !== _getCaptainFullName(suffixNumber)
+    machine.name !== getCaptainFullName(suffixNumber)
   })
 
 module.exports = {
   cleanUpUrl,
-  findDefaultCaptainName
+  findDefaultCaptainName,
+  isSuffixValid,
+  getCaptainFullName
 }
