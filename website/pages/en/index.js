@@ -163,25 +163,7 @@ const FeatureCallout = props => (
             robust as
             it uses Docker, nginx, LetsEncrypt and NetData under the hood behind its simple-to-use interface.
         </MarkdownBlock>
-        <div style={{ marginTop:"35px"}}>
-            <br/><br/>
-            <a style={{
-            }}
-               href={"https://www.surveymonkey.com/r/Z2FDK2Q"}
-               target="_blank" rel="noreferrer noopener">
-                <div style={{
-                    fontSize:"25px",
-                    padding:"25px",
-                    display: 'inline-block',
-                    lineHeight:"1.3",
-                    border:'2px solid black',
-                    borderRadius:'10px'
 
-                }} >
-                    Take a 1 minute survey to shape the future for CaptainDuckDuck
-                </div>
-            </a>
-        </div>
     </div>
 );
 
