@@ -44,7 +44,7 @@ async function requestLogin() {
   return true
 }
 
-function login() {
+async function login() {
   printMessage("Login to a Captain Machine")
 
   const questions = [
@@ -114,47 +114,43 @@ function login() {
       }
     }
   ]
+  const answers = await inquirer.prompt(questions)
+  const {
+    captainHasRootSsl,
+    captainPassword,
+    captainAddress,
+    captainName
+  } = answers
+  const handleHttp = captainHasRootSsl ? "https://" : "http://"
+  const baseUrl = `${handleHttp}${cleanUpUrl(captainAddress)}`
 
-  inquirer.prompt(questions).then(async answers => {
-    const {
-      captainHasRootSsl,
-      captainPassword,
-      captainAddress,
-      captainName
-    } = answers
-    const handleHttp = captainHasRootSsl ? "https://" : "http://"
-    const baseUrl = `${handleHttp}${cleanUpUrl(captainAddress)}`
+  try {
+    const data = await LoginApi.loginMachine(baseUrl, captainPassword)
+    const response = JSON.parse(data)
 
-    try {
-      const data = await LoginApi.loginMachine(baseUrl, captainPassword)
-      const response = JSON.parse(data)
-
-      // TODO - This status should be 200 maybe?
-      if (response.status !== 100) {
-        throw new Error(JSON.stringify(response, null, 2))
-      }
-
-      const newMachine = {
-        authToken: response.token,
-        baseUrl,
-        name: captainName
-      }
-
-      MachineHelper.addMachine(newMachine)
-
-      printGreenMessage(`Logged in successfully to ${baseUrl}`)
-
-      printGreenMessage(`Authorization token is now saved as ${captainName} \n`)
-    } catch (error) {
-      const errorMessage = error.message ? error.message : error
-
-      printError(
-        `Something bad happened. Cannot save "${captainName}" \n${errorMessage}`
-      )
+    // TODO - This status should be 200 maybe?
+    if (response.status !== 100) {
+      throw new Error(JSON.stringify(response, null, 2))
     }
-  })
+
+    const newMachine = {
+      authToken: response.token,
+      baseUrl,
+      name: captainName
+    }
+
+    MachineHelper.addMachine(newMachine)
+
+    printGreenMessage(`Logged in successfully to ${baseUrl}`)
+
+    printGreenMessage(`Authorization token is now saved as ${captainName} \n`)
+  } catch (error) {
+    const errorMessage = error.message ? error.message : error
+
+    printError(
+      `Something bad happened. Cannot save "${captainName}" \n${errorMessage}`
+    )
+  }
 }
 
 module.exports = { login, requestLogin }
-
-// module.exports = requestLogin

@@ -1,5 +1,6 @@
 const chalk = require("chalk")
 const MachineHelper = require("../helpers/MachineHelper")
+const { printMessage } = require("../utils/messageHandler")
 
 function _displayMachine(machine) {
   console.log(
@@ -11,13 +12,13 @@ function _displayMachine(machine) {
 }
 
 function list() {
-  console.log("\nLogged in Captain Machines:\n")
+  printMessage("\nLogged in Captain Machines:\n")
 
   MachineHelper.machines.map(machine => {
     _displayMachine(machine)
   })
 
-  console.log("")
+  printMessage("")
 }
 
 module.exports = list
