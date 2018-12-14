@@ -37,30 +37,33 @@ function validateDefinitionFile() {
     )
   }
 
-  if (!contentsJson.schemaVersion) {
-    printError(
-      "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****",
-      true
-    )
-  }
+  if (contentsJson) {
+    if (!contentsJson.schemaVersion) {
+      printError(
+        "**** ERROR: captain-definition needs schemaVersion. Please see docs! ****",
+        true
+      )
+    }
 
-  if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
-    printError(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****",
-      true
-    )
-  }
+    if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
+      printError(
+        "**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****",
+        true
+      )
+    }
 
-  if (contentsJson.templateId && contentsJson.dockerfileLines) {
-    printError(
-      "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****",
-      true
-    )
+    if (contentsJson.templateId && contentsJson.dockerfileLines) {
+      printError(
+        "**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****",
+        true
+      )
+    }
   }
 }
 
 // Only show that question if there is no option given as argument
-function optionIsGiven(allOptions, option) {
+function optionIsNotGiven(allOptions, option) {
+  // console.log(allOptions)
   if (allOptions[option]) {
     return false
   }
@@ -104,5 +107,5 @@ module.exports = {
   validateIsGitRepository,
   validateDefinitionFile,
   isIpAddress,
-  optionIsGiven
+  optionIsNotGiven
 }

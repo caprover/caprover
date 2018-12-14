@@ -95,7 +95,6 @@ async function startFetchingBuildLogs() {
     if (response.status !== 100) {
       throw new Error(JSON.stringify(response, null, 2))
     }
-
     onLogRetrieved(response.data)
   } catch (error) {
     printError(`\nSomething while retrieving app build logs.. ${error}\n`)
@@ -173,5 +172,6 @@ function deleteFileFromDisk(filePath) {
 module.exports = {
   gitArchiveFile,
   getFileStream,
-  uploadFile
+  uploadFile,
+  startFetchingBuildLogs
 }

@@ -18,9 +18,8 @@ function saveMachineToLocalStorage() {
   const apps = MachineHelper.apps
   const currentDirectory = process.cwd()
   let appExists = false
-
   // Update app
-  apps.map(app => {
+  const updatedApps = apps.map(app => {
     if (app.cwd === currentDirectory) {
       appExists = true
 
@@ -35,6 +34,8 @@ function saveMachineToLocalStorage() {
     return app
   })
 
+  MachineHelper.setApps(updatedApps)
+
   if (!appExists) {
     const newApp = {
       cwd: process.cwd(),
@@ -43,7 +44,7 @@ function saveMachineToLocalStorage() {
       machineToDeploy: DeployApi.machineToDeploy
     }
 
-    apps.push(newApp)
+    updatedApps.push(newApp)
 
     MachineHelper.setApps(apps)
   }

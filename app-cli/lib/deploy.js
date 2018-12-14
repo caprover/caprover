@@ -6,7 +6,7 @@ const { printError, printMessage } = require("../utils/messageHandler")
 const {
   validateIsGitRepository,
   validateDefinitionFile,
-  optionIsGiven,
+  optionIsNotGiven,
   validateAuthentication
 } = require("../utils/validationsHandler")
 const { uploadFile } = require("../utils/fileHelper")
@@ -149,14 +149,14 @@ async function deploy(options) {
         default: DeployApi.machineToDeploy.name || "",
         message: "Select the Captain Machine you want to deploy to:",
         choices: MachineHelper.getMachinesAsOptions(),
-        when: () => optionIsGiven(options, "host")
+        when: () => optionIsNotGiven(options, "host")
       },
       {
         type: "input",
         default: DeployApi.branchToPush || "master",
         name: "branchToPush",
         message: "Enter the 'git' branch you would like to deploy:",
-        when: () => optionIsGiven(options, "branch")
+        when: () => optionIsNotGiven(options, "branch")
       },
       {
         type: "input",
@@ -164,7 +164,7 @@ async function deploy(options) {
         name: "appName",
         message:
           "Enter the Captain app name this directory will be deployed to:",
-        when: () => optionIsGiven(options, "appName")
+        when: () => optionIsNotGiven(options, "appName")
       },
       {
         type: "confirm",
@@ -172,7 +172,7 @@ async function deploy(options) {
         message:
           "Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.",
         default: true,
-        when: () => optionIsGiven(options, "stateless")
+        when: () => optionIsNotGiven(options, "stateless")
       }
     ]
     const answers = await inquirer.prompt(questions)
