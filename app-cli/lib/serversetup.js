@@ -216,26 +216,24 @@ const questions = [
   }
 ]
 
-function serversetup() {
+async function serversetup() {
   printMessage("\nSetup your Captain server\n")
 
-  inquirer.prompt(questions).then(answers => {
-    var captainAddress = `https://${SystemApi.customDomainFromUser}`
+  const answers = await inquirer.prompt(questions)
+  const captainAddress = `https://${SystemApi.customDomainFromUser}`
+  const newMachine = {
+    authToken: LoginApi.token,
+    baseUrl: captainAddress,
+    name: answers.captainName
+  }
 
-    const newMachine = {
-      authToken: LoginApi.token,
-      baseUrl: captainAddress,
-      name: answers.captainName
-    }
+  MachineHelper.addMachine(newMachine)
 
-    MachineHelper.addMachine(newMachine)
+  printMessage(`\n\nCaptain is available at ${captainAddress}`)
 
-    printMessage(`\n\nCaptain is available at ${captainAddress}`)
-
-    printMessage(
-      "\nFor more details and docs see http://www.captainduckduck.com\n\n"
-    )
-  })
+  printMessage(
+    "\nFor more details and docs see http://www.captainduckduck.com\n\n"
+  )
 }
 
 module.exports = serversetup

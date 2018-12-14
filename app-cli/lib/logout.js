@@ -22,22 +22,19 @@ function generateQuestions() {
   ]
 }
 
-function logout() {
+async function logout() {
   const questions = generateQuestions()
 
   printMessage("Logout from a Captain Machine and clear auth info")
 
-  inquirer.prompt(questions).then(answers => {
-    const { captainNameToLogout } = answers
+  const answers = await inquirer.prompt(questions)
+  const { captainNameToLogout } = answers
 
-    if (!captainNameToLogout) {
-      printMessage("\nOperation cancelled by the user...\n")
+  if (!captainNameToLogout) {
+    printMessage("\nOperation cancelled by the user...\n", true)
+  }
 
-      return
-    }
-
-    MachineHelper.logoutMachine(captainNameToLogout)
-  })
+  MachineHelper.logoutMachine(captainNameToLogout)
 }
 
 module.exports = logout
