@@ -3,8 +3,12 @@ export default class Logger {
     console.log(s);
   }
 
+  static error(s: any) {
+    console.error(s);
+  }
+
   static dev(s: string) {
     // TODO add debug check here
-    console.log(">>> " + s);
+    console.log(">>> ", s);
   }
 }

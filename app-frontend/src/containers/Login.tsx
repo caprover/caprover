@@ -1,17 +1,23 @@
 import React, { Component } from "react";
 import { Form, Icon, Input, Button, Checkbox, Card } from "antd";
 import ApiComponent from "./global/ApiComponent";
+import Toaster from "../utils/Toaster";
+import ApiManager from "../api/ApiManager";
+import { RouteComponentProps } from "react-router";
 const FormItem = Form.Item;
 
-export default class Login extends ApiComponent {
+export default class Login extends ApiComponent<RouteComponentProps<any>> {
   onLoginRequested(password: string) {
-    this.apiManager.getAuthToken(password)
-    .then(function(){
-      //TODO
-    })
-    .catch(function(err){
-      //TODO
-    });
+    const self = this;
+    this.apiManager
+      .getAuthToken(password)
+      .then(function(data) {
+        self.apiManager.setAuthToken(data.token);
+        self.props.history.push("/");
+      })
+      .catch(function(err: Error) {
+        Toaster.toast(err);
+      });
   }
 
   render() {
@@ -41,10 +47,11 @@ export default class Login extends ApiComponent {
 
 class NormalLoginForm extends React.Component<any, any> {
   handleSubmit = (e: any) => {
+    const self = this;
     e.preventDefault();
     this.props.form.validateFields((err: any, values: any) => {
       if (!err) {
-        console.log("Received values of form: ", values);
+        self.props.onLoginRequested(values.password);
       }
     });
   };

@@ -1,5 +1,8 @@
 import axios from "axios";
 import ErrorFactory from "../utils/ErrorFactory";
+import Logger from "../utils/Logger";
+
+axios.defaults.headers.common["x-namespace"] = "captain";
 
 export default class HttpClient {
   public readonly GET = "GET";
@@ -14,14 +17,14 @@ export default class HttpClient {
 
   fetch(method: "GET" | "POST", endpoint: string, variables: any) {
     const self = this;
-    return function() {
+    return function(): Promise<any> {
       return self
         .fetchInternal(method, endpoint, variables) //
         .then(function(data) {
           return data.data; // this is an axios thing!
         })
         .then(function(data) {
-          if (data.status !== 100) {
+          if (data.status !== ErrorFactory.OKAY) {
             throw ErrorFactory.createError(
               data.status || ErrorFactory.UNKNOWN_ERROR,
               data.description || ""
@@ -35,10 +38,12 @@ export default class HttpClient {
           // Will fix them later... but it shouldn't be a big deal anyways as it's only a problem when user navigates away from a page before the
           // network request returns back.
           return new Promise(function(resolve, reject) {
-            if (!self.isDestroyed) return resolve(data);
+            // data.data here is the "data" field inside the API response! {status: 100, description: "Login succeeded", data: {…}}
+            if (!self.isDestroyed) return resolve(data.data);
           });
         })
         .catch(function(error) {
+          Logger.error(error);
           return new Promise(function(resolve, reject) {
             if (!self.isDestroyed) return reject(error);
           });

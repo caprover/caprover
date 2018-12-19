@@ -1,7 +1,7 @@
 import { Component } from "react";
 import ApiManager from "../../api/ApiManager";
 
-export default class ApiComponent extends Component {
+export default class ApiComponent<P = {}, S = {}> extends Component<P, S> {
   protected willUnmountSoon: boolean;
   protected apiManager: ApiManager;
 
