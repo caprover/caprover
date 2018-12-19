@@ -20,17 +20,17 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
 class App extends Component {
   render() {
     return (
-      <Provider store={createStoreWithMiddleware(reducers)}>
-        <BrowserRouter>
-          <div>
+      <div className="full-screen-bg">
+        <Provider store={createStoreWithMiddleware(reducers)}>
+          <BrowserRouter>
             <Switch>
               <Route path="/login/" component={Login} />
               <Route path="/user/" component={UserPage} />
               <Route path="/" component={PageRoot} />
             </Switch>
-          </div>
-        </BrowserRouter>
-      </Provider>
+          </BrowserRouter>
+        </Provider>
+      </div>
     );
   }
 }

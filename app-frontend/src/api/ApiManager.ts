@@ -10,10 +10,10 @@ export default class ApiManager {
     this.http.destroy();
   }
 
-  getAuthToken(username: string, password: string) {
+  getAuthToken(password: string) {
     const http = this.http;
 
     return Promise.resolve() //
-      .then(http.fetch(http.POST, "/api/auth", { username, password }));
+      .then(http.fetch(http.POST, "/api/auth", { password }));
   }
 }
