@@ -11,7 +11,6 @@ import reducers from "./reducers";
 import PageRoot from "./containers/PageRoot";
 import Login from "./containers/Login";
 import CrashReporter from "./utils/CrashReporter";
-import UserPage from "./containers/UserPage";
 
 CrashReporter.getInstance().init();
 
@@ -25,7 +24,6 @@ class App extends Component {
           <BrowserRouter>
             <Switch>
               <Route path="/login/" component={Login} />
-              <Route path="/user/" component={UserPage} />
               <Route path="/" component={PageRoot} />
             </Switch>
           </BrowserRouter>

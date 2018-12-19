@@ -1,8 +1,15 @@
 import React, { Component } from "react";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, Switch, Route } from "react-router";
 import ApiManager from "../api/ApiManager";
 import { Layout, Menu, Breadcrumb, Icon, Row, Col, Card } from "antd";
 import ClickableLink from "./global/ClickableLink";
+import Dashboard from "./Dashboard";
+import LoggedInCatchAll from "./LoggedInCatchAll";
+import Settings from "./Settings";
+import Nodes from "./Nodes";
+import Monitoring from "./Monitoring";
+import Apps from "./Apps";
+import { SelectParam } from "antd/lib/menu";
 
 const { Header, Content, Sider } = Layout;
 
@@ -11,6 +18,10 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
     if (!ApiManager.isLoggedIn()) {
       this.props.history.push("/login");
     }
+  }
+
+  onSelectMenu(param: SelectParam) {
+    this.props.history.push("/" + param.key);
   }
 
   render() {
@@ -35,6 +46,10 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
         <Layout>
           <Sider width={200} style={{ background: "#fff" }}>
             <Menu
+              onSelect={(param: SelectParam) => {
+                self.onSelectMenu(param);
+              }}
+              theme="dark"
               mode="inline"
               defaultSelectedKeys={["dashboard"]}
               style={{ height: "100%", borderRight: 0 }}
@@ -72,24 +87,22 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
             </Menu>
           </Sider>
           <Layout style={{ padding: "0 12px 12px" }}>
-            <Breadcrumb style={{ margin: "16px 0" }}>
-              <Breadcrumb.Item>Home</Breadcrumb.Item>
-              <Breadcrumb.Item>List</Breadcrumb.Item>
-              <Breadcrumb.Item>App</Breadcrumb.Item>
-            </Breadcrumb>
             <Content
               style={{
                 //background: "#fff",
-                padding: 12,
+                padding: 24,
                 margin: 0,
                 minHeight: 280
               }}
             >
-              <Row>
-                <Col span={14} offset={5}>
-                  <Card title="Captain Root Domain Configurations">col 8</Card>
-                </Col>
-              </Row>
+              <Switch>
+                <Route path="/dashboard/" component={Dashboard} />
+                <Route path="/apps/" component={Apps} />
+                <Route path="/monitoring/" component={Monitoring} />
+                <Route path="/nodes/" component={Nodes} />
+                <Route path="/settings/" component={Settings} />
+                <Route path="/" component={LoggedInCatchAll} />
+              </Switch>
             </Content>
           </Layout>
         </Layout>
