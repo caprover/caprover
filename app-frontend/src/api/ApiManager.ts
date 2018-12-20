@@ -39,4 +39,22 @@ export default class ApiManager {
     return Promise.resolve() //
       .then(http.fetch(http.GET, "/user/system/info", {}));
   }
+
+  updateRootDomain(rootDomain: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/system/changerootdomain", { rootDomain })
+      );
+  }
+
+  enableRootSsl(emailAddress: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/system/enablessl", { emailAddress })
+      );
+  }
 }

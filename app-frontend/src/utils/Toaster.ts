@@ -9,4 +9,10 @@ export default class Toaster {
     }
     message.error(errorMessage);
   }
+
+  static createCatcher() {
+    return function(error: any) {
+      Toaster.toast(error);
+    };
+  }
 }

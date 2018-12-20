@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Tooltip, Row, Col, Card, Input, Button } from "antd";
+import { Modal, Tooltip, Row, Col, Card, Input, Button } from "antd";
 import ApiComponent from "./global/ApiComponent";
 import CenteredSpinner from "./global/CenteredSpinner";
 import Toaster from "../utils/Toaster";
@@ -7,26 +7,125 @@ const Search = Input.Search;
 
 export default class Dashboard extends ApiComponent<
   {},
-  { isLoading: boolean; apiData: any }
+  { isLoading: boolean; apiData: any; userEmail: string }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
+      userEmail: "",
       isLoading: true,
       apiData: undefined
     };
   }
 
   componentDidMount() {
+    this.reFetchData();
+  }
+
+  reFetchData() {
     const self = this;
     this.apiManager
       .getCaptainInfo()
       .then(function(data: any) {
         self.setState({ isLoading: false, apiData: data });
       })
-      .catch(function(err: Error) {
-        Toaster.toast(err);
-      });
+      .catch(Toaster.createCatcher());
+  }
+
+  onEnableSslClicked() {
+    const self = this;
+    const IGNORE = "IGNORE";
+
+    Promise.resolve()
+      .then(function() {
+        return new Promise(function(resolve, reject) {
+          Modal.success({
+            title: "Enable HTTPS",
+            content: (
+              <div>
+                <p>
+                  Captain uses{" "}
+                  <a
+                    href="https://letsencrypt.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Let&#39;s Encrypt
+                  </a>{" "}
+                  to provide free SSL Certificates (HTTPS). This email address
+                  is very important as Let&#39;s Encrypt uses it for validation
+                  purposes. Please provide a valid email here.
+                </p>
+                <Input
+                  placeholder="your@email.com"
+                  type="email"
+                  onChange={event =>
+                    self.setState({
+                      userEmail: (event.target.value || "").trim()
+                    })
+                  }
+                />
+              </div>
+            ),
+            onOk() {
+              resolve(self.state.userEmail || "");
+            },
+            onCancel() {
+              resolve(undefined);
+            }
+          });
+        });
+      })
+      .then(function(data: any) {
+        if (data === undefined) return IGNORE;
+        self.setState({ isLoading: true });
+        return self.apiManager.enableRootSsl(data);
+      })
+
+      .then(function(data: any) {
+        if (data === IGNORE) return;
+
+        self.reFetchData();
+
+        Modal.success({
+          title: "Root Domain HTTPS activated!",
+          content: (
+            <div>
+              <p>
+                You can now use{" "}
+                <code>{"https://" + self.state.apiData.rootDomain}</code>. Next
+                step is to Force HTTPS to disallow plain HTTP traffic.
+              </p>
+            </div>
+          )
+        });
+
+        return true;
+      })
+      .catch(Toaster.createCatcher());
+  }
+
+  updateRootDomain(rootDomain: string) {
+    const self = this;
+    this.apiManager
+      .updateRootDomain(rootDomain)
+      .then(function(data: any) {
+        Modal.success({
+          title: "Root Domain Updated",
+          content: (
+            <div>
+              <p>
+                Click Ok to get redirected to your new root domain. You need to
+                log in again.
+              </p>
+            </div>
+          ),
+          onOk() {
+            window.location.replace("http://captain." + rootDomain);
+          }
+        });
+      })
+      .catch(Toaster.createCatcher());
   }
 
   render() {
@@ -87,28 +186,24 @@ export default class Dashboard extends ApiComponent<
             <br />
 
             <Row>
-              <form>
+              <div>
+                <p>
+                  For example, if you set <code>*.captainroot.example.com</code>{" "}
+                  to the IP address of your server, just enter{" "}
+                  <code>captainroot.example.com</code> in the box below:
+                </p>
+                <br />
                 <div>
-                  <p>
-                    For example, if you set{" "}
-                    <code>*.captainroot.example.com</code> to the IP address of
-                    your server, just enter <code>captainroot.example.com</code>{" "}
-                    in the box below:
-                  </p>
-                  <br />
-                  <div>
-                    <Search
-                      addonBefore="[wildcard]&nbsp;."
-                      disabled={self.state.apiData.hasRootSsl}
-                      placeholder="captainroot.example.com"
-                      defaultValue={self.state.apiData.rootDomain + ""}
-                      enterButton="Update Domain"
-                      size="large"
-                      onSearch={value => console.log(value)}
-                    />
-                  </div>
+                  <Search
+                    addonBefore="[wildcard]&nbsp;."
+                    disabled={self.state.apiData.hasRootSsl}
+                    placeholder="captainroot.example.com"
+                    defaultValue={self.state.apiData.rootDomain + ""}
+                    enterButton="Update Domain"
+                    onSearch={value => self.updateRootDomain(value)}
+                  />
                 </div>
-              </form>
+              </div>
               <br />
               <br />
               <Row type="flex" justify="end">
@@ -117,8 +212,9 @@ export default class Dashboard extends ApiComponent<
                     uib-tooltip=""
                     disabled={
                       self.state.apiData.hasRootSsl ||
-                      !self.state.apiData.hasCustomDomain
+                      !self.state.apiData.rootDomain
                     }
+                    onClick={() => self.onEnableSslClicked()}
                   >
                     Enable HTTPS
                   </Button>
