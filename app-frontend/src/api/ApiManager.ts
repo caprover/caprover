@@ -9,7 +9,9 @@ export default class ApiManager {
   private static authToken: string = !!process.env.REACT_APP_IS_DEBUG
     ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiJ0ZXN0In0sImlhdCI6MTU0NTE5ODMzMCwiZXhwIjoxNTgxMTk4MzMwfQ.zMVFS1HJuu6vS-d6xEd0B0S_q_1kCozIL2O-g9aUwGc"
     : "";
-  constructor() {}
+  constructor() {
+    this.http.setAuthToken(ApiManager.authToken);
+  }
 
   destroy() {
     this.http.destroy();
@@ -17,6 +19,7 @@ export default class ApiManager {
 
   setAuthToken(authToken: string) {
     ApiManager.authToken = authToken;
+    this.http.setAuthToken(authToken);
   }
 
   static isLoggedIn() {
@@ -28,5 +31,12 @@ export default class ApiManager {
 
     return Promise.resolve() //
       .then(http.fetch(http.POST, "/login", { password }));
+  }
+
+  getCaptainInfo() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/system/info", {}));
   }
 }

@@ -2,14 +2,30 @@ import axios from "axios";
 import ErrorFactory from "../utils/ErrorFactory";
 import Logger from "../utils/Logger";
 
-axios.defaults.headers.common["x-namespace"] = "captain";
+var TOKEN_HEADER = "x-captain-auth";
+var NAMESPACE = "x-namespace";
+var CAPTAIN = "captain";
 
 export default class HttpClient {
   public readonly GET = "GET";
   public readonly POST = "POST";
   public isDestroyed = false;
+  private authToken = "";
 
   constructor(private baseUrl: string) {}
+
+  createHeaders() {
+    let headers: any = {};
+    if (this.authToken) headers[TOKEN_HEADER] = this.authToken;
+    headers[NAMESPACE] = CAPTAIN;
+
+    // check user/appData or apiManager.uploadAppData before changing this signature.
+    return headers;
+  }
+
+  setAuthToken(authToken: string) {
+    this.authToken = authToken;
+  }
 
   destroy() {
     this.isDestroyed = true;
@@ -60,9 +76,11 @@ export default class HttpClient {
   }
 
   getReq(endpoint: string, variables: any) {
+    const self = this;
     return axios
       .get(this.baseUrl + endpoint, {
-        params: variables
+        params: variables,
+        headers: self.createHeaders()
       }) //
       .then(function(data) {
         //console.log(data);
@@ -71,8 +89,11 @@ export default class HttpClient {
   }
 
   postReq(endpoint: string, variables: any) {
+    const self = this;
     return axios
-      .post(this.baseUrl + endpoint, variables) //
+      .post(this.baseUrl + endpoint, variables, {
+        headers: self.createHeaders()
+      }) //
       .then(function(data) {
         //console.log(data);
         return data;

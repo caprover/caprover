@@ -86,24 +86,15 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
               </Menu.Item>
             </Menu>
           </Sider>
-          <Layout style={{ padding: "0 12px 12px" }}>
-            <Content
-              style={{
-                //background: "#fff",
-                padding: 24,
-                margin: 0,
-                minHeight: 280
-              }}
-            >
-              <Switch>
-                <Route path="/dashboard/" component={Dashboard} />
-                <Route path="/apps/" component={Apps} />
-                <Route path="/monitoring/" component={Monitoring} />
-                <Route path="/nodes/" component={Nodes} />
-                <Route path="/settings/" component={Settings} />
-                <Route path="/" component={LoggedInCatchAll} />
-              </Switch>
-            </Content>
+          <Layout style={{ paddingTop: 12, paddingBottom: 36 }}>
+            <Switch>
+              <Route path="/dashboard/" component={Dashboard} />
+              <Route path="/apps/" component={Apps} />
+              <Route path="/monitoring/" component={Monitoring} />
+              <Route path="/nodes/" component={Nodes} />
+              <Route path="/settings/" component={Settings} />
+              <Route path="/" component={LoggedInCatchAll} />
+            </Switch>
           </Layout>
         </Layout>
       </Layout>
