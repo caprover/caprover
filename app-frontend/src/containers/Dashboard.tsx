@@ -32,6 +32,64 @@ export default class Dashboard extends ApiComponent<
       .catch(Toaster.createCatcher());
   }
 
+  onForceSslClicked() {
+    const self = this;
+
+    const isUsingHttp = window.location.href.startsWith("http://");
+
+    Modal.confirm({
+      title: "Force HTTPS",
+      content: (
+        <p>
+          Once Force HTTPS is activated, all HTTP traffic is redirected to
+          HTTPS.
+          {isUsingHttp
+            ? "Since this is a one-way action, and there is no revert, it is highly recommended that you test the HTTPS website first."
+            : ""}{" "}
+          Do you still want to proceed?
+        </p>
+      ),
+      onOk() {
+        self.apiManager
+          .forceSsl(true)
+          .then(function() {
+            return new Promise(function(resolve, reject) {
+              Modal.success({
+                title: "Force HTTPS activated!",
+                content: (
+                  <div>
+                    <p>
+                      All HTTP traffic is now redirected to HTTPS.{" "}
+                      {isUsingHttp
+                        ? "You will have to login again as you will now be redirected to HTTPS website."
+                        : ""}
+                    </p>
+                  </div>
+                ),
+                onOk() {
+                  resolve();
+                },
+                onCancel() {
+                  resolve();
+                }
+              });
+            });
+          })
+          .then(function() {
+            if (isUsingHttp) {
+              window.location.replace(
+                "https://" + self.state.apiData.rootDomain
+              );
+            }
+          })
+          .catch(Toaster.createCatcher());
+      },
+      onCancel() {
+        // do nothing
+      }
+    });
+  }
+
   onEnableSslClicked() {
     const self = this;
     const IGNORE = "IGNORE";
@@ -220,14 +278,17 @@ export default class Dashboard extends ApiComponent<
                   </Button>
                 </Tooltip>
                 &nbsp;&nbsp;
-                <Button
-                  disabled={
-                    !self.state.apiData.hasRootSsl ||
-                    self.state.apiData.forceSsl
-                  }
-                >
-                  Force HTTPS
-                </Button>
+                <Tooltip title="Redirect all HTTP to HTTPS">
+                  <Button
+                    disabled={
+                      !self.state.apiData.hasRootSsl ||
+                      self.state.apiData.forceSsl
+                    }
+                    onClick={() => self.onForceSslClicked()}
+                  >
+                    Force HTTPS
+                  </Button>
+                </Tooltip>
               </Row>
 
               <div />

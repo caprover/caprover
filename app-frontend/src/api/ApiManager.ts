@@ -53,8 +53,13 @@ export default class ApiManager {
     const http = this.http;
 
     return Promise.resolve() //
-      .then(
-        http.fetch(http.POST, "/user/system/enablessl", { emailAddress })
-      );
+      .then(http.fetch(http.POST, "/user/system/enablessl", { emailAddress }));
+  }
+
+  forceSsl(isEnabled: boolean) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.POST, "/user/system/forcessl", { isEnabled }));
   }
 }
