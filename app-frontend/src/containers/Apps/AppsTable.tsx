@@ -16,9 +16,11 @@ import Search from "antd/lib/input/Search";
 import CenteredSpinner from "../global/CenteredSpinner";
 import { IAppDef } from "./AppDefinition";
 import ClickableLink from "../global/ClickableLink";
+import { History } from "history";
 
 export default class AppsTable extends Component<
   {
+    history: History;
     apps: IAppDef[];
     rootDomain: string;
     defaultNginxConfig: string;
@@ -31,7 +33,7 @@ export default class AppsTable extends Component<
   }
 
   onAppClicked(appName: string) {
-    //
+    this.props.history.push(`/apps/${appName}`);
   }
 
   createColumns() {

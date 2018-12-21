@@ -10,6 +10,7 @@ import Nodes from "./Nodes";
 import Monitoring from "./Monitoring";
 import Apps from "./Apps/Apps";
 import { SelectParam } from "antd/lib/menu";
+import AppDetails from "./Apps/AppDetails";
 
 const { Header, Content, Sider } = Layout;
 
@@ -89,6 +90,7 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
           <Layout style={{ paddingTop: 12, paddingBottom: 36 }}>
             <Switch>
               <Route path="/dashboard/" component={Dashboard} />
+              <Route path="/apps/:appName" component={AppDetails} />
               <Route path="/apps/" component={Apps} />
               <Route path="/monitoring/" component={Monitoring} />
               <Route path="/nodes/" component={Nodes} />

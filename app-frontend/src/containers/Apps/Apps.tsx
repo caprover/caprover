@@ -6,9 +6,10 @@ import Search from "antd/lib/input/Search";
 import CenteredSpinner from "../global/CenteredSpinner";
 import CreateNewApp from "./CreateNewApp";
 import AppsTable from "./AppsTable";
+import { RouteComponentProps } from "react-router";
 
 export default class Apps extends ApiComponent<
-  {},
+  RouteComponentProps<any>,
   { isLoading: boolean; apiData: any }
 > {
   constructor(props: any) {
@@ -58,6 +59,7 @@ export default class Apps extends ApiComponent<
         <div style={{ height: 25 }} />
         {self.state.apiData.appDefinitions.length > 0 ? (
           <AppsTable
+            history={this.props.history}
             defaultNginxConfig={this.state.apiData.defaultNginxConfig}
             apps={this.state.apiData.appDefinitions}
             rootDomain={this.state.apiData.rootDomain}
