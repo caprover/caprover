@@ -57,7 +57,11 @@ export default class Apps extends ApiComponent<
         />
         <div style={{ height: 25 }} />
         {self.state.apiData.appDefinitions.length > 0 ? (
-          <AppsTable apps={this.state.apiData.appDefinitions} />
+          <AppsTable
+            defaultNginxConfig={this.state.apiData.defaultNginxConfig}
+            apps={this.state.apiData.appDefinitions}
+            rootDomain={this.state.apiData.rootDomain}
+          />
         ) : (
           <div />
         )}
