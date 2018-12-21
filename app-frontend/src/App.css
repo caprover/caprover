@@ -7,6 +7,10 @@
 }
 
 
-hr{
+hr {
     opacity: 0.4;
+}
+
+.unselectable-span {
+    user-select: none;
 }

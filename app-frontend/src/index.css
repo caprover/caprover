@@ -15,10 +15,12 @@ body {
 }
 
 code {
-  font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
-  background-color: #f2f2f2;
+  font-family: Menlo, Monaco, "SFMono-Regular", Consolas, "Liberation Mono", Courier, monospace;
+  background-color: #f9f2f4;
   padding-left: 4px;
   padding-right: 4px;
   padding-top: 2px;
   padding-bottom: 2px;
+  color: #c7254e;
+  border-radius: 4px;
 }

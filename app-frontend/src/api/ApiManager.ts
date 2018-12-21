@@ -81,4 +81,27 @@ export default class ApiManager {
         })
       );
   }
+
+  enableSslForBaseDomain(appName: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/apps/appDefinitions/enablebasedomainssl", {
+          appName
+        })
+      );
+  }
+
+  attachNewCustomDomainToApp(appName: string, customDomain: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/apps/appDefinitions/customdomain", {
+          appName,
+          customDomain
+        })
+      );
+  }
 }

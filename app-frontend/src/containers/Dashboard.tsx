@@ -312,7 +312,7 @@ export default class Dashboard extends ApiComponent<
 
               <ul>
                 <li>
-                  <b>Command Line Tool (RECOMMENDED): </b> just run
+                  <b>Command Line Tool (RECOMMENDED): </b> On your local machine, simply run
                   <br />
                   <code>npm i -g captainduckduck</code>
                   <br />
