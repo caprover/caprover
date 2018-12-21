@@ -62,4 +62,23 @@ export default class ApiManager {
     return Promise.resolve() //
       .then(http.fetch(http.POST, "/user/system/forcessl", { isEnabled }));
   }
+
+  getAllApps() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/apps/appDefinitions", {}));
+  }
+
+  registerNewApp(appName: string, hasPersistentData: boolean) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/apps/appDefinitions/register", {
+          appName,
+          hasPersistentData
+        })
+      );
+  }
 }

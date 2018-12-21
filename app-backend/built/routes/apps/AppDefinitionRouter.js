@@ -8,7 +8,7 @@ const CaptainConstants = require("../../utils/CaptainConstants");
 const InjectionExtractor = require("../../injection/InjectionExtractor");
 const router = express.Router();
 const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
-    schemaVersion: 1,
+    schemaVersion: 2,
     dockerfileLines: [
         'FROM ' + CaptainConstants.appPlaceholderImageName,
         'CMD [ "npm", "start" ]',

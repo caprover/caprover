@@ -267,7 +267,6 @@ export default class Dashboard extends ApiComponent<
               <Row type="flex" justify="end">
                 <Tooltip title="Using Let's Encrypt Free Service">
                   <Button
-                    uib-tooltip=""
                     disabled={
                       self.state.apiData.hasRootSsl ||
                       !self.state.apiData.rootDomain

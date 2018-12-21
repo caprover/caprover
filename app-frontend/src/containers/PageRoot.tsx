@@ -8,7 +8,7 @@ import LoggedInCatchAll from "./LoggedInCatchAll";
 import Settings from "./Settings";
 import Nodes from "./Nodes";
 import Monitoring from "./Monitoring";
-import Apps from "./Apps";
+import Apps from "./Apps/Apps";
 import { SelectParam } from "antd/lib/menu";
 
 const { Header, Content, Sider } = Layout;
