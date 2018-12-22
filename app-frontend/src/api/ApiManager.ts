@@ -104,4 +104,36 @@ export default class ApiManager {
         })
       );
   }
+
+  enableSslForCustomDomain(appName: string, customDomain: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/apps/appDefinitions/enablecustomdomainssl",
+          {
+            appName,
+            customDomain
+          }
+        )
+      );
+  }
+
+  removeCustomDomain(appName: string, customDomain: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/apps/appDefinitions/removecustomdomain",
+          {
+            appName,
+            customDomain
+          }
+        )
+      );
+  }
 }

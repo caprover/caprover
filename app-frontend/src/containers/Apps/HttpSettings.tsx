@@ -70,36 +70,75 @@ export default class HttpSettings extends Component<
       .catch(Toaster.createCatcher());
   }
 
-  onEnableCustomDomainSslClicked(appName: string, customDomain: string) {
-    // TODO
+  onEnableCustomDomainSslClicked(customDomain: string) {
+    const self = this;
+    this.props.setLoading(true);
+
+    return Promise.resolve()
+      .then(function() {
+        return self.props.apiManager.enableSslForCustomDomain(
+          self.props.apiData!.appDefinition.appName!,
+          customDomain
+        );
+      })
+      .then(function() {
+        message.success("HTTPS is successfully activated for your domain!");
+      })
+      .then(function() {
+        self.reFetchData();
+      })
+      .catch(Toaster.createCatcher());
   }
 
-  onRemoveCustomDomainClicked(appName: string, customDomain: string) {
-    // TODO
+  onRemoveCustomDomainClicked(customDomain: string) {
+    const self = this;
+    this.props.setLoading(true);
+
+    return Promise.resolve()
+      .then(function() {
+        return self.props.apiManager.removeCustomDomain(
+          self.props.apiData!.appDefinition.appName!,
+          customDomain
+        );
+      })
+      .then(function() {
+        message.success("Your custom domain is successfully removed!");
+      })
+      .then(function() {
+        self.reFetchData();
+      })
+      .catch(Toaster.createCatcher());
   }
 
   createCustomDomainRows() {
     const customDomains = this.props.apiData!.appDefinition.customDomain || [];
-    const appName = this.props.apiData!.appDefinition.appName!;
 
     const rows: JSX.Element[] = [];
     customDomains.forEach(c => {
       const row = (
         <Row key={c.publicDomain} style={{ marginTop: 15 }}>
           <Button.Group size="small">
-            <Button
-              disabled={c.hasSsl}
-              onClick={() => {
-                this.onEnableCustomDomainSslClicked(appName, c.publicDomain);
-              }}
-              type="primary"
+            <Tooltip
+              title={
+                c.hasSsl
+                  ? "Already activated"
+                  : "Click to activate HTTPS for this domain"
+              }
             >
-              Enable HTTPS
-            </Button>
+              <Button
+                disabled={c.hasSsl}
+                onClick={() => {
+                  this.onEnableCustomDomainSslClicked(c.publicDomain);
+                }}
+                type="primary"
+              >
+                Enable HTTPS
+              </Button>
+            </Tooltip>
             <Button
               style={{ marginRight: 20 }}
               onClick={() => {
-                this.onRemoveCustomDomainClicked(appName, c.publicDomain);
+                this.onRemoveCustomDomainClicked(c.publicDomain);
               }}
             >
               Remove
@@ -175,16 +214,25 @@ export default class HttpSettings extends Component<
       <div>
         <Row>
           <p>Your app is available to public at:</p>
-          <Button
-            disabled={app.hasDefaultSubDomainSsl}
-            style={{ marginRight: 20 }}
-            onClick={() => {
-              this.enableDefaultHttps();
-            }}
-            type="primary"
+          <Tooltip
+            title={
+              app.hasDefaultSubDomainSsl
+                ? "Already activated"
+                : "Click to activate HTTPS for this domain"
+            }
           >
-            Enable HTTPS
-          </Button>
+            <Button
+              disabled={app.hasDefaultSubDomainSsl}
+              style={{ marginRight: 20 }}
+              onClick={() => {
+                this.enableDefaultHttps();
+              }}
+              type="primary"
+              size="small"
+            >
+              Enable HTTPS
+            </Button>
+          </Tooltip>
           <a
             href={
               "http" +
@@ -232,15 +280,20 @@ export default class HttpSettings extends Component<
         <br />
         <br />
 
-        <Checkbox
-          onChange={(e: any) => {
-            const newApiData = Utils.copyObject(this.props.apiData!);
-            newApiData.appDefinition.forceSsl = !!e.target.checked;
-            this.props.updateApiData(newApiData);
-          }}
-        >
-          Enforce HTTPS by redirecting all HTTP traffic to HTTPS
-        </Checkbox>
+        <Row>
+          <Checkbox
+            onChange={(e: any) => {
+              const newApiData = Utils.copyObject(this.props.apiData!);
+              newApiData.appDefinition.forceSsl = !!e.target.checked;
+              this.props.updateApiData(newApiData);
+            }}
+          >
+            Enforce HTTPS by redirecting all HTTP traffic to HTTPS
+          </Checkbox>
+          <Tooltip title="Forcing HTTPS causes domains without HTTPS to malfunction. Make sure you enable HTTPS for the domain you want to use, before enabling Force HTTPS option.">
+            <Icon type="info-circle" />
+          </Tooltip>
+        </Row>
       </div>
     );
   }
