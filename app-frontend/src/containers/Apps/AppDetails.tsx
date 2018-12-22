@@ -8,7 +8,8 @@ import {
   Tooltip,
   Tabs,
   Checkbox,
-  Button
+  Button,
+  Input
 } from "antd";
 import ApiComponent from "../global/ApiComponent";
 import Toaster from "../../utils/Toaster";
@@ -17,6 +18,7 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
 import { IAppDef } from "./AppDefinition";
 import ClickableLink from "../global/ClickableLink";
+import TextArea from "antd/lib/input/TextArea";
 const TabPane = Tabs.TabPane;
 
 const WEB_SETTINGS = "WEB_SETTINGS";
@@ -30,6 +32,7 @@ export default class AppDetails extends ApiComponent<
     rootDomain: string;
     apiData: IAppDef | undefined;
     activeTabKey: string;
+    defaultNginxConfig: string;
   }
 > {
   constructor(props: any) {
@@ -38,6 +41,7 @@ export default class AppDetails extends ApiComponent<
       activeTabKey: WEB_SETTINGS,
       isLoading: true,
       apiData: undefined,
+      defaultNginxConfig: "",
       rootDomain: ""
     };
   }
@@ -117,50 +121,104 @@ export default class AppDetails extends ApiComponent<
       .catch(Toaster.createCatcher());
   }
 
+  onEnableCustomDomainSslClicked(appName: string, customDomain: string) {
+    // TODO
+  }
+
+  onRemoveCustomDomainClicked(appName: string, customDomain: string) {
+    // TODO
+  }
+
   createCustomDomainRows() {
     const customDomains = this.state.apiData!.customDomain || [];
+    const appName = this.state.apiData!.appName!;
+
     const rows: JSX.Element[] = [];
-    customDomains.forEach(element => {
+    customDomains.forEach(c => {
       const row = (
-        /*                     
-        <div ng-repeat="c in app.customDomain">
+        <Row key={c.publicDomain} style={{ marginTop: 15 }}>
+          <Button.Group size="small">
+            <Button
+              disabled={c.hasSsl}
+              onClick={() => {
+                this.onEnableCustomDomainSslClicked(appName, c.publicDomain);
+              }}
+              type="primary"
+            >
+              Enable HTTPS
+            </Button>
+            <Button
+              style={{ marginRight: 20 }}
+              onClick={() => {
+                this.onRemoveCustomDomainClicked(appName, c.publicDomain);
+              }}
+            >
+              Remove
+            </Button>
+          </Button.Group>
 
-          <div class="row">
-
-            <div style="margin-top: 5px" class="col-md-9">
-              <a style="color: #777777;" href="http://{{c.publicDomain}}">{{c.publicDomain}}</a>
-            </div>
-
-            <div class="col-md-3">
-              <div class="pull-right">
-
-                <form class="col-md-3">
-                  <div class="form-group">
-                    <div class="input-group">
-                      <span class="input-group-btn ">
-                        <button ng-disabled="c.hasSsl" ng-click="onEnableCustomDomainSslClicked(app.appName,c.publicDomain)" type="button" class="btn btn-success">Enable HTTPS</button>
-                        <button type="button" ng-click="onRemoveCustomDomainClicked(app.appName,c.publicDomain)" class="btn btn-default btn-with-icon">
-                          <i class="fa-minus-circle fa"></i> Remove
-                        </button>
-                      </span>
-                    </div>
-                  </div>
-                </form>
-
-              </div>
-            </div>
-
-          </div>
-            */
-
-        <Row key={element.publicDomain}>
-          <div>{element.publicDomain}</div>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={"http://" + c.publicDomain}
+          >
+            {c.publicDomain}
+          </a>
         </Row>
       );
       rows.push(row);
     });
 
     return rows;
+  }
+
+  onEditDefaultNginxConfigClicked() {
+    const newApp = this.getCopyOfAppObject();
+    newApp.customNginxConfig = this.state.defaultNginxConfig;
+    this.setState({
+      apiData: newApp
+    });
+  }
+
+  createCustomNginx() {
+    const customNginxConfig = this.state.apiData!.customNginxConfig!;
+    if (!customNginxConfig) {
+      return (
+        <div>
+          <Button
+            type="default"
+            onClick={() => this.onEditDefaultNginxConfigClicked()}
+          >
+            Edit Default Nginx Configurations
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <p>
+          Note that templates are build using EJS template pattern. Do not
+          change the areas between &lt;&percnt; and &percnt;&gt; unless you
+          really know what you're doing! To revert to default, simply remove all
+          the content.
+        </p>
+        <Input.TextArea
+          style={{
+            fontFamily: "monospace"
+          }}
+          onChange={e => {
+            const app = this.getCopyOfAppObject();
+            app.customNginxConfig = e.target.value;
+            this.setState({
+              apiData: app
+            });
+          }}
+          rows={17}
+          defaultValue={customNginxConfig}
+        />
+      </div>
+    );
   }
 
   createHttpDetailsSettingsContent() {
@@ -212,10 +270,9 @@ export default class AppDetails extends ApiComponent<
               onSearch={value => this.onConnectNewDomainClicked(value)}
             />
           </Col>
-
+          &nbsp;&nbsp;&nbsp;
           <Tooltip title="Make sure the new domain points to this IP, otherwise verification will fail.">
             <span>
-              &nbsp;&nbsp;&nbsp;
               <Icon style={{ marginTop: 9 }} type="info-circle" />
             </span>
           </Tooltip>
@@ -223,55 +280,23 @@ export default class AppDetails extends ApiComponent<
 
         <br />
         {this.createCustomDomainRows()}
+        <br />
+        <br />
+        {this.createCustomNginx()}
+        <br />
+        <br />
+
+        <Checkbox
+          onChange={(e: any) => {
+            const newApp = this.getCopyOfAppObject();
+            newApp.forceSsl = !!e.target.checked;
+            this.setState({ apiData: newApp });
+          }}
+        >
+          Enforce HTTPS by redirecting all HTTP traffic to HTTPS
+        </Checkbox>
       </div>
     );
-
-    {
-      /* 
-                      <br/>
-
-                      </div>
-
-                      <div class="row">
-
-                        <button ng-show="!app.customNginxConfig" class="btn btn-info" ng-click="onEditDefaultNginxConfigClicked()">
-                          Edit Default Nginx Configurations</button>
-
-                        <div ng-show="app.customNginxConfig">
-
-                          <p>
-                            Note that templates are build using EJS template pattern. Do not change the areas beween &lt;&percnt; and &percnt;&gt; unless
-                            you really know what you're doing!
-                          </p>
-
-                          <div class="row">
-                            <div class="col-sm-12">
-                              <div class="form-group">
-                                <textarea style="font-family: monospace;" rows="17" ng-model="app.customNginxConfig" placeholder="" class="form-control"
-                                  id="textareaAppNginxConfig"></textarea>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      <br/>
-
-                      <div class="checkbox">
-                        <label>
-                          <input type="checkbox" ng-model="app.forceSsl"> Enforce HTTPS by redirecting all HTTP traffic to HTTPS
-                        </label>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-
-
-              </div>
-            </div> */
-    }
   }
 
   createHttpSettingsContent() {
@@ -349,11 +374,6 @@ export default class AppDetails extends ApiComponent<
                 &nbsp;&nbsp;&nbsp;{app.appName}
               </span>
             }
-            // tabList={tabList}
-            // activeTabKey={this.state.activeTabKey}
-            // onTabChange={key => {
-            //   this.setState({ activeTabKey: key });
-            // }}
           >
             {this.createTabContent()}
           </Card>
@@ -378,7 +398,8 @@ export default class AppDetails extends ApiComponent<
             self.setState({
               isLoading: false,
               apiData: element,
-              rootDomain: data.rootDomain
+              rootDomain: data.rootDomain,
+              defaultNginxConfig: data.defaultNginxConfig
             });
             return;
           }
