@@ -9,10 +9,10 @@ import {
   Tooltip,
   Checkbox
 } from "antd";
-import Toaster from "../../utils/Toaster";
-import Utils from "../../utils/Utils";
+import Toaster from "../../../utils/Toaster";
+import Utils from "../../../utils/Utils";
 import { AppDetailsTabProps } from "./AppDetails";
-import ClickableLink from "../global/ClickableLink";
+import ClickableLink from "../../global/ClickableLink";
 
 const Search = Input.Search;
 

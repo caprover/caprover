@@ -10,7 +10,7 @@ import Nodes from "./Nodes";
 import Monitoring from "./Monitoring";
 import Apps from "./Apps/Apps";
 import { SelectParam } from "antd/lib/menu";
-import AppDetails from "./Apps/AppDetails";
+import AppDetails from "./Apps/appDetails/AppDetails";
 
 const { Header, Content, Sider } = Layout;
 

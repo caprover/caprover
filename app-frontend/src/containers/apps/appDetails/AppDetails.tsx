@@ -11,14 +11,14 @@ import {
   Button,
   Input
 } from "antd";
-import ApiComponent from "../global/ApiComponent";
-import Toaster from "../../utils/Toaster";
-import CenteredSpinner from "../global/CenteredSpinner";
+import ApiComponent from "../../global/ApiComponent";
+import Toaster from "../../../utils/Toaster";
+import CenteredSpinner from "../../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
-import { IAppDef } from "./AppDefinition";
-import ClickableLink from "../global/ClickableLink";
+import { IAppDef } from "../AppDefinition";
+import ClickableLink from "../../global/ClickableLink";
 import HttpSettings from "./HttpSettings";
-import ApiManager from "../../api/ApiManager";
+import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
 const TabPane = Tabs.TabPane;
 
