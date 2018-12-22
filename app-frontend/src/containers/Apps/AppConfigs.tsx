@@ -32,16 +32,17 @@ export default class AppConfigs extends Component<
     const envVars = this.props.apiData.appDefinition.envVars;
     return Utils.map(envVars, function(value, index) {
       return (
-        <Row style={{ paddingBottom: 12 }} key={value.key}>
+        <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={8}>
             <Input
               className="code-input"
               placeholder="key"
-              defaultValue={value.key}
+              value={value.key}
               type="text"
               onChange={e => {
                 const newApiData = Utils.copyObject(self.props.apiData);
                 newApiData.appDefinition.envVars[index].key = e.target.value;
+                self.props.updateApiData(newApiData);
               }}
             />
           </Col>
@@ -50,10 +51,11 @@ export default class AppConfigs extends Component<
               className="code-input"
               placeholder="value"
               rows={1}
-              defaultValue={value.value}
+              value={value.value}
               onChange={e => {
                 const newApiData = Utils.copyObject(self.props.apiData);
                 newApiData.appDefinition.envVars[index].value = e.target.value;
+                self.props.updateApiData(newApiData);
               }}
             />
           </Col>
@@ -67,19 +69,20 @@ export default class AppConfigs extends Component<
     const ports = this.props.apiData.appDefinition.ports;
     return Utils.map(ports, function(value, index) {
       return (
-        <Row style={{ paddingBottom: 12 }} key={value.hostPort + ""}>
+        <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={12}>
             <Tooltip title="Make sure the port is not already used!">
               <Input
                 addonBefore="Server Port"
                 placeholder="5050"
-                defaultValue={value.hostPort ? value.hostPort + "" : ""}
+                value={value.hostPort ? value.hostPort + "" : ""}
                 type="number"
                 onChange={e => {
                   const newApiData = Utils.copyObject(self.props.apiData);
                   const p = Number(e.target.value.trim());
                   newApiData.appDefinition.ports[index].hostPort =
                     p > 0 ? p : 0; // to avoid NaN
+                  self.props.updateApiData(newApiData);
                 }}
               />
             </Tooltip>
@@ -88,14 +91,97 @@ export default class AppConfigs extends Component<
             <Input
               addonBefore="Container Port"
               placeholder="6060"
-              defaultValue={value.containerPort ? value.containerPort + "" : ""}
+              value={value.containerPort ? value.containerPort + "" : ""}
               onChange={e => {
                 const newApiData = Utils.copyObject(self.props.apiData);
                 const p = Number(e.target.value.trim());
                 newApiData.appDefinition.ports[index].containerPort =
                   p > 0 ? p : 0; // to avoid NaN
+                self.props.updateApiData(newApiData);
               }}
             />
+          </Col>
+        </Row>
+      );
+    });
+  }
+
+  createVolRows() {
+    const self = this;
+    const volumes = this.props.apiData.appDefinition.volumes;
+    return Utils.map(volumes, function(value, index) {
+      return (
+        <Row style={{ paddingBottom: 12 }} key={"" + index}>
+          <Col span={8}>
+            <Input
+              addonBefore="Path in App"
+              className="code-input"
+              placeholder="/var/www/html"
+              value={value.containerPath}
+              type="text"
+              onChange={e => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                newApiData.appDefinition.volumes[index].containerPath =
+                  e.target.value;
+                self.props.updateApiData(newApiData);
+              }}
+            />
+          </Col>
+          <Col
+            style={{ paddingLeft: 12 }}
+            span={8}
+            className={value.hostPath ? "hide-on-demand" : ""}
+          >
+            <Input
+              addonBefore="Label"
+              className="code-input"
+              placeholder="some-name"
+              value={value.volumeName}
+              onChange={e => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                newApiData.appDefinition.volumes[index].volumeName =
+                  e.target.value;
+                self.props.updateApiData(newApiData);
+              }}
+            />
+          </Col>
+
+          <Col
+            style={{ paddingLeft: 12 }}
+            span={8}
+            className={!value.hostPath ? "hide-on-demand" : ""}
+          >
+            <Tooltip title="IMPORTANT: Ensure Host Path exists before assigning it here">
+              <Input
+                addonBefore="Path on Host"
+                className="code-input"
+                placeholder="/host/path/exists"
+                value={value.hostPath}
+                onChange={e => {
+                  const newApiData = Utils.copyObject(self.props.apiData);
+                  newApiData.appDefinition.volumes[index].hostPath =
+                    e.target.value;
+                  self.props.updateApiData(newApiData);
+                }}
+              />
+            </Tooltip>
+          </Col>
+          <Col style={{ paddingLeft: 12 }} span={8}>
+            <Button
+              type="dashed"
+              onClick={() => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                newApiData.appDefinition.volumes[index].hostPath = newApiData
+                  .appDefinition.volumes[index].hostPath
+                  ? ""
+                  : "/";
+                self.props.updateApiData(newApiData);
+              }}
+            >
+              {value.hostPath
+                ? "Let Captain manage path"
+                : "Set specific host path"}
+            </Button>
           </Col>
         </Row>
       );
@@ -107,44 +193,39 @@ export default class AppConfigs extends Component<
 
     if (!app.hasPersistentData) return <div />;
 
-    return <div>has volumes</div>;
+    return (
+      <div>
+        <h4>
+          Persistent Directories &nbsp;
+          <a
+            href="https://captainduckduck.com/docs/app-configuration.html#persistent-or-not"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon type="info-circle" />
+          </a>
+        </h4>
+        <div
+          className={
+            app.volumes && !!app.volumes.length ? "hide-on-demand" : ""
+          }
+        >
+          <i>Currently, this app does not have any persistent directories.</i>
+        </div>
+
+        {this.createVolRows()}
+        <br />
+        <Button type="default" onClick={() => this.addVolumeClicked()}>
+          Add Persistent Directory
+        </Button>
+        <br />
+        <br />
+        <br />
+        <br />
+      </div>
+    );
 
     /*
-                     <h4>Persistent Directories &nbsp;
-                        <a href="https://captainduckduck.com/docs/app-configuration.html#persistent-or-not" target="_blank" rel="noopener noreferrer">
-                          <i class="fa fa-info-circle" aria-hidden="true"></i>
-                        </a>
-
-
-                      </h4>
-                      <div ng-show="!app.volumes || !app.volumes.length">
-                        <i>Currently, this app does not have any persistent directories.</i>
-                      </div>
-                      <br/>
-                      <div class="row" ng-repeat="vol in app.volumes">
-                        <div class="form-group col-sm-4">
-                          <div class="input-group">
-                            <span class="input-group-addon">Path in App:</span>
-                            <input type="text" class="form-control" ng-model="vol.containerPath" placeholder="/some/thing">
-                          </div>
-                        </div>
-                        <div ng-show="!!vol.hostPath" class="form-group col-sm-4">
-                          <div class="input-group" uib-tooltip="IMPORTANT: Ensure Host Path exists before assigning it here">
-                            <span class="input-group-addon">Path on Host:</span>
-                            <input type="text" class="form-control" ng-model="vol.hostPath" placeholder="/host/path/exists">
-                          </div>
-                        </div>
-                        <div ng-show="!vol.hostPath" class="form-group col-sm-4">
-                          <div class="input-group">
-                            <span class="input-group-addon">Label:</span>
-                            <input type="text" class="form-control" ng-model="vol.volumeName" placeholder="some-name">
-                          </div>
-                        </div>
-                        <div class="form-group col-sm-4">
-                          <button ng-show="!vol.hostPath" type="button" class="btn btn-sm btn-default" ng-click="setHostPath(vol,'/')">Set specific host path</button>
-                          <button ng-show="vol.hostPath" type="button" class="btn btn-sm btn-default" ng-click="setHostPath(vol,'')">Let Captain manage host path</button>
-                        </div>
-                      </div>
                       <div class="row">
                         <div class="col-md-12">
                           <button type="button" ng-click="addVolumeClicked()" class="btn btn-default">Add Directory</button>
@@ -310,6 +391,16 @@ export default class AppConfigs extends Component<
     newApiData.appDefinition.envVars.push({
       key: "",
       value: ""
+    });
+    this.props.updateApiData(newApiData);
+  }
+
+  addVolumeClicked() {
+    const newApiData = Utils.copyObject(this.props.apiData);
+    newApiData.appDefinition.volumes = newApiData.appDefinition.volumes || {};
+    newApiData.appDefinition.volumes.push({
+      containerPath: "",
+      volumeName: ""
     });
     this.props.updateApiData(newApiData);
   }

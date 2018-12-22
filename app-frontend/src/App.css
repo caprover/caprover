@@ -16,7 +16,7 @@ hr {
 }
 
 .hide-on-demand {
-    display: none;
+    display: none !important;
 }
 
 .code-input {
