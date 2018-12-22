@@ -12,18 +12,24 @@ import {
 import Toaster from "../../utils/Toaster";
 import Utils from "../../utils/Utils";
 import { AppDetailsTabProps } from "./AppDetails";
+import ClickableLink from "../global/ClickableLink";
 
 const Search = Input.Search;
 
 export default class AppConfigs extends Component<
   AppDetailsTabProps,
-  { dummyVar: undefined; forceEditableInstanceCount: boolean }
+  {
+    dummyVar: undefined;
+    forceEditableNodeId: boolean;
+    forceEditableInstanceCount: boolean;
+  }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
       dummyVar: undefined,
-      forceEditableInstanceCount: false
+      forceEditableInstanceCount: false,
+      forceEditableNodeId: false
     };
   }
 
@@ -189,6 +195,7 @@ export default class AppConfigs extends Component<
   }
 
   createVolSection() {
+    const self = this;
     const app = this.props.apiData!.appDefinition;
 
     if (!app.hasPersistentData) return <div />;
@@ -221,43 +228,40 @@ export default class AppConfigs extends Component<
         <br />
         <br />
         <br />
+
+        <Row>
+          <Col span={6} style={{ width: 300 }}>
+            <Tooltip title="Leave empty for automatic placement">
+              <Input
+                addonBefore="Node ID"
+                className="code-input"
+                value={app.nodeId ? app.nodeId : ""}
+                disabled={!this.state.forceEditableNodeId}
+                onChange={e => {
+                  const newApiData = Utils.copyObject(self.props.apiData);
+                  newApiData.appDefinition.nodeId = e.target.value;
+                  self.props.updateApiData(newApiData);
+                }}
+              />
+            </Tooltip>
+          </Col>
+          <Col span={12} style={{ paddingLeft: 24 }}>
+            <Tooltip title="WARNING: Changing Node ID causes the content of your persistent directories to be deleted!">
+              <Button
+                type="default"
+                disabled={this.state.forceEditableNodeId}
+                onClick={() => this.setState({ forceEditableNodeId: true })}
+              >
+                Edit
+              </Button>
+            </Tooltip>
+          </Col>
+        </Row>
+
+        <br />
         <br />
       </div>
     );
-
-    /*
-                      <div class="row">
-                        <div class="col-md-12">
-                          <button type="button" ng-click="addVolumeClicked()" class="btn btn-default">Add Directory</button>
-                        </div>
-                      </div>
-
-                      <hr/>
-
-                      <div class="row">
-                        <div class="form-group col-md-6">
-                          <div class="input-group">
-                            <span class="input-group-addon">
-
-                              <a href="" uib-tooltip="Click to edit" ng-click="unlockNodeId()">
-                                Node ID &nbsp;
-                                <i class="fa fa-pencil" aria-hidden="true"></i>
-                              </a>
-
-                            </span>
-                            <input uib-tooltip="Leave empty for automatic placement" type="text" class="form-control" ng-disabled="!app.unlockNodeIdForEdit"
-                              ng-model="app.nodeId">
-                          </div>
-                          <div class="input-group">
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <p>
-                            <b>WARNING: </b>Changing Node ID causes the content of your persistent directories to be deleted!
-                          </p>
-                        </div>
-                      </div>
-    */
   }
 
   render() {
@@ -315,8 +319,9 @@ export default class AppConfigs extends Component<
         <br />
         <br />
         {this.createVolSection()}
+        <br />
         <Row>
-          <Col span={6} style={{ width: 200 }}>
+          <Col span={6} style={{ width: 300 }}>
             <Tooltip title="Number of running instances of this app">
               <Input
                 addonBefore="Instance Count"
@@ -330,7 +335,10 @@ export default class AppConfigs extends Component<
             </Tooltip>
           </Col>
           <Col span={6}>
-            <div className={!app.hasPersistentData ? "hide-on-demand" : ""}>
+            <div
+              style={{ paddingLeft: 24 }}
+              className={!app.hasPersistentData ? "hide-on-demand" : ""}
+            >
               <Tooltip title="Multiple instances of apps with persistent data can be very dangerous and bug prone as they can be accessing the same file on the disk resulting in data corruption. Edit the instance count only if you understand the risk.">
                 <Button
                   type="default"
