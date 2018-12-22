@@ -15,6 +15,10 @@ hr {
     user-select: none;
 }
 
-.hide-on-demand{
+.hide-on-demand {
     display: none;
+}
+
+.code-input {
+    font-family: Menlo, Monaco, "SFMono-Regular", Consolas, "Liberation Mono", Courier, monospace !important;
 }

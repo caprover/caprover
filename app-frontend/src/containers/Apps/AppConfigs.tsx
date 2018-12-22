@@ -26,24 +26,40 @@ export default class AppConfigs extends Component<
       forceEditableInstanceCount: false
     };
   }
+
   createEnvVarRows() {
-    /*
-    <div class="row" ng-repeat="ev in app.envVars">
-  <div class="form-group col-sm-6">
-    <div class="input-group">
-      <span class="input-group-addon">Key:</span>
-      <input style="height:50px" type="text" class="form-control" ng-model="ev.key" placeholder="Key">
-    </div>
-  </div>
-  <div class="col-sm-6 form-group">
-    <div class="input-group">
-      <span class="input-group-addon">Value:</span>
-      <textarea style="height:50px;padding-top:13px;" type="text" class="form-control" ng-model="ev.value" placeholder="Value"></textarea>
-    </div>
-  </div>
-</div>
-    */
-    return <div>createEnvVarRows</div>;
+    const self = this;
+    const envVars = this.props.apiData.appDefinition.envVars;
+    return Utils.map(envVars, function(value, index) {
+      return (
+        <Row style={{ paddingBottom: 12 }} key={value.key}>
+          <Col span={8}>
+            <Input
+              className="code-input"
+              placeholder="key"
+              defaultValue={value.key}
+              type="text"
+              onChange={e => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                newApiData.appDefinition.envVars[index].key = e.target.value;
+              }}
+            />
+          </Col>
+          <Col style={{ paddingLeft: 12 }} span={16}>
+            <Input.TextArea
+              className="code-input"
+              placeholder="value"
+              rows={1}
+              defaultValue={value.value}
+              onChange={e => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                newApiData.appDefinition.envVars[index].value = e.target.value;
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    });
   }
 
   createPortRows() {
@@ -76,7 +92,7 @@ export default class AppConfigs extends Component<
     return <div>has volumes</div>;
 
     /*
-    <h4>Persistent Directories &nbsp;
+                     <h4>Persistent Directories &nbsp;
                         <a href="https://captainduckduck.com/docs/app-configuration.html#persistent-or-not" target="_blank" rel="noopener noreferrer">
                           <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </a>
@@ -160,7 +176,6 @@ export default class AppConfigs extends Component<
             yet.
           </i>
         </div>
-        <br />
 
         {this.createEnvVarRows()}
 
@@ -228,7 +243,7 @@ export default class AppConfigs extends Component<
             </div>
           </Col>
         </Row>
-        
+
         {/* <div class="row">
         <div class="col-lg-12">
           <div class="row">
@@ -260,7 +275,15 @@ export default class AppConfigs extends Component<
 
   addPortMappingClicked() {}
 
-  addEnvVarClicked() {}
+  addEnvVarClicked() {
+    const newApiData = Utils.copyObject(this.props.apiData);
+    newApiData.appDefinition.envVars = newApiData.appDefinition.envVars || {};
+    newApiData.appDefinition.envVars.push({
+      key: "",
+      value: ""
+    });
+    this.props.updateApiData(newApiData);
+  }
 
   reFetchData() {
     this.props.reFetchData();
