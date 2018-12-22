@@ -63,25 +63,43 @@ export default class AppConfigs extends Component<
   }
 
   createPortRows() {
-    /*
-                      <div class="row" ng-repeat="pt in app.ports">
-                        <div class="form-group col-sm-6">
-                          <div class="input-group" uib-tooltip="Make sure the port is not used!">
-                            <span class="input-group-addon">Server Public Port:</span>
-                            <input style="height:50px" type="text" class="form-control" ng-model="pt.hostPort" placeholder="4545">
-                          </div>
-                        </div>
-                        <div class="col-sm-6 form-group">
-                          <div class="input-group">
-                            <span class="input-group-addon">Container Port:</span>
-                            <textarea style="height:50px;padding-top:13px;" type="text" class="form-control" ng-model="pt.containerPort" placeholder="80"></textarea>
-                          </div>
-                        </div>
-                      </div>
-
-
-    */
-    return <div>createVolRows</div>;
+    const self = this;
+    const ports = this.props.apiData.appDefinition.ports;
+    return Utils.map(ports, function(value, index) {
+      return (
+        <Row style={{ paddingBottom: 12 }} key={value.hostPort + ""}>
+          <Col span={12}>
+            <Tooltip title="Make sure the port is not already used!">
+              <Input
+                addonBefore="Server Port"
+                placeholder="5050"
+                defaultValue={value.hostPort ? value.hostPort + "" : ""}
+                type="number"
+                onChange={e => {
+                  const newApiData = Utils.copyObject(self.props.apiData);
+                  const p = Number(e.target.value.trim());
+                  newApiData.appDefinition.ports[index].hostPort =
+                    p > 0 ? p : 0; // to avoid NaN
+                }}
+              />
+            </Tooltip>
+          </Col>
+          <Col style={{ paddingLeft: 12 }} span={12}>
+            <Input
+              addonBefore="Container Port"
+              placeholder="6060"
+              defaultValue={value.containerPort ? value.containerPort + "" : ""}
+              onChange={e => {
+                const newApiData = Utils.copyObject(self.props.apiData);
+                const p = Number(e.target.value.trim());
+                newApiData.appDefinition.ports[index].containerPort =
+                  p > 0 ? p : 0; // to avoid NaN
+              }}
+            />
+          </Col>
+        </Row>
+      );
+    });
   }
 
   createVolSection() {
@@ -204,6 +222,9 @@ export default class AppConfigs extends Component<
         >
           <i>Currently, this app does not have any custom port mapping.</i>
         </div>
+
+        {this.createPortRows()}
+
         <br />
 
         <Button type="default" onClick={() => this.addPortMappingClicked()}>
@@ -273,7 +294,15 @@ export default class AppConfigs extends Component<
     );
   }
 
-  addPortMappingClicked() {}
+  addPortMappingClicked() {
+    const newApiData = Utils.copyObject(this.props.apiData);
+    newApiData.appDefinition.ports = newApiData.appDefinition.ports || {};
+    newApiData.appDefinition.ports.push({
+      containerPort: 0,
+      hostPort: 0
+    });
+    this.props.updateApiData(newApiData);
+  }
 
   addEnvVarClicked() {
     const newApiData = Utils.copyObject(this.props.apiData);
