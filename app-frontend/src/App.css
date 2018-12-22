@@ -14,3 +14,7 @@ hr {
 .unselectable-span {
     user-select: none;
 }
+
+.hide-on-demand{
+    display: none;
+}
