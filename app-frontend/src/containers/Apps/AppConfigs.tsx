@@ -354,31 +354,38 @@ export default class AppConfigs extends Component<
           </Col>
         </Row>
 
-        {/* <div class="row">
-        <div class="col-lg-12">
-          <div class="row">
-            <a href="" ng-click="onPreDeployFunctionToggled()">
-              <h5>{{!!app.hasPreDeployFunction? 'Remove':'Add'}} Pre-Deploy Script
-                &nbsp;
-                <a href="https://captainduckduck.com/docs/pre-deploy-script.html" target="_blank" rel="noopener noreferrer">
-                  &nbsp; <i class="fa fa-info-circle" aria-hidden="true"></i>
-                </a>
-
-              </h5>
+        <Row>
+          <br />
+          <br />
+          <br />
+          <h4>
+            Pre-Deploy Script
+            <a
+              style={{ paddingLeft: 10 }}
+              href="https://captainduckduck.com/docs/pre-deploy-script.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon type="info-circle" />
             </a>
-          </div>
+          </h4>
 
-          <div class="row" ng-show="!!app.hasPreDeployFunction">
-                <textarea id="post-deploy-text-id" style="padding:10px; background: #f9f9f9" rows="10"
-                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                          ng-model = "app.preDeployFunction"
-                          class="col-sm-12"></textarea>
-          </div>
-
-        </div>
-      </div>
-
-      </div> */}
+          <Input.TextArea
+            spellCheck={false}
+            autoCorrect="off"
+            autoComplete="off"
+            autoCapitalize="off"
+            className="code-input"
+            placeholder="var preDeployFunction = function (captainAppObj, dockerUpdateObject) ..."
+            rows={4}
+            value={app.preDeployFunction ? app.preDeployFunction : ""}
+            onChange={e => {
+              const newApiData = Utils.copyObject(this.props.apiData);
+              newApiData.appDefinition.preDeployFunction = e.target.value;
+              this.props.updateApiData(newApiData);
+            }}
+          />
+        </Row>
       </div>
     );
   }
