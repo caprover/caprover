@@ -6,21 +6,24 @@ import TarUploader from "./TarUploader";
 import GitRepoForm from "./GitRepoForm";
 import { RepoInfo } from "../AppDefinition";
 import Utils from "../../../utils/Utils";
+import DomUtils from "../../../utils/DomUtils";
 
 export default class Deployment extends Component<
   AppDetailsTabProps,
   {
     dummyVar: undefined;
-    //
+    buildLogRecreationId: string;
   }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
-      dummyVar: undefined
+      dummyVar: undefined,
+      buildLogRecreationId: ""
     };
   }
   render() {
+    const self = this;
     const app = this.props.apiData.appDefinition;
     const hasPushToken =
       app.appPushWebhook && app.appPushWebhook.pushWebhookToken;
@@ -34,7 +37,10 @@ export default class Deployment extends Component<
         };
     return (
       <div>
-        <BuildLogsView appName={app.appName!} />
+        <BuildLogsView
+          appName={app.appName!}
+          key={app.appName! + "-" + self.state.buildLogRecreationId}
+        />
         <div style={{ height: 20 }} />
         <hr />
         <div style={{ height: 20 }} />
@@ -89,7 +95,14 @@ export default class Deployment extends Component<
           and upload it here via upload button.
         </p>
 
-        <TarUploader appName={app.appName!} />
+        <TarUploader
+          onUploadSucceeded={() => {
+            message.info("Build has started");
+            self.setState({ buildLogRecreationId: "" + new Date().getTime() });
+            DomUtils.scrollToTopBar();
+          }}
+          appName={app.appName!}
+        />
 
         <div style={{ height: 40 }} />
         <h4>

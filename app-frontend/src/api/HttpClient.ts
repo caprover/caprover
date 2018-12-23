@@ -40,7 +40,10 @@ export default class HttpClient {
           return data.data; // this is an axios thing!
         })
         .then(function(data) {
-          if (data.status !== ErrorFactory.OKAY) {
+          if (
+            data.status !== ErrorFactory.OKAY &&
+            data.status !== ErrorFactory.OKAY_BUILD_STARTED
+          ) {
             throw ErrorFactory.createError(
               data.status || ErrorFactory.UNKNOWN_ERROR,
               data.description || ""

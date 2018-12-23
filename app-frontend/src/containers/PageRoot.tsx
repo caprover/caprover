@@ -87,7 +87,10 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
               </Menu.Item>
             </Menu>
           </Sider>
-          <Layout style={{ paddingTop: 12, paddingBottom: 36 }}>
+          <Layout
+            style={{ paddingTop: 12, paddingBottom: 36 }}
+            id="main-content-layout"
+          >
             <Switch>
               <Route path="/dashboard/" component={Dashboard} />
               <Route path="/apps/:appName" component={AppDetails} />

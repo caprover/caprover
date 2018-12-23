@@ -2,10 +2,12 @@ import React, { Component } from "react";
 import ApiComponent from "../../global/ApiComponent";
 import { Upload, Col, Row, Icon, message, Button } from "antd";
 import { UploadFile, UploadChangeParam } from "antd/lib/upload/interface";
+import Toaster from "../../../utils/Toaster";
 
 export default class TarUploader extends ApiComponent<
   {
     appName: string;
+    onUploadSucceeded: () => void;
   },
   {
     fileToBeUploaded: UploadFile | undefined;
@@ -48,7 +50,19 @@ export default class TarUploader extends ApiComponent<
   };
 
   startUploadAndDeploy() {
-    //
+    const self = this;
+
+    Promise.resolve()
+      .then(function() {
+        return self.apiManager.uploadAppData(
+          self.props.appName,
+          self.state.fileToBeUploaded!.originFileObj!
+        );
+      })
+      .then(function() {
+        self.props.onUploadSucceeded();
+      })
+      .catch(Toaster.createCatcher());
   }
 
   render() {

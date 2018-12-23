@@ -77,6 +77,20 @@ export default class ApiManager {
       .then(http.fetch(http.GET, "/user/apps/appData/" + appName, {}));
   }
 
+  uploadAppData(appName: string, file: File) {
+    const http = this.http;
+    var formData = new FormData();
+    formData.append("sourceFile", file);
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/apps/appData/" + appName + "?detached=1",
+          formData
+        )
+      );
+  }
+
   registerNewApp(appName: string, hasPersistentData: boolean) {
     const http = this.http;
 

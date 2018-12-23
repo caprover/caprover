@@ -2,6 +2,7 @@ import CrashReporter from "./CrashReporter";
 
 class ErrorFactory {
   public readonly OKAY = 100;
+  public readonly OKAY_BUILD_STARTED = 101;
 
   public readonly STATUS_ERROR_GENERIC = 1000;
   public readonly STATUS_ERROR_CAPTAIN_NOT_INITIALIZED = 1001;

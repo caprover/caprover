@@ -146,10 +146,21 @@ export default class BuildLogsView extends ApiComponent<
                 ? ""
                 : "hide-on-demand"
             }
+            style={{ padding: 5 }}
           >
-            <Input.TextArea id="buildlog-text-id" rows={10} readOnly={true}>
-              {self.state.buildLogs}
-            </Input.TextArea>
+            <div
+              id="buildlog-text-id"
+              style={{
+                height: 250,
+                border: "2px solid #cccccc",
+                backgroundColor: "#f6f6f6",
+                borderRadius: 5,
+                padding: 10,
+                fontSize: "90%"
+              }}
+            >
+              <pre>{self.state.buildLogs}</pre>
+            </div>
           </div>
         </div>
       </div>
