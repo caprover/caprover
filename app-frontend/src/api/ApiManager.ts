@@ -70,6 +70,13 @@ export default class ApiManager {
       .then(http.fetch(http.GET, "/user/apps/appDefinitions", {}));
   }
 
+  fetchBuildLogs(appName: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/apps/appData/" + appName, {}));
+  }
+
   registerNewApp(appName: string, hasPersistentData: boolean) {
     const http = this.http;
 
@@ -126,14 +133,10 @@ export default class ApiManager {
 
     return Promise.resolve() //
       .then(
-        http.fetch(
-          http.POST,
-          "/user/apps/appDefinitions/removecustomdomain",
-          {
-            appName,
-            customDomain
-          }
-        )
+        http.fetch(http.POST, "/user/apps/appDefinitions/removecustomdomain", {
+          appName,
+          customDomain
+        })
       );
   }
 }
