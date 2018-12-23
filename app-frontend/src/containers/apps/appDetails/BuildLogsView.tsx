@@ -151,6 +151,7 @@ export default class BuildLogsView extends ApiComponent<
             <div
               id="buildlog-text-id"
               style={{
+                overflow: "scroll",
                 height: 250,
                 border: "2px solid #cccccc",
                 backgroundColor: "#f6f6f6",
