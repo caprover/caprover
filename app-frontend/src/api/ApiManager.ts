@@ -1,5 +1,6 @@
 import HttpClient from "./HttpClient";
 import Logger from "../utils/Logger";
+import { IAppDef } from "../containers/apps/AppDefinition";
 
 const URL = process.env.REACT_APP_API_URL + "/api/v2";
 Logger.dev("API URL: " + URL);
@@ -88,6 +89,37 @@ export default class ApiManager {
           "/user/apps/appData/" + appName + "?detached=1",
           formData
         )
+      );
+  }
+
+  updateConfigAndSave(appName: string, appDefinition: IAppDef) {
+    var instanceCount = appDefinition.instanceCount;
+    var envVars = appDefinition.envVars;
+    var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
+    var forceSsl = appDefinition.forceSsl;
+    var volumes = appDefinition.volumes;
+    var ports = appDefinition.ports;
+    var nodeId = appDefinition.nodeId;
+    var appPushWebhook = appDefinition.appPushWebhook;
+    var customNginxConfig = appDefinition.customNginxConfig;
+    var preDeployFunction = appDefinition.preDeployFunction;
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/apps/appDefinitions/update", {
+          appName: appName,
+          instanceCount: instanceCount,
+          notExposeAsWebApp: notExposeAsWebApp,
+          forceSsl: forceSsl,
+          volumes: volumes,
+          ports: ports,
+          customNginxConfig: customNginxConfig,
+          appPushWebhook: appPushWebhook,
+          nodeId: nodeId,
+          preDeployFunction: preDeployFunction,
+          envVars: envVars
+        })
       );
   }
 

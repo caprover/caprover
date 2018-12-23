@@ -311,6 +311,7 @@ export default class HttpSettings extends Component<
         <br />
 
         <Checkbox
+          defaultChecked={this.props.apiData!.appDefinition.notExposeAsWebApp}
           onChange={(e: any) => {
             const newApiData = Utils.copyObject(this.props.apiData!);
             newApiData.appDefinition.notExposeAsWebApp = !!e.target.checked;

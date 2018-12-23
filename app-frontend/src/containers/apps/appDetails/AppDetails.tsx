@@ -23,6 +23,7 @@ import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
 import Deployment from "./Deployment";
 import { BasicProps } from "antd/lib/layout/layout";
+import Utils from "../../../utils/Utils";
 const TabPane = Tabs.TabPane;
 
 const WEB_SETTINGS = "WEB_SETTINGS";
@@ -71,6 +72,18 @@ export default class AppDetails extends ApiComponent<
 
   goBackToApps() {
     this.props.history.push("/apps");
+  }
+
+  onUpdateConfigAndSave() {
+    const self = this;
+    const appDef = Utils.copyObject(self.state.apiData!.appDefinition);
+    self.setState({ isLoading: true });
+    this.apiManager
+      .updateConfigAndSave(appDef.appName!, appDef)
+      .then(function(data: any) {
+        self.reFetchData();
+      })
+      .catch(Toaster.createCatcher());
   }
 
   render() {
@@ -155,6 +168,7 @@ export default class AppDetails extends ApiComponent<
                 />
               </TabPane>
             </Tabs>
+            <div style={{ height: 50 }} />
 
             <Affix
               offsetBottom={0}
@@ -190,6 +204,7 @@ export default class AppDetails extends ApiComponent<
                         style={{ minWidth: 135 }}
                         type="primary"
                         size="large"
+                        onClick={() => self.onUpdateConfigAndSave()}
                       >
                         Save &amp; Update
                       </Button>

@@ -331,6 +331,13 @@ export default class AppConfigs extends Component<
                   app.hasPersistentData &&
                   !this.state.forceEditableInstanceCount
                 }
+                onChange={e => {
+                  const newApiData = Utils.copyObject(this.props.apiData);
+                  newApiData.appDefinition.instanceCount = Number(
+                    e.target.value
+                  );
+                  this.props.updateApiData(newApiData);
+                }}
               />
             </Tooltip>
           </Col>
