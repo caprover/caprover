@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, RefObject } from "react";
 import {
   message,
   Row,
@@ -9,7 +9,8 @@ import {
   Tabs,
   Checkbox,
   Button,
-  Input
+  Input,
+  Affix
 } from "antd";
 import ApiComponent from "../../global/ApiComponent";
 import Toaster from "../../../utils/Toaster";
@@ -21,6 +22,7 @@ import HttpSettings from "./HttpSettings";
 import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
 import Deployment from "./Deployment";
+import { BasicProps } from "antd/lib/layout/layout";
 const TabPane = Tabs.TabPane;
 
 const WEB_SETTINGS = "WEB_SETTINGS";
@@ -41,19 +43,28 @@ export interface AppDetailsTabProps {
   setLoading: (value: boolean) => void;
 }
 
+interface PropsInterface extends RouteComponentProps<any> {
+  mainContainer: RefObject<HTMLDivElement>;
+}
+
 export default class AppDetails extends ApiComponent<
-  RouteComponentProps<any>,
+  PropsInterface,
   {
     isLoading: boolean;
     apiData: SingleAppApiData | undefined;
     activeTabKey: string;
+    renderCounterForAffixBug: number;
   }
 > {
+  private reRenderTriggered = false;
+
   constructor(props: any) {
     super(props);
+
     this.state = {
       activeTabKey: WEB_SETTINGS,
       isLoading: true,
+      renderCounterForAffixBug: 0,
       apiData: undefined
     };
   }
@@ -67,6 +78,14 @@ export default class AppDetails extends ApiComponent<
 
     if (self.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!self.reRenderTriggered) {
+      //crazy hack to make sure the Affix is showing (delete and save & update)
+      self.reRenderTriggered = true;
+      setTimeout(function() {
+        self.setState({ renderCounterForAffixBug: 1 });
+      }, 50);
     }
 
     const app = self.state.apiData!.appDefinition;
@@ -136,6 +155,49 @@ export default class AppDetails extends ApiComponent<
                 />
               </TabPane>
             </Tabs>
+
+            <Affix
+              offsetBottom={0}
+              target={() => {
+                const newLocal = self.props.mainContainer;
+                return newLocal && newLocal.current ? newLocal.current : window;
+              }}
+            >
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.8)",
+                  paddingTop: 3,
+                  paddingBottom: 20
+                }}
+              >
+                <hr />
+                <div style={{ height: 10 }} />
+                <Row type="flex" justify="center" gutter={20}>
+                  <Col span={8}>
+                    <div style={{ textAlign: "center" }}>
+                      <Button
+                        style={{ minWidth: 135 }}
+                        type="danger"
+                        size="large"
+                      >
+                        Delete App
+                      </Button>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div style={{ textAlign: "center" }}>
+                      <Button
+                        style={{ minWidth: 135 }}
+                        type="primary"
+                        size="large"
+                      >
+                        Save &amp; Update
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Affix>
           </Card>
         </Col>
       </Row>
