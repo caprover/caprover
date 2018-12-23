@@ -1,9 +1,9 @@
 //COPIED FROM BACKEND CODE
 interface IHashMapGeneric<T> {
-    [id: string]: T
+  [id: string]: T;
 }
 
- type IAllAppDefinitions = IHashMapGeneric<IAppDef>;
+type IAllAppDefinitions = IHashMapGeneric<IAppDef>;
 
 interface IAppEnvVar {
   key: string;
@@ -27,7 +27,7 @@ interface IAppPort {
   publishMode?: "ingress" | "host";
 }
 
-interface RepoInfo {
+export interface RepoInfo {
   repo: string;
   branch: string;
   user: string;
@@ -76,9 +76,9 @@ interface IAppDefinitionBase {
 
 export interface IAppDef extends IAppDefinitionBase {
   appPushWebhook?: {
-    tokenVersion: string;
     repoInfo: RepoInfo;
-    pushWebhookToken: string;
+    tokenVersion?: string; // On FrontEnd, these values are null, until they are assigned.
+    pushWebhookToken?: string; // On FrontEnd, these values are null, until they are assigned.
   };
   appName?: string;
   isAppBuilding?: boolean;

@@ -20,6 +20,7 @@ import ClickableLink from "../../global/ClickableLink";
 import HttpSettings from "./HttpSettings";
 import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
+import Deployment from "./Deployment";
 const TabPane = Tabs.TabPane;
 
 const WEB_SETTINGS = "WEB_SETTINGS";
@@ -59,14 +60,6 @@ export default class AppDetails extends ApiComponent<
 
   goBackToApps() {
     this.props.history.push("/apps");
-  }
-
-  createDeploymentContent() {
-    return (
-      <div>
-        <p>createDeploymentContent</p>
-      </div>
-    );
   }
 
   render() {
@@ -132,7 +125,15 @@ export default class AppDetails extends ApiComponent<
                 tab={<span className="unselectable-span">Deployment</span>}
                 key={DEPLOYMENT}
               >
-                {this.createDeploymentContent()}
+                <Deployment
+                  setLoading={value => this.setState({ isLoading: value })}
+                  reFetchData={() => this.reFetchData()}
+                  apiData={this.state.apiData!}
+                  apiManager={this.apiManager}
+                  updateApiData={(newData: any) =>
+                    this.setState({ apiData: newData })
+                  }
+                />
               </TabPane>
             </Tabs>
           </Card>
