@@ -10,7 +10,8 @@ import {
   Checkbox,
   Button,
   Input,
-  Affix
+  Affix,
+  Modal
 } from "antd";
 import ApiComponent from "../../global/ApiComponent";
 import Toaster from "../../../utils/Toaster";
@@ -22,7 +23,6 @@ import HttpSettings from "./HttpSettings";
 import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
 import Deployment from "./Deployment";
-import { BasicProps } from "antd/lib/layout/layout";
 import Utils from "../../../utils/Utils";
 const TabPane = Tabs.TabPane;
 
@@ -58,6 +58,7 @@ export default class AppDetails extends ApiComponent<
   }
 > {
   private reRenderTriggered = false;
+  private confirmedAppNameToDelete: string = "";
 
   constructor(props: any) {
     super(props);
@@ -72,6 +73,70 @@ export default class AppDetails extends ApiComponent<
 
   goBackToApps() {
     this.props.history.push("/apps");
+  }
+
+  onDeleteAppClicked() {
+    const self = this;
+    const appDef = Utils.copyObject(self.state.apiData!.appDefinition);
+
+    self.confirmedAppNameToDelete = "";
+
+    Modal.confirm({
+      title: "Confirm Permanent Delete?",
+      content: (
+        <div>
+          <p>
+            You are about to delete <code>{appDef.appName}</code>. Please enter
+            the name of this app in the box below to confirm deletation of this
+            app. Please note that this is
+            <b> not reversible</b>.
+          </p>
+          <p className={appDef.hasPersistentData ? "" : "hide-on-demand"}>
+            <b>IMPORTANT:</b>
+            <i> {appDef.appName}</i> is an app with persistent data. After
+            deleting the app from CaptainDuckDuck, you will have to manually SSH
+            to your server, and delete Persistent Directories on your server.
+            Refer to the
+            <a
+              href="https://captainduckduck.com/docs/app-configuration.html#removing-persistent-apps"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              documentations
+            </a>
+            for more details.
+          </p>
+          Confirm App Name:
+          <Input
+            type="text"
+            placeholder={appDef.appName}
+            onChange={e => {
+              self.confirmedAppNameToDelete = e.target.value.trim();
+            }}
+          />
+        </div>
+      ),
+      onOk() {
+        if (self.confirmedAppNameToDelete !== appDef.appName) {
+          message.warning("App name did not match. Cancel operation.");
+          return;
+        }
+
+        self.setState({ isLoading: true });
+        self.apiManager
+          .deleteApp(appDef.appName!)
+          .then(function() {
+            message.success("App deleted!");
+          })
+          .then(function() {
+            self.goBackToApps();
+          })
+          .catch(Toaster.createCatcher());
+      },
+      onCancel() {
+        // do nothing
+      }
+    });
   }
 
   onUpdateConfigAndSave() {
@@ -193,6 +258,7 @@ export default class AppDetails extends ApiComponent<
                         style={{ minWidth: 135 }}
                         type="danger"
                         size="large"
+                        onClick={() => self.onDeleteAppClicked()}
                       >
                         Delete App
                       </Button>

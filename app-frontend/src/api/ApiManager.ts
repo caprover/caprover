@@ -135,6 +135,17 @@ export default class ApiManager {
       );
   }
 
+  deleteApp(appName: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/apps/appDefinitions/delete", {
+          appName
+        })
+      );
+  }
+
   enableSslForBaseDomain(appName: string) {
     const http = this.http;
 
