@@ -133,7 +133,7 @@ class CaptainManager {
             let localRegistry = undefined;
             for (let idx = 0; idx < registries.length; idx++) {
                 const element = registries[idx];
-                if (element.registryType == IRegistryTypes.LOCAL_REG) {
+                if (element.registryType === IRegistryTypes.LOCAL_REG) {
                     localRegistry = element;
                 }
             }

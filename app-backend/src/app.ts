@@ -46,7 +46,12 @@ if (CaptainConstants.isDebug) {
                 CaptainConstants.headerAuth +
                 ',Content-Type'
         )
-        next()
+
+        if (req.method === 'OPTIONS') {
+            res.sendStatus(200)
+        } else {
+            next()
+        }
     })
 
     app.use('/force-exit', function(req, res, next) {

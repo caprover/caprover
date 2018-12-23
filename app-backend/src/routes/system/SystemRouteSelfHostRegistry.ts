@@ -65,7 +65,7 @@ router.post('/disableregistry/', function(req, res, next) {
         .then(function(regs) {
             for (let idx = 0; idx < regs.length; idx++) {
                 const element = regs[idx]
-                if (element.registryType == IRegistryTypes.LOCAL_REG) {
+                if (element.registryType === IRegistryTypes.LOCAL_REG) {
                     // If local is already removed, localRegistryId will be empty even after this for loop
                     localRegistryId = element.id
                 }
