@@ -8,7 +8,8 @@ export default class Logger {
   }
 
   static dev(s: string) {
-    // TODO add debug check here
-    console.log(">>> ", s);
+    if (process.env.REACT_APP_IS_DEBUG) {
+      console.log(">>> ", s);
+    }
   }
 }
