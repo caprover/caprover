@@ -5,12 +5,12 @@ import { Layout, Menu, Breadcrumb, Icon, Row, Col, Card } from "antd";
 import ClickableLink from "./global/ClickableLink";
 import Dashboard from "./Dashboard";
 import LoggedInCatchAll from "./LoggedInCatchAll";
-import Settings from "./Settings";
-import Nodes from "./Nodes";
+import Nodes from "./nodes/Nodes";
 import Apps from "./apps/Apps";
 import { SelectParam } from "antd/lib/menu";
 import AppDetails from "./apps/appDetails/AppDetails";
 import Monitoring from "./monitoring/Monitoring";
+import Settings from "./settings/Settings";
 
 const { Header, Content, Sider } = Layout;
 

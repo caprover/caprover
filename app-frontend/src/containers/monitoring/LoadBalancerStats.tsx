@@ -101,7 +101,7 @@ export default class LoadBalancerStats extends ApiComponent<
                 </Col>
                 <Col span={6}>
                   <LoadBalancerStatsCard
-                    icon="global"
+                    icon="cluster"
                     color="#23ae89"
                     titleText="Active Connections"
                     titleNumber={`${this.state.apiData.activeConnections}`}
@@ -111,7 +111,7 @@ export default class LoadBalancerStats extends ApiComponent<
                 </Col>
                 <Col span={6}>
                   <LoadBalancerStatsCard
-                    icon="global"
+                    icon="sync"
                     color="#d3a938"
                     titleText="Active Requests"
                     titleNumber={`${this.state.apiData.reading +
@@ -122,7 +122,7 @@ export default class LoadBalancerStats extends ApiComponent<
                 </Col>
                 <Col span={6}>
                   <LoadBalancerStatsCard
-                    icon="global"
+                    icon="clock-circle"
                     color="#ae2323"
                     titleText="Waiting Requests"
                     titleNumber={`${this.state.apiData.waiting}`}
