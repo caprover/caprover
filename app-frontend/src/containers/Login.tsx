@@ -15,9 +15,7 @@ export default class Login extends ApiComponent<RouteComponentProps<any>> {
         self.apiManager.setAuthToken(data.token);
         self.props.history.push("/");
       })
-      .catch(function(err: Error) {
-        Toaster.toast(err);
-      });
+      .catch(Toaster.createCatcher());
   }
 
   render() {
