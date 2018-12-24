@@ -206,4 +206,14 @@ export default class ApiManager {
         })
       );
   }
+
+  getNetDataInfo(){
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.GET, "/user/system/netdata", {
+        })
+      );
+  }
 }

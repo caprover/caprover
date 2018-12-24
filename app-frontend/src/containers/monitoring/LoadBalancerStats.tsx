@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ApiComponent from "../global/ApiComponent";
-import { Row, Col, Card, Avatar, Icon } from "antd";
+import { Row, Col, Card, Avatar, Icon, Tooltip } from "antd";
 import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
 
@@ -86,14 +86,18 @@ export default class LoadBalancerStats extends ApiComponent<
             <Card title="Load Balancer Stats">
               <Row type="flex" gutter={10}>
                 <Col span={6}>
-                  <LoadBalancerStatsCard
-                    icon="global"
-                    color="#2361ae"
-                    titleText="Total Requests"
-                    titleNumber={`${this.state.apiData.total}`}
-                    text1={``}
-                    text2={``}
-                  />
+                  <Tooltip title="Constantly going up as refreshing the values">
+                    <div>
+                      <LoadBalancerStatsCard
+                        icon="global"
+                        color="#2361ae"
+                        titleText="Total Requests"
+                        titleNumber={`${this.state.apiData.total}`}
+                        text1={``}
+                        text2={``}
+                      />
+                    </div>
+                  </Tooltip>
                 </Col>
                 <Col span={6}>
                   <LoadBalancerStatsCard

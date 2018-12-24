@@ -22,3 +22,7 @@ hr {
 .code-input {
     font-family: Menlo, Monaco, "SFMono-Regular", Consolas, "Liberation Mono", Courier, monospace !important;
 }
+
+.netdata-field {
+    margin-bottom: 20px;
+}
