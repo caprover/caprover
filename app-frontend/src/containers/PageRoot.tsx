@@ -7,10 +7,10 @@ import Dashboard from "./Dashboard";
 import LoggedInCatchAll from "./LoggedInCatchAll";
 import Settings from "./Settings";
 import Nodes from "./Nodes";
-import Monitoring from "./Monitoring";
 import Apps from "./apps/Apps";
 import { SelectParam } from "antd/lib/menu";
 import AppDetails from "./apps/appDetails/AppDetails";
+import Monitoring from "./monitoring/Monitoring";
 
 const { Header, Content, Sider } = Layout;
 

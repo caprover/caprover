@@ -86,9 +86,9 @@ export default class AppDetails extends ApiComponent<
       content: (
         <div>
           <p>
-            You are about to delete <code>{appDef.appName}</code>. Please enter
-            the name of this app in the box below to confirm deletation of this
-            app. Please note that this is
+            You are about to delete <code>{appDef.appName}</code>. Enter the
+            name of this app in the box below to confirm deletion of this app.
+            Please note that this is
             <b> not reversible</b>.
           </p>
           <p className={appDef.hasPersistentData ? "" : "hide-on-demand"}>
@@ -106,7 +106,7 @@ export default class AppDetails extends ApiComponent<
             </a>
             for more details.
           </p>
-          Confirm App Name:
+          <p>Confirm App Name:</p>
           <Input
             type="text"
             placeholder={appDef.appName}
@@ -118,7 +118,7 @@ export default class AppDetails extends ApiComponent<
       ),
       onOk() {
         if (self.confirmedAppNameToDelete !== appDef.appName) {
-          message.warning("App name did not match. Cancel operation.");
+          message.warning("App name did not match. Operation cancelled.");
           return;
         }
 
@@ -233,10 +233,10 @@ export default class AppDetails extends ApiComponent<
                 />
               </TabPane>
             </Tabs>
-            <div style={{ height: 50 }} />
+            <div style={{ height: 70 }} />
 
             <Affix
-              offsetBottom={0}
+              offsetBottom={10}
               target={() => {
                 const newLocal = self.props.mainContainer;
                 return newLocal && newLocal.current ? newLocal.current : window;
@@ -244,13 +244,12 @@ export default class AppDetails extends ApiComponent<
             >
               <div
                 style={{
-                  background: "rgba(255,255,255,0.8)",
-                  paddingTop: 3,
+                  borderRadius: 8,
+                  background: "rgba(51,73,90,0.9)",
+                  paddingTop: 20,
                   paddingBottom: 20
                 }}
               >
-                <hr />
-                <div style={{ height: 10 }} />
                 <Row type="flex" justify="center" gutter={20}>
                   <Col span={8}>
                     <div style={{ textAlign: "center" }}>

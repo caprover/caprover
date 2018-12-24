@@ -6,6 +6,7 @@ const fs = require("fs-extra");
 const uuid = require("uuid/v4");
 const request = require("request");
 const ApiStatusCodes = require("../../api/ApiStatusCodes");
+const LoadBalancerInfo_1 = require("../../models/LoadBalancerInfo");
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../../template/default-page.ejs')
     .toString();
@@ -148,7 +149,7 @@ class LoadBalancerManager {
                     return;
                 }
                 try {
-                    const data = new LoadBalancerInfo();
+                    const data = new LoadBalancerInfo_1.default();
                     const lines = body.split('\n');
                     data.activeConnections = Number(lines[0].split(' ')[2].trim());
                     data.accepted = Number(lines[2].split(' ')[1].trim());
@@ -160,7 +161,7 @@ class LoadBalancerManager {
                     resolve(data);
                 }
                 catch (error) {
-                    Logger.e('Cannot parse ' + body);
+                    Logger.e(error);
                     reject(ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Parser Failed. See internal logs...'));
                 }
             });

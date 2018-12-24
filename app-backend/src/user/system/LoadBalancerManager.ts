@@ -9,6 +9,7 @@ import DockerApi = require('../../docker/DockerApi')
 import DataStore = require('../../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../../models/OtherTypes'
+import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../../template/default-page.ejs')
@@ -218,7 +219,7 @@ class LoadBalancerManager {
 
                     resolve(data)
                 } catch (error) {
-                    Logger.e('Cannot parse ' + body)
+                    Logger.e(error)
                     reject(
                         ApiStatusCodes.createError(
                             ApiStatusCodes.STATUS_ERROR_GENERIC,

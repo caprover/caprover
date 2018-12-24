@@ -1,4 +1,4 @@
-class LoadBalancerInfo {
+export default class LoadBalancerInfo {
     public activeConnections: number
 
     public accepted: number
@@ -9,5 +9,3 @@ class LoadBalancerInfo {
     public writing: number
     public waiting: number
 }
-
-exports = LoadBalancerInfo
