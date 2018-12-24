@@ -12,7 +12,7 @@ export default class Settings extends Component {
         <Row type="flex" justify="space-around">
           <Col span={12}>
             <div style={{ margin: 10 }}>
-              <Card title="Load Balancer Stats">
+              <Card title="Change Password">
                 <ChangePass />
               </Card>
             </div>

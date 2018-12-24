@@ -217,4 +217,16 @@ export default class ApiManager {
     return Promise.resolve() //
       .then(http.fetch(http.POST, "/user/system/netdata", { netDataInfo }));
   }
+
+  changePass(oldPassword: string, newPassword: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/changepassword", {
+          oldPassword,
+          newPassword
+        })
+      );
+  }
 }
