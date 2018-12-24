@@ -229,4 +229,20 @@ export default class ApiManager {
         })
       );
   }
+
+  getVersionInfo() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/system/versioninfo", {}));
+  }
+
+  performUpdate(latestVersion: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/system/versioninfo", { latestVersion })
+      );
+  }
 }
