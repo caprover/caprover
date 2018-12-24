@@ -88,6 +88,10 @@ class DataStore {
             const netDataInfo = self.data.get(NET_DATA_INFO) || {};
             netDataInfo.isEnabled = netDataInfo.isEnabled || false;
             netDataInfo.data = netDataInfo.data || {};
+            netDataInfo.data.smtp = netDataInfo.data.smtp || {};
+            netDataInfo.data.slack = netDataInfo.data.slack || {};
+            netDataInfo.data.telegram = netDataInfo.data.telegram || {};
+            netDataInfo.data.pushBullet = netDataInfo.data.pushBullet || {};
             return netDataInfo;
         });
     }

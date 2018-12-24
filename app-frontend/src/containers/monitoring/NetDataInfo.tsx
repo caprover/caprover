@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import ApiComponent from "../global/ApiComponent";
-import { Card, Col, Row, Button, Icon } from "antd";
+import { Card, Col, Row, Button, Icon, message } from "antd";
 import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
 import NetDataDescription from "./NetDataDescription";
 import NetDataSettingsForm from "./NetDataSettingsForm";
+import Utils from "../../utils/Utils";
 
 export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
   constructor(props: any) {
@@ -20,6 +21,7 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
 
   refetchData() {
     const self = this;
+    self.setState({ apiData: undefined });
     this.apiManager
       .getNetDataInfo()
       .then(function(data) {
@@ -28,16 +30,28 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
       .catch(Toaster.createCatcher());
   }
 
-  onStopNetDataClicked() {
-    //
+  toggleNetDataClicked(isActivated: boolean) {
+    const netDataInfo = Utils.copyObject(this.state.apiData);
+    netDataInfo.isEnabled = !!isActivated;
+    this.onUpdateNetDataClicked(netDataInfo);
   }
 
-  onStartNetDataClicked() {
-    //
-  }
-
-  onUpdateNetDataClicked() {
-    //
+  onUpdateNetDataClicked(netDataInfo: any) {
+    const self = this;
+    self.setState({ apiData: undefined });
+    return this.apiManager
+      .updateNetDataInfo(netDataInfo)
+      .then(function() {
+        message.success(
+          netDataInfo.isEnabled
+            ? "NetData is started and updated!"
+            : "NetData has stopped!"
+        );
+      })
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.refetchData();
+      });
   }
 
   render() {
@@ -60,7 +74,7 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
               <div className={netDataInfo.isEnabled ? "hide-on-demand" : ""}>
                 <Row type="flex" justify="end">
                   <Button
-                    onClick={() => self.onStartNetDataClicked()}
+                    onClick={() => self.toggleNetDataClicked(true)}
                     type="primary"
                   >
                     <span>
@@ -75,7 +89,7 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
                 <Row type="flex" justify="end">
                   <Button
                     style={{ marginRight: 50 }}
-                    onClick={() => self.onStopNetDataClicked()}
+                    onClick={() => self.toggleNetDataClicked(false)}
                     type="danger"
                   >
                     <span>
@@ -101,27 +115,31 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
                     </Button>
                   </a>
                 </Row>
+                <div style={{ height: 30 }} />
+                <hr />
+                <div style={{ height: 30 }} />
+                <NetDataSettingsForm
+                  updateModel={netDataInfo => {
+                    self.setState({ apiData: netDataInfo });
+                  }}
+                  netDataInfo={netDataInfo}
+                />
+
+                <br />
+
+                <Row type="flex" justify="end">
+                  <Button
+                    type="primary"
+                    onClick={() =>
+                      self.onUpdateNetDataClicked(
+                        Utils.copyObject(self.state.apiData)
+                      )
+                    }
+                  >
+                    Update NetData
+                  </Button>
+                </Row>
               </div>
-              <div style={{ height: 30 }} />
-              <hr />
-              <div style={{ height: 30 }} />
-              <NetDataSettingsForm
-                updateModel={netDataInfo => {
-                  self.setState({ apiData: netDataInfo });
-                }}
-                netDataInfo={netDataInfo}
-              />
-
-              <br />
-
-              <Row type="flex" justify="end">
-                <Button
-                  type="primary"
-                  onClick={() => self.onUpdateNetDataClicked()}
-                >
-                  Update NetData
-                </Button>
-              </Row>
             </Card>
           </Col>
         </Row>

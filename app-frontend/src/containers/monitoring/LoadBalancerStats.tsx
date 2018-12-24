@@ -71,7 +71,7 @@ export default class LoadBalancerStats extends ApiComponent<
     this.updateApi();
     this.updateApiInterval = setInterval(function() {
       self.updateApi();
-    }, 2000);
+    }, 20000);
   }
 
   render() {

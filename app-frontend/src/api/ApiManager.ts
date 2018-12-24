@@ -197,23 +197,24 @@ export default class ApiManager {
       );
   }
 
-  getLoadBalancerInfo(){
+  getLoadBalancerInfo() {
     const http = this.http;
 
     return Promise.resolve() //
-      .then(
-        http.fetch(http.GET, "/user/system/loadbalancerinfo", {
-        })
-      );
+      .then(http.fetch(http.GET, "/user/system/loadbalancerinfo", {}));
   }
 
-  getNetDataInfo(){
+  getNetDataInfo() {
     const http = this.http;
 
     return Promise.resolve() //
-      .then(
-        http.fetch(http.GET, "/user/system/netdata", {
-        })
-      );
+      .then(http.fetch(http.GET, "/user/system/netdata", {}));
+  }
+
+  updateNetDataInfo(netDataInfo: any) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.POST, "/user/system/netdata", { netDataInfo }));
   }
 }

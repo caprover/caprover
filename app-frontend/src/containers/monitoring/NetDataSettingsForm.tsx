@@ -1,13 +1,29 @@
 import React, { Component } from "react";
 import { Row, Col, Input, Checkbox, Button } from "antd";
+import Utils from "../../utils/Utils";
 
 export default class NetDataSettingsForm extends Component<{
   netDataInfo: any;
   updateModel: (netDataInfo: any) => void;
 }> {
-
   //TODO all fields require onchange: copy -> edit -> updateModel
+  changeModel(
+    parentField: string,
+    childField: string,
+    value: string | boolean
+  ) {
+    const netDataInfo = Utils.copyObject(this.props.netDataInfo);
+    const netDataInfoData = netDataInfo.data;
+    if (!netDataInfoData[parentField]) {
+      netDataInfoData[parentField] = {};
+    }
+    netDataInfoData[parentField][childField] = value;
+    this.props.updateModel(netDataInfo);
+  }
+
   render() {
+    const self = this;
+    const netDataInfo = this.props.netDataInfo;
     return (
       <div>
         <h3>Notification Settings</h3>
@@ -29,7 +45,8 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="alerts.receiver@example.com"
-                  ng-model="netDataInfo.data.smtp.to"
+                  value={netDataInfo.data.smtp.to}
+                  onChange={e => self.changeModel("smtp", "to", e.target.value)}
                 />
               </Col>
 
@@ -38,7 +55,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="my-aws-server-01-anything"
-                  ng-model="netDataInfo.data.smtp.hostname"
+                  value={netDataInfo.data.smtp.hostname}
+                  onChange={e =>
+                    self.changeModel("smtp", "hostname", e.target.value)
+                  }
                 />
               </Col>
 
@@ -47,7 +67,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="smtp.gmail.com"
-                  ng-model="netDataInfo.data.smtp.server"
+                  value={netDataInfo.data.smtp.server}
+                  onChange={e =>
+                    self.changeModel("smtp", "server", e.target.value)
+                  }
                 />
               </Col>
 
@@ -55,14 +78,22 @@ export default class NetDataSettingsForm extends Component<{
                 SMTP Port
                 <Input
                   type="number"
-                  ng-model="netDataInfo.data.smtp.port"
                   placeholder="587"
+                  value={netDataInfo.data.smtp.port}
+                  onChange={e =>
+                    self.changeModel("smtp", "port", e.target.value)
+                  }
                 />
               </Col>
 
               <Col className="netdata-field" span={6}>
                 Unsecure
-                <Checkbox ng-model="netDataInfo.data.smtp.allowNonTls">
+                <Checkbox
+                  checked={!!netDataInfo.data.smtp.allowNonTls}
+                  onChange={e =>
+                    self.changeModel("smtp", "allowNonTls", e.target.checked)
+                  }
+                >
                   allow non-TLS
                 </Checkbox>
               </Col>
@@ -72,7 +103,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="alerts.receiver@example.com"
-                  ng-model="netDataInfo.data.smtp.username"
+                  value={netDataInfo.data.smtp.username}
+                  onChange={e =>
+                    self.changeModel("smtp", "username", e.target.value)
+                  }
                 />
               </Col>
 
@@ -81,7 +115,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="your password"
-                  ng-model="netDataInfo.data.smtp.password"
+                  value={netDataInfo.data.smtp.password}
+                  onChange={e =>
+                    self.changeModel("smtp", "password", e.target.value)
+                  }
                 />
               </Col>
             </Row>
@@ -97,7 +134,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="https://hooks.slack.com/services/XXXX"
-                  ng-model="netDataInfo.data.slack.hook"
+                  value={netDataInfo.data.slack.hook}
+                  onChange={e =>
+                    self.changeModel("slack", "hook", e.target.value)
+                  }
                 />
               </Col>
               <Col className="netdata-field" span={12}>
@@ -105,7 +145,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="alertschannel"
-                  ng-model="netDataInfo.data.slack.channel"
+                  value={netDataInfo.data.slack.channel}
+                  onChange={e =>
+                    self.changeModel("slack", "channel", e.target.value)
+                  }
                 />
               </Col>
             </Row>
@@ -121,7 +164,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="TELEGRAM_BOT_TOKEN"
-                  ng-model="netDataInfo.data.telegram.botToken"
+                  value={netDataInfo.data.telegram.botToken}
+                  onChange={e =>
+                    self.changeModel("telegram", "botToken", e.target.value)
+                  }
                 />
               </Col>
               <Col className="netdata-field" span={12}>
@@ -129,7 +175,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="Telegram Chat ID"
-                  ng-model="netDataInfo.data.telegram.chatId"
+                  value={netDataInfo.data.telegram.chatId}
+                  onChange={e =>
+                    self.changeModel("telegram", "chatId", e.target.value)
+                  }
                 />
               </Col>
             </Row>
@@ -145,7 +194,10 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="PUSH_BULLET_API_TOKEN"
-                  ng-model="netDataInfo.data.pushBullet.apiToken"
+                  value={netDataInfo.data.pushBullet.apiToken}
+                  onChange={e =>
+                    self.changeModel("pushBullet", "apiToken", e.target.value)
+                  }
                 />
               </Col>
               <Col className="netdata-field" span={12}>
@@ -153,7 +205,14 @@ export default class NetDataSettingsForm extends Component<{
                 <Input
                   type="text"
                   placeholder="alerts.receiver@example.com"
-                  ng-model="netDataInfo.data.pushBullet.fallbackEmail"
+                  value={netDataInfo.data.pushBullet.fallbackEmail}
+                  onChange={e =>
+                    self.changeModel(
+                      "pushBullet",
+                      "fallbackEmail",
+                      e.target.value
+                    )
+                  }
                 />
               </Col>
             </Row>
