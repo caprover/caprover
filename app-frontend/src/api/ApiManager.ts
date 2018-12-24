@@ -245,4 +245,23 @@ export default class ApiManager {
         http.fetch(http.POST, "/user/system/versioninfo", { latestVersion })
       );
   }
+
+  getNginxConfig() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/system/nginxconfig", {}));
+  }
+
+  setNginxConfig(customBase: string, customCaptain: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/system/nginxconfig", {
+          baseConfig: { customValue: customBase },
+          captainConfig: { customValue: customCaptain }
+        })
+      );
+  }
 }

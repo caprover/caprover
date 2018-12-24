@@ -62,9 +62,11 @@ export default class CheckUpdate extends ApiComponent<
         <p>
           Captain allows in-place updates to be installed. However, always read
           the change logs before updating your Captain. There might be breaking
-          changes that you need to be aware of. The update might take several
-          minutes and your Captain may become unresponsive until the update
-          process is finished.
+          changes that you need to be aware of. The update usually takes around
+          60 seconds and your Captain may become unresponsive until the update
+          process is finished. Your apps will stay functional and responsive
+          during this time, except for a very short period of 10 seconds or
+          less.
         </p>
         <br />
         <p>
