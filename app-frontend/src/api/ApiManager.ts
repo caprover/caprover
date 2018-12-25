@@ -1,6 +1,8 @@
 import HttpClient from "./HttpClient";
 import Logger from "../utils/Logger";
 import { IAppDef } from "../containers/apps/AppDefinition";
+import { IRegistryInfo } from "../models/IRegistryInfo";
+import Utils from "../utils/Utils";
 
 const URL = process.env.REACT_APP_API_URL + "/api/v2";
 Logger.dev("API URL: " + URL);
@@ -293,5 +295,71 @@ export default class ApiManager {
 
     return Promise.resolve() //
       .then(http.fetch(http.GET, "/user/registries", {}));
+  }
+
+  enableSelfHostedDockerRegistry() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/system/selfhostregistry/enableregistry",
+          {}
+        )
+      );
+  }
+
+  disableSelfHostedDockerRegistry() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/system/selfhostregistry/disableregistry",
+          {}
+        )
+      );
+  }
+
+  addDockerRegistry(dockerRegistry: IRegistryInfo) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/registries/insert", { ...dockerRegistry })
+      );
+  }
+
+  updateDockerRegistry(dockerRegistry: IRegistryInfo) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/registries/update", { ...dockerRegistry })
+      );
+  }
+
+  deleteDockerRegistry(registryId: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/registries/delete", {
+          registryId
+        })
+      );
+  }
+
+  setDefaultPushDockerRegistry(registryId: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/registries/setpush", {
+          registryId
+        })
+      );
   }
 }

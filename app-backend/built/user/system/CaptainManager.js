@@ -11,6 +11,7 @@ const SelfHostedDockerRegistry = require("./SelfHostedDockerRegistry");
 const ApiStatusCodes = require("../../api/ApiStatusCodes");
 const DataStoreProvider = require("../../datastore/DataStoreProvider");
 const DockerApi = require("../../docker/DockerApi");
+const IRegistryInfo_1 = require("../../models/IRegistryInfo");
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 const SshClient = SshClientImport.Client;
 const MAX_FAIL_ALLOWED = 4;
@@ -133,7 +134,7 @@ class CaptainManager {
             let localRegistry = undefined;
             for (let idx = 0; idx < registries.length; idx++) {
                 const element = registries[idx];
-                if (element.registryType === IRegistryTypes.LOCAL_REG) {
+                if (element.registryType === IRegistryInfo_1.IRegistryTypes.LOCAL_REG) {
                     localRegistry = element;
                 }
             }

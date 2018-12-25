@@ -4,6 +4,7 @@ const BaseApi = require("../api/BaseApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
 const InjectionExtractor = require("../injection/InjectionExtractor");
+const IRegistryInfo_1 = require("../models/IRegistryInfo");
 const router = express.Router();
 router.get('/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
@@ -33,7 +34,7 @@ router.post('/insert/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return registryHelper.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, IRegistryTypes.REMOTE_REG);
+        return registryHelper.addRegistry(registryUser, registryPassword, registryDomain, registryImagePrefix, IRegistryInfo_1.IRegistryTypes.REMOTE_REG);
     })
         .then(function () {
         let msg = 'Registry is added.';

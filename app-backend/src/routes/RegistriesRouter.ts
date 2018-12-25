@@ -3,6 +3,7 @@ import BaseApi = require('../api/BaseApi')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
 import InjectionExtractor = require('../injection/InjectionExtractor')
+import { IRegistryInfo, IRegistryTypes } from '../models/IRegistryInfo'
 
 const router = express.Router()
 

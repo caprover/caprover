@@ -40,7 +40,7 @@ export default class DefaultDockerRegistry extends Component<
     const registries = Utils.copyObject(this.props.apiData.registries);
     return registries.map(function(element) {
       return (
-        <Option value={element.id}>
+        <Option value={element.id} key={element.id}>
           {element.registryUser + " @ " + element.registryDomain}
         </Option>
       );

@@ -48,39 +48,37 @@ interface IAppCustomDomain {
     hasSsl: boolean
 }
 
-abstract class IAppDefinitionBase {
-    public deployedVersion: number
-    public notExposeAsWebApp: boolean
-    public hasPersistentData: boolean
-    public hasDefaultSubDomainSsl: boolean
+interface IAppDefinitionBase {
+    deployedVersion: number
+    notExposeAsWebApp: boolean
+    hasPersistentData: boolean
+    hasDefaultSubDomainSsl: boolean
+    forceSsl: boolean
+    nodeId?: string
+    instanceCount: number
+    preDeployFunction?: string
+    customNginxConfig?: string
+    networks: string[]
+    customDomain: IAppCustomDomain[]
+    ports: IAppPort[]
+    volumes: IAppVolume[]
+    envVars: IAppEnvVar[]
 
-    public forceSsl: boolean
-    public nodeId?: string
-    public instanceCount: number
-    public preDeployFunction?: string
-    public customNginxConfig?: string
-    public networks: string[]
-    public customDomain: IAppCustomDomain[]
-
-    public ports: IAppPort[]
-    public volumes: IAppVolume[]
-    public envVars: IAppEnvVar[]
-
-    public versions: IAppVersion[]
+    versions: IAppVersion[]
 }
 
-class IAppDef extends IAppDefinitionBase {
-    public appPushWebhook?: {
+interface IAppDef extends IAppDefinitionBase {
+    appPushWebhook?: {
         tokenVersion: string
         repoInfo: RepoInfo
         pushWebhookToken: string
     }
-    public appName?: string
-    public isAppBuilding?: boolean
+    appName?: string
+    isAppBuilding?: boolean
 }
 
-class IAppDefSaved extends IAppDefinitionBase {
-    public appPushWebhook:
+interface IAppDefSaved extends IAppDefinitionBase {
+    appPushWebhook:
         | {
               tokenVersion: string
               repoInfo: RepoInfoEncrypted

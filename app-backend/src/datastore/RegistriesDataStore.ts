@@ -2,6 +2,7 @@ import { CaptainEncryptor } from '../utils/Encryptor'
 import configstore = require('configstore')
 import uuid = require('uuid/v4')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
+import { IRegistryInfo, IRegistryInfoEncrypted, IRegistryTypes, IRegistryType } from '../models/IRegistryInfo'
 
 const DOCKER_REGISTRIES = 'dockerRegistries'
 const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'

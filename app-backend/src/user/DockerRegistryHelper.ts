@@ -6,6 +6,7 @@ import DockerApi = require('../docker/DockerApi')
 import BuildLog = require('./BuildLog')
 import { AnyError } from '../models/OtherTypes'
 import RegistriesDataStore = require('../datastore/RegistriesDataStore')
+import { IRegistryTypes, IRegistryType, IRegistryInfo } from '../models/IRegistryInfo'
 
 class DockerRegistryHelper {
     private registriesDataStore: RegistriesDataStore

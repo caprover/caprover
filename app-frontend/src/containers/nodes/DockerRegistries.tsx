@@ -1,12 +1,16 @@
 import React, { Component } from "react";
-import { Collapse, Row, Button, Alert } from "antd";
+import { Collapse, Row, Button, Alert, message } from "antd";
 import DockerRegistriesStaticInfo from "./DockerRegistriesStaticInfo";
 import ApiComponent from "../global/ApiComponent";
 import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import DefaultDockerRegistry from "./DefaultDockerRegistry";
 import DockerRegistryTable from "./DockerRegistryTable";
-import { IRegistryApi, IRegistryInfo } from "../../models/IRegistryInfo";
+import {
+  IRegistryApi,
+  IRegistryInfo,
+  IRegistryTypes
+} from "../../models/IRegistryInfo";
 import DockerRegistryAdd from "./DockerRegistryAdd";
 
 export default class DockerRegistries extends ApiComponent<
@@ -32,23 +36,64 @@ export default class DockerRegistries extends ApiComponent<
   }
 
   changeDefault(id: string) {
-    // TODO
-    console.log("changeDefault: ", id);
+    const self = this;
+    this.setState({ apiData: undefined });
+
+    this.apiManager
+      .setDefaultPushDockerRegistry(id)
+      .then(function() {
+        message.success("Default push registry successfully changed.");
+      })
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.fetchData();
+      });
   }
 
   deleteRegistry(id: string) {
-    // TODO
-    console.log("deleteRegistry: ", id);
+    const self = this;
+    this.setState({ apiData: undefined });
+
+    this.apiManager
+      .deleteDockerRegistry(id)
+      .then(function() {
+        message.success("Registry deleted.");
+      })
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.fetchData();
+      });
   }
 
   editRegistry(dockerRegistry: IRegistryInfo) {
-    // TODO
-    console.log("editRegistry: ", dockerRegistry);
+    const self = this;
+    this.setState({ apiData: undefined });
+
+    this.apiManager
+      .updateDockerRegistry(dockerRegistry)
+      .then(function() {
+        message.success("Registry updated.");
+      })
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.fetchData();
+      });
   }
 
   addDockerRegistry(dockerRegistry: IRegistryInfo) {
-    // TODO
-    console.log("addDockerRegistry: ", dockerRegistry);
+    const self = this;
+    this.setState({ apiData: undefined });
+    (dockerRegistry.registryType === IRegistryTypes.LOCAL_REG
+      ? self.apiManager.enableSelfHostedDockerRegistry()
+      : self.apiManager.addDockerRegistry(dockerRegistry)
+    )
+      .then(function() {
+        message.success("Docker registry successfully added!");
+      })
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.fetchData();
+      });
   }
 
   componentDidMount() {
@@ -104,6 +149,7 @@ export default class DockerRegistries extends ApiComponent<
         </div>
         <div style={{ height: 50 }} />
         <DockerRegistryAdd
+          apiData={self.state.apiData!}
           addDockerRegistry={dockerRegistry =>
             self.addDockerRegistry(dockerRegistry)
           }

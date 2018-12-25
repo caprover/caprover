@@ -1,6 +1,7 @@
 "use strict";
 const uuid = require("uuid/v4");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
+const IRegistryInfo_1 = require("../models/IRegistryInfo");
 const DOCKER_REGISTRIES = 'dockerRegistries';
 const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId';
 class RegistriesDataStore {
@@ -117,7 +118,7 @@ class RegistriesDataStore {
             for (let idx = 0; idx < registries.length; idx++) {
                 const element = registries[idx];
                 if (element.id === id) {
-                    if (element.registryType === IRegistryTypes.LOCAL_REG) {
+                    if (element.registryType === IRegistryInfo_1.IRegistryTypes.LOCAL_REG) {
                         throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'You cannot edit self-hosted registry');
                     }
                     element.registryUser = registryUser;

@@ -13,6 +13,7 @@ import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import DataStoreProvider = require('../../datastore/DataStoreProvider')
 import DataStore = require('../../datastore/DataStore')
 import DockerApi = require('../../docker/DockerApi')
+import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 const SshClient = SshClientImport.Client

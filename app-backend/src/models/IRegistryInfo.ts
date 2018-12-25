@@ -1,11 +1,11 @@
-class IRegistryTypes {
+export class IRegistryTypes {
     static readonly LOCAL_REG = 'LOCAL_REG'
     static readonly REMOTE_REG = 'REMOTE_REG'
 }
 
-type IRegistryType = 'LOCAL_REG' | 'REMOTE_REG'
+export type IRegistryType = 'LOCAL_REG' | 'REMOTE_REG'
 
-interface IRegistryInfo {
+export interface IRegistryInfo {
     id: string
     registryUser: string
     registryPassword: string
@@ -17,7 +17,7 @@ interface IRegistryInfo {
     registryType: IRegistryType
 }
 
-interface IRegistryInfoEncrypted {
+export interface IRegistryInfoEncrypted {
     id: string
     registryUser: string
     registryPasswordEncrypted: string

@@ -2,6 +2,7 @@
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
+const IRegistryInfo_1 = require("../models/IRegistryInfo");
 class DockerRegistryHelper {
     constructor(dataStore, dockerApi) {
         this.dockerApi = dockerApi;
@@ -115,7 +116,7 @@ class DockerRegistryHelper {
             return self.registriesDataStore.getRegistryById(registryId);
         })
             .then(function (registry) {
-            if (registry.registryType === IRegistryTypes.LOCAL_REG &&
+            if (registry.registryType === IRegistryInfo_1.IRegistryTypes.LOCAL_REG &&
                 !allowLocalDelete) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'You cannot delete self-hosted registry.');
             }
