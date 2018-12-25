@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Collapse, Row } from "antd";
+import { Collapse, Row, Button, Alert } from "antd";
 import DockerRegistriesStaticInfo from "./DockerRegistriesStaticInfo";
 import ApiComponent from "../global/ApiComponent";
 import CenteredSpinner from "../global/CenteredSpinner";
@@ -7,6 +7,7 @@ import Toaster from "../../utils/Toaster";
 import DefaultDockerRegistry from "./DefaultDockerRegistry";
 import DockerRegistryTable from "./DockerRegistryTable";
 import { IRegistryApi, IRegistryInfo } from "../../models/IRegistryInfo";
+import DockerRegistryAdd from "./DockerRegistryAdd";
 
 export default class DockerRegistries extends ApiComponent<
   {},
@@ -45,6 +46,11 @@ export default class DockerRegistries extends ApiComponent<
     console.log("editRegistry: ", dockerRegistry);
   }
 
+  addDockerRegistry(dockerRegistry: IRegistryInfo) {
+    // TODO
+    console.log("addDockerRegistry: ", dockerRegistry);
+  }
+
   componentDidMount() {
     this.fetchData();
   }
@@ -60,24 +66,47 @@ export default class DockerRegistries extends ApiComponent<
         <DockerRegistriesStaticInfo />
 
         <div style={{ height: 30 }} />
+        <div
+          style={{ textAlign: "center" }}
+          className={
+            this.state.apiData.registries.length === 0 ? "" : "hide-on-demand"
+          }
+        >
+          <Alert
+            type="info"
+            message="No registries is added yet. Go ahead and add your first registry!"
+          />
+        </div>
 
-        <DefaultDockerRegistry
-          apiData={self.state.apiData!}
-          changeDefault={id => {
-            self.changeDefault(id);
-          }}
-        />
+        <div
+          className={
+            this.state.apiData.registries.length > 0 ? "" : "hide-on-demand"
+          }
+        >
+          <DefaultDockerRegistry
+            apiData={self.state.apiData!}
+            changeDefault={id => {
+              self.changeDefault(id);
+            }}
+          />
 
-        <div style={{ height: 20 }} />
+          <div style={{ height: 10 }} />
 
-        <DockerRegistryTable
-          apiData={self.state.apiData}
-          deleteRegistry={id => {
-            self.deleteRegistry(id);
-          }}
-          editRegistry={dockerRegistry => {
-            self.editRegistry(dockerRegistry);
-          }}
+          <DockerRegistryTable
+            apiData={self.state.apiData!}
+            deleteRegistry={id => {
+              self.deleteRegistry(id);
+            }}
+            editRegistry={dockerRegistry => {
+              self.editRegistry(dockerRegistry);
+            }}
+          />
+        </div>
+        <div style={{ height: 50 }} />
+        <DockerRegistryAdd
+          addDockerRegistry={dockerRegistry =>
+            self.addDockerRegistry(dockerRegistry)
+          }
         />
       </div>
     );
