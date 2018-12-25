@@ -114,6 +114,15 @@ export default class Dashboard extends ApiComponent<
                   is very important as Let&#39;s Encrypt uses it for validation
                   purposes. Please provide a valid email here.
                 </p>
+                <p>
+                  IMPORTANT: Once you enable HTTPS, you cannot edit the root
+                  domain ever again. Make sure you use a good root domain. A
+                  good practice is to go one level deeper and setup your root
+                  domain. For example, if you own <code>example.com</code>, use{" "}
+                  <code>*.captainroot.example.com</code> as your root domain.
+                  This will allow you to better manage your subdomains, do not
+                  use <code>*.example.com</code> as your root domain.
+                </p>
                 <Input
                   placeholder="your@email.com"
                   type="email"
