@@ -333,15 +333,9 @@ router.post('/nodes/', function(req, res, next) {
 
     let privateKey = req.body.privateKey
     let remoteNodeIpAddress = req.body.remoteNodeIpAddress
-    let remoteUserName = req.body.remoteUserName
     let captainIpAddress = req.body.captainIpAddress
 
-    if (
-        !captainIpAddress ||
-        !remoteNodeIpAddress ||
-        !remoteUserName ||
-        !privateKey
-    ) {
+    if (!captainIpAddress || !remoteNodeIpAddress || !privateKey) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -368,7 +362,6 @@ router.post('/nodes/', function(req, res, next) {
                 captainIpAddress,
                 isManager,
                 remoteNodeIpAddress,
-                remoteUserName,
                 privateKey
             )
         })

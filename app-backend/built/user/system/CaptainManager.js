@@ -302,7 +302,9 @@ class CaptainManager {
     updateCaptain(versionTag) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.configs.publishedNameOnDockerHub + ':' + versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+            return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.configs.publishedNameOnDockerHub +
+                ':' +
+                versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         });
     }
     getMyNodeId() {
@@ -431,7 +433,8 @@ class CaptainManager {
             return data;
         });
     }
-    joinDockerNode(captainIpAddress, isManager, remoteNodeIpAddress, remoteUserName, privateKey) {
+    joinDockerNode(captainIpAddress, isManager, remoteNodeIpAddress, privateKey) {
+        const remoteUserName = 'root'; // Docker requires root access. It has to be root.
         const dockerApi = this.dockerApi;
         return Promise.resolve()
             .then(function () {

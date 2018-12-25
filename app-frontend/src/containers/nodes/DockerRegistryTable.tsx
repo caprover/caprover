@@ -7,6 +7,7 @@ import {
 } from "../../models/IRegistryInfo";
 import ClickableLink from "../global/ClickableLink";
 import Utils from "../../utils/Utils";
+import { ColumnProps } from "antd/lib/table";
 
 const EDITING_MODAL = "EDITING_MODAL";
 const DELETING_MODAL = "DELETING_MODAL";
@@ -68,31 +69,31 @@ export default class DockerRegistryTable extends Component<
     });
   }
 
-  getCols() {
+  getCols(): ColumnProps<IRegistryInfo>[] {
     const self = this;
     const columns = [
       {
         title: "User",
-        dataIndex: "registryUser"
+        dataIndex: "registryUser" as "registryUser"
       },
       {
         title: "Password",
-        dataIndex: "registryPassword",
+        dataIndex: "registryPassword" as "registryPassword",
         render: (registryPassword: string) => {
           return <span>Edit to see.</span>;
         }
       },
       {
         title: "Domain",
-        dataIndex: "registryDomain"
+        dataIndex: "registryDomain" as "registryDomain"
       },
       {
         title: "Image Prefix",
-        dataIndex: "registryImagePrefix"
+        dataIndex: "registryImagePrefix" as "registryImagePrefix"
       },
       {
         title: "Actions",
-        dataIndex: "id",
+        dataIndex: "id" as "id",
         render: (id: string, reg: IRegistryInfo) => {
           return (
             <span>

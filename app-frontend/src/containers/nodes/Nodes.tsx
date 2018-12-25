@@ -1,38 +1,36 @@
 import React, { Component } from "react";
-import { Row, Col, Card } from "antd";
-import DockerRegistries from "./DockerRegistries";
+import { connect } from "react-redux";
 import AddNode from "./AddNode";
-import CurrentNodes from "./CurrentNodes";
+import { Alert } from "antd";
 
-export default class Nodes extends Component {
+class CurrentNodes extends Component<{
+  defaultRegistryId: string | undefined;
+}> {
   render() {
     return (
       <div>
-        <Row type="flex" justify="center">
-          <Col span={20}>
-            <Card title="Docker Registry Configuration">
-              <DockerRegistries />
-            </Card>
-          </Col>
-        </Row>
-        <div style={{ height: 35 }} />
-        <Row type="flex" justify="center">
-          <Col span={14}>
-            <Card title="Attach a New Node">
-              <AddNode />
-            </Card>
-          </Col>
-        </Row>
-        <div style={{ height: 35 }} />
-        <Row type="flex" justify="center">
-          <Col span={14}>
-            <Card title="Current Nodes">
-              <CurrentNodes />
-            </Card>
-          </Col>
-        </Row>
+        {this.props.defaultRegistryId ? (
+          <AddNode />
+        ) : (
+          <div>
+            <Alert
+              type="warning"
+              showIcon={true}
+              message="Cannot add more nodes as no default push registry is set. To add more nodes and create a cluster, you first need to add a docker registry and set it as the default push registry."
+            />
+          </div>
+        )}
+        <div style={{ height: 50 }} />
+        CurrentNodes {this.props.defaultRegistryId}
       </div>
     );
   }
-  componentDidMount() {}
 }
+
+function mapStateToProps(state: any) {
+  return {
+    defaultRegistryId: state.registryReducer.defaultRegistryId
+  };
+}
+
+export default connect(mapStateToProps)(CurrentNodes);

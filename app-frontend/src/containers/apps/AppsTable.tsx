@@ -17,6 +17,7 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import { IAppDef } from "./AppDefinition";
 import ClickableLink from "../global/ClickableLink";
 import { History } from "history";
+import { ColumnProps } from "antd/lib/table";
 
 export default class AppsTable extends Component<
   {
@@ -36,7 +37,7 @@ export default class AppsTable extends Component<
     this.props.history.push(`/apps/${appName}`);
   }
 
-  createColumns() {
+  createColumns(): ColumnProps<IAppDef>[] {
     const self = this;
     const ALIGN: "center" = "center";
     return [

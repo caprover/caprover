@@ -438,7 +438,9 @@ class CaptainManager {
         return Promise.resolve().then(function() {
             return self.dockerApi.updateService(
                 CaptainConstants.captainServiceName,
-                CaptainConstants.configs.publishedNameOnDockerHub + ':' + versionTag,
+                CaptainConstants.configs.publishedNameOnDockerHub +
+                    ':' +
+                    versionTag,
                 undefined,
                 undefined,
                 undefined,
@@ -618,9 +620,9 @@ class CaptainManager {
         captainIpAddress: string,
         isManager: boolean,
         remoteNodeIpAddress: string,
-        remoteUserName: string,
         privateKey: string
     ) {
+        const remoteUserName = 'root' // Docker requires root access. It has to be root.
         const dockerApi = this.dockerApi
 
         return Promise.resolve()

@@ -1,19 +1,28 @@
 import React, { Component } from "react";
 import { Table } from "antd";
+import { ColumnProps } from "antd/lib/table";
 
 export default class UnusedImagesTable extends Component<{
   unusedImages: any;
   updateModel: (selectedIds: string[]) => void;
 }> {
-  getCols() {
+  getCols(): ColumnProps<{ imageName: string; imageId: string }>[] {
     const columns = [
       {
         title: "Image Tag",
-        dataIndex: "imageName"
+        dataIndex: "imageName" as "imageName"
       },
       {
         title: "Image ID",
-        dataIndex: "imageId"
+        dataIndex: "imageId" as "imageId",
+        render: (imageId: string) => {
+          imageId = imageId || "";
+          return (
+            <div style={{ width: 150 }}>
+              {imageId.substr(0, Math.min(imageId.length, 15))}...
+            </div>
+          );
+        }
       }
     ];
     return columns;

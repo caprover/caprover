@@ -5,7 +5,7 @@ import { Layout, Menu, Breadcrumb, Icon, Row, Col, Card } from "antd";
 import ClickableLink from "./global/ClickableLink";
 import Dashboard from "./Dashboard";
 import LoggedInCatchAll from "./LoggedInCatchAll";
-import Nodes from "./nodes/Nodes";
+import Cluster from "./nodes/Cluster";
 import Apps from "./apps/Apps";
 import { SelectParam } from "antd/lib/menu";
 import AppDetails from "./apps/appDetails/AppDetails";
@@ -80,7 +80,7 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
                   Monitoring
                 </span>
               </Menu.Item>
-              <Menu.Item key="nodes">
+              <Menu.Item key="cluster">
                 <span>
                   <Icon type="cluster" />
                   Cluster
@@ -115,7 +115,7 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
                 />
                 <Route path="/apps/" component={Apps} />
                 <Route path="/monitoring/" component={Monitoring} />
-                <Route path="/nodes/" component={Nodes} />
+                <Route path="/cluster/" component={Cluster} />
                 <Route path="/settings/" component={Settings} />
                 <Route path="/" component={LoggedInCatchAll} />
               </Switch>
