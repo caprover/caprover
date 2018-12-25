@@ -10,6 +10,7 @@ import uuid = require('uuid/v4')
 
 const router = express.Router()
 
+// ERRORS if a local already exists in DB
 router.post('/enableregistry/', function(req, res, next) {
     const captainManager = CaptainManager.get()
     const password = uuid()
@@ -29,6 +30,18 @@ router.post('/enableregistry/', function(req, res, next) {
                 .ensureDockerRegistryRunningOnThisNode(password)
         })
         .then(function() {
+            return registryHelper.getAllRegistries()
+        })
+        .then(function(allRegs) {
+            for (let index = 0; index < allRegs.length; index++) {
+                const element = allRegs[index]
+                if (element.registryType === IRegistryTypes.LOCAL_REG) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'There is already a local registry set up!'
+                    )
+                }
+            }
             let user = CaptainConstants.captainRegistryUsername
             let domain = captainManager
                 .getDockerRegistry()
@@ -50,44 +63,30 @@ router.post('/enableregistry/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+// ERRORS if default push is this
 router.post('/disableregistry/', function(req, res, next) {
     const captainManager = CaptainManager.get()
     const registryHelper = InjectionExtractor.extractUserFromInjected(
         res
     ).user.serviceManager.getRegistryHelper()
 
-    let localRegistryId = ''
-
     return Promise.resolve()
         .then(function() {
             return registryHelper.getAllRegistries()
         })
         .then(function(regs) {
+            let localRegistryId = ''
             for (let idx = 0; idx < regs.length; idx++) {
                 const element = regs[idx]
                 if (element.registryType === IRegistryTypes.LOCAL_REG) {
-                    // If local is already removed, localRegistryId will be empty even after this for loop
                     localRegistryId = element.id
                 }
             }
 
-            return registryHelper.getDefaultPushRegistryId()
+            return registryHelper.deleteRegistry(localRegistryId, true)
         })
-        .then(function(defaultId) {
-            if (!!defaultId && defaultId === localRegistryId) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Cannot remove DEFAULT PUSH registry. First demote from default, then delete'
-                )
-            }
-
-            return captainManager.getDockerRegistry().ensureServiceRemoved()
-        })
-
         .then(function() {
-            if (localRegistryId) {
-                return registryHelper.deleteRegistry(localRegistryId)
-            }
+            return captainManager.getDockerRegistry().ensureServiceRemoved()
         })
         .then(function() {
             let msg = 'Local registry is removed.'

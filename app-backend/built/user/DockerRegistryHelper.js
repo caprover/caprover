@@ -102,7 +102,7 @@ class DockerRegistryHelper {
             return self.registriesDataStore.getDefaultPushRegistryId();
         });
     }
-    deleteRegistry(registryId) {
+    deleteRegistry(registryId, allowLocalDelete) {
         const self = this;
         return Promise.resolve()
             .then(function () {
@@ -110,7 +110,14 @@ class DockerRegistryHelper {
         })
             .then(function (registryIdDefaultPush) {
             if (registryId === registryIdDefaultPush) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push');
+                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'Cannot remove the default push. First change the default push.');
+            }
+            return self.registriesDataStore.getRegistryById(registryId);
+        })
+            .then(function (registry) {
+            if (registry.registryType === IRegistryTypes.LOCAL_REG &&
+                !allowLocalDelete) {
+                throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'You cannot delete self-hosted registry.');
             }
             return self.registriesDataStore.deleteRegistry(registryId);
         });
@@ -144,10 +151,10 @@ class DockerRegistryHelper {
             return promiseToAddRegistry;
         });
     }
-    updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
+    updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix) {
         const self = this;
         return Promise.resolve().then(function () {
-            return self.registriesDataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType);
+            return self.registriesDataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix);
         });
     }
 }

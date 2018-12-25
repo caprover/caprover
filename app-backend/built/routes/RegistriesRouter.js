@@ -42,6 +42,7 @@ router.post('/insert/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
+// ERRORS if it's local
 router.post('/update/', function (req, res, next) {
     let registryId = req.body.id + '';
     let registryUser = req.body.registryUser + '';
@@ -51,7 +52,7 @@ router.post('/update/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return registryHelper.updateRegistry(registryId, registryUser, registryPassword, registryDomain, registryImagePrefix, IRegistryTypes.REMOTE_REG);
+        return registryHelper.updateRegistry(registryId, registryUser, registryPassword, registryDomain, registryImagePrefix);
     })
         .then(function () {
         let msg = 'Registry is updated.';
@@ -60,12 +61,13 @@ router.post('/update/', function (req, res, next) {
     })
         .catch(ApiStatusCodes.createCatcher(res));
 });
+// ERRORS if default push is this OR if it's local
 router.post('/delete/', function (req, res, next) {
     let registryId = req.body.registryId + '';
     const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
-        return registryHelper.deleteRegistry(registryId);
+        return registryHelper.deleteRegistry(registryId, false);
     })
         .then(function () {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Registry deleted');

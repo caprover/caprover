@@ -38,6 +38,24 @@ class RegistriesDataStore {
             self.data.set(DEFAULT_DOCKER_REGISTRY_ID, registryId);
         });
     }
+    getRegistryById(registryId) {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+            if (!registryId)
+                throw new Error('Empty registry id!');
+            return self.getAllRegistries();
+        })
+            .then(function (registries) {
+            for (let i = 0; i < registries.length; i++) {
+                const registry = registries[i];
+                if (registry.id === registryId) {
+                    return registry;
+                }
+            }
+            throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry not found');
+        });
+    }
     deleteRegistry(registryId) {
         const self = this;
         return Promise.resolve()
@@ -82,15 +100,14 @@ class RegistriesDataStore {
             return unencryptedList;
         });
     }
-    updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix, registryType) {
+    updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix) {
         const self = this;
         return Promise.resolve()
             .then(function () {
             if (!id ||
                 !registryUser ||
                 !registryPassword ||
-                !registryDomain ||
-                !registryType) {
+                !registryDomain) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, 'User, password and domain are required.');
             }
             return self.getAllRegistries();
@@ -100,24 +117,18 @@ class RegistriesDataStore {
             for (let idx = 0; idx < registries.length; idx++) {
                 const element = registries[idx];
                 if (element.id === id) {
+                    if (element.registryType === IRegistryTypes.LOCAL_REG) {
+                        throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_OPERATION, 'You cannot edit self-hosted registry');
+                    }
                     element.registryUser = registryUser;
                     element.registryPassword = registryPassword;
                     element.registryDomain = registryDomain;
                     element.registryImagePrefix = registryImagePrefix;
-                    element.registryType = registryType;
                     found = true;
                 }
             }
             if (!found)
                 throw ApiStatusCodes.createError(ApiStatusCodes.NOT_FOUND, 'Registry ID not found');
-            registries.push({
-                id,
-                registryUser,
-                registryPassword,
-                registryDomain,
-                registryImagePrefix,
-                registryType,
-            });
             return self.saveAllRegistries(registries);
         });
     }
