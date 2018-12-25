@@ -83,7 +83,7 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
               <Menu.Item key="nodes">
                 <span>
                   <Icon type="cluster" />
-                  Nodes
+                  Cluster
                 </span>
               </Menu.Item>
               <Menu.Item key="settings">

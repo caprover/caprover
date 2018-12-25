@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ClickableLink from "../global/ClickableLink";
 import { IRegistryApi } from "../../models/IRegistryInfo";
-import { Icon, Modal, Select } from "antd";
+import { Icon, Modal, Select, Alert } from "antd";
 import Utils from "../../utils/Utils";
 
 const Option = Select.Option;
@@ -85,12 +85,30 @@ export default class DefaultDockerRegistry extends Component<
             <Option value={NONE}>{DISABLED_PUSH}</Option>
             {self.getAllOptions()}
           </Select>
+
+          <div
+            style={{ marginTop: 20 }}
+            className={
+              !!self.state.newSelectedDefaultId ? "hide-on-demand" : ""
+            }
+          >
+            <Alert
+              showIcon={true}
+              type="warning"
+              message="If you have a cluster (more than one server), you need to have a default push registry. If you only have one single server, disabling default push registry is fine."
+            />
+          </div>
         </Modal>
+        <h3>Default Push Registry</h3>
         <p>
           Docker Registry for Pushing New Images:{" "}
           <ClickableLink
             onLinkClicked={() => {
-              self.setState({ isInEditMode: true });
+              self.setState({
+                isInEditMode: true,
+                newSelectedDefaultId:
+                  self.props.apiData.defaultPushRegistryId || ""
+              });
             }}
           >
             <code>{this.getDefaultRegText()}</code> <Icon type="edit" />

@@ -52,10 +52,20 @@ export default class DockerRegistries extends ApiComponent<
 
   deleteRegistry(id: string) {
     const self = this;
+
+    const isSelfHosted =
+      self.state
+        .apiData!.registries.map(
+          reg => reg.registryType === IRegistryTypes.LOCAL_REG && reg.id === id
+        )
+        .indexOf(true) >= 0;
+
     this.setState({ apiData: undefined });
 
-    this.apiManager
-      .deleteDockerRegistry(id)
+    (isSelfHosted
+      ? this.apiManager.disableSelfHostedDockerRegistry()
+      : this.apiManager.deleteDockerRegistry(id)
+    )
       .then(function() {
         message.success("Registry deleted.");
       })
@@ -110,7 +120,7 @@ export default class DockerRegistries extends ApiComponent<
       <div>
         <DockerRegistriesStaticInfo />
 
-        <div style={{ height: 30 }} />
+        <div style={{ height: 60 }} />
         <div
           style={{ textAlign: "center" }}
           className={
@@ -135,7 +145,7 @@ export default class DockerRegistries extends ApiComponent<
             }}
           />
 
-          <div style={{ height: 10 }} />
+          <div style={{ height: 40 }} />
 
           <DockerRegistryTable
             apiData={self.state.apiData!}

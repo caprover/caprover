@@ -107,7 +107,7 @@ export default class DockerRegistryAdd extends Component<
                 const newData = Utils.copyObject(
                   self.state.remoteRegistryToAdd
                 );
-                newData.registryPassword = e.target.value.trim();
+                newData.registryPassword = e.target.value;
                 self.setState({ remoteRegistryToAdd: newData });
               }}
             />

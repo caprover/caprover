@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, Icon, message, Modal } from "antd";
+import { Table, Icon, message, Modal, Input, Tooltip } from "antd";
 import {
   IRegistryApi,
   IRegistryInfo,
@@ -119,6 +119,67 @@ export default class DockerRegistryTable extends Component<
     return columns;
   }
 
+  createEditModalContent() {
+    const self = this;
+
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <Input
+          addonBefore="Username"
+          placeholder="username | email@gmail.com"
+          type="email"
+          value={self.state.remoteRegistryToEdit!.registryUser}
+          onChange={e => {
+            const newData = Utils.copyObject(self.state.remoteRegistryToEdit!);
+            newData.registryUser = e.target.value.trim();
+            self.setState({ remoteRegistryToEdit: newData });
+          }}
+        />
+        <div style={{ height: 20 }} />
+        <Input
+          addonBefore="Password"
+          placeholder="mypassword"
+          type="text"
+          value={self.state.remoteRegistryToEdit!.registryPassword}
+          onChange={e => {
+            const newData = Utils.copyObject(self.state.remoteRegistryToEdit!);
+            newData.registryPassword = e.target.value;
+            self.setState({ remoteRegistryToEdit: newData });
+          }}
+        />
+        <div style={{ height: 20 }} />
+        <Input
+          addonBefore="Domain"
+          placeholder="registry-1.docker.io"
+          type="text"
+          value={self.state.remoteRegistryToEdit!.registryDomain}
+          onChange={e => {
+            const newData = Utils.copyObject(self.state.remoteRegistryToEdit!);
+            newData.registryDomain = e.target.value.trim();
+            self.setState({ remoteRegistryToEdit: newData });
+          }}
+        />
+        <div style={{ height: 20 }} />
+        <Input
+          addonBefore="Image Prefix"
+          placeholder="username"
+          addonAfter={
+            <Tooltip title="Your images will be tagged as ImagePrefix/ImageName. For most providers, this is exactly your username, unless the field DOMAIN is specific to you, in that case, this prefix is empty.">
+              <Icon type="info-circle" />
+            </Tooltip>
+          }
+          type="text"
+          value={self.state.remoteRegistryToEdit!.registryImagePrefix}
+          onChange={e => {
+            const newData = Utils.copyObject(self.state.remoteRegistryToEdit!);
+            newData.registryImagePrefix = e.target.value.trim();
+            self.setState({ remoteRegistryToEdit: newData });
+          }}
+        />
+      </div>
+    );
+  }
+
   render() {
     const self = this;
     return (
@@ -133,7 +194,8 @@ export default class DockerRegistryTable extends Component<
           }}
           visible={self.state.modalShowing === DELETING_MODAL}
         >
-          Deleting
+          Are you sure you want to remote this registry from your list. You will
+          no longer be able to push to or pull from this registry.
         </Modal>
         <Modal
           title="Edit Registry"
@@ -147,9 +209,13 @@ export default class DockerRegistryTable extends Component<
           }}
           visible={self.state.modalShowing === EDITING_MODAL}
         >
-          Editing
+          {self.state.remoteRegistryToEdit ? (
+            self.createEditModalContent()
+          ) : (
+            <div />
+          )}
         </Modal>
-        <p>Docker Registries</p>
+        <h3>Docker Registries</h3>
         <div>
           <Table
             rowKey="id"
