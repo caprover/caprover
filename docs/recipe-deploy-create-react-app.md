@@ -10,9 +10,9 @@ sidebar_label: Static React App
 Here is a small step-by-step guide to deploy a `create-react-app` as a static site.
 Unlike the regular `captainduckduck deploy` that would deploy source files on a `NodeJS` container then build your app and run a small node server to serve your files, this guide shows how you can build locally and deploy the static bundle in a simple static server container.
 
-The big advantage of this technic is that the build happens on your machine where you already have `node_modules` and probably more computing power than on your server. You also only upload minified files and not the entire codebase. Because of these, the deployment is way faster and less computing intensive for your server.
+The big advantage of this technique is that the build happens on your machine where you already have `node_modules` and probably more computing power than on your server. You also only upload minified files and not the entire codebase. Because of these, the deployment is way faster and less computing intensive for your server.
 
-While this guide uses `create-react-app` as an example, you can apply the same technic for any static project (VueJS, Parcel, Angular...).
+While this guide uses `create-react-app` as an example, you can apply the same technique for any static project (VueJS, Parcel, Angular...).
 
 ## Build your app
 

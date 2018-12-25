@@ -81,7 +81,7 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
 
 
     if ((tarballSourceFilePath && captainDefinitionContent) || (!tarballSourceFilePath && !captainDefinitionContent)) {
-        res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION), "Either tarballfile or captainDefinitionContent should be present.");
+        res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, "Either tarballfile or captainDefinitionContent should be present."));
         return;
     }
 

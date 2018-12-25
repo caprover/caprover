@@ -3,3 +3,4 @@
 .git
 node_modules
 temp_upload
+.idea

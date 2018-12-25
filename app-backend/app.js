@@ -174,14 +174,12 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
     // set locals, only providing error in development
-    res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     Logger.e(err);
 
     // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+    res.sendStatus(err.status || 500);
 });
 
 // Initializing with delay helps with debugging. Many times, docker didn't see the CAPTAIN service

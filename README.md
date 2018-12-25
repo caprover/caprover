@@ -9,9 +9,6 @@
 - Someone who likes installing MySQL, MongoDB and etc on their server by selecting from a dropdown and clicking on install!
 - How much server/docker/linux knowledge is required to set up a CaptainDuckDuck server? Answer: Knowledge of Copy & Paste!! Head over to "Getting Started" for information on what to copy & paste ;-)
 
-## Survey
-<a href="https://www.surveymonkey.com/r/Z2FDK2Q"> Take a 1 minute survey to shape the future for CaptainDuckDuck </a>
-
 ## Learn More!
 
 For more details and documentation, please visit https://captainduckduck.com/

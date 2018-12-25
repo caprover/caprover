@@ -3,6 +3,7 @@
  */
 
 const DataStore = require('./DataStoreImpl');
+const CaptainConstants = require('../utils/CaptainConstants');
 const dataStoreCache = {};
 
 module.exports = {
@@ -13,11 +14,16 @@ module.exports = {
             return null;
         }
 
-        if (!dataStoreCache[namespace]) {
-            dataStoreCache[namespace] = new DataStore(namespace);
+        if (namespace === CaptainConstants.rootNameSpace) {
+
+            if (!dataStoreCache[namespace]) {
+                dataStoreCache[namespace] = new DataStore(namespace);
+            }
+
+            return dataStoreCache[namespace];
         }
 
-        return dataStoreCache[namespace];
+        return null;
     }
 
 };
