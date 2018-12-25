@@ -6,6 +6,33 @@ import InjectionExtractor = require('../injection/InjectionExtractor')
 
 const router = express.Router()
 
+router.get('/', function(req, res, next) {
+    const registryHelper = InjectionExtractor.extractUserFromInjected(
+        res
+    ).user.serviceManager.getRegistryHelper()
+    let registries: IRegistryInfo[] = []
+
+    return Promise.resolve()
+        .then(function() {
+            return registryHelper.getAllRegistries()
+        })
+        .then(function(registriesAll) {
+            registries = registriesAll
+            return registryHelper.getDefaultPushRegistryId()
+        })
+        .then(function(defaultPush) {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'All registries retrieved'
+            )
+            baseApi.data = {}
+            baseApi.data.registries = registries
+            baseApi.data.defaultPushRegistryId = defaultPush
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
 router.post('/insert/', function(req, res, next) {
     let registryUser = req.body.registryUser + ''
     let registryPassword = req.body.registryPassword + ''
@@ -60,33 +87,6 @@ router.post('/update/', function(req, res, next) {
             let msg = 'Registry is updated.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
-        })
-        .catch(ApiStatusCodes.createCatcher(res))
-})
-
-router.get('/all/', function(req, res, next) {
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
-    let registries: IRegistryInfo[] = []
-
-    return Promise.resolve()
-        .then(function() {
-            return registryHelper.getAllRegistries()
-        })
-        .then(function(registriesAll) {
-            registries = registriesAll
-            return registryHelper.getDefaultPushRegistryId()
-        })
-        .then(function(defaultPush) {
-            let baseApi = new BaseApi(
-                ApiStatusCodes.STATUS_OK,
-                'All registries retrieved'
-            )
-            baseApi.data = {}
-            baseApi.data.registries = registries
-            baseApi.data.defaultPushRegistryId = defaultPush
-            res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
