@@ -2,15 +2,17 @@ import React, { Component } from "react";
 import { Card, Row, Col, Input, Button, Icon, Radio, Tooltip } from "antd";
 import Utils from "../../utils/Utils";
 
+export interface INodeToAdd {
+  remoteNodeIpAddress: string;
+  captainIpAddress: string;
+  nodeType: string;
+  privateKey: string;
+}
+
 export default class AddNode extends Component<
-  {},
+  { onAddNodeClicked: (nodeToAdd: INodeToAdd) => void },
   {
-    nodeToAdd: {
-      remoteNodeIpAddress: string;
-      captainIpAddress: string;
-      nodeType: string;
-      privateKey: string;
-    };
+    nodeToAdd: INodeToAdd;
   }
 > {
   constructor(props: any) {
@@ -29,10 +31,6 @@ export default class AddNode extends Component<
     const nodeToAdd = Utils.copyObject(this.state.nodeToAdd) as any;
     nodeToAdd[childField] = value;
     this.setState({ nodeToAdd });
-  }
-
-  onAddNodeClicked() {
-    //
   }
 
   render() {
@@ -93,7 +91,7 @@ export default class AddNode extends Component<
               <Radio.Button value="manager">Join as manager node</Radio.Button>
             </Radio.Group>
             &nbsp;
-            <Tooltip title="Tip: use worker node unless you have more than 3 nodes in your cluster. After that, for every 3 workers, add one manager node.">
+            <Tooltip title="Tip: For every 3 workers, add one manager node. Therefore, use worker node for the first 2 nodes you add to your cluster.">
               <Icon
                 style={{ paddingTop: 8, paddingLeft: 8 }}
                 type="info-circle"
@@ -102,7 +100,7 @@ export default class AddNode extends Component<
           </Row>
 
           <Row type="flex" justify="end">
-            <Button type="primary" onClick={() => self.onAddNodeClicked()}>
+            <Button type="primary" onClick={() => self.props.onAddNodeClicked(self.state.nodeToAdd)}>
               <Icon type="cluster" /> &nbsp; Join Cluster
             </Button>
           </Row>

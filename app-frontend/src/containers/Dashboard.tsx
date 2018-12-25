@@ -299,6 +299,11 @@ export default class Dashboard extends ApiComponent<
   }
 
   createInitialSetup() {
+    if (this.state.apiData.hasRootSsl) {
+      // User has set up the machine, no need to show the welcome message
+      return <div />;
+    }
+
     return (
       <Row>
         <Col span={18} offset={3}>
@@ -312,7 +317,8 @@ export default class Dashboard extends ApiComponent<
 
               <ul>
                 <li>
-                  <b>Command Line Tool (RECOMMENDED): </b> On your local machine, simply run
+                  <b>Command Line Tool (RECOMMENDED): </b> On your local
+                  machine, simply run
                   <br />
                   <code>npm i -g captainduckduck</code>
                   <br />

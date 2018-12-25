@@ -362,4 +362,30 @@ export default class ApiManager {
         })
       );
   }
+
+  getAllNodes() {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, "/user/system/nodes", {}));
+  }
+
+  addDockerNode(
+    nodeType: string,
+    privateKey: string,
+    remoteNodeIpAddress: string,
+    captainIpAddress: string
+  ) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(http.POST, "/user/system/nodes", {
+          nodeType,
+          privateKey,
+          remoteNodeIpAddress,
+          captainIpAddress
+        })
+      );
+  }
 }

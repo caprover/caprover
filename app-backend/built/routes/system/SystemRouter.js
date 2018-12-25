@@ -221,7 +221,7 @@ router.get('/nodes/', function (req, res, next) {
     })
         .then(function (data) {
         let baseApi = new BaseApi(ApiStatusCodes.STATUS_OK, 'Node info retrieved');
-        baseApi.data = data;
+        baseApi.data = { nodes: data };
         res.send(baseApi);
     })
         .catch(ApiStatusCodes.createCatcher(res));
