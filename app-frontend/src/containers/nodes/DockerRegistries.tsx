@@ -6,10 +6,11 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import DefaultDockerRegistry from "./DefaultDockerRegistry";
 import DockerRegistryTable from "./DockerRegistryTable";
+import { IRegistryApi, IRegistryInfo } from "../../models/IRegistryInfo";
 
 export default class DockerRegistries extends ApiComponent<
   {},
-  { apiData: any }
+  { apiData: IRegistryApi | undefined }
 > {
   constructor(props: any) {
     super(props);
@@ -29,6 +30,21 @@ export default class DockerRegistries extends ApiComponent<
       .catch(Toaster.createCatcher());
   }
 
+  changeDefault(id: string) {
+    // TODO
+    console.log("changeDefault: ", id);
+  }
+
+  deleteRegistry(id: string) {
+    // TODO
+    console.log("deleteRegistry: ", id);
+  }
+
+  editRegistry(dockerRegistry: IRegistryInfo) {
+    // TODO
+    console.log("editRegistry: ", dockerRegistry);
+  }
+
   componentDidMount() {
     this.fetchData();
   }
@@ -42,14 +58,26 @@ export default class DockerRegistries extends ApiComponent<
     return (
       <div>
         <DockerRegistriesStaticInfo />
+
+        <div style={{ height: 30 }} />
+
         <DefaultDockerRegistry
-          apiData={self.state.apiData}
-          changeDefault={id => {}}
+          apiData={self.state.apiData!}
+          changeDefault={id => {
+            self.changeDefault(id);
+          }}
         />
+
+        <div style={{ height: 20 }} />
+
         <DockerRegistryTable
           apiData={self.state.apiData}
-          deleteRegistry={id => {}}
-          editRegistry={dockerRegistry => {}}
+          deleteRegistry={id => {
+            self.deleteRegistry(id);
+          }}
+          editRegistry={dockerRegistry => {
+            self.editRegistry(dockerRegistry);
+          }}
         />
       </div>
     );
