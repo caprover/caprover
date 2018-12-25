@@ -6,15 +6,17 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import DefaultDockerRegistry from "./DefaultDockerRegistry";
 import DockerRegistryTable from "./DockerRegistryTable";
+import { connect } from "react-redux";
 import {
   IRegistryApi,
   IRegistryInfo,
   IRegistryTypes
 } from "../../models/IRegistryInfo";
 import DockerRegistryAdd from "./DockerRegistryAdd";
+import { emitDefaultRegistryChanged } from "../../actions/DefaultRegistryActions";
 
-export default class DockerRegistries extends ApiComponent<
-  {},
+class DockerRegistries extends ApiComponent<
+  { emitDefaultRegistryChanged: Function },
   { apiData: IRegistryApi | undefined }
 > {
   constructor(props: any) {
@@ -31,6 +33,9 @@ export default class DockerRegistries extends ApiComponent<
       .getDockerRegistries()
       .then(function(data) {
         self.setState({ apiData: data });
+        self.props.emitDefaultRegistryChanged(
+          (data as IRegistryApi).defaultPushRegistryId
+        );
       })
       .catch(Toaster.createCatcher());
   }
@@ -168,3 +173,16 @@ export default class DockerRegistries extends ApiComponent<
     );
   }
 }
+
+function mapStateToProps(state: any) {
+  return {
+    defaultRegistryId: state.registryReducer.defaultRegistryId
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  {
+    emitDefaultRegistryChanged: emitDefaultRegistryChanged
+  }
+)(DockerRegistries);

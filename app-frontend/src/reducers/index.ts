@@ -1,12 +1,8 @@
 import { combineReducers } from "redux";
-
-
-function dummyReducer(state = { }, action:any) {
-    return state;
-  }
+import DefaultRegistryReducer from "./DefaultRegistryReducer";
 
 const rootReducer = combineReducers({
-    dummyReducer: dummyReducer
+  registryReducer: DefaultRegistryReducer
 });
 
 export default rootReducer;

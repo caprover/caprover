@@ -1,11 +1,18 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
+import { connect } from "react-redux";
 
-export default class CurrentNodes extends Component {
+class CurrentNodes extends Component<{
+  defaultRegistryId: string | undefined;
+}> {
   render() {
-    return (
-      <div>
-        CurrentNodes
-      </div>
-    )
+    return <div>CurrentNodes {this.props.defaultRegistryId}</div>;
   }
 }
+
+function mapStateToProps(state: any) {
+  return {
+    defaultRegistryId: state.registryReducer.defaultRegistryId
+  };
+}
+
+export default connect(mapStateToProps)(CurrentNodes);
