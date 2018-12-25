@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/enableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get();
     const password = uuid();
-    const registryHelper = InjectionExtractor.extractAppAndUserForWebhook(res).user.serviceManager.getRegistryHelper();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     return Promise.resolve()
         .then(function () {
         return CaptainManager.get()
@@ -39,7 +39,7 @@ router.post('/enableregistry/', function (req, res, next) {
 });
 router.post('/disableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get();
-    const registryHelper = InjectionExtractor.extractAppAndUserForWebhook(res).user.serviceManager.getRegistryHelper();
+    const registryHelper = InjectionExtractor.extractUserFromInjected(res).user.serviceManager.getRegistryHelper();
     let localRegistryId = '';
     return Promise.resolve()
         .then(function () {
