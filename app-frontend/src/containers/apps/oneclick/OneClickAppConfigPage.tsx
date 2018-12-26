@@ -5,6 +5,9 @@ import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Toaster from "../../../utils/Toaster";
 import { Row, Col, Card } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
+import OneClickVariablesSection, {
+  IEnteredOneClickAppVariable
+} from "./OneClickVariablesSection";
 
 export interface IOneCLickVariable {
   id: string;
@@ -57,6 +60,12 @@ export default class OneClickAppConfigPage extends Component<
       .catch(Toaster.createCatcher());
   }
 
+  onNextClicked(values: IHashMapGeneric<string>) {
+    // TODO
+    alert("Deploying");
+    console.log(values);
+  }
+
   render() {
     const self = this;
 
@@ -64,14 +73,24 @@ export default class OneClickAppConfigPage extends Component<
       return <CenteredSpinner />;
     }
 
+    const apiData = this.state.apiData!;
+
     return (
       <div>
         <Row type="flex" justify="center">
           <Col span={16}>
-            <Card title="OneClickAppConfigPage">
+            <Card title={`Setup your ${this.props.match.params.appName}`}>
+              <h2>{this.props.match.params.appName}</h2>
+              <p style={{ whiteSpace: "pre-line" }}>
+                {apiData.instructions.start}
+              </p>
               <div style={{ height: 50 }} />
-                <pre>{}</pre>>
-                <pre>{JSON.stringify(this.state.apiData, null, 2)}</pre>>
+              <OneClickVariablesSection
+                oneClickAppVariables={apiData.variables}
+                onNextClicked={values => self.onNextClicked(values)}
+              />
+              <div style={{ height: 50 }} />
+              <hr />><pre>{JSON.stringify(this.state.apiData, null, 2)}</pre>>
             </Card>
           </Col>
         </Row>
