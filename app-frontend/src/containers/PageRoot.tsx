@@ -11,6 +11,8 @@ import { SelectParam } from "antd/lib/menu";
 import AppDetails from "./apps/appDetails/AppDetails";
 import Monitoring from "./monitoring/Monitoring";
 import Settings from "./settings/Settings";
+import OneClickAppSelector from "./apps/oneclick/OneClickAppSelector";
+import OneClickAppConfigPage from "./apps/oneclick/OneClickAppConfigPage";
 
 const { Header, Content, Sider } = Layout;
 
@@ -108,11 +110,13 @@ export default class PageRoot extends Component<RouteComponentProps<any>> {
               <Switch>
                 <Route path="/dashboard/" component={Dashboard} />
                 <Route
-                  path="/apps/:appName"
+                  path="/apps/details/:appName"
                   render={props => (
                     <AppDetails {...props} mainContainer={self.mainContainer} />
                   )}
                 />
+                <Route path="/apps/oneclick/:appName" component={OneClickAppConfigPage} />
+                <Route path="/apps/oneclick" component={OneClickAppSelector} />
                 <Route path="/apps/" component={Apps} />
                 <Route path="/monitoring/" component={Monitoring} />
                 <Route path="/cluster/" component={Cluster} />

@@ -34,7 +34,7 @@ export default class AppsTable extends Component<
   }
 
   onAppClicked(appName: string) {
-    this.props.history.push(`/apps/${appName}`);
+    this.props.history.push(`/apps/details/${appName}`);
   }
 
   createColumns(): ColumnProps<IAppDef>[] {
