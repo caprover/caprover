@@ -76,36 +76,49 @@ export default class OneClickVariablesSection extends Component<
       const currVal = self.state.variables[variable.id];
 
       return (
-        <div key={variable.id} style={{ marginBottom: 30 }}>
+        <div key={variable.id} style={{ marginBottom: 40 }}>
           <h4>{variable.label}</h4>
-          <Input
-            type="text"
-            placeholder={variable.defaultValue}
-            value={currVal === undefined ? variable.defaultValue : currVal}
-            onChange={e => self.changeModel(variable.id, e.target.value)}
-            onBlur={e => {
-              const blurredFields = Utils.copyObject(self.state.blurredFields);
-              blurredFields[variable.id] = true;
-              self.setState({ blurredFields });
-            }}
-          />
-          <div style={{ height: 5 }} />
-          <Alert
-            className={
-              !self.state.blurredFields[variable.id] ||
-              self.isFieldValueValid(variable)
-                ? "hide-on-demand"
-                : ""
-            }
-            showIcon
-            message={
-              <span>
-                Invalid value. Does not match Regex:
-                <code>{variable.validRegex}</code>
-              </span>
-            }
-            type="error"
-          />
+          <div
+            style={{ paddingBottom: 5, fontSize: "90%" }}
+            className={!!variable.description ? "" : "hide-on-demand"}
+          >
+            {variable.description}
+          </div>
+
+          <Row>
+            <Col span={12}>
+              <Input
+                type="text"
+                placeholder={variable.defaultValue}
+                value={currVal === undefined ? variable.defaultValue : currVal}
+                onChange={e => self.changeModel(variable.id, e.target.value)}
+                onBlur={e => {
+                  const blurredFields = Utils.copyObject(
+                    self.state.blurredFields
+                  );
+                  blurredFields[variable.id] = true;
+                  self.setState({ blurredFields });
+                }}
+              />
+              <div style={{ height: 5 }} />
+              <Alert
+                className={
+                  !self.state.blurredFields[variable.id] ||
+                  self.isFieldValueValid(variable)
+                    ? "hide-on-demand"
+                    : ""
+                }
+                showIcon
+                message={
+                  <span>
+                    Invalid value. Does not match Regex:
+                    <code>{variable.validRegex}</code>
+                  </span>
+                }
+                type="error"
+              />
+            </Col>
+          </Row>
         </div>
       );
     });
@@ -115,11 +128,7 @@ export default class OneClickVariablesSection extends Component<
     const self = this;
     return (
       <div>
-        <Row>
-          <Col span={12}>
-            <div>{this.createTextFields()}</div>
-          </Col>
-        </Row>
+        <div>{this.createTextFields()}</div>
         <Row type="flex" justify="end">
           <Button
             size="large"
@@ -130,7 +139,6 @@ export default class OneClickVariablesSection extends Component<
             Deploy
           </Button>
         </Row>
-        <pre>{JSON.stringify(this.props.oneClickAppVariables, null, 2)}</pre>
       </div>
     );
   }

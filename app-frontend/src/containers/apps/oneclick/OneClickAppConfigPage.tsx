@@ -81,16 +81,23 @@ export default class OneClickAppConfigPage extends Component<
           <Col span={16}>
             <Card title={`Setup your ${this.props.match.params.appName}`}>
               <h2>{this.props.match.params.appName}</h2>
-              <p style={{ whiteSpace: "pre-line" }}>
+              <p
+                style={{
+                  whiteSpace: "pre-line",
+                  paddingLeft: 15,
+                  paddingRight: 15
+                }}
+              >
                 {apiData.instructions.start}
               </p>
-              <div style={{ height: 50 }} />
+              <div style={{ height: 40 }} />
               <OneClickVariablesSection
                 oneClickAppVariables={apiData.variables}
                 onNextClicked={values => self.onNextClicked(values)}
               />
               <div style={{ height: 50 }} />
-              <hr />><pre>{JSON.stringify(this.state.apiData, null, 2)}</pre>>
+              <hr />
+              <pre>{JSON.stringify(this.state.apiData, null, 2)}</pre>>
             </Card>
           </Col>
         </Row>
