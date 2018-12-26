@@ -3,16 +3,17 @@ import { Icon, Button, message, Modal, Row, Alert } from "antd";
 import ApiComponent from "../global/ApiComponent";
 import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
+import ReloadCaptainModal from "./ReloadCaptainModal";
 
 export default class CheckUpdate extends ApiComponent<
   {},
-  { versionInfo: any; timeToRefresh: number }
+  { versionInfo: any; isRefreshTimerActivated: boolean }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
       versionInfo: undefined,
-      timeToRefresh: 0
+      isRefreshTimerActivated: false
     };
   }
 
@@ -26,25 +27,13 @@ export default class CheckUpdate extends ApiComponent<
       .catch(Toaster.createCatcher());
   }
 
-  startCounter() {
-    const self = this;
-    this.setState({ timeToRefresh: 30 });
-    setInterval(function() {
-      if (self.state.timeToRefresh < 2) {
-        window.location.reload(true);
-        return;
-      }
-      self.setState({ timeToRefresh: self.state.timeToRefresh - 1 });
-    }, 1000);
-  }
-
   onPerformUpdateClicked() {
     const self = this;
     const versionInfo = this.state.versionInfo;
     self.apiManager
       .performUpdate(versionInfo.latestVersion)
       .then(function(data) {
-        self.startCounter();
+        self.setState({ isRefreshTimerActivated: true });
       })
       .catch(Toaster.createCatcher());
   }
@@ -93,11 +82,8 @@ export default class CheckUpdate extends ApiComponent<
           <Alert message="Your Captain is the latest version." type="info" />
         </div>
 
-        <Modal
-          closable={false}
-          footer={<div />}
-          title="Update Process Started"
-          visible={self.state.timeToRefresh > 0}
+        <ReloadCaptainModal
+          isRefreshTimerActivated={self.state.isRefreshTimerActivated}
         >
           <div>
             <p>
@@ -109,12 +95,10 @@ export default class CheckUpdate extends ApiComponent<
               wait until this page is refreshed automatically.
             </p>
 
-            <p>
-              <b>Time to Refresh: </b>
-              {this.state.timeToRefresh}
-            </p>
+            <br />
+            <br />
           </div>
-        </Modal>
+        </ReloadCaptainModal>
       </div>
     );
   }

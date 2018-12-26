@@ -349,10 +349,7 @@ class ServiceManager {
                     if (!imageInUse) {
                         unusedImages.push({
                             id: img.Id,
-                            description:
-                                img.RepoTags && img.RepoTags.length
-                                    ? img.RepoTags[0]
-                                    : 'untagged',
+                            tags: img.RepoTags ? img.RepoTags : [],
                         })
                     }
                 }

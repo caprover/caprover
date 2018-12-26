@@ -14,11 +14,16 @@ import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
 import UnusedImagesTable from "./UnusedImagesTable";
 
+export interface IUnusedImage {
+  tags: string[];
+  id: string;
+}
+
 export default class DiskCleanup extends ApiComponent<
   {},
   {
     mostRecentLimit: number;
-    unusedImages?: any[];
+    unusedImages?: IUnusedImage[];
     selectedImagesForDelete: string[];
   }
 > {

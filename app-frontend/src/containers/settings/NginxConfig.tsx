@@ -4,15 +4,20 @@ import { Input, Icon, Row, Button, message, Modal } from "antd";
 import Utils from "../../utils/Utils";
 import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
+import ReloadCaptainModal from "./ReloadCaptainModal";
 
 export default class NginxConfig extends ApiComponent<
   {},
-  { nginxConfig: any }
+  {
+    nginxConfig: any;
+    isRefreshTimerActivated: boolean;
+  }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
-      nginxConfig: undefined
+      nginxConfig: undefined,
+      isRefreshTimerActivated: false
     };
   }
 
@@ -41,22 +46,8 @@ export default class NginxConfig extends ApiComponent<
         newApiData.baseConfig.customValue,
         newApiData.captainConfig.customValue
       )
-      .then(function(data) {
-        setTimeout(function() {
-          window.location.reload(true);
-        }, 6000);
-
-        Modal.success({
-          title: "Config Changed",
-          content: (
-            <div>
-              Nginx is successfully updated, Captain will restart in 10 seconds.{" "}
-              <b>Please wait until the page is automatically refreshed.</b>
-            </div>
-          ),
-          onOk() {},
-          onCancel() {}
-        });
+      .then(function() {
+        self.setState({ isRefreshTimerActivated: true });
       })
       .catch(Toaster.createCatcher());
   }
@@ -71,7 +62,16 @@ export default class NginxConfig extends ApiComponent<
 
     return (
       <div>
-        {" "}
+        <ReloadCaptainModal
+          isRefreshTimerActivated={self.state.isRefreshTimerActivated}
+        >
+          <div>
+            Nginx is successfully updated, Captain will restart in 30 seconds.{" "}
+            <b>Please wait until the page is automatically refreshed.</b>
+            <br />
+            <br />
+          </div>
+        </ReloadCaptainModal>{" "}
         <p>
           Captain allows you to set custom configurations for your nginx router.
           This will allow high customization level in terms of caching, special

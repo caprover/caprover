@@ -1,25 +1,34 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 import { ColumnProps } from "antd/lib/table";
+import { IUnusedImage } from "./DiskCleanup";
 
 export default class UnusedImagesTable extends Component<{
-  unusedImages: any;
+  unusedImages: IUnusedImage[];
   updateModel: (selectedIds: string[]) => void;
 }> {
   getCols(): ColumnProps<{ imageName: string; imageId: string }>[] {
     const columns = [
-      {
-        title: "Image Tag",
-        dataIndex: "imageName" as "imageName"
-      },
       {
         title: "Image ID",
         dataIndex: "imageId" as "imageId",
         render: (imageId: string) => {
           imageId = imageId || "";
           return (
-            <div style={{ width: 150 }}>
-              {imageId.substr(0, Math.min(imageId.length, 15))}...
+            <div style={{ width: 150, fontSize: "90%" }}>
+              {imageId.substr(0, Math.min(imageId.length, 25))}...
+            </div>
+          );
+        }
+      },
+      {
+        title: "Associated Tags",
+        dataIndex: "imageName" as "imageName",
+        render: (imageName: string) => {
+          imageName = imageName || "";
+          return (
+            <div style={{ whiteSpace: "pre-line", fontSize: "90%" }}>
+              {imageName}
             </div>
           );
         }
@@ -35,7 +44,7 @@ export default class UnusedImagesTable extends Component<{
       data.push({
         key: element.id,
         imageId: element.id,
-        imageName: element.description
+        imageName: element.tags.join("\n")
       });
     }
     return data;

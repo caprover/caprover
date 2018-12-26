@@ -10,28 +10,28 @@ export default class Settings extends Component {
     return (
       <div>
         <Row type="flex" justify="space-around">
-          <Col span={12}>
-            <div style={{ margin: 10 }}>
-              <Card title="Change Password">
-                <ChangePass />
-              </Card>
-            </div>
-          </Col>
-          <Col span={12}>
+          <Col span={8}>
             <div style={{ margin: 10 }}>
               <Card title="Check for Updates">
                 <CheckUpdate />
               </Card>
             </div>
           </Col>
-          <Col span={12}>
+          <Col span={16}>
             <div style={{ margin: 10 }}>
               <Card title="NGINX Configurations">
                 <NginxConfig />
               </Card>
             </div>
           </Col>
-          <Col span={12}>
+          <Col span={8}>
+            <div style={{ margin: 10 }}>
+              <Card title="Change Password">
+                <ChangePass />
+              </Card>
+            </div>
+          </Col>
+          <Col span={16}>
             <div style={{ margin: 10 }}>
               <Card title="Disk Cleanup">
                 <DiskCleanup />
