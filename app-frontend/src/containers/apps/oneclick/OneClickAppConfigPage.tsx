@@ -55,6 +55,14 @@ export default class OneClickAppConfigPage extends Component<
     new OneClickAppsApi()
       .getOneClickAppByName(this.props.match.params.appName)
       .then(function(data: IOneClickConfig) {
+        data.variables = data.variables || [];
+        data.variables.unshift({
+          id: "$$cap_appname",
+          label: "App Name",
+          description:
+            "This is your app name. Pick a name such as my-first-1-click-app",
+          validRegex: "/^([a-z0-9]+\\-)*[a-z0-9]+$/" // string version of /^([a-z0-9]+\-)*[a-z0-9]+$/
+        });
         self.setState({ apiData: data });
       })
       .catch(Toaster.createCatcher());
