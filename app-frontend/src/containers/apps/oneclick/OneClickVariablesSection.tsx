@@ -54,7 +54,7 @@ export default class OneClickVariablesSection extends Component<
 
   isFieldValueValid(variable: IOneCLickVariable) {
     const self = this;
-    const currVal = self.state.variables[variable.id];
+    const currVal = self.state.variables[variable.id] || "";
     let isEnteredValueValid = true;
     if (variable.validRegex) {
       // From https://stackoverflow.com/questions/39154255/converting-regexp-to-string-then-back-to-regexp
