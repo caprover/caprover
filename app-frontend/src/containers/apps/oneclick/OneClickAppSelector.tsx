@@ -6,7 +6,7 @@ import { Row, Col, Card, Select, Button } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
 
-export interface IOneClickAppDef {
+export interface IOneClickAppIdentifier {
   name: string;
   download_url: string;
 }
@@ -14,7 +14,7 @@ export interface IOneClickAppDef {
 export default class OneClickAppSelector extends Component<
   RouteComponentProps<any>,
   {
-    oneClickAppList: IOneClickAppDef[] | undefined;
+    oneClickAppList: IOneClickAppIdentifier[] | undefined;
     selectedApp: string | undefined;
   }
 > {

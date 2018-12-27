@@ -1,17 +1,12 @@
 import React, { Component } from "react";
-import { IOneCLickVariable } from "./OneClickAppConfigPage";
+import { IOneClickVariable } from "./OneClickAppConfigPage";
 import { Input, Row, Col, Alert, Button, message } from "antd";
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Utils from "../../../utils/Utils";
 
-export interface IEnteredOneClickAppVariable {
-  id: string;
-  value: string;
-}
-
 export default class OneClickVariablesSection extends Component<
   {
-    oneClickAppVariables: IOneCLickVariable[];
+    oneClickAppVariables: IOneClickVariable[];
     onNextClicked: (values: IHashMapGeneric<string>) => void;
   },
   {
@@ -52,7 +47,7 @@ export default class OneClickVariablesSection extends Component<
     self.setState({ blurredFields });
   }
 
-  isFieldValueValid(variable: IOneCLickVariable) {
+  isFieldValueValid(variable: IOneClickVariable) {
     const self = this;
     const currVal = self.state.variables[variable.id] || "";
     let isEnteredValueValid = true;

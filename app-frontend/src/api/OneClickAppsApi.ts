@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IOneClickAppDef } from "../containers/apps/oneclick/OneClickAppSelector";
+import { IOneClickAppIdentifier } from "../containers/apps/oneclick/OneClickAppSelector";
 
 const DOT_JSON = ".JSON";
 
@@ -31,7 +31,7 @@ export default class OneClickAppsApi {
       ) //
       .then(function(res) {
         // res contains data, headers, and etc...
-        return (res.data as IOneClickAppDef[]).map(element => {
+        return (res.data as IOneClickAppIdentifier[]).map(element => {
           return {
             name: element.name.substr(0, element.name.length - DOT_JSON.length),
             download_url: element.download_url

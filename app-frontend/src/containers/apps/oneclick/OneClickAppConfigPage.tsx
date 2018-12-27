@@ -5,11 +5,13 @@ import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Toaster from "../../../utils/Toaster";
 import { Row, Col, Card } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
-import OneClickVariablesSection, {
-  IEnteredOneClickAppVariable
-} from "./OneClickVariablesSection";
+import OneClickVariablesSection from "./OneClickVariablesSection";
+import OneClickAppDeployHelper, {
+  IDeploymentState
+} from "./OneClickAppDeployHelper";
+import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 
-export interface IOneCLickVariable {
+export interface IOneClickVariable {
   id: string;
   label: string;
   defaultValue?: string;
@@ -25,7 +27,7 @@ export interface IDockerComposeService {
   depends_on?: string[];
 }
 
-export interface IOneClickConfig {
+export interface IOneClickTemplate {
   dockerCompose: {
     version: string;
     services: IHashMapGeneric<IDockerComposeService>;
@@ -34,28 +36,37 @@ export interface IOneClickConfig {
     start: string;
     end: string;
   };
-  variables: IOneCLickVariable[];
+  variables: IOneClickVariable[];
 }
 
 export default class OneClickAppConfigPage extends Component<
   RouteComponentProps<any>,
   {
-    apiData: IOneClickConfig | undefined;
+    apiData: IOneClickTemplate | undefined;
+    deploymentState: IDeploymentState | undefined;
   }
 > {
+  private oneClickAppDeployHelper: OneClickAppDeployHelper;
+
   constructor(props: any) {
     super(props);
+    const self = this;
     this.state = {
-      apiData: undefined
+      apiData: undefined,
+      deploymentState: undefined
     };
+    this.oneClickAppDeployHelper = new OneClickAppDeployHelper(
+      deploymentState => self.setState({ deploymentState })
+    );
   }
 
   componentDidMount() {
     const self = this;
     new OneClickAppsApi()
       .getOneClickAppByName(this.props.match.params.appName)
-      .then(function(data: IOneClickConfig) {
+      .then(function(data: IOneClickTemplate) {
         data.variables = data.variables || [];
+        // Adding app name to all one click apps
         data.variables.unshift({
           id: "$$cap_appname",
           label: "App Name",
@@ -68,17 +79,19 @@ export default class OneClickAppConfigPage extends Component<
       .catch(Toaster.createCatcher());
   }
 
-  onNextClicked(values: IHashMapGeneric<string>) {
-    // TODO
-    alert("Deploying");
-    console.log(values);
-  }
-
   render() {
     const self = this;
 
     if (!this.state.apiData) {
       return <CenteredSpinner />;
+    }
+
+    if (!!this.state.deploymentState) {
+      return (
+        <OneClickAppDeployProgress
+          deploymentState={this.state.deploymentState}
+        />
+      );
     }
 
     const apiData = this.state.apiData!;
@@ -101,7 +114,12 @@ export default class OneClickAppConfigPage extends Component<
               <div style={{ height: 40 }} />
               <OneClickVariablesSection
                 oneClickAppVariables={apiData.variables}
-                onNextClicked={values => self.onNextClicked(values)}
+                onNextClicked={values =>
+                  self.oneClickAppDeployHelper.startDeployProcess(
+                    self.state.apiData!,
+                    values
+                  )
+                }
               />
               <div style={{ height: 50 }} />
               <hr />
