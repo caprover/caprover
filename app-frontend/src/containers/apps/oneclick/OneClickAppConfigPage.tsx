@@ -10,6 +10,8 @@ import OneClickAppDeployHelper, {
   IDeploymentState
 } from "./OneClickAppDeployHelper";
 import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
+import Utils from "../../../utils/Utils";
+import DomUtils from "../../../utils/DomUtils";
 
 export interface IOneClickVariable {
   id: string;
@@ -89,7 +91,9 @@ export default class OneClickAppConfigPage extends Component<
     if (!!this.state.deploymentState) {
       return (
         <OneClickAppDeployProgress
+          appName={self.props.match.params.appName}
           deploymentState={this.state.deploymentState}
+          onRestartClicked={() => self.setState({ deploymentState: undefined })}
         />
       );
     }
@@ -114,12 +118,13 @@ export default class OneClickAppConfigPage extends Component<
               <div style={{ height: 40 }} />
               <OneClickVariablesSection
                 oneClickAppVariables={apiData.variables}
-                onNextClicked={values =>
+                onNextClicked={values => {
                   self.oneClickAppDeployHelper.startDeployProcess(
                     self.state.apiData!,
                     values
-                  )
-                }
+                  );
+                  DomUtils.scrollToTopBar();
+                }}
               />
               <div style={{ height: 50 }} />
               <hr />
