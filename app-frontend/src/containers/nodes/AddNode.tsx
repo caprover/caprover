@@ -35,7 +35,7 @@ export default class AddNode extends Component<
 
   render() {
     const self = this;
-    const nodeToAdd = self.state.nodeToAdd; // TODO
+    const nodeToAdd = self.state.nodeToAdd;
 
     return (
       <div>

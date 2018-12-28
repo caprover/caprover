@@ -6,7 +6,6 @@ export default class NetDataSettingsForm extends Component<{
   netDataInfo: any;
   updateModel: (netDataInfo: any) => void;
 }> {
-  //TODO all fields require onchange: copy -> edit -> updateModel
   changeModel(
     parentField: string,
     childField: string,

@@ -10,22 +10,25 @@ export default class OneClickVariablesSection extends Component<
     onNextClicked: (values: IHashMapGeneric<string>) => void;
   },
   {
-    variables: IHashMapGeneric<string>;
+    enteredVariables: IHashMapGeneric<string>;
     blurredFields: IHashMapGeneric<boolean>;
   }
 > {
   constructor(props: any) {
     super(props);
+
+    let enteredVariables: IHashMapGeneric<string> = {};
+    this.props.oneClickAppVariables.forEach(v => {
+      const defaultValue = v.defaultValue;
+      if (defaultValue) {
+        enteredVariables[v.id] = defaultValue;
+      }
+    });
+
     this.state = {
-      variables: {},
+      enteredVariables,
       blurredFields: {}
     };
-  }
-
-  changeModel(id: string, value: string) {
-    const newModel = Utils.copyObject(this.state.variables);
-    newModel[id] = value;
-    this.setState({ variables: newModel });
   }
 
   onNextClicked() {
@@ -42,14 +45,14 @@ export default class OneClickVariablesSection extends Component<
     if (!allFieldValid) {
       message.error("Fix all errors before deploying.");
     } else {
-      self.props.onNextClicked(self.state.variables);
+      self.props.onNextClicked(self.state.enteredVariables);
     }
     self.setState({ blurredFields });
   }
 
   isFieldValueValid(variable: IOneClickVariable) {
     const self = this;
-    const currVal = self.state.variables[variable.id] || "";
+    const currVal = self.state.enteredVariables[variable.id] || "";
     let isEnteredValueValid = true;
     if (variable.validRegex) {
       // From https://stackoverflow.com/questions/39154255/converting-regexp-to-string-then-back-to-regexp
@@ -68,7 +71,7 @@ export default class OneClickVariablesSection extends Component<
   createTextFields() {
     const self = this;
     return this.props.oneClickAppVariables.map(variable => {
-      const currVal = self.state.variables[variable.id];
+      const currVal = self.state.enteredVariables[variable.id];
 
       return (
         <div key={variable.id} style={{ marginBottom: 40 }}>
@@ -86,7 +89,13 @@ export default class OneClickVariablesSection extends Component<
                 type="text"
                 placeholder={variable.defaultValue}
                 value={currVal === undefined ? variable.defaultValue : currVal}
-                onChange={e => self.changeModel(variable.id, e.target.value)}
+                onChange={e => {
+                  const newModel = Utils.copyObject(
+                    this.state.enteredVariables
+                  );
+                  newModel[variable.id] = e.target.value;
+                  this.setState({ enteredVariables: newModel });
+                }}
                 onBlur={e => {
                   const blurredFields = Utils.copyObject(
                     self.state.blurredFields

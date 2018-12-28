@@ -9,11 +9,11 @@ export default class OneClickAppsApi {
     return self.getAllOneClickApps().then(function(data) {
       if (!appName) throw new Error("appName is empty!");
 
-      const urlToDownloadJson = data.filter(value => value.name === appName)[0]
+      const downloadUrl = data.filter(value => value.name === appName)[0]
         .download_url;
 
       return axios
-        .get(urlToDownloadJson) //
+        .get(downloadUrl) //
         .then(function(res) {
           // res contains data, headers, and etc...
           return res.data;

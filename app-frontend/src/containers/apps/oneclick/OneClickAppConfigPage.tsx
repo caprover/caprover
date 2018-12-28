@@ -3,7 +3,7 @@ import OneClickAppsApi from "../../../api/OneClickAppsApi";
 import { RouteComponentProps } from "react-router";
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Toaster from "../../../utils/Toaster";
-import { Row, Col, Card } from "antd";
+import { Row, Col, Card, message } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
 import OneClickVariablesSection from "./OneClickVariablesSection";
 import OneClickAppDeployManager, {
@@ -32,6 +32,7 @@ export interface IDockerComposeService {
 }
 
 export interface IOneClickTemplate {
+  captainVersion: number;
   dockerCompose: {
     version: string;
     services: IHashMapGeneric<IDockerComposeService>;
@@ -69,6 +70,13 @@ export default class OneClickAppConfigPage extends Component<
     new OneClickAppsApi()
       .getOneClickAppByName(this.props.match.params.appName)
       .then(function(data: IOneClickTemplate) {
+        if ((data.captainVersion || "").toString() !== "1") {
+          message.error(
+            "One-Click App version does not match! Create a GitHub issue please!"
+          );
+          return;
+        }
+
         data.variables = data.variables || [];
         // Adding app name to all one click apps
         data.variables.unshift({
