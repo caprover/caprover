@@ -11,7 +11,7 @@ Logger.dev("API URL: " + URL);
 export default class ApiManager {
   private http = new HttpClient(URL);
   private static authToken: string = !!process.env.REACT_APP_IS_DEBUG
-    ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiJ0ZXN0In0sImlhdCI6MTU0NTE5ODMzMCwiZXhwIjoxNTgxMTk4MzMwfQ.zMVFS1HJuu6vS-d6xEd0B0S_q_1kCozIL2O-g9aUwGc"
+    ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiI5NmRjM2U1MC00ZDk3LTRkNmItYTIzMS04MmNiZjY0ZTA2NTYifSwiaWF0IjoxNTQ1OTg0MDQwLCJleHAiOjE1ODE5ODQwNDB9.uGJyhb2JYsdw9toyMKX28bLVuB0PhnS2POwEjKpchww"
     : "";
   constructor() {
     this.http.setAuthToken(ApiManager.authToken);

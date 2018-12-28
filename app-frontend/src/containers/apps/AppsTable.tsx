@@ -133,7 +133,7 @@ export default class AppsTable extends Component<
 
     return (
       <Row>
-        <Col span={18} offset={3} style={{ minHeight: 700 }}>
+        <Col span={18} offset={3} style={{ paddingBottom: 300 }}>
           <Card
             extra={
               <Input

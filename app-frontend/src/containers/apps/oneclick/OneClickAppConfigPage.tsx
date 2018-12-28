@@ -52,6 +52,7 @@ export default class OneClickAppConfigPage extends Component<
   }
 > {
   private oneClickAppDeployHelper: OneClickAppDeployManager;
+  private isUnmount: boolean = false;
 
   constructor(props: any) {
     super(props);
@@ -61,8 +62,17 @@ export default class OneClickAppConfigPage extends Component<
       deploymentState: undefined
     };
     this.oneClickAppDeployHelper = new OneClickAppDeployManager(
-      deploymentState => self.setState({ deploymentState })
+      deploymentState => {
+        if (self.isUnmount) {
+          return;
+        }
+        self.setState({ deploymentState });
+      }
     );
+  }
+
+  componentWillUnmount() {
+    this.isUnmount = true;
   }
 
   componentDidMount() {
