@@ -91,7 +91,7 @@ export default class AddNode extends Component<
               <Radio.Button value="manager">Join as manager node</Radio.Button>
             </Radio.Group>
             &nbsp;
-            <Tooltip title="Tip: For every 3 workers, add one manager node. Therefore, use worker node for the first 2 nodes you add to your cluster.">
+            <Tooltip title="Tip: For every 5 workers, add 2 manager nodes, keeping manager node count as an odd number. Therefore, use worker node for the first 4 nodes you add to your cluster.">
               <Icon
                 style={{ paddingTop: 8, paddingLeft: 8 }}
                 type="info-circle"
