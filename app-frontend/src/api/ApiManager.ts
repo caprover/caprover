@@ -3,6 +3,7 @@ import Logger from "../utils/Logger";
 import { IAppDef } from "../containers/apps/AppDefinition";
 import { IRegistryInfo } from "../models/IRegistryInfo";
 import Utils from "../utils/Utils";
+import { ICaptainDefinition } from "../models/ICaptainDefinition";
 
 const URL = process.env.REACT_APP_API_URL + "/api/v2";
 Logger.dev("API URL: " + URL);
@@ -90,6 +91,23 @@ export default class ApiManager {
           http.POST,
           "/user/apps/appData/" + appName + "?detached=1",
           formData
+        )
+      );
+  }
+
+  uploadCaptainDefinitionContent(
+    appName: string,
+    captainDefinition: ICaptainDefinition,
+    detached: boolean
+  ) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(
+        http.fetch(
+          http.POST,
+          "/user/apps/appData/" + appName + (detached ? "?detached=1" : ""),
+          { captainDefinitionContent: JSON.stringify(captainDefinition) }
         )
       );
   }

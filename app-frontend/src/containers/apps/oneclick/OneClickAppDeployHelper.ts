@@ -5,6 +5,8 @@ import {
   IDockerComposeService
 } from "./OneClickAppConfigPage";
 import Utils from "../../../utils/Utils";
+import { IAppDef } from "../AppDefinition";
+import OneClickAppDeploymentHelper from "./OneClickAppDeploymentHelper";
 
 const REGISTERING = "REGISTERING";
 const CONFIGURING = "CONFIGURING";
@@ -22,14 +24,14 @@ export interface IDeploymentState {
 }
 
 export default class OneClickAppDeployHelper {
-  private apiManager: ApiManager;
+  private deploymentHelper: OneClickAppDeploymentHelper = new OneClickAppDeploymentHelper();
   private template: IOneClickTemplate | undefined;
   constructor(
     private onDeploymentStateChanged: (
       deploymentState: IDeploymentState
     ) => void
   ) {
-    this.apiManager = new ApiManager();
+    //
   }
 
   startDeployProcess(
@@ -201,10 +203,31 @@ export default class OneClickAppDeployHelper {
     dockerComposeService: IDockerComposeService
   ): IDeploymentStep[] {
     const promises: IDeploymentStep[] = [];
+    const self = this;
 
-    // promise to create
-    // promise to update
-    // promise to deploy
+    promises.push({
+      stepName: `Registering ${appName}`,
+      stepPromise: self.deploymentHelper.createRegisterPromise(
+        appName,
+        dockerComposeService
+      )
+    });
+
+    promises.push({
+      stepName: `Configuring ${appName} (volumes, ports, environmental variables)`,
+      stepPromise: self.deploymentHelper.createConfigurationPromise(
+        appName,
+        dockerComposeService
+      )
+    });
+
+    promises.push({
+      stepName: `Deploying ${appName} (might take up to a minute)`,
+      stepPromise: self.deploymentHelper.createDeploymentPromise(
+        appName,
+        dockerComposeService
+      )
+    });
 
     return promises;
   }
