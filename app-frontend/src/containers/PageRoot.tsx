@@ -1,7 +1,7 @@
-import React, { Component, ReactElement, RefObject, Fragment } from "react";
+import React, { RefObject, Fragment } from "react";
 import { RouteComponentProps, Switch, Route } from "react-router";
 import ApiManager from "../api/ApiManager";
-import { Layout, Menu, Breadcrumb, Icon, Row, Col, Card } from "antd";
+import { Layout, Menu, Icon, Row, Col } from "antd";
 import ClickableLink from "./global/ClickableLink";
 import Dashboard from "./Dashboard";
 import LoggedInCatchAll from "./LoggedInCatchAll";
@@ -39,7 +39,7 @@ export default class PageRoot extends ApiComponent<
     const self = this;
 
     if (!ApiManager.isLoggedIn()) {
-      this.props.history.push("/login");
+      this.goToLogin();
     } else {
       this.apiManager
         .getVersionInfo()
@@ -48,6 +48,10 @@ export default class PageRoot extends ApiComponent<
         })
         .catch(Toaster.createCatcher());
     }
+  }
+
+  goToLogin() {
+    this.props.history.push("/login");
   }
 
   createUpdateAvailableIfNeeded() {
@@ -107,24 +111,66 @@ export default class PageRoot extends ApiComponent<
       <Layout className="full-screen-bg">
         <Header className="header">
           <div>
-            <ClickableLink
-              onLinkClicked={() => {
-                this.props.history.push("/");
-              }}
-            >
-              <img
-                src="/favicon.ico"
-                style={{
-                  marginRight: 10
-                }}
-              />
-              CaptainDuckDuck
-            </ClickableLink>
-            {self.createUpdateAvailableIfNeeded()}
+            <Row>
+              <Col span={12}>
+                <span>
+                  <h3 style={{ color: "#fff" }}>
+                    <img
+                      src="/favicon.ico"
+                      style={{
+                        marginRight: 10
+                      }}
+                    />
+                    CaptainDuckDuck
+                  </h3>
+                </span>
+
+                {self.createUpdateAvailableIfNeeded()}
+              </Col>
+              <Col span={12}>
+                <Row type="flex" justify="end">
+                  <a
+                    href="https://github.com/githubsaturn/captainduckduck"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ marginRight: 20 }}
+                  >
+                    GitHub
+                  </a>
+
+                  <a
+                    href="https://captainduckduck.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ marginRight: 70 }}
+                  >
+                    Docs
+                  </a>
+                  <span>
+                    <span
+                      style={{
+                        border: "1px solid #1b8ad3",
+                        borderRadius: 5,
+                        padding: 8
+                      }}
+                    >
+                      <ClickableLink
+                        onLinkClicked={() => {
+                          self.apiManager.setAuthToken("");
+                          self.goToLogin();
+                        }}
+                      >
+                        Logout <Icon type="logout" />
+                      </ClickableLink>
+                    </span>
+                  </span>
+                </Row>
+              </Col>
+            </Row>
           </div>
         </Header>
         <Layout>
-          <Sider width={200} style={{ background: "#fff" }}>
+          <Sider collapsible width={200} style={{ background: "#fff" }}>
             <Menu
               onSelect={(param: SelectParam) => {
                 self.onSelectMenu(param);
@@ -137,31 +183,31 @@ export default class PageRoot extends ApiComponent<
               <Menu.Item key="dashboard">
                 <span>
                   <Icon type="laptop" />
-                  Dashboard
+                  <span>Dashboard</span>
                 </span>
               </Menu.Item>
               <Menu.Item key="apps">
                 <span>
                   <Icon type="code" />
-                  Apps
+                  <span>Apps</span>
                 </span>
               </Menu.Item>
               <Menu.Item key="monitoring">
                 <span>
                   <Icon type="dashboard" />
-                  Monitoring
+                  <span>Monitoring</span>
                 </span>
               </Menu.Item>
               <Menu.Item key="cluster">
                 <span>
                   <Icon type="cluster" />
-                  Cluster
+                  <span>Cluster</span>
                 </span>
               </Menu.Item>
               <Menu.Item key="settings">
                 <span>
                   <Icon type="setting" />
-                  Settings
+                  <span>Settings</span>
                 </span>
               </Menu.Item>
             </Menu>
