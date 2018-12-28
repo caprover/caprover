@@ -165,7 +165,7 @@ export default class DockerRegistryTable extends Component<
           addonBefore="Image Prefix"
           placeholder="username"
           addonAfter={
-            <Tooltip title="Your images will be tagged as ImagePrefix/ImageName. For most providers, this is exactly your username, unless the field DOMAIN is specific to you, in that case, this prefix is empty.">
+            <Tooltip title="Your images will be tagged as RegistryDomain/ImagePrefix/ImageName. For most providers, Image Prefix is exactly your username, unless the field DOMAIN is specific to you, in that case, this prefix is empty.">
               <Icon type="info-circle" />
             </Tooltip>
           }

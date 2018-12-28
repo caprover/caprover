@@ -63,7 +63,7 @@ export default class DockerRegistryAdd extends Component<
         >
           <p>
             You can read more about this type of registry on the page behind
-            this modal, specifically under "More Info" second. Do you want to
+            this modal, specifically under "More Info" section. Do you want to
             proceed and enable self-hosted Docker Registry?
           </p>
         </Modal>
@@ -80,7 +80,7 @@ export default class DockerRegistryAdd extends Component<
         >
           <p>
             You can read more about this type of registry on the page behind
-            this modal, specifically under "More Info" second.
+            this modal, specifically under "More Info" section.
           </p>
           <div style={{ height: 20 }} />
           <div style={{ maxWidth: 360 }}>
@@ -130,7 +130,7 @@ export default class DockerRegistryAdd extends Component<
               addonBefore="Image Prefix"
               placeholder="username"
               addonAfter={
-                <Tooltip title="Your images will be tagged as ImagePrefix/ImageName. For most providers, this is exactly your username, unless the field DOMAIN is specific to you, in that case, this prefix is empty.">
+                <Tooltip title="Your images will be tagged as RegistryDomain/ImagePrefix/ImageName. For most providers, Image Prefix is exactly your username, unless the field DOMAIN is specific to you, in that case, this prefix is empty.">
                   <Icon type="info-circle" />
                 </Tooltip>
               }
