@@ -1,16 +1,10 @@
-import ApiManager from "../../../api/ApiManager";
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import {
   IOneClickTemplate,
   IDockerComposeService
 } from "./OneClickAppConfigPage";
 import Utils from "../../../utils/Utils";
-import { IAppDef } from "../AppDefinition";
 import OneClickAppDeploymentHelper from "./OneClickAppDeploymentHelper";
-
-const REGISTERING = "REGISTERING";
-const CONFIGURING = "CONFIGURING";
-const DEPLOYING = "DEPLOYING";
 
 interface IDeploymentStep {
   stepName: string;
@@ -20,6 +14,7 @@ interface IDeploymentStep {
 export interface IDeploymentState {
   steps: string[];
   error: string;
+  successMessage?: string;
   currentStep: number;
 }
 
@@ -88,38 +83,37 @@ export default class OneClickAppDeployManager {
         );
       }
 
-      let currentStep = 0;
       const stepsTexts: string[] = ["Parsing the template"];
       for (let index = 0; index < steps.length; index++) {
         stepsTexts.push(steps[index].stepName);
       }
 
-      let promise = new Promise(function(resolve) {
-        self.onDeploymentStateChanged(
-          Utils.copyObject({
-            steps: stepsTexts,
-            error: "",
-            currentStep: 0
-          })
-        );
-        resolve();
-      });
+      let currentStep = 0;
+      const onNextStepPromiseCreator = function() {
+        return new Promise<void>(function(resolve) {
+          currentStep++;
+          self.onDeploymentStateChanged(
+            Utils.copyObject({
+              steps: stepsTexts,
+              error: "",
+              currentStep,
+              successMessage:
+                currentStep >= stepsTexts.length
+                  ? self.template!.instructions.end
+                  : undefined
+            })
+          );
+          resolve();
+        });
+      };
+
+      let promise = onNextStepPromiseCreator();
 
       for (let index = 0; index < steps.length; index++) {
         const element = steps[index];
-        promise = promise.then(element.stepPromise).then(function() {
-          return new Promise(function(resolve) {
-            currentStep++;
-            self.onDeploymentStateChanged(
-              Utils.copyObject({
-                steps: stepsTexts,
-                error: "",
-                currentStep
-              })
-            );
-            resolve();
-          });
-        });
+        promise = promise
+          .then(element.stepPromise)
+          .then(onNextStepPromiseCreator);
       }
 
       promise.catch(function(error) {

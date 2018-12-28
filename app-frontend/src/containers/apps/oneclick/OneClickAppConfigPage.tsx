@@ -10,7 +10,6 @@ import OneClickAppDeployManager, {
   IDeploymentState
 } from "./OneClickAppDeployManager";
 import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
-import Utils from "../../../utils/Utils";
 import DomUtils from "../../../utils/DomUtils";
 
 export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
@@ -86,22 +85,23 @@ export default class OneClickAppConfigPage extends Component<
 
   render() {
     const self = this;
+    const deploymentState = this.state.deploymentState;
+    const apiData = this.state.apiData;
 
-    if (!this.state.apiData) {
+    if (!apiData) {
       return <CenteredSpinner />;
     }
 
-    if (!!this.state.deploymentState) {
+    if (!!deploymentState) {
       return (
         <OneClickAppDeployProgress
           appName={self.props.match.params.appName}
-          deploymentState={this.state.deploymentState}
+          deploymentState={deploymentState}
+          onFinishClicked={() => self.props.history.push("/apps")}
           onRestartClicked={() => self.setState({ deploymentState: undefined })}
         />
       );
     }
-
-    const apiData = this.state.apiData!;
 
     return (
       <div>
@@ -129,9 +129,6 @@ export default class OneClickAppConfigPage extends Component<
                   DomUtils.scrollToTopBar();
                 }}
               />
-              <div style={{ height: 50 }} />
-              <hr />
-              <pre>{JSON.stringify(this.state.apiData, null, 2)}</pre>>
             </Card>
           </Col>
         </Row>
