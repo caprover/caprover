@@ -35,8 +35,8 @@ export default class AppConfigs extends Component<
 
   createEnvVarRows() {
     const self = this;
-    const envVars = this.props.apiData.appDefinition.envVars;
-    return Utils.map(envVars, function(value, index) {
+    const envVars = this.props.apiData.appDefinition.envVars || [];
+    return envVars.map((value, index) => {
       return (
         <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={8}>
@@ -72,8 +72,8 @@ export default class AppConfigs extends Component<
 
   createPortRows() {
     const self = this;
-    const ports = this.props.apiData.appDefinition.ports;
-    return Utils.map(ports, function(value, index) {
+    const ports = this.props.apiData.appDefinition.ports || [];
+    return ports.map((value, index) => {
       return (
         <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={12}>
@@ -114,8 +114,8 @@ export default class AppConfigs extends Component<
 
   createVolRows() {
     const self = this;
-    const volumes = this.props.apiData.appDefinition.volumes;
-    return Utils.map(volumes, function(value, index) {
+    const volumes = this.props.apiData.appDefinition.volumes || [];
+    return volumes.map((value, index) => {
       return (
         <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={8}>

@@ -5,12 +5,11 @@ export default {
     return JSON.parse(JSON.stringify(obj)) as T;
   },
 
-  map<T>(array: T[], callback: (value: T, index: number) => any): any[] {
-    const rows: any[] = [];
-    for (let index = 0; index < array.length; index++) {
-      const element = array[index];
-      rows.push(callback(element, index));
-    }
-    return rows;
+  generateUuidV4() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+      var r = (Math.random() * 16) | 0,
+        v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 };
