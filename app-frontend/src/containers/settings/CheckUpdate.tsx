@@ -4,10 +4,11 @@ import ApiComponent from "../global/ApiComponent";
 import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import ReloadCaptainModal from "./ReloadCaptainModal";
+import { IVersionInfo } from "../../models/IVersionInfo";
 
 export default class CheckUpdate extends ApiComponent<
   {},
-  { versionInfo: any; isRefreshTimerActivated: boolean }
+  { versionInfo: IVersionInfo | undefined; isRefreshTimerActivated: boolean }
 > {
   constructor(props: any) {
     super(props);
@@ -31,7 +32,7 @@ export default class CheckUpdate extends ApiComponent<
     const self = this;
     const versionInfo = this.state.versionInfo;
     self.apiManager
-      .performUpdate(versionInfo.latestVersion)
+      .performUpdate(versionInfo!.latestVersion)
       .then(function(data) {
         self.setState({ isRefreshTimerActivated: true });
       })
