@@ -23,7 +23,7 @@ export interface IDeploymentState {
   currentStep: number;
 }
 
-export default class OneClickAppDeployHelper {
+export default class OneClickAppDeployManager {
   private deploymentHelper: OneClickAppDeploymentHelper = new OneClickAppDeploymentHelper();
   private template: IOneClickTemplate | undefined;
   constructor(

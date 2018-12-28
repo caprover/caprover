@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { IDeploymentState } from "./OneClickAppDeployHelper";
+import { IDeploymentState } from "./OneClickAppDeployManager";
 import { Row, Col, Card, Steps, Icon } from "antd";
 
 const Step = Steps.Step;

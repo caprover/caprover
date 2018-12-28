@@ -6,9 +6,9 @@ import Toaster from "../../../utils/Toaster";
 import { Row, Col, Card } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
 import OneClickVariablesSection from "./OneClickVariablesSection";
-import OneClickAppDeployHelper, {
+import OneClickAppDeployManager, {
   IDeploymentState
-} from "./OneClickAppDeployHelper";
+} from "./OneClickAppDeployManager";
 import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 import Utils from "../../../utils/Utils";
 import DomUtils from "../../../utils/DomUtils";
@@ -49,7 +49,7 @@ export default class OneClickAppConfigPage extends Component<
     deploymentState: IDeploymentState | undefined;
   }
 > {
-  private oneClickAppDeployHelper: OneClickAppDeployHelper;
+  private oneClickAppDeployHelper: OneClickAppDeployManager;
 
   constructor(props: any) {
     super(props);
@@ -58,7 +58,7 @@ export default class OneClickAppConfigPage extends Component<
       apiData: undefined,
       deploymentState: undefined
     };
-    this.oneClickAppDeployHelper = new OneClickAppDeployHelper(
+    this.oneClickAppDeployHelper = new OneClickAppDeployManager(
       deploymentState => self.setState({ deploymentState })
     );
   }
