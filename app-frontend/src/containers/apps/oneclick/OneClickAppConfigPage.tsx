@@ -13,6 +13,8 @@ import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 import Utils from "../../../utils/Utils";
 import DomUtils from "../../../utils/DomUtils";
 
+export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
+
 export interface IOneClickVariable {
   id: string;
   label: string;
@@ -71,7 +73,7 @@ export default class OneClickAppConfigPage extends Component<
         data.variables = data.variables || [];
         // Adding app name to all one click apps
         data.variables.unshift({
-          id: "$$cap_appname",
+          id: ONE_CLICK_APP_NAME_VAR_NAME,
           label: "App Name",
           description:
             "This is your app name. Pick a name such as my-first-1-click-app",

@@ -14,7 +14,7 @@ const DEPLOYING = "DEPLOYING";
 
 interface IDeploymentStep {
   stepName: string;
-  stepPromise: Promise<void>;
+  stepPromise: () => Promise<void>;
 }
 
 export interface IDeploymentState {
@@ -94,26 +94,21 @@ export default class OneClickAppDeployManager {
         stepsTexts.push(steps[index].stepName);
       }
 
-      const promises: Promise<void>[] = [];
-
-      promises.push(
-        new Promise(function(resolve) {
-          self.onDeploymentStateChanged(
-            Utils.copyObject({
-              steps: stepsTexts,
-              error: "",
-              currentStep: 0
-            })
-          );
-          resolve();
-        })
-      );
+      let promise = new Promise(function(resolve) {
+        self.onDeploymentStateChanged(
+          Utils.copyObject({
+            steps: stepsTexts,
+            error: "",
+            currentStep: 0
+          })
+        );
+        resolve();
+      });
 
       for (let index = 0; index < steps.length; index++) {
         const element = steps[index];
-        promises.push(element.stepPromise);
-        promises.push(
-          new Promise(function(resolve) {
+        promise = promise.then(element.stepPromise).then(function() {
+          return new Promise(function(resolve) {
             currentStep++;
             self.onDeploymentStateChanged(
               Utils.copyObject({
@@ -123,11 +118,11 @@ export default class OneClickAppDeployManager {
               })
             );
             resolve();
-          })
-        );
+          });
+        });
       }
 
-      Promise.all(promises).catch(function(error) {
+      promise.catch(function(error) {
         self.onDeploymentStateChanged(
           Utils.copyObject({
             steps: stepsTexts,
@@ -207,26 +202,32 @@ export default class OneClickAppDeployManager {
 
     promises.push({
       stepName: `Registering ${appName}`,
-      stepPromise: self.deploymentHelper.createRegisterPromise(
-        appName,
-        dockerComposeService
-      )
+      stepPromise: function() {
+        return self.deploymentHelper.createRegisterPromise(
+          appName,
+          dockerComposeService
+        );
+      }
     });
 
     promises.push({
       stepName: `Configuring ${appName} (volumes, ports, environmental variables)`,
-      stepPromise: self.deploymentHelper.createConfigurationPromise(
-        appName,
-        dockerComposeService
-      )
+      stepPromise: function() {
+        return self.deploymentHelper.createConfigurationPromise(
+          appName,
+          dockerComposeService
+        );
+      }
     });
 
     promises.push({
       stepName: `Deploying ${appName} (might take up to a minute)`,
-      stepPromise: self.deploymentHelper.createDeploymentPromise(
-        appName,
-        dockerComposeService
-      )
+      stepPromise: function() {
+        return self.deploymentHelper.createDeploymentPromise(
+          appName,
+          dockerComposeService
+        );
+      }
     });
 
     return promises;
