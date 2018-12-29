@@ -1,13 +1,18 @@
 {
   "name": "captainduckduck",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "captainduckduck": "./captainduckduck.js"
+    "captainduckduck": "./captainduckduck.js",
+    "captainduckduck-deploy": "./captainduckduck-deploy.js",
+    "captainduckduck-list": "./captainduckduck-list.js",
+    "captainduckduck-login": "./captainduckduck-login.js",
+    "captainduckduck-logout": "./captainduckduck-logout.js",
+    "captainduckduck-serversetup": "./captainduckduck-serversetup.js"
   },
   "repository": {
     "type": "git",
