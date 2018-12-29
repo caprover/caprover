@@ -124,21 +124,7 @@ class DataStore {
         })
     }
 
-    // TODO lookup usage of this method
-    getImageNameAndTag(appName: string, version: number) {
-        let versionStr = '' + version
-        if (version === 0) {
-            versionStr = '0'
-        }
-
-        return (
-            this.getImageNameBase(appName) +
-            appName +
-            (versionStr ? ':' + versionStr : '')
-        )
-    }
-
-    getImageNameBase(appName: string) {
+    getBuiltImageNameBase(appName: string) {
         return 'img-' + this.getNameSpace() + '--' + appName
     }
 

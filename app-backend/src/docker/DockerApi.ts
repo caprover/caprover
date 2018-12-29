@@ -1381,21 +1381,26 @@ class DockerApi {
         const self = this
 
         return Promise.resolve().then(function() {
-            const promises = []
+            let promises = Promise.resolve()
 
             for (let i = 0; i < imageIds.length; i++) {
                 const imageId = imageIds[i]
-                const p = self.dockerode
-                    .getImage(imageId)
-                    .remove()
-                    .catch(function(err) {
-                        Logger.e(err)
-                    })
+                const p = function() {
+                    return self.dockerode
+                        .getImage(imageId)
+                        .remove()
+                        .then(function() {
+                            Logger.d('Image Deleted: ' + imageId)
+                        })
+                        .catch(function(err) {
+                            Logger.e(err)
+                        })
+                }
 
-                promises.push(p)
+                promises = promises.then(p)
             }
 
-            return Promise.all(promises)
+            return promises
         })
     }
 

@@ -321,35 +321,43 @@ class ServiceManager {
             .then(function(apps) {
                 const unusedImages = []
 
+                if (mostRecentLimit < 0) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'Most Recent Limit cannot be negative'
+                    )
+                }
+
                 for (let i = 0; i < allImages.length; i++) {
                     const img = allImages[i]
                     let imageInUse = false
-                    if (img.RepoTags) {
-                        for (let j = 0; j < img.RepoTags.length; j++) {
-                            const repoTag = img.RepoTags[j]
-                            Object.keys(apps).forEach(function(key, index) {
-                                const app = apps[key]
-                                const appName = key
-                                for (let k = 0; k < mostRecentLimit + 1; k++) {
-                                    if (
-                                        repoTag.indexOf(
-                                            dataStore.getImageNameAndTag(
-                                                appName,
-                                                Number(app.deployedVersion) - k
-                                            )
-                                        ) >= 0
-                                    ) {
-                                        imageInUse = true
-                                    }
-                                }
-                            })
+
+                    const repoTags = img.RepoTags || []
+
+                    Object.keys(apps).forEach(function(key, index) {
+                        const app = apps[key]
+                        const appName = key
+                        for (let k = 0; k < mostRecentLimit + 1; k++) {
+                            const versionToCheck =
+                                Number(app.deployedVersion) - k
+
+                            if (versionToCheck < 0) continue
+
+                            const deployedImage =
+                                app.versions[versionToCheck].deployedImageName
+
+                            if (!deployedImage) continue
+
+                            if (repoTags.indexOf(deployedImage) >= 0) {
+                                imageInUse = true
+                            }
                         }
-                    }
+                    })
 
                     if (!imageInUse) {
                         unusedImages.push({
                             id: img.Id,
-                            tags: img.RepoTags ? img.RepoTags : [],
+                            tags: repoTags,
                         })
                     }
                 }

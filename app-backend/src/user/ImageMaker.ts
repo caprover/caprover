@@ -93,7 +93,7 @@ class ImageMaker {
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
-        const baseImageNameWithoutVerAndReg = self.datastore.getImageNameBase(
+        const baseImageNameWithoutVerAndReg = self.datastore.getBuiltImageNameBase(
             appName
         ) // img-captain--myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
