@@ -48,6 +48,7 @@ export default class Deployment extends Component<
       <div>
         <BuildLogsView
           appName={app.appName!}
+          buildLogRecreationId={self.state.buildLogRecreationId}
           key={app.appName! + "-" + self.state.buildLogRecreationId}
         />
         <div style={{ height: 20 }} />

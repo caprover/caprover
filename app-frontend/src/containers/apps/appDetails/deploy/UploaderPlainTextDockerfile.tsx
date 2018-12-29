@@ -1,6 +1,3 @@
-import React, { Component } from "react";
-import ApiComponent from "../../../global/ApiComponent";
-import { Row, Input, Button } from "antd";
 import UploaderPlainTextCaptainDefinition from "./UploaderPlainTextCaptainDefinition";
 import { ICaptainDefinition } from "../../../../models/ICaptainDefinition";
 

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ApiComponent from "../../../global/ApiComponent";
-import { Row, Input, Button } from "antd";
+import { Row, Input, Button, message } from "antd";
 import Toaster from "../../../../utils/Toaster";
 
 export default abstract class UploaderPlainTextBase extends ApiComponent<
@@ -39,6 +39,10 @@ export default abstract class UploaderPlainTextBase extends ApiComponent<
           true
         );
       })
+      .then(function() {
+        self.setState({ userEnteredValue: "" });
+        self.props.onUploadSucceeded();
+      })
       .catch(Toaster.createCatcher())
       .then(function() {
         self.setState({ uploadInProcess: false });
@@ -65,7 +69,9 @@ export default abstract class UploaderPlainTextBase extends ApiComponent<
         <div style={{ height: 20 }} />
         <Row type="flex" justify="end">
           <Button
-            disabled={!self.state.userEnteredValue.trim()}
+            disabled={
+              self.state.uploadInProcess || !self.state.userEnteredValue.trim()
+            }
             type="primary"
             onClick={() =>
               self.startDeploy(

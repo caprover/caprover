@@ -7,6 +7,7 @@ import { Input, Icon, Alert, Row, Spin } from "antd";
 export default class BuildLogsView extends ApiComponent<
   {
     appName: string;
+    buildLogRecreationId: string;
   },
   {
     isAppBuilding: boolean;
@@ -20,7 +21,7 @@ export default class BuildLogsView extends ApiComponent<
     super(props);
     this.state = {
       isAppBuilding: false,
-      expandedLogs: false,
+      expandedLogs: !!this.props.buildLogRecreationId,
       buildLogs: "",
       lastLineNumberPrinted: -10000
     };
