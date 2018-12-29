@@ -94,6 +94,8 @@ class ImageMaker {
                 .getCaptainDefinition(correctedDir)
                 .then(function (captainDefinition) {
                 if (captainDefinition.imageName) {
+                    self.buildLogs[appName].log(`An explicit image name was provided (${captainDefinition.imageName}). Therefore, no build process is needed.`);
+                    self.buildLogs[appName].log(`The app (${appName}) will be re-deployed with this image: ${captainDefinition.imageName}`);
                     return captainDefinition.imageName + '';
                 }
                 return self.getBuildPushAndReturnImageName(captainDefinition, correctedDir, tarFilePath, baseImageNameWithoutVerAndReg, appName, appVersion);
