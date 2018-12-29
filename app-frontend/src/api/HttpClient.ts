@@ -10,9 +10,14 @@ export default class HttpClient {
   public readonly GET = "GET";
   public readonly POST = "POST";
   public isDestroyed = false;
-  private authToken = "";
 
-  constructor(private baseUrl: string) {}
+  constructor(
+    private baseUrl: string,
+    private authToken: string,
+    private onAuthFailure: () => Promise<any>
+  ) {
+    //
+  }
 
   createHeaders() {
     let headers: any = {};
@@ -36,8 +41,21 @@ export default class HttpClient {
     return function(): Promise<any> {
       return self
         .fetchInternal(method, endpoint, variables) //
-        .then(function(data) {
-          return data.data; // this is an axios thing!
+        .then(function(axiosResponse) {
+          const data = axiosResponse.data; // this is an axios thing!
+          if (data.status === ErrorFactory.STATUS_AUTH_TOKEN_INVALID) {
+            return self
+              .onAuthFailure() //
+              .then(function() {
+                return self
+                  .fetchInternal(method, endpoint, variables)
+                  .then(function(newAxiosResponse) {
+                    return newAxiosResponse.data;
+                  });
+              });
+          } else {
+            return data;
+          }
         })
         .then(function(data) {
           if (

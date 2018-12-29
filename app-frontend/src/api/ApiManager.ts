@@ -10,12 +10,21 @@ const URL = process.env.REACT_APP_API_URL + "/api/v2";
 Logger.dev("API URL: " + URL);
 
 export default class ApiManager {
-  private http = new HttpClient(URL);
+  private static lastKnownPassword: string = process.env
+    .REACT_APP_DEFAULT_PASSWORD
+    ? process.env.REACT_APP_DEFAULT_PASSWORD + ""
+    : "captain42";
   private static authToken: string = !!process.env.REACT_APP_IS_DEBUG
     ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWVzcGFjZSI6ImNhcHRhaW4iLCJ0b2tlblZlcnNpb24iOiI5NmRjM2U1MC00ZDk3LTRkNmItYTIzMS04MmNiZjY0ZTA2NTYifSwiaWF0IjoxNTQ1OTg0MDQwLCJleHAiOjE1ODE5ODQwNDB9.uGJyhb2JYsdw9toyMKX28bLVuB0PhnS2POwEjKpchww"
     : "";
+
+  private http: HttpClient;
+
   constructor() {
-    this.http.setAuthToken(ApiManager.authToken);
+    const self = this;
+    this.http = new HttpClient(URL, ApiManager.authToken, function() {
+      return self.getAuthToken(ApiManager.lastKnownPassword);
+    });
   }
 
   destroy() {
@@ -33,9 +42,14 @@ export default class ApiManager {
 
   getAuthToken(password: string) {
     const http = this.http;
+    ApiManager.lastKnownPassword = password;
 
+    const self = this;
     return Promise.resolve() //
-      .then(http.fetch(http.POST, "/login", { password }));
+      .then(http.fetch(http.POST, "/login", { password }))
+      .then(function(data) {
+        self.setAuthToken(data.token);
+      });
   }
 
   getCaptainInfo() {

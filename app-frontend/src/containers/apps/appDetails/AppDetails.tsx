@@ -187,7 +187,7 @@ export default class AppDetails extends ApiComponent<
             }
           >
             <Tabs
-              defaultActiveKey={DEPLOYMENT}
+              defaultActiveKey={WEB_SETTINGS}
               // onChange={key => console.log(key)}
             >
               <TabPane
