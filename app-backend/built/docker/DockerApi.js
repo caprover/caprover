@@ -1070,6 +1070,12 @@ class DockerApi {
             return self.dockerode.version();
         });
     }
+    checkRegistryAuth(authObj) {
+        const self = this;
+        return Promise.resolve().then(function () {
+            return self.dockerode.checkAuth(authObj);
+        });
+    }
     getDockerInfo() {
         const self = this;
         return Promise.resolve().then(function () {

@@ -14,10 +14,7 @@ export interface IRegistryInfo {
   id: string;
   registryUser: string;
   registryPassword: string;
-
-  registryDomain: string; // TODO check if we need to remove HTTP / HTTPS entered by the user
-
+  registryDomain: string;
   registryImagePrefix: string;
-
   registryType: IRegistryType;
 }

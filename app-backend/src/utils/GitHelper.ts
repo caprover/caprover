@@ -1,4 +1,5 @@
 import { AnyError } from '../models/OtherTypes'
+import Utils from './Utils'
 
 const git = require('simple-git')
 
@@ -31,7 +32,7 @@ class GitHelper {
         const PASS = encodeURIComponent(pass)
 
         // Some people put https when they are entering their git information
-        const REPO = repo.trim().replace(/^(?:https?:\/\/)?/i, '')
+        const REPO = Utils.removeHttpHttps(repo)
 
         const remote = `https://${USER}:${PASS}@${REPO}`
 

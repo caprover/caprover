@@ -3,6 +3,7 @@ const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
 const IRegistryInfo_1 = require("../models/IRegistryInfo");
+const Utils_1 = require("../utils/Utils");
 class DockerRegistryHelper {
     constructor(dataStore, dockerApi) {
         this.dockerApi = dockerApi;
@@ -133,6 +134,23 @@ class DockerRegistryHelper {
         const self = this;
         return Promise.resolve()
             .then(function () {
+            registryDomain = Utils_1.default.removeHttpHttps(registryDomain);
+            if (registryType === IRegistryInfo_1.IRegistryTypes.LOCAL_REG) {
+                return;
+            }
+            return self.dockerApi
+                .checkRegistryAuth({
+                username: registryUser,
+                password: registryPassword,
+                serveraddress: registryDomain,
+                email: CaptainConstants.defaultEmail,
+            })
+                .catch(function (err) {
+                Logger.e(err);
+                throw ApiStatusCodes.createError(ApiStatusCodes.AUTHENTICATION_FAILED, 'Authentication failed. Either username, password or domain is incorrect.');
+            });
+        })
+            .then(function () {
             return self.registriesDataStore.getAllRegistries();
         })
             .then(function (allRegs) {
@@ -155,6 +173,7 @@ class DockerRegistryHelper {
     updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix) {
         const self = this;
         return Promise.resolve().then(function () {
+            registryDomain = Utils_1.default.removeHttpHttps(registryDomain);
             return self.registriesDataStore.updateRegistry(id, registryUser, registryPassword, registryDomain, registryImagePrefix);
         });
     }

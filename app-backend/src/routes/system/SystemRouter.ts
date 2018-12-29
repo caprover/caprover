@@ -7,20 +7,16 @@ import Validator = require('validator')
 import SystemRouteSelfHostRegistry = require('./SystemRouteSelfHostRegistry')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import InjectionExtractor = require('../../injection/InjectionExtractor')
+import Utils from '../../utils/Utils'
 
 const router = express.Router()
 
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
 
 router.post('/changerootdomain/', function(req, res, next) {
-    let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase()
-
-    function replaceAll(target: string, search: string, replacement: string) {
-        return target.replace(new RegExp(search, 'g'), replacement)
-    }
-
-    requestedCustomDomain = replaceAll(requestedCustomDomain, 'https://', '')
-    requestedCustomDomain = replaceAll(requestedCustomDomain, 'http://', '')
+    let requestedCustomDomain = Utils.removeHttpHttps(
+        (req.body.rootDomain || '').toLowerCase()
+    )
 
     if (
         !requestedCustomDomain ||

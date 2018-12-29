@@ -8,15 +8,11 @@ const Validator = require("validator");
 const SystemRouteSelfHostRegistry = require("./SystemRouteSelfHostRegistry");
 const CaptainConstants = require("../../utils/CaptainConstants");
 const InjectionExtractor = require("../../injection/InjectionExtractor");
+const Utils_1 = require("../../utils/Utils");
 const router = express.Router();
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry);
 router.post('/changerootdomain/', function (req, res, next) {
-    let requestedCustomDomain = (req.body.rootDomain || '').toLowerCase();
-    function replaceAll(target, search, replacement) {
-        return target.replace(new RegExp(search, 'g'), replacement);
-    }
-    requestedCustomDomain = replaceAll(requestedCustomDomain, 'https://', '');
-    requestedCustomDomain = replaceAll(requestedCustomDomain, 'http://', '');
+    let requestedCustomDomain = Utils_1.default.removeHttpHttps((req.body.rootDomain || '').toLowerCase());
     if (!requestedCustomDomain ||
         requestedCustomDomain.length < 3 ||
         requestedCustomDomain.indexOf('/') >= 0 ||

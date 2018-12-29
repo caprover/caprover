@@ -6,7 +6,12 @@ import DockerApi = require('../docker/DockerApi')
 import BuildLog = require('./BuildLog')
 import { AnyError } from '../models/OtherTypes'
 import RegistriesDataStore = require('../datastore/RegistriesDataStore')
-import { IRegistryTypes, IRegistryType, IRegistryInfo } from '../models/IRegistryInfo'
+import {
+    IRegistryTypes,
+    IRegistryType,
+    IRegistryInfo,
+} from '../models/IRegistryInfo'
+import Utils from '../utils/Utils'
 
 class DockerRegistryHelper {
     private registriesDataStore: RegistriesDataStore
@@ -184,6 +189,28 @@ class DockerRegistryHelper {
 
         return Promise.resolve()
             .then(function() {
+                registryDomain = Utils.removeHttpHttps(registryDomain)
+
+                if (registryType === IRegistryTypes.LOCAL_REG) {
+                    return
+                }
+
+                return self.dockerApi
+                    .checkRegistryAuth({
+                        username: registryUser,
+                        password: registryPassword,
+                        serveraddress: registryDomain,
+                        email: CaptainConstants.defaultEmail, // TODO
+                    })
+                    .catch(function(err) {
+                        Logger.e(err)
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.AUTHENTICATION_FAILED,
+                            'Authentication failed. Either username, password or domain is incorrect.'
+                        )
+                    })
+            })
+            .then(function() {
                 return self.registriesDataStore.getAllRegistries()
             })
             .then(function(allRegs) {
@@ -221,6 +248,8 @@ class DockerRegistryHelper {
     ) {
         const self = this
         return Promise.resolve().then(function() {
+            registryDomain = Utils.removeHttpHttps(registryDomain)
+
             return self.registriesDataStore.updateRegistry(
                 id,
                 registryUser,

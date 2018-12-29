@@ -471,7 +471,8 @@ class DockerApi {
                         LogConfig: {
                             Type: 'json-file',
                             Config: {
-                                'max-size': CaptainConstants.configs.defaultMaxLogSize,
+                                'max-size':
+                                    CaptainConstants.configs.defaultMaxLogSize,
                             },
                         },
                         RestartPolicy: {
@@ -1357,6 +1358,14 @@ class DockerApi {
 
         return Promise.resolve().then(function() {
             return self.dockerode.version()
+        })
+    }
+
+    checkRegistryAuth(authObj: DockerAuthObj) {
+        const self = this
+
+        return Promise.resolve().then(function() {
+            return self.dockerode.checkAuth(authObj)
         })
     }
 

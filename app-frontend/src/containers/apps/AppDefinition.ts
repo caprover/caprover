@@ -45,7 +45,7 @@ interface IAppVersion {
   version: number;
   deployedImageName?: string; // empty if the deploy is not completed
   timeStamp: string;
-  gitHash: string | undefined; // TODO make sure we are capturing the right git hash
+  gitHash: string | undefined;
 }
 
 interface IAppCustomDomain {

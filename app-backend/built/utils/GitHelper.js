@@ -1,4 +1,5 @@
 "use strict";
+const Utils_1 = require("./Utils");
 const git = require('simple-git');
 class GitHelper {
     static getLastHash(directory) {
@@ -19,7 +20,7 @@ class GitHelper {
         const USER = encodeURIComponent(username);
         const PASS = encodeURIComponent(pass);
         // Some people put https when they are entering their git information
-        const REPO = repo.trim().replace(/^(?:https?:\/\/)?/i, '');
+        const REPO = Utils_1.default.removeHttpHttps(repo);
         const remote = `https://${USER}:${PASS}@${REPO}`;
         return new Promise(function (resolve, reject) {
             git()

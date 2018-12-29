@@ -36,5 +36,6 @@ ApiStatusCodes.ILLEGAL_OPERATION = 1108;
 ApiStatusCodes.BUILD_ERROR = 1109;
 ApiStatusCodes.ILLEGAL_PARAMETER = 1110;
 ApiStatusCodes.NOT_FOUND = 1111;
+ApiStatusCodes.AUTHENTICATION_FAILED = 1112;
 module.exports = ApiStatusCodes;
 //# sourceMappingURL=ApiStatusCodes.js.map

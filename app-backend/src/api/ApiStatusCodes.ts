@@ -41,6 +41,7 @@ class ApiStatusCodes {
     static readonly BUILD_ERROR = 1109
     static readonly ILLEGAL_PARAMETER = 1110
     static readonly NOT_FOUND = 1111
+    static readonly AUTHENTICATION_FAILED = 1112
 }
 
 export = ApiStatusCodes
