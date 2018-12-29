@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import ApiComponent from "../../global/ApiComponent";
-import Toaster from "../../../utils/Toaster";
-import ClickableLink from "../../global/ClickableLink";
+import ApiComponent from "../../../global/ApiComponent";
+import Toaster from "../../../../utils/Toaster";
+import ClickableLink from "../../../global/ClickableLink";
 import { Input, Icon, Alert, Row, Spin } from "antd";
 
 export default class BuildLogsView extends ApiComponent<

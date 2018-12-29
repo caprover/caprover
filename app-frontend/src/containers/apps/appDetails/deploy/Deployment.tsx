@@ -1,12 +1,14 @@
 import React, { Component } from "react";
-import { AppDetailsTabProps } from "./AppDetails";
+import { AppDetailsTabProps } from "../AppDetails";
 import BuildLogsView from "./BuildLogsView";
 import { Col, Row, Upload, Input, message, Icon } from "antd";
 import TarUploader from "./TarUploader";
 import GitRepoForm from "./GitRepoForm";
-import { RepoInfo } from "../AppDefinition";
-import Utils from "../../../utils/Utils";
-import DomUtils from "../../../utils/DomUtils";
+import { RepoInfo } from "../../AppDefinition";
+import Utils from "../../../../utils/Utils";
+import DomUtils from "../../../../utils/DomUtils";
+import UploaderPlainTextCaptainDefinition from "./UploaderPlainTextCaptainDefinition";
+import UploaderPlainTextDockerfile from "./UploaderPlainTextDockerfile";
 
 export default class Deployment extends Component<
   AppDetailsTabProps,
@@ -22,6 +24,13 @@ export default class Deployment extends Component<
       buildLogRecreationId: ""
     };
   }
+
+  onUploadSuccess() {
+    message.info("Build has started");
+    this.setState({ buildLogRecreationId: "" + new Date().getTime() });
+    DomUtils.scrollToTopBar();
+  }
+
   render() {
     const self = this;
     const app = this.props.apiData.appDefinition;
@@ -96,11 +105,7 @@ export default class Deployment extends Component<
         </p>
 
         <TarUploader
-          onUploadSucceeded={() => {
-            message.info("Build has started");
-            self.setState({ buildLogRecreationId: "" + new Date().getTime() });
-            DomUtils.scrollToTopBar();
-          }}
+          onUploadSucceeded={() => self.onUploadSuccess()}
           appName={app.appName!}
         />
 
@@ -159,10 +164,18 @@ export default class Deployment extends Component<
         <h4>
           <Icon type="code" /> Method 4: Deploy plain Dockerfile
         </h4>
+        <UploaderPlainTextDockerfile
+          appName={app.appName!}
+          onUploadSucceeded={() => self.onUploadSuccess()}
+        />
         <div style={{ height: 20 }} />
         <h4>
-          <Icon type="code" /> Method 5: Deploy solo captain-definition file
+          <Icon type="code" /> Method 5: Deploy captain-definition file
         </h4>
+        <UploaderPlainTextCaptainDefinition
+          appName={app.appName!}
+          onUploadSucceeded={() => self.onUploadSuccess()}
+        />
       </div>
     );
   }

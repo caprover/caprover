@@ -22,7 +22,7 @@ import ClickableLink from "../../global/ClickableLink";
 import HttpSettings from "./HttpSettings";
 import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
-import Deployment from "./Deployment";
+import Deployment from "./deploy/Deployment";
 import Utils from "../../../utils/Utils";
 const TabPane = Tabs.TabPane;
 
@@ -187,7 +187,7 @@ export default class AppDetails extends ApiComponent<
             }
           >
             <Tabs
-              defaultActiveKey={WEB_SETTINGS}
+              defaultActiveKey={DEPLOYMENT}
               // onChange={key => console.log(key)}
             >
               <TabPane

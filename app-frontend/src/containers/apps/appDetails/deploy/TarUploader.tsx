@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import ApiComponent from "../../global/ApiComponent";
+import ApiComponent from "../../../global/ApiComponent";
 import { Upload, Col, Row, Icon, message, Button } from "antd";
 import { UploadFile, UploadChangeParam } from "antd/lib/upload/interface";
-import Toaster from "../../../utils/Toaster";
+import Toaster from "../../../../utils/Toaster";
 
 export default class TarUploader extends ApiComponent<
   {
