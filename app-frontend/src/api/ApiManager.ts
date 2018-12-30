@@ -302,7 +302,6 @@ export default class ApiManager {
 
   getUnusedImages(mostRecentLimit: number) {
     const http = this.http;
-    // TODO check backend logic to make sure that it's still valid.
     return Promise.resolve() //
       .then(
         http.fetch(http.GET, "/user/apps/appDefinitions/unusedImages", {
@@ -314,7 +313,6 @@ export default class ApiManager {
   deleteImages(imageIds: string[]) {
     const http = this.http;
 
-    // TODO Check for this. Log successful deletion as well. Search for "Deleting images..."
     return Promise.resolve() //
       .then(
         http.fetch(http.POST, "/user/apps/appDefinitions/deleteImages", {
