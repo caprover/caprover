@@ -27,7 +27,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "react-app-rewired build && mv ./build ./dist-frontend && mv ./dist-frontend ../app-backend/",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
