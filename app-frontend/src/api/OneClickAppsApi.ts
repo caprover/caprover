@@ -25,9 +25,7 @@ export default class OneClickAppsApi {
     const self = this;
     return axios
       .get(
-        `https://api.github.com/repos/${
-          process.env.REACT_APP_ONECLICK_REPO
-        }/contents/one-click-apps/v1`
+        `https://api.github.com/repos/githubsaturn/testing-v1-one-click-apps/contents/one-click-apps/v1`
       ) //
       .then(function(res) {
         // res contains data, headers, and etc...

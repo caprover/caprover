@@ -6,7 +6,10 @@ import Utils from "../utils/Utils";
 import { ICaptainDefinition } from "../models/ICaptainDefinition";
 import { IVersionInfo } from "../models/IVersionInfo";
 
-const URL = process.env.REACT_APP_API_URL + "/api/v2";
+const BASE_DOMAIN = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL
+  : "";
+const URL = BASE_DOMAIN + "/api/v2";
 Logger.dev("API URL: " + URL);
 
 export default class ApiManager {
