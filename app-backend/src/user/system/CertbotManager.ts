@@ -69,7 +69,6 @@ class CertbotManager {
                     CAPTAIN_WEBROOT_PATH_CERTBOT + '/' + domainName,
                     '-d',
                     domainName,
-                    '--non-interactive',
                 ]
 
                 if (shouldUseStaging) {
@@ -161,7 +160,6 @@ class CertbotManager {
                         emailAddress,
                         '--agree-tos',
                         '--no-eff-email',
-                        '--non-interactive',
                     ]
 
                     if (shouldUseStaging) {
@@ -237,6 +235,7 @@ class CertbotManager {
         const self = this
 
         return Promise.resolve().then(function() {
+            const nonInterActiveCommand = [...cmd, '--non-interactive']
             return dockerApi.executeCommand(
                 CaptainConstants.certbotServiceName,
                 cmd

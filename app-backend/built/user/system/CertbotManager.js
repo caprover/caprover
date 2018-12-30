@@ -51,7 +51,6 @@ class CertbotManager {
                 CAPTAIN_WEBROOT_PATH_CERTBOT + '/' + domainName,
                 '-d',
                 domainName,
-                '--non-interactive',
             ];
             if (shouldUseStaging) {
                 cmd.push('--staging');
@@ -109,7 +108,6 @@ class CertbotManager {
                     emailAddress,
                     '--agree-tos',
                     '--no-eff-email',
-                    '--non-interactive',
                 ];
                 if (shouldUseStaging) {
                     cmd.push('--staging');
@@ -168,6 +166,7 @@ class CertbotManager {
         const dockerApi = this.dockerApi;
         const self = this;
         return Promise.resolve().then(function () {
+            const nonInterActiveCommand = [...cmd, '--non-interactive'];
             return dockerApi.executeCommand(CaptainConstants.certbotServiceName, cmd);
         });
     }

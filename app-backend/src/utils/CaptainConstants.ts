@@ -87,7 +87,7 @@ let data = {
 
     // **************** DockerHub Image Names ********************
 
-    certbotImageName: 'dockersaturn/certbot-sleeping:v0.17.0',
+    certbotImageName: 'dockersaturn/certbot-sleeping:v0.29.1',
 
     netDataImageName: 'titpetric/netdata:1.8',
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CERTBOT_VERSION_DOCKERFILE="v0.17.0"
+CERTBOT_VERSION_DOCKERFILE="v0.29.1"
 
 
 SLEEPING_CERT_BOT_IMAGE_NAME="dockersaturn/certbot-sleeping"

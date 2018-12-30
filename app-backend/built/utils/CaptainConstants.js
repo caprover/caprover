@@ -46,7 +46,7 @@ let data = {
     nginxSharedPathOnHost: CAPTAIN_DATA_DIRECTORY + '/nginx-shared',
     debugSourceDirectory: '',
     // **************** DockerHub Image Names ********************
-    certbotImageName: 'dockersaturn/certbot-sleeping:v0.17.0',
+    certbotImageName: 'dockersaturn/certbot-sleeping:v0.29.1',
     netDataImageName: 'titpetric/netdata:1.8',
     registryImageName: 'registry:2',
     appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
