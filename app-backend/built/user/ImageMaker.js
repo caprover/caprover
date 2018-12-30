@@ -67,7 +67,7 @@ class ImageMaker {
     /**
      * Creates image if necessary, or just simply passes the image name
      */
-    ensureImage(source, appName, appVersion) {
+    ensureImage(imageSource, appName, appVersion) {
         const self = this;
         this.activeBuilds[appName] = true;
         this.buildLogs[appName] =
@@ -84,7 +84,7 @@ class ImageMaker {
         let fullImageName = ''; // repo.domain.com:998/username/reponame:8
         return Promise.resolve() //
             .then(function () {
-            return self.ensureDirectoryWithCaptainDefinition(source, rawDir);
+            return self.ensureDirectoryWithCaptainDefinition(imageSource, rawDir);
         })
             .then(function (gitHashFromImageSource) {
             gitHash = gitHashFromImageSource;
@@ -111,8 +111,8 @@ class ImageMaker {
             return fs.remove(baseDir);
         })
             .then(function () {
-            if (source.uploadedTarPathSource) {
-                return fs.remove(source.uploadedTarPathSource.uploadedTarPath);
+            if (imageSource.uploadedTarPathSource) {
+                return fs.remove(imageSource.uploadedTarPathSource.uploadedTarPath);
             }
         })
             .catch(function (err) {
@@ -126,9 +126,9 @@ class ImageMaker {
             });
         })
             .catch(function (err) {
-            if (source.uploadedTarPathSource) {
+            if (imageSource.uploadedTarPathSource) {
                 return fs
-                    .remove(source.uploadedTarPathSource.uploadedTarPath)
+                    .remove(imageSource.uploadedTarPathSource.uploadedTarPath)
                     .then(function () {
                     throw new Error('ensure catch');
                 })
@@ -251,14 +251,13 @@ class ImageMaker {
             if (data.schemaVersion !== 2) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Captain Definition version is not supported! Read migration guides to schemaVersion 2');
             }
-            const hasTemplateIdTag = !!data.templateId;
-            const hasImageName = !!data.imageName;
             const hasDockerfileLines = data.dockerfileLines && data.dockerfileLines.length > 0;
-            let numberOfProperties = (hasTemplateIdTag ? 1 : 0) +
-                (hasImageName ? 1 : 0) +
+            let numberOfProperties = (!!data.templateId ? 1 : 0) +
+                (!!data.imageName ? 1 : 0) +
+                (!!data.dockerfilePath ? 1 : 0) +
                 (hasDockerfileLines ? 1 : 0);
             if (numberOfProperties !== 1) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'One, and only one, of these properties should be present in captain-definition: templateId, imageName, or, hasDockerfileLines');
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'One, and only one, of these properties should be present in captain-definition: templateId, imageName, dockerfilePath, or, dockerfileLines');
             }
             return data;
         });
@@ -274,11 +273,19 @@ class ImageMaker {
             else if (data.dockerfileLines) {
                 return data.dockerfileLines.join('\n');
             }
+            else if (data.dockerfilePath) {
+                if (data.dockerfilePath.startsWith('..')) {
+                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'dockerfilePath should not refer to parent directory!');
+                }
+                return fs
+                    .readFileSync(path.join(directoryWithCaptainDefinition, data.dockerfilePath))
+                    .toString();
+            }
             else if (data.imageName) {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'ImageName cannot lead to a dockerfile');
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'ImageName cannot be rebuilt');
             }
             else {
-                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Dockerfile or TemplateId must be present. Both should not be present at the same time');
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'dockerfileLines, dockerFilePath, templateId or imageName must be present. Both should not be present at the same time');
             }
         })
             .then(function (dockerfileContent) {
@@ -287,10 +294,20 @@ class ImageMaker {
     }
     correctDirectoryAndEnsureCaptainDefinition(originalDirectory) {
         const self = this;
+        function isCaptainDefinitionInDir(dir) {
+            const pathToCheck = path.join(dir, CAPTAIN_DEFINITION_FILE);
+            return Promise.resolve()
+                .then(function () {
+                return fs.pathExists(pathToCheck);
+            })
+                .then(function (exits) {
+                return !!exits && fs.statSync(pathToCheck).isFile();
+            });
+        }
         return Promise.resolve()
             .then(function () {
             // make sure if you need to go to child directory
-            return fs.pathExists(originalDirectory + '/' + CAPTAIN_DEFINITION_FILE);
+            return isCaptainDefinitionInDir(originalDirectory);
         })
             .then(function (exists) {
             if (exists)
@@ -302,13 +319,16 @@ class ImageMaker {
             return self
                 .getAllChildrenOfDirectory(originalDirectory)
                 .then(function (files) {
-                if (files.length !== 1 ||
-                    !fs
-                        .statSync(path.join(originalDirectory, files[0]))
-                        .isDirectory()) {
-                    throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Captain Definition file does not exist!');
+                files = files || [];
+                if (files.length === 1) {
+                    return isCaptainDefinitionInDir(path.join(originalDirectory, files[0])) //
+                        .then(function (existsInChild) {
+                        if (existsInChild)
+                            return path.join(originalDirectory, files[0]);
+                        throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Captain Definition file does not exist!');
+                    });
                 }
-                return path.join(originalDirectory, files[0]);
+                throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Captain Definition file does not exist!');
             });
         });
     }
