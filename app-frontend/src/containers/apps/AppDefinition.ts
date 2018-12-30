@@ -5,7 +5,7 @@ interface IHashMapGeneric<T> {
 
 type IAllAppDefinitions = IHashMapGeneric<IAppDef>;
 
-interface IAppEnvVar {
+export interface IAppEnvVar {
   key: string;
   value: string;
 }

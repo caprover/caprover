@@ -7,12 +7,15 @@ import {
   Col,
   Icon,
   Tooltip,
-  Checkbox
+  Checkbox,
+  Switch
 } from "antd";
 import Toaster from "../../../utils/Toaster";
 import Utils from "../../../utils/Utils";
 import { AppDetailsTabProps } from "./AppDetails";
 import ClickableLink from "../../global/ClickableLink";
+import { IAppEnvVar } from "../AppDefinition";
+import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 
 const Search = Input.Search;
 
@@ -20,6 +23,8 @@ export default class AppConfigs extends Component<
   AppDetailsTabProps,
   {
     dummyVar: undefined;
+    envVarBulkEdit: boolean;
+    bulkVals: string;
     forceEditableNodeId: boolean;
     forceEditableInstanceCount: boolean;
   }
@@ -29,14 +34,99 @@ export default class AppConfigs extends Component<
     this.state = {
       dummyVar: undefined,
       forceEditableInstanceCount: false,
+      envVarBulkEdit: false,
+      bulkVals: "",
       forceEditableNodeId: false
     };
   }
 
-  createEnvVarRows() {
+  // Copied from https://github.com/motdotla/dotenv/blob/master/lib/main.js
+  parseEnvVars(src: string) {
+    const obj: IHashMapGeneric<string> = {};
+
+    // convert Buffers before splitting into lines and processing
+    src
+      .toString()
+      .split("\n")
+      .forEach(function(line, idx) {
+        // matching "KEY' and 'VAL' in 'KEY=VAL'
+        const keyValueArr = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+        // matched?
+        if (keyValueArr != null) {
+          const key = keyValueArr[1];
+
+          // default undefined or missing values to empty string
+          let value = keyValueArr[2] || "";
+
+          // expand newlines in quoted values
+          const len = value ? value.length : 0;
+          if (
+            len > 0 &&
+            value.charAt(0) === '"' &&
+            value.charAt(len - 1) === '"'
+          ) {
+            value = value.replace(/\\n/gm, "\n");
+          }
+
+          // remove any surrounding quotes and extra spaces
+          value = value.replace(/(^['"]|['"]$)/g, "").trim();
+
+          obj[key] = value;
+        }
+      });
+
+    return obj;
+  }
+
+  convertEnvVarsToBulk(envVars: IAppEnvVar[]) {
+    return envVars
+      .map(e => {
+        let val = e.value;
+        if (val.indexOf("\n") >= 0) {
+          val = '"' + val.split("\n").join("\\n") + '"';
+        }
+        return e.key + "=" + val;
+      })
+      .join("\n");
+  }
+
+  createEnvVarSection() {
     const self = this;
     const envVars = this.props.apiData.appDefinition.envVars || [];
-    return envVars.map((value, index) => {
+
+    if (self.state.envVarBulkEdit) {
+      return (
+        <div>
+          <Row style={{ paddingBottom: 12 }}>
+            <Col span={24}>
+              <Input.TextArea
+                className="code-input"
+                placeholder={"key1=value1\nkey2=value2"}
+                rows={7}
+                value={
+                  self.state.bulkVals
+                    ? self.state.bulkVals
+                    : self.convertEnvVarsToBulk(envVars)
+                }
+                onChange={e => {
+                  const newApiData = Utils.copyObject(self.props.apiData);
+                  const keyVals = self.parseEnvVars(e.target.value);
+                  const envVars: IAppEnvVar[] = [];
+                  Object.keys(keyVals).forEach(k => {
+                    envVars.push({ key: k, value: keyVals[k] });
+                  });
+                  newApiData.appDefinition.envVars = envVars;
+                  self.props.updateApiData(newApiData);
+                  self.setState({ bulkVals: e.target.value });
+                }}
+              />
+            </Col>
+          </Row>
+        </div>
+      );
+    }
+
+    const rows = envVars.map((value, index) => {
       return (
         <Row style={{ paddingBottom: 12 }} key={"" + index}>
           <Col span={8}>
@@ -68,6 +158,18 @@ export default class AppConfigs extends Component<
         </Row>
       );
     });
+
+    return (
+      <div>
+        {rows}
+
+        <br />
+
+        <Button type="default" onClick={() => self.addEnvVarClicked()}>
+          Add Key/Value Pair
+        </Button>
+      </div>
+    );
   }
 
   createPortRows() {
@@ -265,10 +367,21 @@ export default class AppConfigs extends Component<
   }
 
   render() {
+    const self = this;
     const app = this.props.apiData!.appDefinition;
     return (
       <div>
         <h4>Environmental Variables:</h4>
+        <Row align="middle" justify="end" type="flex">
+          <h5>
+            Bulk Edit&nbsp;{" "}
+            <Switch
+              onChange={val => {
+                self.setState({ envVarBulkEdit: val, bulkVals: "" });
+              }}
+            />
+          </h5>
+        </Row>
         <div
           className={
             app.envVars && !!app.envVars.length ? "hide-on-demand" : ""
@@ -280,13 +393,7 @@ export default class AppConfigs extends Component<
           </i>
         </div>
 
-        {this.createEnvVarRows()}
-
-        <br />
-
-        <Button type="default" onClick={() => this.addEnvVarClicked()}>
-          Add Key/Value Pair
-        </Button>
+        {this.createEnvVarSection()}
 
         <br />
         <br />
@@ -399,7 +506,7 @@ export default class AppConfigs extends Component<
 
   addPortMappingClicked() {
     const newApiData = Utils.copyObject(this.props.apiData);
-    newApiData.appDefinition.ports = newApiData.appDefinition.ports || {};
+    newApiData.appDefinition.ports = newApiData.appDefinition.ports || [];
     newApiData.appDefinition.ports.push({
       containerPort: 0,
       hostPort: 0
@@ -409,7 +516,7 @@ export default class AppConfigs extends Component<
 
   addEnvVarClicked() {
     const newApiData = Utils.copyObject(this.props.apiData);
-    newApiData.appDefinition.envVars = newApiData.appDefinition.envVars || {};
+    newApiData.appDefinition.envVars = newApiData.appDefinition.envVars || [];
     newApiData.appDefinition.envVars.push({
       key: "",
       value: ""
@@ -419,7 +526,7 @@ export default class AppConfigs extends Component<
 
   addVolumeClicked() {
     const newApiData = Utils.copyObject(this.props.apiData);
-    newApiData.appDefinition.volumes = newApiData.appDefinition.volumes || {};
+    newApiData.appDefinition.volumes = newApiData.appDefinition.volumes || [];
     newApiData.appDefinition.volumes.push({
       containerPath: "",
       volumeName: ""
