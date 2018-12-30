@@ -10,7 +10,9 @@ class ApiStatusCodes {
 
     static createCatcher(res: Response) {
         return function(error: CaptainError | any) {
-            Logger.e(error)
+            if (!error || error.errorStatus !== 404) {
+                Logger.e(error)
+            }
 
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage))

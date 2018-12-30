@@ -8,7 +8,9 @@ class ApiStatusCodes {
     }
     static createCatcher(res) {
         return function (error) {
-            Logger.e(error);
+            if (!error || error.errorStatus !== 404) {
+                Logger.e(error);
+            }
             if (error && error.captainErrorType) {
                 res.send(new BaseApi(error.captainErrorType, error.apiMessage));
                 return;

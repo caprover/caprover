@@ -121,26 +121,21 @@ app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
     }
 })
 
+httpProxy.on('error', function(err, req, resOriginal) {
+    if (err) {
+        Logger.e(err)
+    }
+
+    resOriginal.writeHead(500, {
+        'Content-Type': 'text/plain',
+    })
+
+    resOriginal.end('Something went wrong... err: \n ' + (err ? err : 'NULL'))
+})
+
 app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
     httpProxy.web(req, res, {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
-    })
-
-    httpProxy.on('error', function(err, req, resOriginal) {
-        if (res.locals.errorProxyHandled) {
-            return
-        }
-
-        if (err) {
-            Logger.e(err)
-        }
-
-        res.locals.errorProxyHandled = true
-        res.writeHead(500, {
-            'Content-Type': 'text/plain',
-        })
-
-        res.end('Something went wrong... err: \n ' + (err ? err : 'NULL'))
     })
 })
 
