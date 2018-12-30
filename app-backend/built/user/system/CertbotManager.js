@@ -73,91 +73,32 @@ class CertbotManager {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            const rootPathDir = CaptainConstants.letsEncryptEtcPath +
-                '/accounts/acme-' +
-                (shouldUseStaging ? 'staging' : 'v01') +
-                '.api.letsencrypt.org/directory';
-            if (!fs.existsSync(rootPathDir)) {
-                Logger.d('Fresh install of Certbot. There is no registration directory');
-                return undefined;
+            // Creds used to be saved at
+            // /etc/letencrypt/accounts/acme-v01.api.letsencrypt.org/directory/9fc95dbca2f0b877
+            // After moving to 0.29.1, Certbot started using v2 API. and this path is no longer valid.
+            // Instead, they use v02 path. However, old installations who registered with v1, will remain in the same directory
+            const cmd = [
+                'certbot',
+                'register',
+                '--email',
+                emailAddress,
+                '--agree-tos',
+                '--no-eff-email',
+            ];
+            if (shouldUseStaging) {
+                cmd.push('--staging');
             }
-            const files = fs.readdirSync(rootPathDir);
-            if (files.length === 0) {
-                Logger.d('Fresh install of Certbot. There is nothing in the registration directory');
-                return undefined;
-            }
-            if (files.length !== 1) {
-                throw new Error('I do not know know what to do when there are multiple directories in ' +
-                    rootPathDir);
-            }
-            const regFilePath = rootPathDir + '/' + files[0] + '/regr.json';
-            if (!fs.existsSync(regFilePath)) {
-                throw new Error('ACME Reg directory exists, but there is no file! ' +
-                    regFilePath);
-            }
-            return fs.readJson(regFilePath);
+            return self.runCommand(cmd);
         })
-            .then(function (regrContent) {
-            if (!regrContent) {
-                const cmd = [
-                    'certbot',
-                    'register',
-                    '--email',
-                    emailAddress,
-                    '--agree-tos',
-                    '--no-eff-email',
-                ];
-                if (shouldUseStaging) {
-                    cmd.push('--staging');
-                }
-                return self.runCommand(cmd).then(function (registerOutput) {
-                    if (registerOutput.indexOf('Your account credentials have been saved in your Certbot') >= 0) {
-                        return true;
-                    }
-                    throw new Error('Unexpected output when registering with ACME Certbot \n' +
-                        registerOutput);
-                });
+            .then(function (registerOutput) {
+            if (registerOutput.indexOf('Your account credentials have been saved in your Certbot') >= 0) {
+                return true;
             }
-            else {
-                /*
-
-                /etc/letsencrypt/accounts/acme-v01.api.letsencrypt.org/directory/864339b5816d33d67743 # cat regr.json
-
-                    {
-                       "body":{
-                          "contact":[
-                             "mailto:testemail@gmail.com"
-                          ],
-                          "agreement":"https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf",
-                          "key":{
-                             "e":"AQAB",
-                             "kty":"RSA",
-                             "n":"1l-5ihAl0BFSiS3Pl3LjQ"
-                          }
-                       },
-                       "uri":"https://acme-v01.api.letsencrypt.org/acme/reg/0421",
-                       "new_authzr_uri":"https://acme-v01.api.letsencrypt.org/acme/new-authz",
-                       "terms_of_service":"https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf"
-                    }
-
-                 */
-                let contact = undefined;
-                if (regrContent &&
-                    regrContent.body &&
-                    regrContent.body.contact &&
-                    Array.isArray(regrContent.body.contact)) {
-                    contact = regrContent.body.contact;
-                    for (let idx = 0; idx < contact.length; idx++) {
-                        if (contact[idx] === 'mailto:' + emailAddress) {
-                            return true;
-                        }
-                    }
-                }
-                throw new Error('Previously registered with a different address: ' +
-                    contact
-                    ? JSON.stringify(contact)
-                    : 'NULL');
+            if (registerOutput.indexOf('There is an existing account') >= 0) {
+                return true;
             }
+            throw new Error('Unexpected output when registering with ACME Certbot \n' +
+                registerOutput);
         });
     }
     /*
@@ -220,7 +161,7 @@ class CertbotManager {
         const self = this;
         return Promise.resolve().then(function () {
             const nonInterActiveCommand = [...cmd, '--non-interactive'];
-            return dockerApi.executeCommand(CaptainConstants.certbotServiceName, cmd);
+            return dockerApi.executeCommand(CaptainConstants.certbotServiceName, nonInterActiveCommand);
         });
     }
     ensureDomainHasDirectory(domainName) {
