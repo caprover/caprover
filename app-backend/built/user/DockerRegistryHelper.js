@@ -1,7 +1,6 @@
 "use strict";
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Logger = require("../utils/Logger");
-const CaptainConstants = require("../utils/CaptainConstants");
 const IRegistryInfo_1 = require("../models/IRegistryInfo");
 const Utils_1 = require("../utils/Utils");
 class DockerRegistryHelper {
@@ -85,7 +84,6 @@ class DockerRegistryHelper {
                         serveraddress: element.registryDomain,
                         username: element.registryUser,
                         password: element.registryPassword,
-                        email: CaptainConstants.defaultEmail,
                     };
                 }
             }
@@ -143,7 +141,6 @@ class DockerRegistryHelper {
                 username: registryUser,
                 password: registryPassword,
                 serveraddress: registryDomain,
-                email: CaptainConstants.defaultEmail,
             })
                 .catch(function (err) {
                 Logger.e(err);

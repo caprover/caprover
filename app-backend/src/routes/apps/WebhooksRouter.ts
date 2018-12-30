@@ -86,13 +86,9 @@ router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
                 }
             }
 
-            return serviceManager.deployNewVersion(
-                appName,
-                {
-                    repoInfo: repoInfo,
-                },
-                undefined
-            )
+            return serviceManager.deployNewVersion(appName, {
+                repoInfoSource: repoInfo,
+            })
         })
         .catch(function(error) {
             Logger.e(error)

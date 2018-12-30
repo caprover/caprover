@@ -5,6 +5,7 @@ import Logger = require('../utils/Logger')
 import configstore = require('configstore')
 import Authenticator = require('../user/Authenticator')
 import { CaptainEncryptor } from '../utils/Encryptor'
+import { BuiltImage as IBuiltImage } from '../user/ImageMaker'
 
 const isValidPath = require('is-valid-path')
 
@@ -333,13 +334,13 @@ class AppsDataStore {
     setDeployedVersionAndImage(
         appName: string,
         deployedVersion: number,
-        imageName: string
+        builtImage: IBuiltImage
     ) {
         if (!appName) {
             throw new Error('App Name should not be empty')
         }
 
-        if (!imageName) {
+        if (!builtImage || !builtImage.imageName) {
             throw new Error('ImageName Name should not be empty')
         }
 
@@ -354,7 +355,8 @@ class AppsDataStore {
                 for (let i = 0; i < versions.length; i++) {
                     const element = versions[i]
                     if (element.version === deployedVersion) {
-                        element.deployedImageName = imageName
+                        element.deployedImageName = builtImage.imageName
+                        element.gitHash = builtImage.gitHash
                         found = true
                         break
                     }

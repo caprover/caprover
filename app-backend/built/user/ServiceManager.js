@@ -6,8 +6,8 @@ const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Authenticator = require("./Authenticator");
 const requireFromString = require("require-from-string");
 const BuildLog = require("./BuildLog");
-const ImageMaker = require("./ImageMaker");
 const DockerRegistryHelper = require("./DockerRegistryHelper");
+const ImageMaker_1 = require("./ImageMaker");
 class ServiceManager {
     constructor(dataStore, dockerApi, loadBalancerManager) {
         this.dataStore = dataStore;
@@ -17,7 +17,7 @@ class ServiceManager {
         this.buildLogs = {};
         this.isReady = true;
         this.dockerRegistryHelper = new DockerRegistryHelper(this.dataStore, this.dockerApi);
-        this.imageMaker = new ImageMaker(this.dockerRegistryHelper, this.dockerApi, this.dataStore, this.buildLogs, this.activeBuilds);
+        this.imageMaker = new ImageMaker_1.default(this.dockerRegistryHelper, this.dockerApi, this.dataStore, this.buildLogs, this.activeBuilds);
     }
     getRegistryHelper() {
         return this.dockerRegistryHelper;
@@ -25,7 +25,7 @@ class ServiceManager {
     isInited() {
         return this.isReady;
     }
-    deployNewVersion(appName, source, gitHash) {
+    deployNewVersion(appName, source) {
         const self = this;
         const dataStore = this.dataStore;
         let deployedVersion;
@@ -37,10 +37,10 @@ class ServiceManager {
             deployedVersion = appVersion;
             return self.imageMaker.ensureImage(source, appName, appVersion);
         })
-            .then(function (imageName) {
+            .then(function (builtImage) {
             return dataStore
                 .getAppsDataStore()
-                .setDeployedVersionAndImage(appName, deployedVersion, imageName);
+                .setDeployedVersionAndImage(appName, deployedVersion, builtImage);
         })
             .then(function () {
             return self.ensureServiceInitedAndUpdated(appName);

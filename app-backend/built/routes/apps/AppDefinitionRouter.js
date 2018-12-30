@@ -202,8 +202,11 @@ router.post('/register/', function (req, res, next) {
     })
         .then(function () {
         return serviceManager.deployNewVersion(appName, {
-            captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
-        }, undefined);
+            captainDefinitionContentSource: {
+                captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
+                gitHash: '',
+            },
+        });
     })
         .then(function () {
         Logger.d('AppName is saved: ' + appName);

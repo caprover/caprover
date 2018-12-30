@@ -59,14 +59,12 @@ router.post('/:appName/', upload.single('sourceFile'), function(
 
     const appName = req.params.appName
     const isDetachedBuild = !!req.query.detached
-    const captainDefinitionContent = req.body.captainDefinitionContent
-    const gitHash = req.body.gitHash || ''
+    const captainDefinitionContent =
+        (req.body.captainDefinitionContent || '') + ''
+    const gitHash = (req.body.gitHash || '') + ''
     let tarballSourceFilePath: string = !!req.file ? req.file.path : ''
 
-    if (
-        (!!tarballSourceFilePath && !!captainDefinitionContent) ||
-        (!tarballSourceFilePath && !captainDefinitionContent)
-    ) {
+    if (!!tarballSourceFilePath === !!captainDefinitionContent) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.ILLEGAL_OPERATION,
@@ -77,14 +75,20 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     }
 
     Promise.resolve().then(function() {
-        const promiseToDeployNewVer = serviceManager.deployNewVersion(
-            appName,
-            {
-                uploadedTarPath: tarballSourceFilePath,
-                captainDefinitionContent: captainDefinitionContent,
-            },
-            gitHash
-        )
+        const promiseToDeployNewVer = serviceManager.deployNewVersion(appName, {
+            uploadedTarPathSource: !!tarballSourceFilePath
+                ? {
+                      uploadedTarPath: tarballSourceFilePath,
+                      gitHash,
+                  }
+                : undefined,
+            captainDefinitionContentSource: !!captainDefinitionContent
+                ? {
+                      captainDefinitionContent,
+                      gitHash,
+                  }
+                : undefined,
+        })
 
         if (isDetachedBuild) {
             res.send(

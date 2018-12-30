@@ -119,7 +119,7 @@ class DockerRegistryHelper {
                             serveraddress: element.registryDomain,
                             username: element.registryUser,
                             password: element.registryPassword,
-                            email: CaptainConstants.defaultEmail, // TODO??
+                            // email: CaptainConstants.defaultEmail, // email is optional
                         }
                     }
                 }
@@ -200,7 +200,7 @@ class DockerRegistryHelper {
                         username: registryUser,
                         password: registryPassword,
                         serveraddress: registryDomain,
-                        email: CaptainConstants.defaultEmail, // TODO
+                        // email: CaptainConstants.defaultEmail, // email is optional
                     })
                     .catch(function(err) {
                         Logger.e(err)

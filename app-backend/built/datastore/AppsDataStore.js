@@ -231,11 +231,11 @@ class AppsDataStore {
             throw ApiStatusCodes.createError(ApiStatusCodes.ILLEGAL_PARAMETER, `customDomain ${customDomain} is not attached to app ${appName}`);
         });
     }
-    setDeployedVersionAndImage(appName, deployedVersion, imageName) {
+    setDeployedVersionAndImage(appName, deployedVersion, builtImage) {
         if (!appName) {
             throw new Error('App Name should not be empty');
         }
-        if (!imageName) {
+        if (!builtImage || !builtImage.imageName) {
             throw new Error('ImageName Name should not be empty');
         }
         const self = this;
@@ -246,7 +246,8 @@ class AppsDataStore {
             for (let i = 0; i < versions.length; i++) {
                 const element = versions[i];
                 if (element.version === deployedVersion) {
-                    element.deployedImageName = imageName;
+                    element.deployedImageName = builtImage.imageName;
+                    element.gitHash = builtImage.gitHash;
                     found = true;
                     break;
                 }

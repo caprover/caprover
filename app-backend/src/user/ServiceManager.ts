@@ -9,8 +9,8 @@ import Authenticator = require('./Authenticator')
 import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
-import ImageMaker = require('./ImageMaker')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
+import ImageMaker from './ImageMaker'
 
 class ServiceManager {
     private activeBuilds: IHashMapGeneric<boolean>
@@ -48,7 +48,7 @@ class ServiceManager {
         return this.isReady
     }
 
-    deployNewVersion(appName: string, source: IImageSource, gitHash?: string) {
+    deployNewVersion(appName: string, source: IImageSource) {
         const self = this
         const dataStore = this.dataStore
         let deployedVersion: number
@@ -60,13 +60,13 @@ class ServiceManager {
                 deployedVersion = appVersion
                 return self.imageMaker.ensureImage(source, appName, appVersion)
             })
-            .then(function(imageName) {
+            .then(function(builtImage) {
                 return dataStore
                     .getAppsDataStore()
                     .setDeployedVersionAndImage(
                         appName,
                         deployedVersion,
-                        imageName
+                        builtImage
                     )
             })
             .then(function() {

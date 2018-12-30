@@ -53,7 +53,12 @@ const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
 const CAPTAIN_DEFINITION_FILE = 'captain-definition'
 const DOCKER_FILE = 'Dockerfile'
 
-class ImageMaker {
+export interface BuiltImage {
+    imageName: string
+    gitHash: string
+}
+
+export default class ImageMaker {
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
@@ -77,7 +82,11 @@ class ImageMaker {
     /**
      * Creates image if necessary, or just simply passes the image name
      */
-    ensureImage(source: IImageSource, appName: string, appVersion: number) {
+    ensureImage(
+        source: IImageSource,
+        appName: string,
+        appVersion: number
+    ): Promise<BuiltImage> {
         const self = this
 
         this.activeBuilds[appName] = true
@@ -88,6 +97,8 @@ class ImageMaker {
         this.buildLogs[appName].clear()
         this.buildLogs[appName].log('------------------------- ' + new Date())
         this.buildLogs[appName].log('Build started for ' + appName)
+
+        let gitHash = ''
 
         const baseDir = self.getDirectoryForRawSource(appName, appVersion)
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
@@ -102,7 +113,8 @@ class ImageMaker {
             .then(function() {
                 return self.ensureDirectoryWithCaptainDefinition(source, rawDir)
             })
-            .then(function() {
+            .then(function(gitHashFromImageSource) {
+                gitHash = gitHashFromImageSource
                 // some users convert the directory into TAR instead of converting the content into TAR.
                 // we go one level deep and try to find the right directory.
                 return self.correctDirectoryAndEnsureCaptainDefinition(rawDir)
@@ -142,8 +154,10 @@ class ImageMaker {
                 return fs.remove(baseDir)
             })
             .then(function() {
-                if (source.uploadedTarPath) {
-                    return fs.remove(source.uploadedTarPath)
+                if (source.uploadedTarPathSource) {
+                    return fs.remove(
+                        source.uploadedTarPathSource.uploadedTarPath
+                    )
                 }
             })
             .catch(function(err) {
@@ -157,9 +171,9 @@ class ImageMaker {
                     })
             })
             .catch(function(err) {
-                if (source.uploadedTarPath) {
+                if (source.uploadedTarPathSource) {
                     return fs
-                        .remove(source.uploadedTarPath)
+                        .remove(source.uploadedTarPathSource.uploadedTarPath)
                         .then(function() {
                             throw new Error('ensure catch')
                         })
@@ -171,13 +185,14 @@ class ImageMaker {
             })
             .then(function() {
                 self.activeBuilds[appName] = false
-                return fullImageName
+                return {
+                    imageName: fullImageName,
+                    gitHash: gitHash,
+                }
             })
             .catch(function(error) {
                 self.activeBuilds[appName] = false
-                return new Promise<string>(function(resolve, reject) {
-                    reject(error)
-                })
+                return Promise.reject(error)
             })
     }
 
@@ -251,43 +266,42 @@ class ImageMaker {
                 //
                 // Else THROW ERROR
 
-                if (source.uploadedTarPath) {
+                const srcTar = source.uploadedTarPathSource
+                if (srcTar) {
                     // extract file to to destDirectory
                     return tar
                         .extract({
-                            file: source.uploadedTarPath,
+                            file: srcTar.uploadedTarPath,
                             cwd: destDirectory,
                         })
                         .then(function() {
-                            // just to convert to return Promise<void>
+                            return srcTar.gitHash
                         })
                 }
 
-                if (source.repoInfo) {
-                    const repoInfo = source.repoInfo
+                const srcRepo = source.repoInfoSource
+                if (srcRepo) {
                     return GitHelper.clone(
-                        repoInfo.user,
-                        repoInfo.password,
-                        repoInfo.repo,
-                        repoInfo.branch,
+                        srcRepo.user,
+                        srcRepo.password,
+                        srcRepo.repo,
+                        srcRepo.branch,
                         destDirectory
                     ).then(function() {
-                        // just to convert to return Promise<void>
+                        return GitHelper.getLastHash(destDirectory)
                     })
-                    // TODO?? Where should we get the hash :/ It doesn't seem to belong to ImageMaker
-                    // .then(function() {
-                    //     return GitHelper.getLastHash(destDirectory)
-                    // })
                 }
 
-                if (source.captainDefinitionContent) {
+                const captainDefinitionContentSource =
+                    source.captainDefinitionContentSource
+                if (captainDefinitionContentSource) {
                     return fs
                         .outputFile(
                             destDirectory + '/' + CAPTAIN_DEFINITION_FILE,
-                            source.captainDefinitionContent
+                            captainDefinitionContentSource.captainDefinitionContent
                         )
                         .then(function() {
-                            // just to convert to return Promise<void>
+                            return captainDefinitionContentSource.gitHash
                         })
                 }
                 // we should never get here!
@@ -452,5 +466,3 @@ class ImageMaker {
             })
     }
 }
-
-export = ImageMaker

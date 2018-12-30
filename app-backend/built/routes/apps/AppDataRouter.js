@@ -42,19 +42,28 @@ router.post('/:appName/', upload.single('sourceFile'), function (req, res, next)
         .serviceManager;
     const appName = req.params.appName;
     const isDetachedBuild = !!req.query.detached;
-    const captainDefinitionContent = req.body.captainDefinitionContent;
-    const gitHash = req.body.gitHash || '';
+    const captainDefinitionContent = (req.body.captainDefinitionContent || '') + '';
+    const gitHash = (req.body.gitHash || '') + '';
     let tarballSourceFilePath = !!req.file ? req.file.path : '';
-    if ((!!tarballSourceFilePath && !!captainDefinitionContent) ||
-        (!tarballSourceFilePath && !captainDefinitionContent)) {
+    if (!!tarballSourceFilePath === !!captainDefinitionContent) {
         res.send(new BaseApi(ApiStatusCodes.ILLEGAL_OPERATION, 'Either tarballfile or captainDefinitionContent should be present.'));
         return;
     }
     Promise.resolve().then(function () {
         const promiseToDeployNewVer = serviceManager.deployNewVersion(appName, {
-            uploadedTarPath: tarballSourceFilePath,
-            captainDefinitionContent: captainDefinitionContent,
-        }, gitHash);
+            uploadedTarPathSource: !!tarballSourceFilePath
+                ? {
+                    uploadedTarPath: tarballSourceFilePath,
+                    gitHash,
+                }
+                : undefined,
+            captainDefinitionContentSource: !!captainDefinitionContent
+                ? {
+                    captainDefinitionContent,
+                    gitHash,
+                }
+                : undefined,
+        });
         if (isDetachedBuild) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK_DEPLOY_STARTED, 'Deploy is started'));
         }
