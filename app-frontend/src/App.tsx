@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { Route, Switch, HashRouter } from "react-router-dom";
 import thunk from "redux-thunk";
 
 import "./App.css";
@@ -21,12 +21,12 @@ class App extends Component {
     return (
       <div className="full-screen-bg">
         <Provider store={createStoreWithMiddleware(reducers)}>
-          <BrowserRouter>
+          <HashRouter>
             <Switch>
               <Route path="/login/" component={Login} />
               <Route path="/" component={PageRoot} />
             </Switch>
-          </BrowserRouter>
+          </HashRouter>
         </Provider>
       </div>
     );
