@@ -3,7 +3,9 @@ const CaptainConstants = require("../../utils/CaptainConstants");
 const Logger = require("../../utils/Logger");
 const fs = require("fs-extra");
 const ApiStatusCodes = require("../../api/ApiStatusCodes");
-const CAPTAIN_WEBROOT_PATH_CERTBOT = '/captain-webroot';
+const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot';
+const WEBROOT_PATH_IN_CAPTAIN = CaptainConstants.captainStaticFilesDir +
+    CaptainConstants.nginxDomainSpecificHtmlDir;
 const shouldUseStaging = false; // CaptainConstants.isDebug;
 class CertbotManager {
     constructor(dockerApi) {
@@ -33,14 +35,10 @@ class CertbotManager {
         const dockerApi = this.dockerApi;
         const self = this;
         Logger.d('Enabling SSL for ' + domainName);
-        self.domainValidOrThrow(domainName);
         return Promise.resolve()
             .then(function () {
-            const webrootInCaptainContainer = CaptainConstants.captainStaticFilesDir +
-                CaptainConstants.nginxDomainSpecificHtmlDir +
-                '/' +
-                domainName;
-            return fs.ensureDir(webrootInCaptainContainer);
+            self.domainValidOrThrow(domainName);
+            return self.ensureDomainHasDirectory(domainName);
         })
             .then(function () {
             const cmd = [
@@ -48,7 +46,7 @@ class CertbotManager {
                 'certonly',
                 '--webroot',
                 '-w',
-                CAPTAIN_WEBROOT_PATH_CERTBOT + '/' + domainName,
+                WEBROOT_PATH_IN_CERTBOT + '/' + domainName,
                 '-d',
                 domainName,
             ];
@@ -162,12 +160,73 @@ class CertbotManager {
             }
         });
     }
+    /*
+  Certificate Name: customdomain-another.hm2.captainduckduck.com
+    Domains: customdomain-another.hm2.captainduckduck.com
+    Expiry Date: 2019-03-22 04:22:55+00:00 (VALID: 81 days)
+    Certificate Path: /etc/letsencrypt/live/customdomain-another.hm2.captainduckduck.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/customdomain-another.hm2.captainduckduck.com/privkey.pem
+  Certificate Name: testing.cp.hm.captainduckduck.com
+    Domains: testing.cp.hm.captainduckduck.com
+    Expiry Date: 2019-03-21 18:42:17+00:00 (VALID: 81 days)
+    Certificate Path: /etc/letsencrypt/live/testing.cp.hm.captainduckduck.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/testing.cp.hm.captainduckduck.com/privkey.pem
+  Certificate Name: registry.cp.hm.captainduckduck.com
+    Domains: registry.cp.hm.captainduckduck.com
+    Expiry Date: 2019-03-25 04:56:45+00:00 (VALID: 84 days)
+    Certificate Path: /etc/letsencrypt/live/registry.cp.hm.captainduckduck.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/registry.cp.hm.captainduckduck.com/privkey.pem
+  Certificate Name: captain.cp.hm.captainduckduck.com
+    Domains: captain.cp.hm.captainduckduck.com
+    Expiry Date: 2019-03-20 22:25:50+00:00 (VALID: 80 days)
+    Certificate Path: /etc/letsencrypt/live/captain.cp.hm.captainduckduck.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/captain.cp.hm.captainduckduck.com/privkey.pem
+  Certificate Name: testing2.cp.hm.captainduckduck.com
+    Domains: testing2.cp.hm.captainduckduck.com
+    Expiry Date: 2019-03-21 18:42:55+00:00 (VALID: 81 days)
+    Certificate Path: /etc/letsencrypt/live/testing2.cp.hm.captainduckduck.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/testing2.cp.hm.captainduckduck.com/privkey.pem
+
+*/
+    ensureAllCurrentlyRegisteredDomainsHaveDirs() {
+        const self = this;
+        return Promise.resolve() //
+            .then(function () {
+            return self
+                .runCommand(['certbot', 'certificates'])
+                .then(function (output) {
+                const lines = output.split('\n');
+                const domains = [];
+                lines.forEach(l => {
+                    if (l.indexOf('Certificate Name:') >= 0) {
+                        domains.push(l.replace('Certificate Name:', '').trim());
+                    }
+                });
+                return domains;
+            });
+        })
+            .then(function (allDomains) {
+            const p = Promise.resolve();
+            allDomains.forEach(d => {
+                p.then(function () {
+                    return self.ensureDomainHasDirectory(d);
+                });
+            });
+            return p;
+        });
+    }
     runCommand(cmd) {
         const dockerApi = this.dockerApi;
         const self = this;
         return Promise.resolve().then(function () {
             const nonInterActiveCommand = [...cmd, '--non-interactive'];
             return dockerApi.executeCommand(CaptainConstants.certbotServiceName, cmd);
+        });
+    }
+    ensureDomainHasDirectory(domainName) {
+        return Promise.resolve() //
+            .then(function () {
+            return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN + '/' + domainName);
         });
     }
     renewAllCerts() {
@@ -192,15 +251,20 @@ class CertbotManager {
         if (shouldUseStaging) {
             cmd.push('--staging');
         }
-        return self.runCommand(cmd).then(function (output) {
+        return Promise.resolve() //
+            .then(function () {
+            return self.ensureAllCurrentlyRegisteredDomainsHaveDirs();
+        })
+            .then(function () {
+            return self.runCommand(cmd);
+        })
+            .then(function (output) {
             // Ignore output :)
         });
     }
     init(myNodeId) {
         const dockerApi = this.dockerApi;
         const self = this;
-        const domainSpecificRootDirectoryInHost = CaptainConstants.captainStaticFilesDir +
-            CaptainConstants.nginxDomainSpecificHtmlDir;
         function createCertbotServiceOnNode(nodeId) {
             return dockerApi
                 .createServiceOnNodeId(CaptainConstants.certbotImageName, CaptainConstants.certbotServiceName, undefined, nodeId, undefined, undefined, undefined)
@@ -224,7 +288,7 @@ class CertbotManager {
             return fs.ensureDir(CaptainConstants.letsEncryptLibPath);
         })
             .then(function () {
-            return fs.ensureDir(domainSpecificRootDirectoryInHost);
+            return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN);
         })
             .then(function () {
             return dockerApi.isServiceRunningByName(CaptainConstants.certbotServiceName);
@@ -258,7 +322,7 @@ class CertbotManager {
         })
             .then(function () {
             Logger.d('Updating Certbot service...');
-            return dockerApi.updateService(CaptainConstants.certbotServiceName, undefined, [
+            return dockerApi.updateService(CaptainConstants.certbotServiceName, CaptainConstants.certbotImageName, [
                 {
                     hostPath: CaptainConstants.letsEncryptEtcPath,
                     containerPath: '/etc/letsencrypt',
@@ -268,12 +332,15 @@ class CertbotManager {
                     containerPath: '/var/lib/letsencrypt',
                 },
                 {
-                    hostPath: domainSpecificRootDirectoryInHost,
-                    containerPath: CAPTAIN_WEBROOT_PATH_CERTBOT,
+                    hostPath: WEBROOT_PATH_IN_CAPTAIN,
+                    containerPath: WEBROOT_PATH_IN_CERTBOT,
                 },
             ], 
             // No need to certbot to be connected to the network
             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        })
+            .then(function () {
+            return self.ensureAllCurrentlyRegisteredDomainsHaveDirs();
         })
             .then(function () {
             // schedule the first attempt to renew certs in 1 minute
