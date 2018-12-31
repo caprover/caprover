@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Base64Provider = require("js-base64");
 const Docker = require("dockerode");
 const uuid = require("uuid/v4");
@@ -1158,5 +1159,5 @@ const connectionParams = dockerApiAddressSplited.length < 2
         };
 connectionParams.version = 'v1.30';
 const dockerApiInstance = new DockerApi(connectionParams);
-module.exports = DockerApi;
+exports.default = DockerApi;
 //# sourceMappingURL=DockerApi.js.map

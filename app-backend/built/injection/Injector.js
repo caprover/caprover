@@ -5,12 +5,12 @@ const Authenticator = require("../user/Authenticator");
 const CaptainConstants = require("../utils/CaptainConstants");
 const CaptainManager = require("../user/system/CaptainManager");
 const ServiceManager = require("../user/ServiceManager");
-const DockerApiProvider = require("../docker/DockerApi");
+const DockerApi_1 = require("../docker/DockerApi");
 const BaseApi = require("../api/BaseApi");
 const Logger = require("../utils/Logger");
 const InjectionExtractor = require("./InjectionExtractor");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
-const dockerApi = DockerApiProvider.get();
+const dockerApi = DockerApi_1.default.get();
 const serviceMangerCache = {};
 /**
  * Global dependency injection module

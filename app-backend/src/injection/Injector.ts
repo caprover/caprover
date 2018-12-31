@@ -3,7 +3,7 @@ import Authenticator = require('../user/Authenticator')
 import CaptainConstants = require('../utils/CaptainConstants')
 import CaptainManager = require('../user/system/CaptainManager')
 import ServiceManager = require('../user/ServiceManager')
-import DockerApiProvider = require('../docker/DockerApi')
+import DockerApiProvider from '../docker/DockerApi'
 import BaseApi = require('../api/BaseApi')
 import UserModel = require('../models/InjectionInterfaces')
 import Logger = require('../utils/Logger')

@@ -5,7 +5,7 @@ import fs = require('fs-extra')
 import uuid = require('uuid/v4')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import bcrypt = require('bcryptjs')
-import DockerApi = require('../../docker/DockerApi')
+import DockerApi from '../../docker/DockerApi'
 import DataStore = require('../../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
 import LoadBalancerManager = require('./LoadBalancerManager')

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const externalIp = require("public-ip");
-const DockerApi = require("../docker/DockerApi");
+const DockerApi_1 = require("../docker/DockerApi");
 const CaptainConstants = require("./CaptainConstants");
 const EnvVar = require("./EnvVars");
 const http = require("http");
@@ -11,7 +11,7 @@ const request = require("request");
 function checkSystemReq() {
     return Promise.resolve()
         .then(function () {
-        return DockerApi.get().getDockerVersion();
+        return DockerApi_1.default.get().getDockerVersion();
     })
         .then(function (output) {
         console.log(' ');
@@ -34,7 +34,7 @@ function checkSystemReq() {
         else {
             console.log('Warning!! Minimum Docker version is 17.06.x CaptainDuckDuck may not run properly on your Docker version.');
         }
-        return DockerApi.get().getDockerInfo();
+        return DockerApi_1.default.get().getDockerInfo();
     })
         .then(function (output) {
         if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
@@ -160,7 +160,7 @@ function install() {
         }
         if (CaptainConstants.isDebug) {
             return new Promise(function (resolve, reject) {
-                DockerApi.get()
+                DockerApi_1.default.get()
                     .swarmLeave(true)
                     .then(function (ignore) {
                     resolve(ip4);
@@ -193,11 +193,11 @@ function install() {
         return checkPortOrThrow(myIp4, 3000);
     })
         .then(function () {
-        return DockerApi.get().initSwarm(myIp4);
+        return DockerApi_1.default.get().initSwarm(myIp4);
     })
         .then(function (swarmId) {
         console.log('Swarm started: ' + swarmId);
-        return DockerApi.get().getLeaderNodeId();
+        return DockerApi_1.default.get().getLeaderNodeId();
     })
         .then(function (nodeId) {
         let volumeToMount = [
@@ -254,7 +254,7 @@ function install() {
             containerPort: CaptainConstants.captainServiceExposedPort,
             hostPort: CaptainConstants.captainServiceExposedPort,
         });
-        return DockerApi.get().createServiceOnNodeId(captainNameAndVersion, CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env, {
+        return DockerApi_1.default.get().createServiceOnNodeId(captainNameAndVersion, CaptainConstants.captainServiceName, ports, nodeId, volumeToMount, env, {
             Reservation: {
                 MemoryBytes: 100 * 1024 * 1024,
             },

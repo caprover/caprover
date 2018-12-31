@@ -3,7 +3,7 @@ import Logger = require('../../utils/Logger')
 import fs = require('fs-extra')
 import uuid = require('uuid/v4')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import DockerApi = require('../../docker/DockerApi')
+import DockerApi from '../../docker/DockerApi'
 
 const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot'
 const WEBROOT_PATH_IN_CAPTAIN =

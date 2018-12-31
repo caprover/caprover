@@ -10,7 +10,7 @@ const CertbotManager = require("./CertbotManager");
 const SelfHostedDockerRegistry = require("./SelfHostedDockerRegistry");
 const ApiStatusCodes = require("../../api/ApiStatusCodes");
 const DataStoreProvider = require("../../datastore/DataStoreProvider");
-const DockerApi = require("../../docker/DockerApi");
+const DockerApi_1 = require("../../docker/DockerApi");
 const IRegistryInfo_1 = require("../../models/IRegistryInfo");
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 const SshClient = SshClientImport.Client;
@@ -19,7 +19,7 @@ const HEALTH_CHECK_INTERVAL = 20000; // ms
 const TIMEOUT_HEALTH_CHECK = 15000; // ms
 class CaptainManager {
     constructor() {
-        const dockerApi = DockerApi.get();
+        const dockerApi = DockerApi_1.default.get();
         this.hasForceSsl = false;
         this.dataStore = DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace);
         this.dockerApi = dockerApi;

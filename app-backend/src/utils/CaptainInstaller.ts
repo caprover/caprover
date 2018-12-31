@@ -1,5 +1,5 @@
 import externalIp = require('public-ip')
-import DockerApi = require('../docker/DockerApi')
+import DockerApi from '../docker/DockerApi'
 import CaptainConstants = require('./CaptainConstants')
 import EnvVar = require('./EnvVars')
 import http = require('http')

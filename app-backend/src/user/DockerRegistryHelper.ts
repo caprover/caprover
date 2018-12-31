@@ -2,7 +2,7 @@ import DataStore = require('../datastore/DataStore')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Logger = require('../utils/Logger')
 import CaptainConstants = require('../utils/CaptainConstants')
-import DockerApi = require('../docker/DockerApi')
+import DockerApi from '../docker/DockerApi'
 import BuildLog = require('./BuildLog')
 import { AnyError } from '../models/OtherTypes'
 import RegistriesDataStore = require('../datastore/RegistriesDataStore')

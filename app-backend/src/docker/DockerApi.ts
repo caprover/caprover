@@ -1472,4 +1472,4 @@ connectionParams.version = 'v1.30'
 
 const dockerApiInstance = new DockerApi(connectionParams)
 
-export = DockerApi
+export default DockerApi

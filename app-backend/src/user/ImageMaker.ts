@@ -35,7 +35,7 @@
 
 */
 
-import DockerApi = require('../docker/DockerApi')
+import DockerApi from '../docker/DockerApi'
 import CaptainConstants = require('../utils/CaptainConstants')
 import fs = require('fs-extra')
 import tar = require('tar')
