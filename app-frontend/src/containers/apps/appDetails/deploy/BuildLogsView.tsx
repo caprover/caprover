@@ -3,6 +3,7 @@ import ApiComponent from "../../../global/ApiComponent";
 import Toaster from "../../../../utils/Toaster";
 import ClickableLink from "../../../global/ClickableLink";
 import { Input, Icon, Alert, Row, Spin } from "antd";
+import Utils from "../../../../utils/Utils";
 
 export default class BuildLogsView extends ApiComponent<
   {
@@ -44,7 +45,7 @@ export default class BuildLogsView extends ApiComponent<
           self.setState({ expandedLogs: true });
         }
 
-        let lines = logInfo.logs.lines;
+        let lines = logInfo.logs.lines as string[];
         let firstLineNumberOfLogs = logInfo.logs.firstLineNumber;
         let firstLinesToPrint = 0;
         if (firstLineNumberOfLogs > self.state.lastLineNumberPrinted) {
@@ -68,8 +69,10 @@ export default class BuildLogsView extends ApiComponent<
         let lineAdded = false;
 
         let buildLogs = self.state.buildLogs;
+        const ansiRegex = Utils.getAnsiColorRegex();
         for (let i = firstLinesToPrint; i < lines.length; i++) {
-          buildLogs += (lines[i] || "").trim() + "\n";
+          const newLine = (lines[i] || "").trim().replace(ansiRegex, "");
+          buildLogs += newLine + "\n";
 
           lineAdded = true;
         }
