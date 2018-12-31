@@ -11,6 +11,7 @@ import UploaderPlainTextCaptainDefinition from "./UploaderPlainTextCaptainDefini
 import UploaderPlainTextDockerfile from "./UploaderPlainTextDockerfile";
 import ApiComponent from "../../../global/ApiComponent";
 import AppVersionTable from "./AppVersionTable";
+import Toaster from "../../../../utils/Toaster";
 
 interface IDeploymentTabProps extends AppDetailsTabProps {
   onUpdateConfigAndSave: () => void;
@@ -64,9 +65,22 @@ export default class Deployment extends ApiComponent<
       });
   }
 
-  onVersionRollbackRequested(imageName: string) {
-
-    //
+  onVersionRollbackRequested(version: IAppVersion) {
+    const self = this;
+    self.apiManager
+      .uploadCaptainDefinitionContent(
+        self.props.apiData.appDefinition.appName!,
+        {
+          schemaVersion: 2,
+          dockerfileLines: ["FROM " + version.deployedImageName]
+        },
+        version.gitHash || "",
+        true
+      )
+      .then(function() {
+        self.onUploadSuccess();
+      })
+      .catch(Toaster.createCatcher());
   }
 
   render() {
@@ -95,8 +109,8 @@ export default class Deployment extends ApiComponent<
         <div style={{ height: 20 }} />
 
         <AppVersionTable
-          onVersionRollbackRequested={imageName =>
-            self.onVersionRollbackRequested(imageName)
+          onVersionRollbackRequested={versionToRevert =>
+            self.onVersionRollbackRequested(versionToRevert)
           }
           versions={
             self.state.updatedVersions

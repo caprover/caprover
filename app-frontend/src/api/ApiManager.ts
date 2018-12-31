@@ -116,6 +116,7 @@ export default class ApiManager {
   uploadCaptainDefinitionContent(
     appName: string,
     captainDefinition: ICaptainDefinition,
+    gitHash: string,
     detached: boolean
   ) {
     const http = this.http;
@@ -125,7 +126,10 @@ export default class ApiManager {
         http.fetch(
           http.POST,
           "/user/apps/appData/" + appName + (detached ? "?detached=1" : ""),
-          { captainDefinitionContent: JSON.stringify(captainDefinition) }
+          {
+            captainDefinitionContent: JSON.stringify(captainDefinition),
+            gitHash
+          }
         )
       );
   }

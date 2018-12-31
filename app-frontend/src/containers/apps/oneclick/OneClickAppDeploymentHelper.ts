@@ -104,6 +104,7 @@ export default class OneClickAppDeploymentHelper {
       return self.apiManager.uploadCaptainDefinitionContent(
         appName,
         captainDefinition,
+        '',
         false
       );
     });

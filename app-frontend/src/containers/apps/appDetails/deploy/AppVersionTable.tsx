@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { IAppVersion } from "../../AppDefinition";
-import { Table, Icon, Tooltip } from "antd";
+import { Table, Icon, Tooltip, Modal } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import ClickableLink from "../../../global/ClickableLink";
 import moment from "moment";
@@ -9,7 +9,7 @@ import Utils from "../../../../utils/Utils";
 export default class AppVersionTable extends Component<{
   versions: IAppVersion[];
   deployedVersion: number;
-  onVersionRollbackRequested: (imageName: string) => void;
+  onVersionRollbackRequested: (versionToRevert: IAppVersion) => void;
 }> {
   getCols() {
     const self = this;
@@ -44,9 +44,7 @@ export default class AppVersionTable extends Component<{
 
           return (
             <ClickableLink
-              onLinkClicked={() =>
-                self.props.onVersionRollbackRequested(imageName)
-              }
+              onLinkClicked={() => self.onRollbackClicked(versionDetails)}
             >
               <Tooltip title="Revert to this version">
                 <span>
@@ -94,6 +92,42 @@ export default class AppVersionTable extends Component<{
       }
     ];
     return columns;
+  }
+
+  onRollbackClicked(versionToRevert: IAppVersion) {
+    const self = this;
+    const imageName = versionToRevert.deployedImageName!;
+    let content = (
+      <span>
+        {`If you had previously deleted this image explicitly through disk cleanup, 
+      this revert process will fail.`}
+        <br />
+        <br />
+        {`Do you want to continue with rolling back your app to `}
+        <code>{imageName}</code>?
+      </span>
+    );
+    if (imageName.indexOf("/") > 0) {
+      content = (
+        <span>
+          {`${imageName} appears to be hosted on Docker Registry. 
+        Make sure you have not deleted this image from the repository since it was originally deployed. 
+        Deletion usually does not happen automatically, so if you have not deleted the image intentionally, 
+        you don't need to worry about this.`}
+          <br />
+          <br />
+          {`Do you want to continue with rolling back your app to `}
+          <code>{imageName}</code>?
+        </span>
+      );
+    }
+    Modal.confirm({
+      title: "Rollback?",
+      content,
+      onOk: () => {
+        self.props.onVersionRollbackRequested(versionToRevert);
+      }
+    });
   }
 
   render() {
