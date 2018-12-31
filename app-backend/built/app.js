@@ -96,7 +96,14 @@ httpProxy.on('error', function (err, req, resOriginal) {
     resOriginal.writeHead(500, {
         'Content-Type': 'text/plain',
     });
-    resOriginal.end('Something went wrong... err: \n ' + (err ? err : 'NULL'));
+    if ((err + '').indexOf('getaddrinfo ENOTFOUND captain-netdata-container') >=
+        0) {
+        resOriginal.end('Something went wrong... err: \n ' +
+            'NetData is not running! Are you sure you have started it?');
+    }
+    else {
+        resOriginal.end('Something went wrong... err: \n ' + (err ? err : 'NULL'));
+    }
 });
 app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     httpProxy.web(req, res, {
