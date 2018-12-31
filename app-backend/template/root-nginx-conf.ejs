@@ -2,7 +2,20 @@
 # Default catch-all page. e.g. if you enter SOME-RANDOM-CHARS.captainroot.domain.com
     server {
 
+        # Catch all HTTP
         listen       80;
+
+        # Catch all HTTPS
+        <%
+            if (captain.hasRootSsl) {
+        %>
+            listen              443 ssl;
+            ssl_certificate     <%-captain.crtPath%>;
+            ssl_certificate_key <%-captain.keyPath%>;
+        <%
+            }
+        %>
+
         server_name  _;
 
         location /nginx_status {
@@ -18,7 +31,8 @@
             index  index.html index.htm;
         }
 
-        error_page 404 500 502 503 504 /error.html;
+        error_page 404 /index.html;
+        error_page 500 502 503 504 /error_generic_catch_all.html;
     }
 
 

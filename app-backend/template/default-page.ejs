@@ -31,8 +31,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0px 20px;
-            max-width: 450px;
+            padding: 20px;
+            max-width: 550px;
         }
 
         .message__title {
@@ -57,7 +57,12 @@
             background: linear-gradient(135deg, #1d5b85 0%, #3295c7 100%);
         }
 
-        body.defaultpagebody .message__title {
+        .message__title {
+            color: #fff;
+        }
+
+        .message {
+            padding: 25px;
             color: #fff;
         }
 
@@ -73,14 +78,21 @@
             color: #fff;
             border: 2px solid rgba(255, 255, 255, 0.7);
         }
-
     </style>
-    <base target=_parent /> </head>
+    <base target=_parent />
+</head>
 
 <body class=defaultpagebody>
-<div class=spacer></div>
-<div class=message>
-    <div class=message__title> <%=message%> </div> <a href="http://www.captainduckduck.com" class=btn>Visit Captain DuckDuck</a> </div>
+    <div class=message>
+        <div class=message__title>
+            <%=message_title%>
+        </div>
+        <div class=message>
+            <%=message_body%>
+        </div>
+        <a href="<%=message_link%>" target="_blank" rel="noopener noreferrer" class="btn">
+            <%=message_link_title%></a>
+    </div>
 </body>
 
 </html>

@@ -63,6 +63,12 @@ if (!s.forceSsl || s.hasSsl) {
         location /.well-known/ {
             root <%-s.staticWebRoot%>;
         }
+
+        error_page 502 /captain_502_custom_error_page.html;
+        location = /captain_502_custom_error_page.html {
+                root <%-s.customErrorPagesDirectory%>;
+                internal;
+        }
     }
 
 <%

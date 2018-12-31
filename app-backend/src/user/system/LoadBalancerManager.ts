@@ -109,6 +109,10 @@ class LoadBalancerManager {
                             '/' +
                             s.publicDomain
 
+                        s.customErrorPagesDirectory =
+                            CaptainConstants.nginxStaticRootDir +
+                            CaptainConstants.nginxDefaultHtmlDir
+
                         promises.push(
                             Promise.resolve()
                                 .then(function() {
@@ -392,7 +396,10 @@ class LoadBalancerManager {
             )
             .then(function() {
                 return ejs.render(defaultPageTemplate, {
-                    message: 'Nothing here yet :/',
+                    message_title: 'Nothing here yet :/',
+                    message_body: '',
+                    message_link: 'https://captainduckduck.com/',
+                    message_link_title: 'Read Docs',
                 })
             })
             .then(function(staticPageContent) {
@@ -405,15 +412,36 @@ class LoadBalancerManager {
             })
             .then(function() {
                 return ejs.render(defaultPageTemplate, {
-                    message: 'An Error Occurred :/',
+                    message_title: 'An Error Occurred :/',
+                    message_body: '',
+                    message_link: 'https://captainduckduck.com/',
+                    message_link_title: 'Read Docs',
                 })
             })
-            .then(function(errorPageContent) {
+            .then(function(errorGenericPageContent) {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                         CaptainConstants.nginxDefaultHtmlDir +
-                        '/error.html',
-                    errorPageContent
+                        '/error_generic_catch_all.html',
+                    errorGenericPageContent
+                )
+            })
+            .then(function() {
+                return ejs.render(defaultPageTemplate, {
+                    message_title: 'NGINX 502 Error :/',
+                    message_body:
+                        "If you are the developer, check your application's logs. See the link below for details",
+                    message_link:
+                        'https://captainduckduck.com/docs/troubleshooting.html#successful-deploy-but-502-bad-gateway-error',
+                    message_link_title: 'Docs - 502 Troubleshooting',
+                })
+            })
+            .then(function(error502PageContent) {
+                return fs.outputFile(
+                    CaptainConstants.captainStaticFilesDir +
+                        CaptainConstants.nginxDefaultHtmlDir +
+                        '/captain_502_custom_error_page.html',
+                    error502PageContent
                 )
             })
             .then(function() {

@@ -461,6 +461,7 @@ class AppsDataStore {
                             localDomain: localDomain,
                             nginxConfigTemplate: nginxConfigTemplate,
                             staticWebRoot: '',
+                            customErrorPagesDirectory: '',
                         });
                     }
                 }

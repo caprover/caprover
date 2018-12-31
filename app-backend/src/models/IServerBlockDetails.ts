@@ -7,6 +7,6 @@ interface IServerBlockDetails {
 
     crtPath?: string
     keyPath?: string
-
+    customErrorPagesDirectory: string
     staticWebRoot: string
 }
