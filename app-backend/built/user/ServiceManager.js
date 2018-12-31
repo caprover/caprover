@@ -2,6 +2,7 @@
 const Logger = require("../utils/Logger");
 const CaptainConstants = require("../utils/CaptainConstants");
 const CaptainManager = require("./system/CaptainManager");
+const DockerApi_1 = require("../docker/DockerApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Authenticator = require("./Authenticator");
 const requireFromString = require("require-from-string");
@@ -456,7 +457,7 @@ class ServiceManager {
         })
             .then(function (preDeployFunction) {
             Logger.d(`Updating service ${serviceName} with image ${imageName}`);
-            return dockerApi.updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, undefined, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace(), app.ports, app, preDeployFunction);
+            return dockerApi.updateService(serviceName, imageName, app.volumes, app.networks, app.envVars, undefined, dockerAuthObject, Number(app.instanceCount), app.nodeId, dataStore.getNameSpace(), app.ports, app, DockerApi_1.IDockerUpdateOrders.AUTO, preDeployFunction);
         })
             .then(function () {
             return new Promise(function (resolve) {

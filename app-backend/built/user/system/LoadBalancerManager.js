@@ -396,7 +396,7 @@ class LoadBalancerManager {
                     containerPath: CaptainConstants.nginxSharedPathOnNginx,
                     hostPath: CaptainConstants.nginxSharedPathOnHost,
                 },
-            ], [CaptainConstants.captainNetworkName], undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+            ], [CaptainConstants.captainNetworkName], undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         })
             .then(function () {
             const waitTimeInMillis = 5000;

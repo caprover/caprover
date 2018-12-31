@@ -451,6 +451,7 @@ class CaptainManager {
                 undefined,
                 undefined,
                 undefined,
+                undefined,
                 undefined
             )
         })
@@ -966,6 +967,7 @@ class CaptainManager {
             setTimeout(function() {
                 const promiseToIgnore = self.dockerApi.updateService(
                     CaptainConstants.captainServiceName,
+                    undefined,
                     undefined,
                     undefined,
                     undefined,

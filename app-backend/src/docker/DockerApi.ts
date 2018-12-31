@@ -19,6 +19,13 @@ function safeParseChunk(chunk: string) {
     }
 }
 
+export abstract class IDockerUpdateOrders {
+    public static readonly AUTO = 'auto'
+    public static readonly STOP_FIRST = 'stopFirst'
+    public static readonly START_FIRST = 'startFirst'
+}
+export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
+
 class DockerApi {
     private dockerode: Docker
 
@@ -916,6 +923,7 @@ class DockerApi {
                         undefined,
                         undefined,
                         undefined,
+                        undefined,
                         undefined
                     )
                     .then(function() {
@@ -1033,6 +1041,7 @@ class DockerApi {
                     undefined,
                     undefined,
                     undefined,
+                    undefined,
                     undefined
                 )
             })
@@ -1117,6 +1126,7 @@ class DockerApi {
         namespace: string | undefined,
         ports: IAppPort[] | undefined,
         appObject: IAppDef | undefined,
+        updateOrder: IDockerUpdateOrder | undefined,
         preDeployFunction: Function | undefined
     ) {
         const self = this
@@ -1280,6 +1290,33 @@ class DockerApi {
                                 objToAdd
                             )
                         }
+                    }
+                }
+
+                if (updateOrder) {
+                    updatedData.UpdateConfig = updatedData.UpdateConfig || {}
+
+                    switch (updateOrder) {
+                        case IDockerUpdateOrders.AUTO:
+                            const existingVols =
+                                updatedData.TaskTemplate.ContainerSpec.Mounts ||
+                                []
+                            updatedData.UpdateConfig.Order =
+                                existingVols.length > 0
+                                    ? 'stop-first'
+                                    : 'start-first'
+                            break
+                        case IDockerUpdateOrders.START_FIRST:
+                            updatedData.UpdateConfig.Order = 'start-first'
+                            break
+                        case IDockerUpdateOrders.STOP_FIRST:
+                            updatedData.UpdateConfig.Order = 'stop-first'
+                            break
+                        default:
+                            let neverHappens: never = updateOrder
+                            throw new Error(
+                                'Unknown update order! ' + updateOrder
+                            )
                     }
                 }
 

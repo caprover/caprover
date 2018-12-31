@@ -17,6 +17,12 @@ function safeParseChunk(chunk) {
         };
     }
 }
+class IDockerUpdateOrders {
+}
+IDockerUpdateOrders.AUTO = 'auto';
+IDockerUpdateOrders.STOP_FIRST = 'stopFirst';
+IDockerUpdateOrders.START_FIRST = 'startFirst';
+exports.IDockerUpdateOrders = IDockerUpdateOrders;
 class DockerApi {
     constructor(connectionParams) {
         this.dockerode = new Docker(connectionParams);
@@ -721,7 +727,7 @@ class DockerApi {
                     secretName: secretName,
                     secretId: secretToExpose.ID,
                 },
-            ], undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+            ], undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
                 .then(function () {
                 return false;
             });
@@ -808,7 +814,7 @@ class DockerApi {
                 networkName +
                 ' to service: ' +
                 serviceName);
-            return self.updateService(serviceName, undefined, undefined, allNetworks, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+            return self.updateService(serviceName, undefined, undefined, allNetworks, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         });
     }
     ensureOverlayNetwork(networkName) {
@@ -874,7 +880,7 @@ class DockerApi {
      * @param namespace: String 'captain' or null
      * @returns {Promise.<>}
      */
-    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace, ports, appObject, preDeployFunction) {
+    updateService(serviceName, imageName, volumes, networks, arrayOfEnvKeyAndValue, secrets, authObject, instanceCount, nodeId, namespace, ports, appObject, updateOrder, preDeployFunction) {
         const self = this;
         return self.dockerode
             .getService(serviceName)
@@ -1006,6 +1012,28 @@ class DockerApi {
                     else {
                         updatedData.TaskTemplate.ContainerSpec.Secrets.push(objToAdd);
                     }
+                }
+            }
+            if (updateOrder) {
+                updatedData.UpdateConfig = updatedData.UpdateConfig || {};
+                switch (updateOrder) {
+                    case IDockerUpdateOrders.AUTO:
+                        const existingVols = updatedData.TaskTemplate.ContainerSpec.Mounts ||
+                            [];
+                        updatedData.UpdateConfig.Order =
+                            existingVols.length > 0
+                                ? 'stop-first'
+                                : 'start-first';
+                        break;
+                    case IDockerUpdateOrders.START_FIRST:
+                        updatedData.UpdateConfig.Order = 'start-first';
+                        break;
+                    case IDockerUpdateOrders.STOP_FIRST:
+                        updatedData.UpdateConfig.Order = 'stop-first';
+                        break;
+                    default:
+                        let neverHappens = updateOrder;
+                        throw new Error('Unknown update order! ' + updateOrder);
                 }
             }
             // docker seems to be trying to smart and update if necessary!

@@ -304,7 +304,7 @@ class CaptainManager {
         return Promise.resolve().then(function () {
             return self.dockerApi.updateService(CaptainConstants.captainServiceName, CaptainConstants.configs.publishedNameOnDockerHub +
                 ':' +
-                versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+                versionTag, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         });
     }
     getMyNodeId() {
@@ -683,7 +683,7 @@ class CaptainManager {
         Logger.d('Captain is resetting itself!');
         return new Promise(function (resolve, reject) {
             setTimeout(function () {
-                const promiseToIgnore = self.dockerApi.updateService(CaptainConstants.captainServiceName, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+                const promiseToIgnore = self.dockerApi.updateService(CaptainConstants.captainServiceName, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
             }, 2000);
         });
     }

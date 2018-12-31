@@ -2,7 +2,7 @@ import Logger = require('../utils/Logger')
 import CaptainConstants = require('../utils/CaptainConstants')
 import CaptainManager = require('./system/CaptainManager')
 import LoadBalancerManager = require('./system/LoadBalancerManager')
-import DockerApi from '../docker/DockerApi'
+import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import DataStore = require('../datastore/DataStore')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Authenticator = require('./Authenticator')
@@ -653,6 +653,7 @@ class ServiceManager {
                     dataStore.getNameSpace(),
                     app.ports,
                     app,
+                    IDockerUpdateOrders.AUTO,
                     preDeployFunction
                 )
             })

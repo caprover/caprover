@@ -278,7 +278,7 @@ class CertbotManager {
                 },
             ], 
             // No need to certbot to be connected to the network
-            undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+            undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         })
             .then(function () {
             return self.ensureAllCurrentlyRegisteredDomainsHaveDirs();
