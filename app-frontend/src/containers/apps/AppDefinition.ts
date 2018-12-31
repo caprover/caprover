@@ -14,9 +14,6 @@ interface IAppVolume {
   containerPath: string;
   volumeName?: string;
   hostPath?: string;
-  type?: "volume" | "bind";
-
-  mode?: string;
 }
 
 interface IAppPort {
