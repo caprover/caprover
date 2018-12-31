@@ -1,4 +1,5 @@
-RUN apk --update add make g++
+RUN apk update && apk upgrade && \
+    apk add --no-cache make g++ git postgresql-dev
     
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
