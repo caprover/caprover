@@ -188,7 +188,9 @@ export default class AppDetails extends ApiComponent<
           >
             <Tabs
               defaultActiveKey={WEB_SETTINGS}
-              // onChange={key => console.log(key)}
+              onChange={key => {
+                self.setState({ activeTabKey: key });
+              }}
             >
               <TabPane
                 tab={<span className="unselectable-span">HTTP Settings</span>}
@@ -227,6 +229,7 @@ export default class AppDetails extends ApiComponent<
                   reFetchData={() => this.reFetchData()}
                   apiData={this.state.apiData!}
                   apiManager={this.apiManager}
+                  onUpdateConfigAndSave={() => self.onUpdateConfigAndSave()}
                   updateApiData={(newData: any) =>
                     this.setState({ apiData: newData })
                   }
@@ -243,6 +246,9 @@ export default class AppDetails extends ApiComponent<
               }}
             >
               <div
+                className={
+                  self.state.activeTabKey === DEPLOYMENT ? "hide-on-demand" : ""
+                }
                 style={{
                   borderRadius: 8,
                   background: "rgba(51,73,90,0.9)",

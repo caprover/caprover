@@ -15,38 +15,6 @@ export default class GitRepoForm extends Component<{
             <Col span={12}>
               <Input
                 style={{ marginBottom: 20 }}
-                value={this.props.gitRepoValues.user}
-                addonBefore={<span>Username&nbsp;</span>}
-                placeholder="myemail@gmail.com"
-                type="email"
-                onChange={e => {
-                  const newObj = Utils.copyObject(this.props.gitRepoValues);
-                  newObj.user = e.target.value;
-                  this.props.updateRepoInfo(newObj);
-                }}
-              />
-            </Col>
-            <Col span={12}>
-              <Input
-                style={{ marginBottom: 20 }}
-                value={this.props.gitRepoValues.password}
-                addonBefore="Password"
-                placeholder="githubpassword"
-                spellCheck={false}
-                autoCorrect="off"
-                autoComplete="off"
-                autoCapitalize="off"
-                type="text"
-                onChange={e => {
-                  const newObj = Utils.copyObject(this.props.gitRepoValues);
-                  newObj.password = e.target.value;
-                  this.props.updateRepoInfo(newObj);
-                }}
-              />
-            </Col>
-            <Col span={12}>
-              <Input
-                style={{ marginBottom: 20 }}
                 value={this.props.gitRepoValues.repo}
                 addonBefore="Repository"
                 placeholder="github.com/someone/something"
@@ -76,6 +44,38 @@ export default class GitRepoForm extends Component<{
                 onChange={e => {
                   const newObj = Utils.copyObject(this.props.gitRepoValues);
                   newObj.branch = e.target.value;
+                  this.props.updateRepoInfo(newObj);
+                }}
+              />
+            </Col>
+            <Col span={12}>
+              <Input
+                style={{ marginBottom: 20 }}
+                value={this.props.gitRepoValues.user}
+                addonBefore={<span>Username&nbsp;</span>}
+                placeholder="myemail@gmail.com"
+                type="email"
+                onChange={e => {
+                  const newObj = Utils.copyObject(this.props.gitRepoValues);
+                  newObj.user = e.target.value;
+                  this.props.updateRepoInfo(newObj);
+                }}
+              />
+            </Col>
+            <Col span={12}>
+              <Input
+                style={{ marginBottom: 20 }}
+                value={this.props.gitRepoValues.password}
+                addonBefore="Password"
+                placeholder="githubpassword"
+                spellCheck={false}
+                autoCorrect="off"
+                autoComplete="off"
+                autoCapitalize="off"
+                type="text"
+                onChange={e => {
+                  const newObj = Utils.copyObject(this.props.gitRepoValues);
+                  newObj.password = e.target.value;
                   this.props.updateRepoInfo(newObj);
                 }}
               />

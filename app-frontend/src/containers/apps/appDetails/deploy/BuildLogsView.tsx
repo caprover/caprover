@@ -79,7 +79,7 @@ export default class BuildLogsView extends ApiComponent<
           setTimeout(function() {
             let textarea = document.getElementById("buildlog-text-id");
             if (textarea) textarea.scrollTop = textarea.scrollHeight;
-          }, 500);
+          }, 100);
         }
       })
       .catch(Toaster.createCatcher());

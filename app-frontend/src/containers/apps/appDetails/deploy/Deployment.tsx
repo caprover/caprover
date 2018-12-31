@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AppDetailsTabProps } from "../AppDetails";
 import BuildLogsView from "./BuildLogsView";
-import { Col, Row, Upload, Input, message, Icon } from "antd";
+import { Col, Row, Upload, Input, message, Icon, Button } from "antd";
 import TarUploader from "./TarUploader";
 import GitRepoForm from "./GitRepoForm";
 import { RepoInfo } from "../../AppDefinition";
@@ -10,8 +10,11 @@ import DomUtils from "../../../../utils/DomUtils";
 import UploaderPlainTextCaptainDefinition from "./UploaderPlainTextCaptainDefinition";
 import UploaderPlainTextDockerfile from "./UploaderPlainTextDockerfile";
 
+interface IDeploymentTabProps extends AppDetailsTabProps {
+  onUpdateConfigAndSave: () => void;
+}
 export default class Deployment extends Component<
-  AppDetailsTabProps,
+  IDeploymentTabProps,
   {
     dummyVar: undefined;
     buildLogRecreationId: string;
@@ -161,6 +164,15 @@ export default class Deployment extends Component<
             this.props.updateApiData(newApiData);
           }}
         />
+        <Row type="flex" justify="end">
+          <Button
+            disabled={!repoInfo.repo}
+            type="primary"
+            onClick={() => self.props.onUpdateConfigAndSave()}
+          >
+            Save &amp; Update
+          </Button>
+        </Row>
         <div style={{ height: 20 }} />
         <h4>
           <Icon type="code" /> Method 4: Deploy plain Dockerfile
