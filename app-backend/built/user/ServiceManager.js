@@ -249,7 +249,12 @@ class ServiceManager {
                         const versionToCheck = Number(app.deployedVersion) - k;
                         if (versionToCheck < 0)
                             continue;
-                        const deployedImage = app.versions[versionToCheck].deployedImageName;
+                        let deployedImage = '';
+                        app.versions.forEach(v => {
+                            if (v.version === versionToCheck) {
+                                deployedImage = v.deployedImageName || '';
+                            }
+                        });
                         if (!deployedImage)
                             continue;
                         if (repoTags.indexOf(deployedImage) >= 0) {

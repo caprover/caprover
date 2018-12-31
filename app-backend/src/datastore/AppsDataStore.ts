@@ -382,7 +382,16 @@ class AppsDataStore {
 
         return this.getAppDefinition(appName).then(function(app) {
             const versions = app.versions
-            const newVersionIndex = versions.length
+
+            let newVersionIndex = versions.length
+
+            // Just in case some versions from the db were deleted manually!!!
+            for (let index = 0; index < versions.length; index++) {
+                const element = versions[index]
+                if (newVersionIndex < element.version) {
+                    newVersionIndex = element.version + 1
+                }
+            }
 
             versions.push({
                 version: newVersionIndex,
