@@ -8,6 +8,7 @@ import Utils from "../../../../utils/Utils";
 export default class BuildLogsView extends ApiComponent<
   {
     appName: string;
+    onAppBuildFinished: () => void;
     buildLogRecreationId: string;
   },
   {
@@ -39,6 +40,11 @@ export default class BuildLogsView extends ApiComponent<
     this.apiManager
       .fetchBuildLogs(this.props.appName)
       .then(function(logInfo) {
+        if (self.state.isAppBuilding && !logInfo.isAppBuilding) {
+          // App was building but not anymore
+          self.props.onAppBuildFinished();
+        }
+
         self.setState({ isAppBuilding: logInfo.isAppBuilding });
         if (logInfo.isAppBuilding) {
           // forcefully expanding the view such that when building finishes it doesn't collapses automatically

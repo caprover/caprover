@@ -38,7 +38,7 @@ interface RepoInfoEncrypted {
   passwordEncrypted: string;
 }
 
-interface IAppVersion {
+export interface IAppVersion {
   version: number;
   deployedImageName?: string; // empty if the deploy is not completed
   timeStamp: string;
