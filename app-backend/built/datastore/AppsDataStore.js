@@ -363,11 +363,9 @@ class AppsDataStore {
                     };
                     if (obj.hostPath) {
                         newVol.hostPath = obj.hostPath;
-                        newVol.type = 'bind';
                     }
                     else {
                         newVol.volumeName = obj.volumeName;
-                        newVol.type = 'volume';
                     }
                     appObj.volumes.push(newVol);
                 }

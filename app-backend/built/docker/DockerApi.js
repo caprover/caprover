@@ -6,6 +6,7 @@ const uuid = require("uuid/v4");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
 const EnvVars = require("../utils/EnvVars");
+const OtherTypes_1 = require("../models/OtherTypes");
 const Base64 = Base64Provider.Base64;
 function safeParseChunk(chunk) {
     try {
@@ -535,10 +536,13 @@ class DockerApi {
             const mts = [];
             for (let idx = 0; idx < volumeToMount.length; idx++) {
                 const v = volumeToMount[idx];
+                if (!v.containerPath) {
+                    throw new Error('Service Create currently only supports bind volumes.');
+                }
                 mts.push({
                     Source: v.hostPath,
                     Target: v.containerPath,
-                    Type: v.type,
+                    Type: OtherTypes_1.VolumesTypes.BIND,
                     ReadOnly: false,
                     Consistency: 'default',
                 });
@@ -946,26 +950,23 @@ class DockerApi {
                 const mts = [];
                 for (let idx = 0; idx < volumes.length; idx++) {
                     const v = volumes[idx];
-                    const TYPE_BIND = 'bind';
-                    const TYPE_VOLUME = 'volume';
-                    v.type = v.type || TYPE_BIND;
-                    if (v.type === TYPE_BIND) {
+                    if (!!v.hostPath) {
                         mts.push({
                             Source: v.hostPath,
                             Target: v.containerPath,
-                            Type: TYPE_BIND,
+                            Type: OtherTypes_1.VolumesTypes.BIND,
                             ReadOnly: false,
                             Consistency: 'default',
                         });
                     }
-                    else if (v.type === TYPE_VOLUME) {
+                    else if (!!v.volumeName) {
                         // named volumes are created here:
                         // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                         mts.push({
                             Source: (namespace ? namespace + '--' : '') +
                                 v.volumeName,
                             Target: v.containerPath,
-                            Type: TYPE_VOLUME,
+                            Type: OtherTypes_1.VolumesTypes.VOLUME,
                             ReadOnly: false,
                         });
                     }
