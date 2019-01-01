@@ -90,69 +90,33 @@ class SelfHostedDockerRegistry {
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
-        const myNodeId = this.captainManager.getMyNodeId()
-
-        function createRegistryServiceOnNode() {
-            return dockerApi.createServiceOnNodeId(
-                CaptainConstants.registryImageName,
-                CaptainConstants.registryServiceName,
-                [
-                    {
-                        protocol: 'tcp',
-                        containerPort: 5000,
-                        hostPort: CaptainConstants.configs.registrySubDomainPort,
-                    },
-                ],
-                myNodeId,
-                [
-                    {
-                        containerPath: '/cert-files',
-                        hostPath: CaptainConstants.letsEncryptEtcPath,
-                    },
-                    {
-                        containerPath: '/var/lib/registry',
-                        hostPath: CaptainConstants.registryPathOnHost,
-                    },
-                    {
-                        containerPath: '/etc/auth',
-                        hostPath: CaptainConstants.registryAuthPathOnHost,
-                    },
-                ],
-                [
-                    {
-                        key: 'REGISTRY_HTTP_TLS_CERTIFICATE',
-                        value:
-                            '/cert-files/live/' +
-                            CaptainConstants.registrySubDomain +
-                            '.' +
-                            dataStore.getRootDomain() +
-                            '/fullchain.pem',
-                    },
-                    {
-                        key: 'REGISTRY_HTTP_TLS_KEY',
-                        value:
-                            '/cert-files/live/' +
-                            CaptainConstants.registrySubDomain +
-                            '.' +
-                            dataStore.getRootDomain() +
-                            '/privkey.pem',
-                    },
-                    {
-                        key: 'REGISTRY_AUTH',
-                        value: 'htpasswd',
-                    },
-                    {
-                        key: 'REGISTRY_AUTH_HTPASSWD_REALM',
-                        value: 'Registry Realm',
-                    },
-                    {
-                        key: 'REGISTRY_AUTH_HTPASSWD_PATH',
-                        value: '/etc/auth',
-                    },
-                ],
-                undefined
-            )
+        function createRegistryServiceOnNode(nodeId: string) {
+            return dockerApi
+                .createServiceOnNodeId(
+                    CaptainConstants.registryImageName,
+                    CaptainConstants.registryServiceName,
+                    undefined,
+                    nodeId,
+                    undefined,
+                    undefined,
+                    undefined
+                )
+                .then(function() {
+                    const waitTimeInMillis = 5000
+                    Logger.d(
+                        'Waiting for ' +
+                            waitTimeInMillis / 1000 +
+                            ' seconds for Registry to start up'
+                    )
+                    return new Promise<boolean>(function(resolve, reject) {
+                        setTimeout(function() {
+                            resolve(true)
+                        }, waitTimeInMillis)
+                    })
+                })
         }
+
+        const myNodeId = this.captainManager.getMyNodeId()
 
         return Promise.resolve()
             .then(function() {
@@ -184,9 +148,11 @@ class SelfHostedDockerRegistry {
                         'No Captain Registry service is running. Creating one...'
                     )
 
-                    return createRegistryServiceOnNode().then(function() {
-                        return myNodeId
-                    })
+                    return createRegistryServiceOnNode(myNodeId).then(
+                        function() {
+                            return myNodeId
+                        }
+                    )
                 }
             })
             .then(function(nodeId) {
@@ -202,7 +168,7 @@ class SelfHostedDockerRegistry {
                         .then(function() {
                             Logger.d('Creating Registry on this node...')
 
-                            return createRegistryServiceOnNode().then(
+                            return createRegistryServiceOnNode(myNodeId).then(
                                 function() {
                                     return true
                                 }
@@ -211,6 +177,78 @@ class SelfHostedDockerRegistry {
                 } else {
                     return true
                 }
+            })
+            .then(function() {
+                Logger.d('Updating Certbot service...')
+
+                return dockerApi.updateService(
+                    CaptainConstants.registryServiceName,
+                    CaptainConstants.registryImageName,
+                    [
+                        {
+                            containerPath: '/cert-files',
+                            hostPath: CaptainConstants.letsEncryptEtcPath,
+                        },
+                        {
+                            containerPath: '/var/lib/registry',
+                            hostPath: CaptainConstants.registryPathOnHost,
+                        },
+                        {
+                            containerPath: '/etc/auth',
+                            hostPath: CaptainConstants.registryAuthPathOnHost,
+                        },
+                    ],
+                    // No need for registry to be connected to the network
+                    undefined,
+                    [
+                        {
+                            key: 'REGISTRY_HTTP_TLS_CERTIFICATE',
+                            value:
+                                '/cert-files/live/' +
+                                CaptainConstants.registrySubDomain +
+                                '.' +
+                                dataStore.getRootDomain() +
+                                '/fullchain.pem',
+                        },
+                        {
+                            key: 'REGISTRY_HTTP_TLS_KEY',
+                            value:
+                                '/cert-files/live/' +
+                                CaptainConstants.registrySubDomain +
+                                '.' +
+                                dataStore.getRootDomain() +
+                                '/privkey.pem',
+                        },
+                        {
+                            key: 'REGISTRY_AUTH',
+                            value: 'htpasswd',
+                        },
+                        {
+                            key: 'REGISTRY_AUTH_HTPASSWD_REALM',
+                            value: 'Registry Realm',
+                        },
+                        {
+                            key: 'REGISTRY_AUTH_HTPASSWD_PATH',
+                            value: '/etc/auth',
+                        },
+                    ],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    [
+                        {
+                            protocol: 'tcp',
+                            containerPort: 5000,
+                            hostPort:
+                                CaptainConstants.configs.registrySubDomainPort,
+                        },
+                    ],
+                    undefined,
+                    undefined,
+                    undefined
+                )
             })
     }
 }

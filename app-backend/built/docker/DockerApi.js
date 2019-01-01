@@ -594,7 +594,7 @@ class DockerApi {
                     ') of the service running for sendSingleContainerKillHUP. ' +
                     serviceName);
             }
-            if (data.length === 1) {
+            if (data.length === 1 && !!data[0].Status.ContainerStatus) {
                 return Promise.resolve(data[0].Status.ContainerStatus.ContainerID);
             }
             if (retryCount < 3) {
@@ -1186,7 +1186,7 @@ const connectionParams = dockerApiAddressSplited.length < 2
             host: dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1],
             port: Number(dockerApiAddressSplited[2]),
         };
-connectionParams.version = 'v1.30';
+connectionParams.version = 'v1.39';
 const dockerApiInstance = new DockerApi(connectionParams);
 exports.default = DockerApi;
 //# sourceMappingURL=DockerApi.js.map

@@ -737,7 +737,7 @@ class DockerApi {
                     )
                 }
 
-                if (data.length === 1) {
+                if (data.length === 1 && !!data[0].Status.ContainerStatus) {
                     return Promise.resolve(
                         data[0].Status.ContainerStatus.ContainerID
                     )
@@ -1510,7 +1510,7 @@ const connectionParams: Docker.DockerOptions =
               port: Number(dockerApiAddressSplited[2]),
           }
 
-connectionParams.version = 'v1.30'
+connectionParams.version = 'v1.39'
 
 const dockerApiInstance = new DockerApi(connectionParams)
 

@@ -60,15 +60,63 @@ class SelfHostedDockerRegistry {
     ensureDockerRegistryRunningOnThisNode(password) {
         const dockerApi = this.dockerApi;
         const dataStore = this.dataStore;
+        function createRegistryServiceOnNode(nodeId) {
+            return dockerApi
+                .createServiceOnNodeId(CaptainConstants.registryImageName, CaptainConstants.registryServiceName, undefined, nodeId, undefined, undefined, undefined)
+                .then(function () {
+                const waitTimeInMillis = 5000;
+                Logger.d('Waiting for ' +
+                    waitTimeInMillis / 1000 +
+                    ' seconds for Registry to start up');
+                return new Promise(function (resolve, reject) {
+                    setTimeout(function () {
+                        resolve(true);
+                    }, waitTimeInMillis);
+                });
+            });
+        }
         const myNodeId = this.captainManager.getMyNodeId();
-        function createRegistryServiceOnNode() {
-            return dockerApi.createServiceOnNodeId(CaptainConstants.registryImageName, CaptainConstants.registryServiceName, [
-                {
-                    protocol: 'tcp',
-                    containerPort: 5000,
-                    hostPort: CaptainConstants.configs.registrySubDomainPort,
-                },
-            ], myNodeId, [
+        return Promise.resolve()
+            .then(function () {
+            const authContent = CaptainConstants.captainRegistryUsername +
+                ':' +
+                bcrypt.hashSync(password, bcrypt.genSaltSync(5));
+            return fs.outputFile(CaptainConstants.registryAuthPathOnHost, authContent);
+        })
+            .then(function () {
+            return dockerApi.isServiceRunningByName(CaptainConstants.registryServiceName);
+        })
+            .then(function (isRunning) {
+            if (isRunning) {
+                Logger.d('Captain Registry is already running.. ');
+                return dockerApi.getNodeIdByServiceName(CaptainConstants.registryServiceName, 0);
+            }
+            else {
+                Logger.d('No Captain Registry service is running. Creating one...');
+                return createRegistryServiceOnNode(myNodeId).then(function () {
+                    return myNodeId;
+                });
+            }
+        })
+            .then(function (nodeId) {
+            if (nodeId !== myNodeId) {
+                Logger.d('Captain Registry is running on a different node. Removing...');
+                return dockerApi
+                    .removeServiceByName(CaptainConstants.registryServiceName)
+                    .then(function () {
+                    Logger.d('Creating Registry on this node...');
+                    return createRegistryServiceOnNode(myNodeId).then(function () {
+                        return true;
+                    });
+                });
+            }
+            else {
+                return true;
+            }
+        })
+            .then(function () {
+            Logger.d('Updating Certbot service...');
+            return dockerApi.updateService(CaptainConstants.registryServiceName, CaptainConstants.registryImageName, [
                 {
                     containerPath: '/cert-files',
                     hostPath: CaptainConstants.letsEncryptEtcPath,
@@ -81,7 +129,9 @@ class SelfHostedDockerRegistry {
                     containerPath: '/etc/auth',
                     hostPath: CaptainConstants.registryAuthPathOnHost,
                 },
-            ], [
+            ], 
+            // No need for registry to be connected to the network
+            undefined, [
                 {
                     key: 'REGISTRY_HTTP_TLS_CERTIFICATE',
                     value: '/cert-files/live/' +
@@ -110,45 +160,13 @@ class SelfHostedDockerRegistry {
                     key: 'REGISTRY_AUTH_HTPASSWD_PATH',
                     value: '/etc/auth',
                 },
-            ], undefined);
-        }
-        return Promise.resolve()
-            .then(function () {
-            const authContent = CaptainConstants.captainRegistryUsername +
-                ':' +
-                bcrypt.hashSync(password, bcrypt.genSaltSync(5));
-            return fs.outputFile(CaptainConstants.registryAuthPathOnHost, authContent);
-        })
-            .then(function () {
-            return dockerApi.isServiceRunningByName(CaptainConstants.registryServiceName);
-        })
-            .then(function (isRunning) {
-            if (isRunning) {
-                Logger.d('Captain Registry is already running.. ');
-                return dockerApi.getNodeIdByServiceName(CaptainConstants.registryServiceName, 0);
-            }
-            else {
-                Logger.d('No Captain Registry service is running. Creating one...');
-                return createRegistryServiceOnNode().then(function () {
-                    return myNodeId;
-                });
-            }
-        })
-            .then(function (nodeId) {
-            if (nodeId !== myNodeId) {
-                Logger.d('Captain Registry is running on a different node. Removing...');
-                return dockerApi
-                    .removeServiceByName(CaptainConstants.registryServiceName)
-                    .then(function () {
-                    Logger.d('Creating Registry on this node...');
-                    return createRegistryServiceOnNode().then(function () {
-                        return true;
-                    });
-                });
-            }
-            else {
-                return true;
-            }
+            ], undefined, undefined, undefined, undefined, undefined, [
+                {
+                    protocol: 'tcp',
+                    containerPort: 5000,
+                    hostPort: CaptainConstants.configs.registrySubDomainPort,
+                },
+            ], undefined, undefined, undefined);
         });
     }
 }
