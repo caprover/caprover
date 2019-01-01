@@ -10,6 +10,7 @@ import Encryptor = require('../utils/Encryptor')
 import AppsDataStore = require('./AppsDataStore')
 import RegistriesDataStore = require('./RegistriesDataStore')
 
+// keys:
 const NAMESPACE = 'namespace'
 const HASHED_PASSWORD = 'hashedPassword'
 const CUSTOM_DOMAIN = 'customDomain'
@@ -18,8 +19,9 @@ const FORCE_ROOT_SSL = 'forceRootSsl'
 const HAS_REGISTRY_SSL = 'hasRegistrySsl'
 const EMAIL_ADDRESS = 'emailAddress'
 const NET_DATA_INFO = 'netDataInfo'
-const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG'
-const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG'
+const NGINX_BASE_CONFIG = 'nginxBaseConfig'
+const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
+
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
 const DEFAULT_NGINX_BASE_CONFIG = fs
@@ -41,11 +43,12 @@ class DataStore {
 
     constructor(namespace: string) {
         const data = new Configstore(
-            'captain-store',
+            `captain-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath:
-                    CaptainConstants.captainDataDirectory + '/config.json',
+                configPath: `${
+                    CaptainConstants.captainDataDirectory
+                }/config-${namespace}.json`,
             }
         )
 

@@ -8,6 +8,7 @@ const CaptainConstants = require("../utils/CaptainConstants");
 const Encryptor = require("../utils/Encryptor");
 const AppsDataStore = require("./AppsDataStore");
 const RegistriesDataStore = require("./RegistriesDataStore");
+// keys:
 const NAMESPACE = 'namespace';
 const HASHED_PASSWORD = 'hashedPassword';
 const CUSTOM_DOMAIN = 'customDomain';
@@ -16,8 +17,8 @@ const FORCE_ROOT_SSL = 'forceRootSsl';
 const HAS_REGISTRY_SSL = 'hasRegistrySsl';
 const EMAIL_ADDRESS = 'emailAddress';
 const NET_DATA_INFO = 'netDataInfo';
-const NGINX_BASE_CONFIG = 'NGINX_BASE_CONFIG';
-const NGINX_CAPTAIN_CONFIG = 'NGINX_CAPTAIN_CONFIG';
+const NGINX_BASE_CONFIG = 'nginxBaseConfig';
+const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig';
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost';
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
@@ -30,8 +31,9 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .toString();
 class DataStore {
     constructor(namespace) {
-        const data = new Configstore('captain-store', {}, {
-            configPath: CaptainConstants.captainDataDirectory + '/config.json',
+        const data = new Configstore(`captain-store-${namespace}`, // This value seems to be unused
+        {}, {
+            configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
         });
         this.data = data;
         this.namespace = namespace;
