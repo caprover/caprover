@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { IOneClickVariable } from "./OneClickAppConfigPage";
 import { Input, Row, Col, Alert, Button, message } from "antd";
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Utils from "../../../utils/Utils";
+import { IOneClickVariable } from "../../../models/IOneClickAppModels";
 
 export default class OneClickVariablesSection extends Component<
   {

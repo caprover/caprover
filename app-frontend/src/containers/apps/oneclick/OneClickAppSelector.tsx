@@ -5,11 +5,8 @@ import Toaster from "../../../utils/Toaster";
 import { Row, Col, Card, Select, Button } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
+import { IOneClickAppIdentifier } from "../../../models/IOneClickAppModels";
 
-export interface IOneClickAppIdentifier {
-  name: string;
-  download_url: string;
-}
 
 export default class OneClickAppSelector extends Component<
   RouteComponentProps<any>,

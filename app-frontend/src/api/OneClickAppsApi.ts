@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IOneClickAppIdentifier } from "../containers/apps/oneclick/OneClickAppSelector";
+import { IOneClickAppIdentifier } from "../models/IOneClickAppModels";
 
 const DOT_JSON = ".JSON";
 

@@ -11,38 +11,10 @@ import OneClickAppDeployManager, {
 } from "./OneClickAppDeployManager";
 import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 import DomUtils from "../../../utils/DomUtils";
+import { IOneClickTemplate } from "../../../models/IOneClickAppModels";
 
 export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
 
-export interface IOneClickVariable {
-  id: string;
-  label: string;
-  defaultValue?: string;
-  validRegex?: string;
-  description?: string;
-}
-
-export interface IDockerComposeService {
-  image?: string;
-  dockerFileLines?: string[]; // This is our property, not DockerCompose. We use this instead of image if we need to extend the image.
-  volumes?: string[];
-  ports?: string[];
-  environment?: IHashMapGeneric<string>;
-  depends_on?: string[];
-}
-
-export interface IOneClickTemplate {
-  captainVersion: number;
-  dockerCompose: {
-    version: string;
-    services: IHashMapGeneric<IDockerComposeService>;
-  };
-  instructions: {
-    start: string;
-    end: string;
-  };
-  variables: IOneClickVariable[];
-}
 
 export default class OneClickAppConfigPage extends Component<
   RouteComponentProps<any>,
