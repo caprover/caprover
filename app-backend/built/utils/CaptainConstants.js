@@ -50,7 +50,7 @@ let data = {
     netDataImageName: 'titpetric/netdata:1.8',
     registryImageName: 'registry:2',
     appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
-    nginxImageName: 'nginx',
+    nginxImageName: 'nginx:1',
     // ********************* Local Docker Constants  ************************
     defaultEmail: 'runner@captainduckduck.com',
     captainSaltSecretKey: 'captain-salt',

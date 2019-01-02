@@ -375,7 +375,7 @@ class LoadBalancerManager {
         })
             .then(function () {
             Logger.d('Updating NGINX service...');
-            return dockerApi.updateService(CaptainConstants.nginxServiceName, undefined, [
+            return dockerApi.updateService(CaptainConstants.nginxServiceName, CaptainConstants.nginxImageName, [
                 {
                     containerPath: CaptainConstants.nginxStaticRootDir,
                     hostPath: CaptainConstants.captainStaticFilesDir,

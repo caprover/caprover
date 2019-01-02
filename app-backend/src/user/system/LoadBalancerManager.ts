@@ -501,7 +501,7 @@ class LoadBalancerManager {
 
                 return dockerApi.updateService(
                     CaptainConstants.nginxServiceName,
-                    undefined,
+                    CaptainConstants.nginxImageName,
                     [
                         {
                             containerPath: CaptainConstants.nginxStaticRootDir,
