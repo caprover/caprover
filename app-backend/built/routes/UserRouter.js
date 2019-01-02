@@ -5,10 +5,10 @@ const ApiStatusCodes = require("../api/ApiStatusCodes");
 const Injector = require("../injection/Injector");
 const SystemRouter = require("./system/SystemRouter");
 const AppsRouter = require("./apps/AppsRouter");
-const Authenticator = require("../user/Authenticator");
 const RegistriesRouter = require("./RegistriesRouter");
 const onFinished = require("on-finished");
 const InjectionExtractor = require("../injection/InjectionExtractor");
+const CaptainManager = require("../user/system/CaptainManager");
 const router = express.Router();
 const threadLockNamespace = {};
 router.use('/apps/webhooks/', Injector.injectUserForWebhook());
@@ -60,8 +60,18 @@ router.use(function (req, res, next) {
 router.post('/changepassword/', function (req, res, next) {
     const namespace = InjectionExtractor.extractUserFromInjected(res).user
         .namespace;
-    Authenticator.get(namespace)
-        .changepass(req.body.oldPassword, req.body.newPassword)
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore;
+    Promise.resolve() //
+        .then(function (data) {
+        return dataStore.getHashedPassword();
+    })
+        .then(function (savedHashedPassword) {
+        return CaptainManager.getAuthenticator(namespace).changepass(req.body.oldPassword, req.body.newPassword, savedHashedPassword);
+    })
+        .then(function (hashedPassword) {
+        return dataStore.setHashedPassword(hashedPassword);
+    })
         .then(function () {
         res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'));
     })

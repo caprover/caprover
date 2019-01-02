@@ -4,7 +4,6 @@ const CaptainConstants = require("../utils/CaptainConstants");
 const CaptainManager = require("./system/CaptainManager");
 const DockerApi_1 = require("../docker/DockerApi");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
-const Authenticator = require("./Authenticator");
 const requireFromString = require("require-from-string");
 const BuildLog = require("./BuildLog");
 const DockerRegistryHelper = require("./DockerRegistryHelper");
@@ -366,7 +365,7 @@ class ServiceManager {
             .then(function () {
             return dataStore
                 .getAppsDataStore()
-                .updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, Authenticator.get(dataStore.getNameSpace()), customNginxConfig, preDeployFunction);
+                .updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, CaptainManager.getAuthenticator(dataStore.getNameSpace()), customNginxConfig, preDeployFunction);
         })
             .then(function () {
             return self.ensureServiceInitedAndUpdated(appName);

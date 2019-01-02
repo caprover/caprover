@@ -10,6 +10,7 @@ import {
     IDockerContainerResource,
     VolumesTypes,
 } from '../models/OtherTypes'
+import DockerService from '../models/DockerService'
 
 const Base64 = Base64Provider.Base64
 
@@ -130,6 +131,18 @@ class DockerApi {
                         return node.ID
                     }
                 }
+            })
+    }
+
+    getAllServices() {
+        const self = this
+
+        return Promise.resolve()
+            .then(function() {
+                return self.dockerode.listServices()
+            })
+            .then(function(services) {
+                return (services || []) as DockerService[]
             })
     }
 

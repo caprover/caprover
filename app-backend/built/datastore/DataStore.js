@@ -172,7 +172,7 @@ class DataStore {
     getForceSsl() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            resolve(self.data.get(FORCE_ROOT_SSL));
+            resolve(!!self.data.get(FORCE_ROOT_SSL));
         });
     }
     setHasRegistrySsl(hasRegistrySsl) {

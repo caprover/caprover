@@ -3,9 +3,7 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
 import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
 import Encryptor = require('../utils/Encryptor')
 import AppsDataStore = require('./AppsDataStore')
 import RegistriesDataStore = require('./RegistriesDataStore')
@@ -218,7 +216,7 @@ class DataStore {
         const self = this
 
         return new Promise<boolean>(function(resolve, reject) {
-            resolve(self.data.get(FORCE_ROOT_SSL))
+            resolve(!!self.data.get(FORCE_ROOT_SSL))
         })
     }
 

@@ -317,23 +317,21 @@ router.post('/update/', function(req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp
     let customNginxConfig = req.body.customNginxConfig
     let forceSsl = !!req.body.forceSsl
-    let repoInfo = req.body.repoInfo
+    let repoInfo = req.body.repoInfo || {}
     let envVars = req.body.envVars || []
     let volumes = req.body.volumes || []
     let ports = req.body.ports || []
     let instanceCount = req.body.instanceCount || '0'
     let preDeployFunction = req.body.preDeployFunction || ''
 
-    if (repoInfo) {
-        if (repoInfo.user) {
-            repoInfo.user = repoInfo.user.trim()
-        }
-        if (repoInfo.repo) {
-            repoInfo.repo = repoInfo.repo.trim()
-        }
-        if (repoInfo.branch) {
-            repoInfo.branch = repoInfo.branch.trim()
-        }
+    if (repoInfo.user) {
+        repoInfo.user = repoInfo.user.trim()
+    }
+    if (repoInfo.repo) {
+        repoInfo.repo = repoInfo.repo.trim()
+    }
+    if (repoInfo.branch) {
+        repoInfo.branch = repoInfo.branch.trim()
     }
 
     Logger.d('Updating app started: ' + appName)

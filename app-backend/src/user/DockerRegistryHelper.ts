@@ -192,6 +192,7 @@ class DockerRegistryHelper {
                 registryDomain = Utils.removeHttpHttps(registryDomain)
 
                 if (registryType === IRegistryTypes.LOCAL_REG) {
+                    // We don't check the auth details for local registry. We create it, we know it's correct!
                     return
                 }
 

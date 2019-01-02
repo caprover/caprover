@@ -100,6 +100,16 @@ class DockerApi {
             }
         });
     }
+    getAllServices() {
+        const self = this;
+        return Promise.resolve()
+            .then(function () {
+            return self.dockerode.listServices();
+        })
+            .then(function (services) {
+            return (services || []);
+        });
+    }
     createJoinCommand(captainIpAddress, token) {
         return ('docker swarm join --token ' +
             token +

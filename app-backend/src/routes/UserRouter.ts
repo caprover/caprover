@@ -4,11 +4,11 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 import Injector = require('../injection/Injector')
 import SystemRouter = require('./system/SystemRouter')
 import AppsRouter = require('./apps/AppsRouter')
-import Authenticator = require('../user/Authenticator')
 import Logger = require('../utils/Logger')
 import RegistriesRouter = require('./RegistriesRouter')
 import onFinished = require('on-finished')
 import InjectionExtractor = require('../injection/InjectionExtractor')
+import CaptainManager = require('../user/system/CaptainManager')
 
 const router = express.Router()
 
@@ -91,8 +91,23 @@ router.use(function(req, res, next) {
 router.post('/changepassword/', function(req, res, next) {
     const namespace = InjectionExtractor.extractUserFromInjected(res).user
         .namespace
-    Authenticator.get(namespace)
-        .changepass(req.body.oldPassword, req.body.newPassword)
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
+
+    Promise.resolve() //
+        .then(function(data) {
+            return dataStore.getHashedPassword()
+        })
+        .then(function(savedHashedPassword) {
+            return CaptainManager.getAuthenticator(namespace).changepass(
+                req.body.oldPassword,
+                req.body.newPassword,
+                savedHashedPassword
+            )
+        })
+        .then(function(hashedPassword) {
+            return dataStore.setHashedPassword(hashedPassword)
+        })
         .then(function() {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'))
         })
@@ -104,6 +119,5 @@ router.use('/apps/', AppsRouter)
 router.use('/registries/', RegistriesRouter)
 
 router.use('/system/', SystemRouter)
-
 
 export = router

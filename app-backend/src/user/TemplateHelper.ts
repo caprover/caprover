@@ -44,7 +44,8 @@ class TemplateHelper {
 
         this.templates = templates
 
-        if (CaptainConstants.isDebug) {
+        // Change to true if you want tags to be printed on screen upon start up (after 40 sec ish)
+        if (false) {
             new TemplateHelperVersionPrinter().printAvailableImageTagsForReadme(
                 this.templates
             )

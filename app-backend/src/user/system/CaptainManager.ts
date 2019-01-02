@@ -6,7 +6,6 @@ import CaptainConstants = require('../../utils/CaptainConstants')
 import Logger = require('../../utils/Logger')
 import LoadBalancerManager = require('./LoadBalancerManager')
 import EnvVars = require('../../utils/EnvVars')
-import Encryptor = require('../../utils/Encryptor')
 import CertbotManager = require('./CertbotManager')
 import SelfHostedDockerRegistry = require('./SelfHostedDockerRegistry')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
@@ -14,6 +13,8 @@ import DataStoreProvider = require('../../datastore/DataStoreProvider')
 import DataStore = require('../../datastore/DataStore')
 import DockerApi from '../../docker/DockerApi'
 import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
+import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
+import Authenticator = require('../Authenticator')
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 const SshClient = SshClientImport.Client
@@ -53,13 +54,6 @@ class CaptainManager {
             this.certbotManager,
             this.dataStore
         )
-        this.dockerRegistry = new SelfHostedDockerRegistry(
-            dockerApi,
-            this.dataStore,
-            this.certbotManager,
-            this.loadBalancerManager,
-            this
-        )
         this.myNodeId = undefined
         this.inited = false
         this.waitUntilRestarted = false
@@ -89,6 +83,13 @@ class CaptainManager {
             .then(function(nodeId) {
                 myNodeId = nodeId
                 self.myNodeId = myNodeId
+                self.dockerRegistry = new SelfHostedDockerRegistry(
+                    self.dockerApi,
+                    self.dataStore,
+                    self.certbotManager,
+                    self.loadBalancerManager,
+                    self.myNodeId
+                )
                 return dockerApi.isNodeManager(myNodeId)
             })
             .then(function(isManager) {
@@ -172,7 +173,7 @@ class CaptainManager {
                 const secretFileName =
                     '/run/secrets/' + CaptainConstants.captainSaltSecretKey
 
-                if (!fs.existsSync(secretFileName)) {
+                if (!fs.pathExistsSync(secretFileName)) {
                     throw new Error(
                         'Secret is attached according to Docker. But file cannot be found. ' +
                             secretFileName
@@ -191,6 +192,18 @@ class CaptainManager {
             })
             .then(function() {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
+            })
+            .then(function() {
+                return new MigrateCaptainDuckDuck(
+                    dataStore,
+                    CaptainManager.getAuthenticator(dataStore.getNameSpace())
+                )
+                    .migrateIfNeeded()
+                    .then(function(migrationPerformed) {
+                        if (!!migrationPerformed) {
+                            return self.resetSelf()
+                        }
+                    })
             })
             .then(function() {
                 return certbotManager.init(myNodeId)
@@ -985,11 +998,38 @@ class CaptainManager {
         })
     }
 
+    static authenticatorCache: IHashMapGeneric<Authenticator> = {}
+
+    static getAuthenticator(namespace: string): Authenticator {
+        const authenticatorCache = CaptainManager.authenticatorCache
+        if (!namespace) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                'Empty namespace'
+            )
+        }
+
+        if (!authenticatorCache[namespace]) {
+            const captainSalt = CaptainManager.get().getCaptainSalt()
+            if (captainSalt) {
+                authenticatorCache[namespace] = new Authenticator(
+                    captainSalt,
+                    namespace
+                )
+            }
+        }
+
+        return authenticatorCache[namespace]
+    }
+
+    private static captainManagerInstance: CaptainManager | undefined
+
     static get(): CaptainManager {
-        return captainManagerInstance
+        if (!CaptainManager.captainManagerInstance) {
+            CaptainManager.captainManagerInstance = new CaptainManager()
+        }
+        return CaptainManager.captainManagerInstance
     }
 }
-
-const captainManagerInstance = new CaptainManager()
 
 export = CaptainManager

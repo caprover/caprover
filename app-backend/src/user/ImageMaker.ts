@@ -47,16 +47,12 @@ import { AnyError } from '../models/OtherTypes'
 import BuildLog = require('./BuildLog')
 import DataStore = require('../datastore/DataStore')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
+import { IBuiltImage } from '../models/IBuiltImage'
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
 const CAPTAIN_DEFINITION_FILE = 'captain-definition'
 const DOCKER_FILE = 'Dockerfile'
-
-export interface BuiltImage {
-    imageName: string
-    gitHash: string
-}
 
 export default class ImageMaker {
     constructor(
@@ -86,7 +82,7 @@ export default class ImageMaker {
         imageSource: IImageSource,
         appName: string,
         appVersion: number
-    ): Promise<BuiltImage> {
+    ): Promise<IBuiltImage> {
         const self = this
 
         this.activeBuilds[appName] = true

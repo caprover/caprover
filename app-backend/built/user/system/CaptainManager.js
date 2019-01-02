@@ -12,6 +12,8 @@ const ApiStatusCodes = require("../../api/ApiStatusCodes");
 const DataStoreProvider = require("../../datastore/DataStoreProvider");
 const DockerApi_1 = require("../../docker/DockerApi");
 const IRegistryInfo_1 = require("../../models/IRegistryInfo");
+const MigrateCaptainDuckDuck_1 = require("../../utils/MigrateCaptainDuckDuck");
+const Authenticator = require("../Authenticator");
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE';
 const SshClient = SshClientImport.Client;
 const MAX_FAIL_ALLOWED = 4;
@@ -25,7 +27,6 @@ class CaptainManager {
         this.dockerApi = dockerApi;
         this.certbotManager = new CertbotManager(dockerApi);
         this.loadBalancerManager = new LoadBalancerManager(dockerApi, this.certbotManager, this.dataStore);
-        this.dockerRegistry = new SelfHostedDockerRegistry(dockerApi, this.dataStore, this.certbotManager, this.loadBalancerManager, this);
         this.myNodeId = undefined;
         this.inited = false;
         this.waitUntilRestarted = false;
@@ -49,6 +50,7 @@ class CaptainManager {
             .then(function (nodeId) {
             myNodeId = nodeId;
             self.myNodeId = myNodeId;
+            self.dockerRegistry = new SelfHostedDockerRegistry(self.dockerApi, self.dataStore, self.certbotManager, self.loadBalancerManager, self.myNodeId);
             return dockerApi.isNodeManager(myNodeId);
         })
             .then(function (isManager) {
@@ -110,7 +112,7 @@ class CaptainManager {
         })
             .then(function () {
             const secretFileName = '/run/secrets/' + CaptainConstants.captainSaltSecretKey;
-            if (!fs.existsSync(secretFileName)) {
+            if (!fs.pathExistsSync(secretFileName)) {
                 throw new Error('Secret is attached according to Docker. But file cannot be found. ' +
                     secretFileName);
             }
@@ -123,6 +125,15 @@ class CaptainManager {
         })
             .then(function () {
             return dataStore.setEncryptionSalt(self.getCaptainSalt());
+        })
+            .then(function () {
+            return new MigrateCaptainDuckDuck_1.default(dataStore, CaptainManager.getAuthenticator(dataStore.getNameSpace()))
+                .migrateIfNeeded()
+                .then(function (migrationPerformed) {
+                if (!!migrationPerformed) {
+                    return self.resetSelf();
+                }
+            });
         })
             .then(function () {
             return certbotManager.init(myNodeId);
@@ -687,10 +698,26 @@ class CaptainManager {
             }, 2000);
         });
     }
+    static getAuthenticator(namespace) {
+        const authenticatorCache = CaptainManager.authenticatorCache;
+        if (!namespace) {
+            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Empty namespace');
+        }
+        if (!authenticatorCache[namespace]) {
+            const captainSalt = CaptainManager.get().getCaptainSalt();
+            if (captainSalt) {
+                authenticatorCache[namespace] = new Authenticator(captainSalt, namespace);
+            }
+        }
+        return authenticatorCache[namespace];
+    }
     static get() {
-        return captainManagerInstance;
+        if (!CaptainManager.captainManagerInstance) {
+            CaptainManager.captainManagerInstance = new CaptainManager();
+        }
+        return CaptainManager.captainManagerInstance;
     }
 }
-const captainManagerInstance = new CaptainManager();
+CaptainManager.authenticatorCache = {};
 module.exports = CaptainManager;
 //# sourceMappingURL=CaptainManager.js.map

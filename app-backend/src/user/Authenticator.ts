@@ -1,15 +1,12 @@
 import jwt = require('jsonwebtoken')
-import DataStore = require('../datastore/DataStore')
 import uuid = require('uuid/v4')
 import bcrypt = require('bcryptjs')
 
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import EnvVar = require('../utils/EnvVars')
-import CaptainManager = require('./system/CaptainManager')
 import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
-import DataStoreProvider = require('../datastore/DataStoreProvider')
-import { UserJwt } from '../models/InjectionInterfaces'
+import { UserJwt } from '../models/UserJwt'
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
 
@@ -20,16 +17,14 @@ class Authenticator {
     private encryptionKey: string
     private namespace: string
     private tokenVersion: string
-    private dataStore: DataStore
 
-    constructor(secret: string, namespace: string, dataStore: DataStore) {
+    constructor(secret: string, namespace: string) {
         this.encryptionKey = secret + namespace // making encryption key unique per namespace!
         this.namespace = namespace
-        this.dataStore = dataStore
         this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid()
     }
 
-    changepass(oldPass: string, newPass: string) {
+    changepass(oldPass: string, newPass: string, savedHashedPassword: string) {
         const self = this
 
         oldPass = oldPass || ''
@@ -44,7 +39,7 @@ class Authenticator {
                     )
                 }
 
-                return self.isPasswordCorrect(oldPass)
+                return self.isPasswordCorrect(oldPass, savedHashedPassword)
             })
             .then(function(isPasswordCorrect) {
                 if (!isPasswordCorrect) {
@@ -61,39 +56,45 @@ class Authenticator {
                     bcrypt.genSaltSync(10)
                 )
 
-                return self.dataStore.setHashedPassword(hashed)
+                return hashed
             })
     }
 
-    isPasswordCorrect(password: string) {
+    isPasswordCorrect(password: string, savedHashedPassword: string) {
         const self = this
 
-        return self.dataStore
-            .getHashedPassword()
-            .then(function(savedHashedPassword) {
-                password = password || ''
+        return Promise.resolve().then(function() {
+            password = password || ''
 
-                if (!savedHashedPassword) {
-                    return captainDefaultPassword === password
-                }
+            if (!savedHashedPassword) {
+                return captainDefaultPassword === password
+            }
 
-                return bcrypt.compareSync(
-                    self.encryptionKey + password,
-                    savedHashedPassword
-                )
-            })
+            return bcrypt.compareSync(
+                self.encryptionKey + password,
+                savedHashedPassword
+            )
+        })
     }
 
-    getAuthTokenForCookies(password: string) {
-        return this.getAuthToken(password, COOKIE_AUTH_SUFFIX)
+    getAuthTokenForCookies(password: string, savedHashedPassword: string) {
+        return this.getAuthToken(
+            password,
+            savedHashedPassword,
+            COOKIE_AUTH_SUFFIX
+        )
     }
 
-    getAuthToken(password: string, keySuffix?: string) {
+    getAuthToken(
+        password: string,
+        savedHashedPassword: string,
+        keySuffix?: string
+    ) {
         const self = this
 
         return Promise.resolve()
             .then(function() {
-                return self.isPasswordCorrect(password)
+                return self.isPasswordCorrect(password, savedHashedPassword)
             })
             .then(function(isPasswordCorrect) {
                 if (!isPasswordCorrect) {
@@ -244,30 +245,6 @@ class Authenticator {
             )
         })
     }
-
-    static get(namespace: string): Authenticator {
-        if (!namespace) {
-            throw ApiStatusCodes.createError(
-                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
-                'Empty namespace'
-            )
-        }
-
-        if (!authenticatorCache[namespace]) {
-            const captainSalt = CaptainManager.get().getCaptainSalt()
-            if (captainSalt) {
-                authenticatorCache[namespace] = new Authenticator(
-                    captainSalt,
-                    namespace,
-                    DataStoreProvider.getDataStore(namespace)
-                )
-            }
-        }
-
-        return authenticatorCache[namespace]
-    }
 }
-
-const authenticatorCache: IHashMapGeneric<Authenticator> = {}
 
 export = Authenticator

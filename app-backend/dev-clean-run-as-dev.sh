@@ -10,8 +10,7 @@ docker service rm captain-captain captain-nginx captain-certbot captain-registry
 sleep 1s
 docker secret rm captain-salt
 docker build -t captain-debug -f dockerfile-captain.debug .
-rm -rf /captain
-mkdir /captain
+rm -rf /captain && mkdir /captain
 chmod -R 777 /captain
 docker run \
    -e "CAPTAIN_IS_DEBUG=1" \

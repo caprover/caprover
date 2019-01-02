@@ -134,6 +134,7 @@ class DockerRegistryHelper {
             .then(function () {
             registryDomain = Utils_1.default.removeHttpHttps(registryDomain);
             if (registryType === IRegistryInfo_1.IRegistryTypes.LOCAL_REG) {
+                // We don't check the auth details for local registry. We create it, we know it's correct!
                 return;
             }
             return self.dockerApi

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const DataStoreProvider = require("../datastore/DataStoreProvider");
-const Authenticator = require("../user/Authenticator");
 const CaptainConstants = require("../utils/CaptainConstants");
 const CaptainManager = require("../user/system/CaptainManager");
 const ServiceManager = require("../user/ServiceManager");
@@ -39,7 +38,7 @@ function injectUser() {
             return; // user is already injected by another layer
         }
         const namespace = res.locals.namespace;
-        Authenticator.get(namespace)
+        CaptainManager.getAuthenticator(namespace)
             .decodeAuthToken(req.header(CaptainConstants.headerAuth) || '')
             .then(function (userDecoded) {
             if (userDecoded) {
@@ -84,7 +83,7 @@ function injectUserForWebhook() {
         }
         const dataStore = DataStoreProvider.getDataStore(namespace);
         let decodedInfo;
-        Authenticator.get(namespace)
+        CaptainManager.getAuthenticator(namespace)
             .decodeAppPushWebhookToken(token)
             .then(function (data) {
             decodedInfo = data;
@@ -127,7 +126,7 @@ exports.injectUserForWebhook = injectUserForWebhook;
  */
 function injectUserUsingCookieDataOnly() {
     return function (req, res, next) {
-        Authenticator.get(CaptainConstants.rootNameSpace)
+        CaptainManager.getAuthenticator(CaptainConstants.rootNameSpace)
             .decodeAuthTokenFromCookies(req.cookies[CaptainConstants.headerCookieAuth])
             .then(function (user) {
             res.locals.user = user;

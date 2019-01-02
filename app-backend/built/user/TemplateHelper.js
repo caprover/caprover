@@ -1,7 +1,6 @@
 "use strict";
 const fs = require("fs-extra");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
-const CaptainConstants = require("../utils/CaptainConstants");
 const TemplateHelperVersionPrinter = require("../utils/TemplateHelperVersionPrinter");
 class TemplateHelper {
     constructor() {
@@ -32,7 +31,8 @@ class TemplateHelper {
             templates[i].postFromLines = fs.readFileSync(dockerfilesRoot + templates[i].templateName, 'utf8');
         }
         this.templates = templates;
-        if (CaptainConstants.isDebug) {
+        // Change to true if you want tags to be printed on screen upon start up (after 40 sec ish)
+        if (false) {
             new TemplateHelperVersionPrinter().printAvailableImageTagsForReadme(this.templates);
         }
     }

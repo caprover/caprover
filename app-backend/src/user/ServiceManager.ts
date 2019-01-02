@@ -5,7 +5,6 @@ import LoadBalancerManager = require('./system/LoadBalancerManager')
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import DataStore = require('../datastore/DataStore')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
-import Authenticator = require('./Authenticator')
 import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
@@ -513,7 +512,7 @@ class ServiceManager {
                         forceSsl,
                         ports,
                         repoInfo,
-                        Authenticator.get(dataStore.getNameSpace()),
+                        CaptainManager.getAuthenticator(dataStore.getNameSpace()),
                         customNginxConfig,
                         preDeployFunction
                     )

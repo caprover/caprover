@@ -1,10 +1,11 @@
 "use strict";
 const express = require("express");
 const BaseApi = require("../api/BaseApi");
-const Authenticator = require("../user/Authenticator");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const CaptainConstants = require("../utils/CaptainConstants");
 const InjectionExtractor = require("../injection/InjectionExtractor");
+const DataStoreProvider = require("../datastore/DataStoreProvider");
+const CaptainManager = require("../user/system/CaptainManager");
 const router = express.Router();
 router.post('/', function (req, res, next) {
     let password = req.body.password || '';
@@ -16,11 +17,18 @@ router.post('/', function (req, res, next) {
     let authToken;
     const namespace = InjectionExtractor.extractGlobalsFromInjected(res)
         .namespace;
-    Authenticator.get(namespace)
-        .getAuthToken(password)
+    let loadedHashedPassword = '';
+    Promise.resolve() //
+        .then(function () {
+        return DataStoreProvider.getDataStore(namespace).getHashedPassword();
+    })
+        .then(function (savedHashedPassword) {
+        loadedHashedPassword = savedHashedPassword;
+        return CaptainManager.getAuthenticator(namespace).getAuthToken(password, loadedHashedPassword);
+    })
         .then(function (token) {
         authToken = token;
-        return Authenticator.get(namespace).getAuthTokenForCookies(password);
+        return CaptainManager.getAuthenticator(namespace).getAuthTokenForCookies(password, loadedHashedPassword);
     })
         .then(function (cookieAuth) {
         res.cookie(CaptainConstants.headerCookieAuth, cookieAuth);

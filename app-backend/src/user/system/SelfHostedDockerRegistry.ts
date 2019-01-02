@@ -9,7 +9,6 @@ import DockerApi from '../../docker/DockerApi'
 import DataStore = require('../../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
 import LoadBalancerManager = require('./LoadBalancerManager')
-import CaptainManager = require('./CaptainManager')
 
 class SelfHostedDockerRegistry {
     constructor(
@@ -17,7 +16,7 @@ class SelfHostedDockerRegistry {
         private dataStore: DataStore,
         private certbotManager: CertbotManager,
         private loadBalancerManager: LoadBalancerManager,
-        private captainManager: CaptainManager
+        private myNodeId: string
     ) {
         //
     }
@@ -116,7 +115,7 @@ class SelfHostedDockerRegistry {
                 })
         }
 
-        const myNodeId = this.captainManager.getMyNodeId()
+        const myNodeId = this.myNodeId
 
         return Promise.resolve()
             .then(function() {

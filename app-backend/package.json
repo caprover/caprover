@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "echo 'RECOMPILING' && rm -rf ./built && npx tsc && sudo ./dev-reset-service.sh",
+    "dev": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && sudo ./dev-reset-service.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "test": "jest"
   },
@@ -29,19 +29,19 @@
     "@types/ssh2": "^0.5.37",
     "@types/tar": "^4.0.0",
     "@types/uuid": "^3.4.4",
-    "@types/validator": "^9.4.4",
+    "@types/validator": "^10.9.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "configstore": "^4.0.0",
     "cookie-parser": "~1.4.3",
-    "debug": "~4.1.0",
+    "debug": "~4.1.1",
     "dockerode": "^2.5.7",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
     "http-proxy": "^1.17.0",
     "is-valid-path": "^0.1.1",
-    "js-base64": "^2.4.9",
+    "js-base64": "^2.5.0",
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.23.0",
     "morgan": "^1.9.1",
@@ -55,10 +55,10 @@
     "simple-git": "^1.107.0",
     "ssh2": "^0.6.1",
     "tar": "^4.4.8",
-    "tslint": "^5.11.0",
+    "tslint": "^5.12.0",
     "typescript": "^3.2.2",
     "uuid": "^3.3.2",
-    "validator": "^10.9.0"
+    "validator": "^10.10.0"
   },
   "devDependencies": {
     "jest": "^23.6.0"

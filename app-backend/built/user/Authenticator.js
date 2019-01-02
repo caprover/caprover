@@ -4,21 +4,18 @@ const uuid = require("uuid/v4");
 const bcrypt = require("bcryptjs");
 const ApiStatusCodes = require("../api/ApiStatusCodes");
 const EnvVar = require("../utils/EnvVars");
-const CaptainManager = require("./system/CaptainManager");
 const CaptainConstants = require("../utils/CaptainConstants");
 const Logger = require("../utils/Logger");
-const DataStoreProvider = require("../datastore/DataStoreProvider");
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42';
 const COOKIE_AUTH_SUFFIX = 'cookie-';
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push';
 class Authenticator {
-    constructor(secret, namespace, dataStore) {
+    constructor(secret, namespace) {
         this.encryptionKey = secret + namespace; // making encryption key unique per namespace!
         this.namespace = namespace;
-        this.dataStore = dataStore;
         this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid();
     }
-    changepass(oldPass, newPass) {
+    changepass(oldPass, newPass, savedHashedPassword) {
         const self = this;
         oldPass = oldPass || '';
         newPass = newPass || '';
@@ -27,7 +24,7 @@ class Authenticator {
             if (!oldPass || !newPass || newPass.length < 8) {
                 throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_GENERIC, 'Password is too small.');
             }
-            return self.isPasswordCorrect(oldPass);
+            return self.isPasswordCorrect(oldPass, savedHashedPassword);
         })
             .then(function (isPasswordCorrect) {
             if (!isPasswordCorrect) {
@@ -35,14 +32,12 @@ class Authenticator {
             }
             self.tokenVersion = uuid();
             const hashed = bcrypt.hashSync(self.encryptionKey + newPass, bcrypt.genSaltSync(10));
-            return self.dataStore.setHashedPassword(hashed);
+            return hashed;
         });
     }
-    isPasswordCorrect(password) {
+    isPasswordCorrect(password, savedHashedPassword) {
         const self = this;
-        return self.dataStore
-            .getHashedPassword()
-            .then(function (savedHashedPassword) {
+        return Promise.resolve().then(function () {
             password = password || '';
             if (!savedHashedPassword) {
                 return captainDefaultPassword === password;
@@ -50,14 +45,14 @@ class Authenticator {
             return bcrypt.compareSync(self.encryptionKey + password, savedHashedPassword);
         });
     }
-    getAuthTokenForCookies(password) {
-        return this.getAuthToken(password, COOKIE_AUTH_SUFFIX);
+    getAuthTokenForCookies(password, savedHashedPassword) {
+        return this.getAuthToken(password, savedHashedPassword, COOKIE_AUTH_SUFFIX);
     }
-    getAuthToken(password, keySuffix) {
+    getAuthToken(password, savedHashedPassword, keySuffix) {
         const self = this;
         return Promise.resolve()
             .then(function () {
-            return self.isPasswordCorrect(password);
+            return self.isPasswordCorrect(password, savedHashedPassword);
         })
             .then(function (isPasswordCorrect) {
             if (!isPasswordCorrect) {
@@ -138,19 +133,6 @@ class Authenticator {
             });
         });
     }
-    static get(namespace) {
-        if (!namespace) {
-            throw ApiStatusCodes.createError(ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED, 'Empty namespace');
-        }
-        if (!authenticatorCache[namespace]) {
-            const captainSalt = CaptainManager.get().getCaptainSalt();
-            if (captainSalt) {
-                authenticatorCache[namespace] = new Authenticator(captainSalt, namespace, DataStoreProvider.getDataStore(namespace));
-            }
-        }
-        return authenticatorCache[namespace];
-    }
 }
-const authenticatorCache = {};
 module.exports = Authenticator;
 //# sourceMappingURL=Authenticator.js.map

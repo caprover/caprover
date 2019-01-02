@@ -284,6 +284,18 @@ class AppsDataStore {
             });
         });
     }
+    setVersionsForMigration(appName, vers, deployedVersion) {
+        const self = this;
+        return Promise.resolve() //
+            .then(function () {
+            return self.getAppDefinition(appName);
+        })
+            .then(function (appLoaded) {
+            appLoaded.deployedVersion = deployedVersion;
+            appLoaded.versions = vers;
+            return self.saveApp(appName, appLoaded);
+        });
+    }
     updateAppDefinitionInDb(appName, instanceCount, envVars, volumes, nodeId, notExposeAsWebApp, forceSsl, ports, repoInfo, authenticator, customNginxConfig, preDeployFunction) {
         const self = this;
         let appObj;

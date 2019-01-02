@@ -5,12 +5,12 @@ const fs = require("fs-extra");
 const ApiStatusCodes = require("../../api/ApiStatusCodes");
 const bcrypt = require("bcryptjs");
 class SelfHostedDockerRegistry {
-    constructor(dockerApi, dataStore, certbotManager, loadBalancerManager, captainManager) {
+    constructor(dockerApi, dataStore, certbotManager, loadBalancerManager, myNodeId) {
         this.dockerApi = dockerApi;
         this.dataStore = dataStore;
         this.certbotManager = certbotManager;
         this.loadBalancerManager = loadBalancerManager;
-        this.captainManager = captainManager;
+        this.myNodeId = myNodeId;
         //
     }
     enableRegistrySsl() {
@@ -75,7 +75,7 @@ class SelfHostedDockerRegistry {
                 });
             });
         }
-        const myNodeId = this.captainManager.getMyNodeId();
+        const myNodeId = this.myNodeId;
         return Promise.resolve()
             .then(function () {
             const authContent = CaptainConstants.captainRegistryUsername +

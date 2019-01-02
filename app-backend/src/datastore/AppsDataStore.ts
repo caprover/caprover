@@ -5,7 +5,7 @@ import Logger = require('../utils/Logger')
 import configstore = require('configstore')
 import Authenticator = require('../user/Authenticator')
 import { CaptainEncryptor } from '../utils/Encryptor'
-import { BuiltImage as IBuiltImage } from '../user/ImageMaker'
+import { IBuiltImage } from '../models/IBuiltImage'
 
 const isValidPath = require('is-valid-path')
 
@@ -403,6 +403,23 @@ class AppsDataStore {
                 return newVersionIndex
             })
         })
+    }
+
+    setVersionsForMigration(
+        appName: string,
+        vers: IAppVersion[],
+        deployedVersion: number
+    ) {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                return self.getAppDefinition(appName)
+            })
+            .then(function(appLoaded) {
+                appLoaded.deployedVersion = deployedVersion
+                appLoaded.versions = vers
+                return self.saveApp(appName, appLoaded)
+            })
     }
 
     updateAppDefinitionInDb(
