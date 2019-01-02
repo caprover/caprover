@@ -10,9 +10,12 @@ export default class Toaster {
     message.error(errorMessage);
   }
 
-  static createCatcher() {
+  static createCatcher(functionToRun?: Function) {
     return function(error: any) {
       Toaster.toast(error);
+      if (functionToRun) {
+        functionToRun();
+      }
     };
   }
 }

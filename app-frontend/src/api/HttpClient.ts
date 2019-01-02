@@ -39,8 +39,16 @@ export default class HttpClient {
   fetch(method: "GET" | "POST", endpoint: string, variables: any) {
     const self = this;
     return function(): Promise<any> {
-      return self
-        .fetchInternal(method, endpoint, variables) //
+      return Promise.resolve() //
+        .then(function() {
+          if (!process.env.REACT_APP_IS_DEBUG) return Promise.resolve();
+          return new Promise<void>(function(res) {
+            setTimeout(res, 500);
+          });
+        })
+        .then(function() {
+          return self.fetchInternal(method, endpoint, variables); //
+        })
         .then(function(axiosResponse) {
           const data = axiosResponse.data; // this is an axios thing!
           if (data.status === ErrorFactory.STATUS_AUTH_TOKEN_INVALID) {

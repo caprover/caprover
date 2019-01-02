@@ -16,11 +16,16 @@ import OneClickAppConfigPage from "./apps/oneclick/OneClickAppConfigPage";
 import ApiComponent from "./global/ApiComponent";
 import Toaster from "../utils/Toaster";
 import { IVersionInfo } from "../models/IVersionInfo";
+import { connect } from "react-redux";
 
 const { Header, Content, Sider } = Layout;
 
-export default class PageRoot extends ApiComponent<
-  RouteComponentProps<any>,
+interface RootPageInterface extends RouteComponentProps<any> {
+  rootElementKey: string;
+}
+
+class PageRoot extends ApiComponent<
+  RootPageInterface,
   {
     versionInfo: IVersionInfo | undefined;
   }
@@ -214,6 +219,7 @@ export default class PageRoot extends ApiComponent<
           </Sider>
           <Content>
             <div
+              key={self.props.rootElementKey}
               ref={self.mainContainer}
               style={{
                 paddingTop: 12,
@@ -249,3 +255,14 @@ export default class PageRoot extends ApiComponent<
     );
   }
 }
+
+function mapStateToProps(state: any) {
+  return {
+    rootElementKey: state.globalReducer.rootElementKey
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  undefined
+)(PageRoot);

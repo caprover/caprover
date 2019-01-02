@@ -3,6 +3,7 @@ import { Modal, Tooltip, Row, Col, Card, Input, Button } from "antd";
 import ApiComponent from "./global/ApiComponent";
 import CenteredSpinner from "./global/CenteredSpinner";
 import Toaster from "../utils/Toaster";
+import ErrorRetry from "./global/ErrorRetry";
 const Search = Input.Search;
 
 export default class Dashboard extends ApiComponent<
@@ -24,12 +25,16 @@ export default class Dashboard extends ApiComponent<
 
   reFetchData() {
     const self = this;
+    self.setState({ isLoading: true, apiData: undefined });
     this.apiManager
       .getCaptainInfo()
       .then(function(data: any) {
-        self.setState({ isLoading: false, apiData: data });
+        self.setState({ apiData: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   onForceSslClicked() {
@@ -200,6 +205,10 @@ export default class Dashboard extends ApiComponent<
 
     if (self.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!self.state.apiData) {
+      return <ErrorRetry />;
     }
 
     return (
