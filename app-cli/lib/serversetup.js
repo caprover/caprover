@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const MachineHelper = require("../helpers/MachineHelper")
 const SystemApi = require("../api/SystemApi")
 const LoginApi = require("../api/LoginApi")

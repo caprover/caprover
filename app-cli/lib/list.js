@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const chalk = require("chalk")
 const MachineHelper = require("../helpers/MachineHelper")
 const { printMessage } = require("../utils/messageHandler")

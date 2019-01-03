@@ -1,6 +1,6 @@
 {
   "name": "captainduckduck",
-  "version": "1.0.18",
+  "version": "1.1.0",
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
@@ -8,11 +8,11 @@
   },
   "bin": {
     "captainduckduck": "./captainduckduck.js",
-    "captainduckduck-deploy": "./captainduckduck-deploy.js",
-    "captainduckduck-list": "./captainduckduck-list.js",
-    "captainduckduck-login": "./captainduckduck-login.js",
-    "captainduckduck-logout": "./captainduckduck-logout.js",
-    "captainduckduck-serversetup": "./captainduckduck-serversetup.js"
+    "captainduckduck-deploy": "./lib/deploy.js",
+    "captainduckduck-list": "./lib/list.js",
+    "captainduckduck-login": "./lib/login.js",
+    "captainduckduck-logout": "./lib/logout.js",
+    "captainduckduck-serversetup": "./lib/serversetup.js"
   },
   "repository": {
     "type": "git",
@@ -53,9 +53,9 @@
     "update-notifier": "^2.5.0"
   },
   "devDependencies": {
-    "eslint": "^5.8.0",
-    "eslint-plugin-jest": "^21.26.2",
+    "eslint": "^5.11.1",
+    "eslint-plugin-jest": "^21.27.2",
     "jest": "^23.6.0",
-    "prettier": "^1.14.3"
+    "prettier": "^1.15.3"
   }
 }
