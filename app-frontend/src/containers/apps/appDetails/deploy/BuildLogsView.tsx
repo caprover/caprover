@@ -40,7 +40,14 @@ export default class BuildLogsView extends ApiComponent<
     const self = this;
     this.apiManager
       .fetchBuildLogs(this.props.appName)
-      .then(function(logInfo) {
+      .then(function(logInfo: {
+        isAppBuilding: boolean;
+        isBuildFailed: boolean;
+        logs: {
+          firstLineNumber: number;
+          lines: string[];
+        };
+      }) {
         if (self.state.isAppBuilding && !logInfo.isAppBuilding) {
           // App was building but not anymore
           self.props.onAppBuildFinished();
@@ -52,7 +59,7 @@ export default class BuildLogsView extends ApiComponent<
           self.setState({ expandedLogs: true });
         }
 
-        let lines = logInfo.logs.lines as string[];
+        let lines = logInfo.logs.lines;
         let firstLineNumberOfLogs = logInfo.logs.firstLineNumber;
         let firstLinesToPrint = 0;
         if (firstLineNumberOfLogs > self.state.lastLineNumberPrinted) {
