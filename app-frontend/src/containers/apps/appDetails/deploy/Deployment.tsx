@@ -73,6 +73,8 @@ export default class Deployment extends ApiComponent<
         self.props.apiData.appDefinition.appName!,
         {
           schemaVersion: 2,
+          // We should use imageName, but since imageName does not report build failure (since there is no build!)
+          // If we use that, and the image is not available, the service will not work.
           dockerfileLines: ["FROM " + version.deployedImageName]
         },
         version.gitHash || "",

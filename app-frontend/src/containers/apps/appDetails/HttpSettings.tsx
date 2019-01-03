@@ -47,7 +47,11 @@ export default class HttpSettings extends Component<
       .then(function() {
         self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(
+        Toaster.createCatcher(function() {
+          self.props.setLoading(false);
+        })
+      );
   }
 
   onConnectNewDomainClicked(newDomain: string) {
@@ -67,7 +71,11 @@ export default class HttpSettings extends Component<
       .then(function() {
         self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(
+        Toaster.createCatcher(function() {
+          self.props.setLoading(false);
+        })
+      );
   }
 
   onEnableCustomDomainSslClicked(customDomain: string) {
@@ -87,7 +95,11 @@ export default class HttpSettings extends Component<
       .then(function() {
         self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(
+        Toaster.createCatcher(function() {
+          self.props.setLoading(false);
+        })
+      );
   }
 
   onRemoveCustomDomainClicked(customDomain: string) {
@@ -107,7 +119,11 @@ export default class HttpSettings extends Component<
       .then(function() {
         self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(
+        Toaster.createCatcher(function() {
+          self.props.setLoading(false);
+        })
+      );
   }
 
   createCustomDomainRows() {

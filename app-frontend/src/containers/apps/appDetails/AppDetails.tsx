@@ -132,7 +132,11 @@ export default class AppDetails extends ApiComponent<
           .then(function() {
             self.goBackToApps();
           })
-          .catch(Toaster.createCatcher());
+          .catch(
+            Toaster.createCatcher(function() {
+              self.setState({ isLoading: false });
+            })
+          );
       },
       onCancel() {
         // do nothing
