@@ -1,9 +1,9 @@
-var MachineHelper = require("../helpers/MachineHelper");
+const MachineHelper = require("../helpers/MachineHelper");
 function cleanUpUrl(url) {
     if (!url || !url.length)
         return null;
-    var cleanedUrl = url;
-    var hasSlashAtTheEnd = url.substr(url.length - 1, 1) === "/";
+    let cleanedUrl = url;
+    const hasSlashAtTheEnd = url.substr(url.length - 1, 1) === "/";
     if (hasSlashAtTheEnd) {
         // Remove the slash at the end
         cleanedUrl = url.substr(0, url.length - 1);
@@ -14,24 +14,23 @@ function cleanUpUrl(url) {
         .trim();
 }
 function findDefaultCaptainName() {
-    var currentSuffix = MachineHelper.machines.length + 1;
+    let currentSuffix = MachineHelper.machines.length + 1;
     while (!isSuffixValid(currentSuffix)) {
         currentSuffix++;
     }
     return getCaptainFullName(currentSuffix);
 }
 function getCaptainFullName(suffix) {
-    var formatSuffix = suffix < 10 ? "0" + suffix : suffix;
-    return "captain-" + formatSuffix;
+    const formatSuffix = suffix < 10 ? `0${suffix}` : suffix;
+    return `captain-${formatSuffix}`;
 }
-var isSuffixValid = function (suffixNumber) {
-    return MachineHelper.machines.map(function (machine) {
-        machine.name !== getCaptainFullName(suffixNumber);
-    });
-};
+const isSuffixValid = suffixNumber => MachineHelper.machines.map(machine => {
+    machine.name !== getCaptainFullName(suffixNumber);
+});
 module.exports = {
-    cleanUpUrl: cleanUpUrl,
-    findDefaultCaptainName: findDefaultCaptainName,
-    isSuffixValid: isSuffixValid,
-    getCaptainFullName: getCaptainFullName
+    cleanUpUrl,
+    findDefaultCaptainName,
+    isSuffixValid,
+    getCaptainFullName
 };
+//# sourceMappingURL=loginHelpers.js.map

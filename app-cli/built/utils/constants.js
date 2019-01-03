@@ -1,14 +1,15 @@
-var SAMPLE_DOMAIN = "captain.captainroot.yourdomain.com";
-var SAMPLE_IP = "123.123.123.123";
-var DEFAULT_PASSWORD = "captain42";
-var DEFAULT_BRANCH_TO_PUSH = "branchToPush";
-var DEFAULT_APP_NAME = "appName";
-var EMPTY_STRING = "";
+const SAMPLE_DOMAIN = "captain.captainroot.yourdomain.com";
+const SAMPLE_IP = "123.123.123.123";
+const DEFAULT_PASSWORD = "captain42";
+const DEFAULT_BRANCH_TO_PUSH = "branchToPush";
+const DEFAULT_APP_NAME = "appName";
+const EMPTY_STRING = "";
 module.exports = {
-    SAMPLE_DOMAIN: SAMPLE_DOMAIN,
-    SAMPLE_IP: SAMPLE_IP,
-    DEFAULT_PASSWORD: DEFAULT_PASSWORD,
-    DEFAULT_BRANCH_TO_PUSH: DEFAULT_BRANCH_TO_PUSH,
-    DEFAULT_APP_NAME: DEFAULT_APP_NAME,
-    EMPTY_STRING: EMPTY_STRING
+    SAMPLE_DOMAIN,
+    SAMPLE_IP,
+    DEFAULT_PASSWORD,
+    DEFAULT_BRANCH_TO_PUSH,
+    DEFAULT_APP_NAME,
+    EMPTY_STRING
 };
+//# sourceMappingURL=constants.js.map

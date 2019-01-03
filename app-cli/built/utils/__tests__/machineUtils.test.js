@@ -1,7 +1,7 @@
-var _a = require("../machineUtils"), initMachineFromLocalStorage = _a.initMachineFromLocalStorage, saveMachineToLocalStorage = _a.saveMachineToLocalStorage;
-var DeployApi = require("../../api/DeployApi");
-var MachineHelper = require("../../helpers/MachineHelper");
-var mockUpdatedApps = [
+const { initMachineFromLocalStorage, saveMachineToLocalStorage } = require("../machineUtils");
+const DeployApi = require("../../api/DeployApi");
+const MachineHelper = require("../../helpers/MachineHelper");
+const mockUpdatedApps = [
     {
         cwd: process.cwd(),
         appName: "captain-node-app-new-name",
@@ -13,7 +13,7 @@ var mockUpdatedApps = [
         }
     }
 ];
-jest.mock("../../helpers/MachineHelper", function () {
+jest.mock("../../helpers/MachineHelper", () => {
     return {
         apps: [
             {
@@ -30,7 +30,7 @@ jest.mock("../../helpers/MachineHelper", function () {
         setApps: jest.fn()
     };
 });
-jest.mock("../../api/DeployApi", function () {
+jest.mock("../../api/DeployApi", () => {
     return {
         setMachineToDeploy: jest.fn(),
         setAppName: jest.fn(),
@@ -44,16 +44,17 @@ jest.mock("../../api/DeployApi", function () {
         }
     };
 });
-describe("Machine utils", function () {
-    it("should init machine from localStorage", function () {
+describe("Machine utils", () => {
+    it("should init machine from localStorage", () => {
         initMachineFromLocalStorage();
         expect(DeployApi.setMachineToDeploy).toHaveBeenCalledTimes(1);
         expect(DeployApi.setAppName).toHaveBeenCalledTimes(1);
         expect(DeployApi.setBranchToPush).toHaveBeenCalledTimes(1);
     });
-    it("should update an app from localstorage", function () {
+    it("should update an app from localstorage", () => {
         saveMachineToLocalStorage();
-        var updatedApps = mockUpdatedApps;
+        const updatedApps = mockUpdatedApps;
         expect(MachineHelper.setApps).toBeCalledWith(updatedApps);
     });
 });
+//# sourceMappingURL=machineUtils.test.js.map

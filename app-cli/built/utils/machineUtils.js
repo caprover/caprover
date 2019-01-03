@@ -1,7 +1,7 @@
-var DeployApi = require("../api/DeployApi");
-var MachineHelper = require("../helpers/MachineHelper");
+const DeployApi = require("../api/DeployApi");
+const MachineHelper = require("../helpers/MachineHelper");
 function initMachineFromLocalStorage() {
-    var possibleApp = MachineHelper.apps.find(function (app) { return app.cwd === process.cwd(); });
+    const possibleApp = MachineHelper.apps.find(app => app.cwd === process.cwd());
     if (possibleApp) {
         DeployApi.setMachineToDeploy(possibleApp.machineToDeploy);
         DeployApi.setAppName(possibleApp.appName);
@@ -10,11 +10,11 @@ function initMachineFromLocalStorage() {
 }
 // Saves the app directory into local storage
 function saveMachineToLocalStorage() {
-    var apps = MachineHelper.apps;
-    var currentDirectory = process.cwd();
-    var appExists = false;
+    const apps = MachineHelper.apps;
+    const currentDirectory = process.cwd();
+    let appExists = false;
     // Update app
-    var updatedApps = apps.map(function (app) {
+    const updatedApps = apps.map(app => {
         if (app.cwd === currentDirectory) {
             appExists = true;
             return {
@@ -28,7 +28,7 @@ function saveMachineToLocalStorage() {
     });
     MachineHelper.setApps(updatedApps);
     if (!appExists) {
-        var newApp = {
+        const newApp = {
             cwd: process.cwd(),
             appName: DeployApi.appName,
             branchToPush: DeployApi.branchToPush,
@@ -39,6 +39,7 @@ function saveMachineToLocalStorage() {
     }
 }
 module.exports = {
-    initMachineFromLocalStorage: initMachineFromLocalStorage,
-    saveMachineToLocalStorage: saveMachineToLocalStorage
+    initMachineFromLocalStorage,
+    saveMachineToLocalStorage
 };
+//# sourceMappingURL=machineUtils.js.map

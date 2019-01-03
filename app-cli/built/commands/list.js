@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-var chalk = require("chalk");
-var MachineHelper = require("../helpers/MachineHelper");
-var printMessage = require("../utils/messageHandler").printMessage;
+const chalk = require("chalk");
+const MachineHelper = require("../helpers/MachineHelper");
+const { printMessage } = require("../utils/messageHandler");
 function _displayMachine(machine) {
     console.log(">> " +
         chalk.greenBright(machine.name) +
@@ -10,9 +10,10 @@ function _displayMachine(machine) {
 }
 function list() {
     printMessage("\nLogged in Captain Machines:\n");
-    MachineHelper.machines.map(function (machine) {
+    MachineHelper.machines.map(machine => {
         _displayMachine(machine);
     });
     printMessage("");
 }
 module.exports = list;
+//# sourceMappingURL=list.js.map
