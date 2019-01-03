@@ -32,10 +32,13 @@ export default class Apps extends ApiComponent<
         self.setState({ isLoading: true });
         return self.apiManager.registerNewApp(appName, hasPersistentData);
       })
-      .then(function(data) {
-        self.reFetchData();
+      .then(function() {
+        return self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   render() {
@@ -77,11 +80,14 @@ export default class Apps extends ApiComponent<
   reFetchData() {
     const self = this;
     self.setState({ isLoading: true });
-    this.apiManager
+    return this.apiManager
       .getAllApps()
       .then(function(data: any) {
-        self.setState({ isLoading: false, apiData: data });
+        self.setState({ apiData: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 }

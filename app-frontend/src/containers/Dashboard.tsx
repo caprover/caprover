@@ -26,7 +26,7 @@ export default class Dashboard extends ApiComponent<
   reFetchData() {
     const self = this;
     self.setState({ isLoading: true, apiData: undefined });
-    this.apiManager
+    return this.apiManager
       .getCaptainInfo()
       .then(function(data: any) {
         self.setState({ apiData: data });
@@ -55,39 +55,42 @@ export default class Dashboard extends ApiComponent<
         </p>
       ),
       onOk() {
+        self.setState({ isLoading: true });
         self.apiManager
           .forceSsl(true)
           .then(function() {
-            return new Promise(function(resolve, reject) {
-              Modal.success({
-                title: "Force HTTPS activated!",
-                content: (
-                  <div>
-                    <p>
-                      All HTTP traffic is now redirected to HTTPS.{" "}
-                      {isUsingHttp
-                        ? "You will have to login again as you will now be redirected to HTTPS website."
-                        : ""}
-                    </p>
-                  </div>
-                ),
-                onOk() {
-                  resolve();
-                },
-                onCancel() {
-                  resolve();
+            Modal.success({
+              title: "Force HTTPS activated!",
+              content: (
+                <div>
+                  <p>
+                    All HTTP traffic is now redirected to HTTPS.{" "}
+                    {isUsingHttp
+                      ? "You will have to login again as you will now be redirected to HTTPS website."
+                      : ""}
+                  </p>
+                </div>
+              ),
+              onOk() {
+                if (isUsingHttp) {
+                  window.location.replace(
+                    "https://" + self.state.apiData.rootDomain
+                  );
                 }
-              });
+              },
+              onCancel() {
+                if (isUsingHttp) {
+                  window.location.replace(
+                    "https://" + self.state.apiData.rootDomain
+                  );
+                }
+              }
             });
           })
+          .catch(Toaster.createCatcher())
           .then(function() {
-            if (isUsingHttp) {
-              window.location.replace(
-                "https://" + self.state.apiData.rootDomain
-              );
-            }
-          })
-          .catch(Toaster.createCatcher());
+            self.setState({ isLoading: false });
+          });
       },
       onCancel() {
         // do nothing
@@ -157,8 +160,6 @@ export default class Dashboard extends ApiComponent<
       .then(function(data: any) {
         if (data === IGNORE) return;
 
-        self.reFetchData();
-
         Modal.success({
           title: "Root Domain HTTPS activated!",
           content: (
@@ -172,9 +173,12 @@ export default class Dashboard extends ApiComponent<
           )
         });
 
-        return true;
+        return self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   updateRootDomain(rootDomain: string) {

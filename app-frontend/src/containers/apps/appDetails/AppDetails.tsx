@@ -145,10 +145,13 @@ export default class AppDetails extends ApiComponent<
     self.setState({ isLoading: true });
     this.apiManager
       .updateConfigAndSave(appDef.appName!, appDef)
-      .then(function(data: any) {
-        self.reFetchData();
+      .then(function() {
+        return self.reFetchData();
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   render() {
@@ -297,7 +300,7 @@ export default class AppDetails extends ApiComponent<
   reFetchData() {
     const self = this;
     self.setState({ isLoading: true });
-    this.apiManager
+    return this.apiManager
       .getAllApps()
       .then(function(data: any) {
         for (let index = 0; index < data.appDefinitions.length; index++) {
@@ -318,6 +321,9 @@ export default class AppDetails extends ApiComponent<
         // App Not Found!
         self.goBackToApps();
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 }

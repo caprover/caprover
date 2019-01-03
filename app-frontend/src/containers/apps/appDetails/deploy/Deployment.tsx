@@ -62,7 +62,8 @@ export default class Deployment extends ApiComponent<
             versions: app.versions
           }
         });
-      });
+      })
+      .catch(Toaster.createCatcher());
   }
 
   onVersionRollbackRequested(version: IAppVersion) {
