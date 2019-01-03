@@ -5,34 +5,42 @@ import { Alert, Row, Col, Divider, message } from "antd";
 import ApiComponent from "../global/ApiComponent";
 import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
+import ErrorRetry from "../global/ErrorRetry";
 
 class CurrentNodes extends ApiComponent<
   {
     defaultRegistryId: string | undefined;
   },
-  { apiData: any }
+  {
+    isLoading: boolean;
+    apiData: any;
+  }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
-      apiData: undefined
+      apiData: undefined,
+      isLoading: true
     };
   }
 
   fetchData() {
     const self = this;
-    self.setState({ apiData: undefined });
+    self.setState({ apiData: undefined, isLoading: true });
     self.apiManager
       .getAllNodes()
       .then(function(data) {
         self.setState({ apiData: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   addNode(nodeToAdd: INodeToAdd) {
     const self = this;
-    self.setState({ apiData: undefined });
+    self.setState({ apiData: undefined, isLoading: true });
     self.apiManager
       .addDockerNode(
         nodeToAdd.nodeType,
@@ -44,7 +52,7 @@ class CurrentNodes extends ApiComponent<
         message.success("Node added successfully!");
       })
       .catch(Toaster.createCatcher())
-      .then(function(data) {
+      .then(function() {
         self.fetchData();
       });
   }
@@ -151,8 +159,12 @@ class CurrentNodes extends ApiComponent<
 
   render() {
     const self = this;
-    if (!this.state.apiData) {
+    if (this.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!this.state.apiData) {
+      return <ErrorRetry />;
     }
 
     return (
