@@ -7,10 +7,21 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import CreateNewApp from "./CreateNewApp";
 import AppsTable from "./AppsTable";
 import { RouteComponentProps } from "react-router";
+import { IAppDef } from "./AppDefinition";
+import ErrorRetry from "../global/ErrorRetry";
 
 export default class Apps extends ApiComponent<
   RouteComponentProps<any>,
-  { isLoading: boolean; apiData: any }
+  {
+    isLoading: boolean;
+    apiData:
+      | {
+          appDefinitions: IAppDef[];
+          defaultNginxConfig: string;
+          rootDomain: string;
+        }
+      | undefined;
+  }
 > {
   constructor(props: any) {
     super(props);
@@ -48,6 +59,12 @@ export default class Apps extends ApiComponent<
       return <CenteredSpinner />;
     }
 
+    const apiData = self.state.apiData;
+
+    if (!apiData) {
+      return <ErrorRetry />;
+    }
+
     return (
       <div>
         <CreateNewApp
@@ -59,12 +76,12 @@ export default class Apps extends ApiComponent<
           }}
         />
         <div style={{ height: 25 }} />
-        {self.state.apiData.appDefinitions.length > 0 ? (
+        {apiData.appDefinitions.length > 0 ? (
           <AppsTable
             history={this.props.history}
-            defaultNginxConfig={this.state.apiData.defaultNginxConfig}
-            apps={this.state.apiData.appDefinitions}
-            rootDomain={this.state.apiData.rootDomain}
+            defaultNginxConfig={apiData.defaultNginxConfig}
+            apps={apiData.appDefinitions}
+            rootDomain={apiData.rootDomain}
           />
         ) : (
           <div />

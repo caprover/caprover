@@ -24,6 +24,7 @@ import ApiManager from "../../../api/ApiManager";
 import AppConfigs from "./AppConfigs";
 import Deployment from "./deploy/Deployment";
 import Utils from "../../../utils/Utils";
+import ErrorRetry from "../../global/ErrorRetry";
 const TabPane = Tabs.TabPane;
 
 const WEB_SETTINGS = "WEB_SETTINGS";
@@ -169,7 +170,11 @@ export default class AppDetails extends ApiComponent<
       }, 50);
     }
 
-    const app = self.state.apiData!.appDefinition;
+    if (!self.state.apiData) {
+      return <ErrorRetry />;
+    }
+
+    const app = self.state.apiData.appDefinition;
 
     return (
       <Row>
