@@ -5,7 +5,7 @@ const DEFAULT_BRANCH_TO_PUSH = "branchToPush"
 const DEFAULT_APP_NAME = "appName"
 const EMPTY_STRING = ""
 
-module.exports = {
+export = {
   SAMPLE_DOMAIN,
   SAMPLE_IP,
   DEFAULT_PASSWORD,

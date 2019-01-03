@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,23 +7,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+const { printMessage, printError, printGreenMessage, printMagentaMessage } = require('./messageHandler');
+const SpinnerHelper = require('../helpers/SpinnerHelper');
+const child_process_1 = require("child_process");
 const fs = require("fs-extra");
-const { printMessage, printError, printGreenMessage, printMagentaMessage } = require("./messageHandler");
-const SpinnerHelper = require("../helpers/SpinnerHelper");
-const { exec } = require("child_process");
-const ProgressBar = require("progress");
-const DeployApi = require("../api/DeployApi");
-const { saveMachineToLocalStorage } = require("../utils/machineUtils");
+const ProgressBar = require('progress');
+const DeployApi = require('../api/DeployApi');
+const { saveMachineToLocalStorage } = require('../utils/machineUtils');
 let lastLineNumberPrinted = -10000; // we want to show all lines to begin with!
 function gitArchiveFile(zipFileFullPath, branchToPush) {
-    exec(`git archive --format tar --output "${zipFileFullPath}" ${branchToPush}`, (err, stdout, stderr) => {
+    child_process_1.exec(`git archive --format tar --output "${zipFileFullPath}" ${branchToPush}`, (err, stdout, stderr) => {
         if (err) {
             printError(`TAR file failed\n${err}\n`);
             fs.removeSync(zipFileFullPath);
             return;
         }
-        exec(`git rev-parse ${branchToPush}`, (err, stdout, stderr) => {
-            const gitHash = (stdout || "").trim();
+        child_process_1.exec(`git rev-parse ${branchToPush}`, (err, stdout, stderr) => {
+            const gitHash = (stdout || '').trim();
             if (err || !/^[a-f0-9]{40}$/.test(gitHash)) {
                 printError(`Cannot find hash of last commit on this branch: ${branchToPush}\n${gitHash}\n${err}\n`);
                 return;
@@ -43,7 +45,7 @@ function onLogRetrieved(data) {
                 firstLinesToPrint = -firstLineNumberOfLogs;
             }
             else {
-                printMessage("[[ TRUNCATED ]]");
+                printMessage('[[ TRUNCATED ]]');
             }
         }
         else {
@@ -51,7 +53,7 @@ function onLogRetrieved(data) {
         }
         lastLineNumberPrinted = firstLineNumberOfLogs + lines.length;
         for (let i = firstLinesToPrint; i < lines.length; i++) {
-            printMessage((lines[i] || "").trim());
+            printMessage((lines[i] || '').trim());
         }
     }
     const finishedBuilding = data && !data.isAppBuilding;
@@ -92,14 +94,14 @@ function getFileStream(zipFileFullPath) {
         total: fileSize,
         clear: true
     };
-    const bar = new ProgressBar(" uploading [:bar] :percent  (ETA :etas)", barOpts);
-    fileStream.on("data", chunk => {
+    const bar = new ProgressBar(' uploading [:bar] :percent  (ETA :etas)', barOpts);
+    fileStream.on('data', (chunk) => {
         bar.tick(chunk.length);
     });
-    fileStream.on("end", () => {
-        printMessage("This might take several minutes. PLEASE BE PATIENT...");
-        SpinnerHelper.start("Building your source code...");
-        SpinnerHelper.setColor("yellow");
+    fileStream.on('end', () => {
+        printMessage('This might take several minutes. PLEASE BE PATIENT...');
+        SpinnerHelper.start('Building your source code...');
+        SpinnerHelper.setColor('yellow');
     });
     return fileStream;
 }
