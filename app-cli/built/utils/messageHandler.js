@@ -1,4 +1,5 @@
-const chalk = require("chalk");
+"use strict";
+const chalk = require('chalk');
 function printMessage(message) {
     console.log(message);
 }

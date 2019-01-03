@@ -6,23 +6,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const fs = require("fs-extra");
-const DeployApi = require("../api/DeployApi");
-const { printError } = require("./messageHandler");
-const { requestLogin } = require("../commands/login");
-const { initMachineFromLocalStorage } = require("../utils/machineUtils");
+const fs = require('fs-extra');
+const DeployApi = require('../api/DeployApi');
+const { printError } = require('./messageHandler');
+const { requestLogin } = require('../commands/login');
+const { initMachineFromLocalStorage } = require('../utils/machineUtils');
 function validateIsGitRepository() {
-    const gitFolderExists = fs.pathExistsSync("./.git");
+    const gitFolderExists = fs.pathExistsSync('./.git');
     if (!gitFolderExists) {
-        printError("\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n", true);
+        printError('\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n', true);
     }
 }
 function validateDefinitionFile() {
-    const captainDefinitionExists = fs.pathExistsSync("./captain-definition");
+    const captainDefinitionExists = fs.pathExistsSync('./captain-definition');
     if (!captainDefinitionExists) {
-        printError("\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n", true);
+        printError('\n**** ERROR: captain-definition file cannot be found. Please see docs! ****\n', true);
     }
-    const contents = fs.readFileSync("./captain-definition", "utf8");
+    const contents = fs.readFileSync('./captain-definition', 'utf8');
     let contentsJson = null;
     try {
         contentsJson = JSON.parse(contents);
@@ -32,13 +32,13 @@ function validateDefinitionFile() {
     }
     if (contentsJson) {
         if (!contentsJson.schemaVersion) {
-            printError("**** ERROR: captain-definition needs schemaVersion. Please see docs! ****", true);
+            printError('**** ERROR: captain-definition needs schemaVersion. Please see docs! ****', true);
         }
         if (!contentsJson.templateId && !contentsJson.dockerfileLines) {
-            printError("**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****", true);
+            printError('**** ERROR: captain-definition needs templateId or dockerfileLines. Please see docs! ****', true);
         }
         if (contentsJson.templateId && contentsJson.dockerfileLines) {
-            printError("**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****", true);
+            printError('**** ERROR: captain-definition needs templateId or dockerfileLines, NOT BOTH! Please see docs! ****', true);
         }
     }
 }

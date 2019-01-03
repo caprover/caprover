@@ -1,7 +1,9 @@
-const DeployApi = require("../api/DeployApi");
-const MachineHelper = require("../helpers/MachineHelper");
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const DeployApi = require('../api/DeployApi');
+const MachineHelper = require('../helpers/MachineHelper');
 function initMachineFromLocalStorage() {
-    const possibleApp = MachineHelper.apps.find(app => app.cwd === process.cwd());
+    const possibleApp = MachineHelper.apps.find((app) => app.cwd === process.cwd());
     if (possibleApp) {
         DeployApi.setMachineToDeploy(possibleApp.machineToDeploy);
         DeployApi.setAppName(possibleApp.appName);
@@ -14,7 +16,7 @@ function saveMachineToLocalStorage() {
     const currentDirectory = process.cwd();
     let appExists = false;
     // Update app
-    const updatedApps = apps.map(app => {
+    const updatedApps = apps.map((app) => {
         if (app.cwd === currentDirectory) {
             appExists = true;
             return {
