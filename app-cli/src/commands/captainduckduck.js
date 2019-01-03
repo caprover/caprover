@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-const { printError } = require("./utils/messageHandler")
-const packagejson = require("./package.json")
+const { printError } = require("../utils/messageHandler")
+const packagejson = require("../../package.json")
 const updateNotifier = require("update-notifier")
 const program = require("commander")
 
 updateNotifier({ pkg: packagejson }).notify({ isGlobal: true })
 
 // Command actions
-const serversetup = require("./lib/serversetup")
-const { login } = require("./lib/login")
-const logout = require("./lib/logout")
-const list = require("./lib/list")
-const deploy = require("./lib/deploy")
+const serversetup = require("./serversetup")
+const { login } = require("./login")
+const logout = require("./logout")
+const list = require("./list")
+const deploy = require("./deploy")
 
 // Setup
 program.version(packagejson.version).description(packagejson.description)

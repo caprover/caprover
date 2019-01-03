@@ -1,7 +1,7 @@
 const fs = require("fs-extra")
 const DeployApi = require("../api/DeployApi")
 const { printError } = require("./messageHandler")
-const { requestLogin } = require("../lib/login")
+const { requestLogin } = require("../commands/login")
 const { initMachineFromLocalStorage } = require("../utils/machineUtils")
 
 function validateIsGitRepository() {

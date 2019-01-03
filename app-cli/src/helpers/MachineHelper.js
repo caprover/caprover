@@ -1,6 +1,6 @@
 const { printMessage } = require("../utils/messageHandler")
 const configstore = require("configstore")
-const packagejson = require("../package.json")
+const packagejson = require("../../package.json")
 const configs = new configstore(packagejson.name, {
   captainMachines: []
 })

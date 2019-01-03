@@ -6,7 +6,7 @@ const {
   validateAuthentication
 } = require("../validationsHandler")
 const { printError } = require("../messageHandler")
-const { requestLogin } = require("../../lib/login")
+const { requestLogin } = require("../../commands/login")
 const { initMachineFromLocalStorage } = require("../machineUtils")
 
 jest.mock("fs")
@@ -23,7 +23,7 @@ jest.mock("../../api/DeployApi", () => {
   }
 })
 
-jest.mock("../../lib/login", () => {
+jest.mock("../../commands/login", () => {
   return {
     requestLogin: jest.fn()
   }

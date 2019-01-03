@@ -4,15 +4,16 @@
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "npx tsc"
   },
   "bin": {
-    "captainduckduck": "./captainduckduck.js",
-    "captainduckduck-deploy": "./lib/deploy.js",
-    "captainduckduck-list": "./lib/list.js",
-    "captainduckduck-login": "./lib/login.js",
-    "captainduckduck-logout": "./lib/logout.js",
-    "captainduckduck-serversetup": "./lib/serversetup.js"
+    "captainduckduck": "./built/commands/captainduckduck.js",
+    "captainduckduck-deploy": "./built/commands/deploy.js",
+    "captainduckduck-list": "./built/commands/list.js",
+    "captainduckduck-login": "./built/commands/login.js",
+    "captainduckduck-logout": "./built/commands/logout.js",
+    "captainduckduck-serversetup": "./built/commands/serversetup.js"
   },
   "repository": {
     "type": "git",
@@ -50,9 +51,11 @@
     "progress": "^2.0.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "typescript": "^3.2.2",
     "update-notifier": "^2.5.0"
   },
   "devDependencies": {
+    "@types/node": "^10.12.18",
     "eslint": "^5.11.1",
     "eslint-plugin-jest": "^21.27.2",
     "jest": "^23.6.0",
