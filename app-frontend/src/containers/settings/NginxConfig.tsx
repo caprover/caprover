@@ -5,17 +5,20 @@ import Utils from "../../utils/Utils";
 import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import ReloadCaptainModal from "./ReloadCaptainModal";
+import ErrorRetry from "../global/ErrorRetry";
 
 export default class NginxConfig extends ApiComponent<
   {},
   {
     nginxConfig: any;
+    isLoading: boolean;
     isRefreshTimerActivated: boolean;
   }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
+      isLoading: true,
       nginxConfig: undefined,
       isRefreshTimerActivated: false
     };
@@ -23,12 +26,16 @@ export default class NginxConfig extends ApiComponent<
 
   componentDidMount() {
     const self = this;
+    self.setState({ isLoading: true });
     this.apiManager
       .getNginxConfig()
       .then(function(data) {
         self.setState({ nginxConfig: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   onLoadDefaultNginxConfigClicked() {
@@ -41,6 +48,8 @@ export default class NginxConfig extends ApiComponent<
   onUpdateNginxConfigClicked() {
     const self = this;
     const newApiData = Utils.copyObject(this.state.nginxConfig);
+    self.setState({ isLoading: true });
+
     this.apiManager
       .setNginxConfig(
         newApiData.baseConfig.customValue,
@@ -49,15 +58,22 @@ export default class NginxConfig extends ApiComponent<
       .then(function() {
         self.setState({ isRefreshTimerActivated: true });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   render() {
     const self = this;
+    if (self.state.isLoading) {
+      return <CenteredSpinner />;
+    }
+
     const nginxConfig = this.state.nginxConfig;
 
     if (!nginxConfig) {
-      return <CenteredSpinner />;
+      return <ErrorRetry />;
     }
 
     return (

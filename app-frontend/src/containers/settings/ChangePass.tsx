@@ -35,7 +35,7 @@ export default class ChangePass extends ApiComponent<
     this.apiManager
       .changePass(this.state.old, this.state.new1)
       .catch(Toaster.createCatcher())
-      .then(function(data) {
+      .then(function() {
         self.setState({ isLoading: false });
       });
   }

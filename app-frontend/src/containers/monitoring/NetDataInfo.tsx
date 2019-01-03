@@ -6,12 +6,17 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import NetDataDescription from "./NetDataDescription";
 import NetDataSettingsForm from "./NetDataSettingsForm";
 import Utils from "../../utils/Utils";
+import ErrorRetry from "../global/ErrorRetry";
 
-export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
+export default class NetDataInfo extends ApiComponent<
+  {},
+  { apiData: any; isLoading: boolean }
+> {
   constructor(props: any) {
     super(props);
     this.state = {
-      apiData: undefined
+      apiData: undefined,
+      isLoading: true
     };
   }
 
@@ -21,13 +26,16 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
 
   refetchData() {
     const self = this;
-    self.setState({ apiData: undefined });
-    this.apiManager
+    self.setState({ isLoading: true, apiData: undefined });
+    return this.apiManager
       .getNetDataInfo()
       .then(function(data) {
         self.setState({ apiData: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   toggleNetDataClicked(isActivated: boolean) {
@@ -38,7 +46,7 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
 
   onUpdateNetDataClicked(netDataInfo: any) {
     const self = this;
-    self.setState({ apiData: undefined });
+    self.setState({ isLoading: true });
     return this.apiManager
       .updateNetDataInfo(netDataInfo)
       .then(function() {
@@ -57,8 +65,12 @@ export default class NetDataInfo extends ApiComponent<{}, { apiData: any }> {
   render() {
     const self = this;
 
-    if (!this.state.apiData) {
+    if (this.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!this.state.apiData) {
+      return <ErrorRetry />;
     }
 
     const netDataInfo = this.state.apiData;

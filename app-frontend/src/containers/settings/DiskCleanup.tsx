@@ -13,6 +13,7 @@ import ApiComponent from "../global/ApiComponent";
 import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
 import UnusedImagesTable from "./UnusedImagesTable";
+import ErrorRetry from "../global/ErrorRetry";
 
 export interface IUnusedImage {
   tags: string[];
@@ -22,6 +23,7 @@ export interface IUnusedImage {
 export default class DiskCleanup extends ApiComponent<
   {},
   {
+    isLoading: boolean;
     mostRecentLimit: number;
     unusedImages?: IUnusedImage[];
     selectedImagesForDelete: string[];
@@ -30,6 +32,7 @@ export default class DiskCleanup extends ApiComponent<
   constructor(props: any) {
     super(props);
     this.state = {
+      isLoading: false,
       mostRecentLimit: 2,
       selectedImagesForDelete: [],
       unusedImages: []
@@ -38,33 +41,45 @@ export default class DiskCleanup extends ApiComponent<
 
   onRemoveImagesClicked() {
     const self = this;
-    this.setState({ unusedImages: undefined });
+    this.setState({ isLoading: true });
     this.apiManager
       .deleteImages(this.state.selectedImagesForDelete)
-      .then(function(data) {
+      .then(function() {
         message.success("Unused images are deleted.");
-        self.onGetOldImagesClicked();
+        self.refreshOldImagesList();
       })
-      .catch(Toaster.createCatcher());
+      .catch(
+        Toaster.createCatcher(function() {
+          self.setState({ isLoading: false });
+        })
+      );
   }
 
-  onGetOldImagesClicked() {
+  refreshOldImagesList() {
     const self = this;
-    this.setState({ unusedImages: undefined });
-    this.apiManager
+    this.setState({ unusedImages: undefined, isLoading: true });
+    return this.apiManager
       .getUnusedImages(this.state.mostRecentLimit)
       .then(function(data) {
         self.setState({ unusedImages: data.unusedImages });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   render() {
     const self = this;
+
+    if (self.state.isLoading) {
+      return <CenteredSpinner />;
+    }
+
     const unusedImages = this.state.unusedImages;
 
     if (!unusedImages) {
-      return <CenteredSpinner />;
+      return <ErrorRetry />;
     }
 
     const hasSelectedImagesForRemoval = !!(
@@ -119,7 +134,7 @@ export default class DiskCleanup extends ApiComponent<
             <Row type="flex" justify="end">
               <Button
                 type="default"
-                onClick={() => this.onGetOldImagesClicked()}
+                onClick={() => this.refreshOldImagesList()}
               >
                 <span>
                   <Icon type="sync" />

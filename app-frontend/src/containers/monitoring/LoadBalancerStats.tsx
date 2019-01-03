@@ -3,6 +3,7 @@ import ApiComponent from "../global/ApiComponent";
 import { Row, Col, Card, Avatar, Icon, Tooltip } from "antd";
 import Toaster from "../../utils/Toaster";
 import CenteredSpinner from "../global/CenteredSpinner";
+import ErrorRetry from "../global/ErrorRetry";
 
 class LoadBalancerStatsCard extends Component<any, any> {
   render() {
@@ -42,22 +43,30 @@ class LoadBalancerStatsCard extends Component<any, any> {
 
 export default class LoadBalancerStats extends ApiComponent<
   {},
-  { apiData: any }
+  { apiData: any; isLoading: boolean }
 > {
   private updateApiInterval: any;
 
   constructor(props: any) {
     super(props);
-    this.state = { apiData: undefined };
+    this.state = {
+      apiData: undefined,
+      isLoading: true
+    };
   }
+
   updateApi() {
     const self = this;
+    self.setState({ isLoading: !self.state.apiData }); // set to true just the first time
     this.apiManager
       .getLoadBalancerInfo()
       .then(function(data) {
         self.setState({ apiData: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   componentWillUnmount() {
@@ -76,8 +85,12 @@ export default class LoadBalancerStats extends ApiComponent<
   }
 
   render() {
-    if (!this.state.apiData) {
+    if (!!this.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!this.state.apiData) {
+      return <ErrorRetry />;
     }
 
     return (

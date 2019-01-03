@@ -5,46 +5,65 @@ import CenteredSpinner from "../global/CenteredSpinner";
 import Toaster from "../../utils/Toaster";
 import ReloadCaptainModal from "./ReloadCaptainModal";
 import { IVersionInfo } from "../../models/IVersionInfo";
+import ErrorRetry from "../global/ErrorRetry";
 
 export default class CheckUpdate extends ApiComponent<
   {},
-  { versionInfo: IVersionInfo | undefined; isRefreshTimerActivated: boolean }
+  {
+    versionInfo: IVersionInfo | undefined;
+    isRefreshTimerActivated: boolean;
+    isLoading: boolean;
+  }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
       versionInfo: undefined,
-      isRefreshTimerActivated: false
+      isRefreshTimerActivated: false,
+      isLoading: true
     };
   }
 
   componentDidMount() {
     const self = this;
+    self.setState({ isLoading: true });
     self.apiManager
       .getVersionInfo()
       .then(function(data) {
         self.setState({ versionInfo: data });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   onPerformUpdateClicked() {
     const self = this;
     const versionInfo = this.state.versionInfo;
+    self.setState({ isLoading: true });
     self.apiManager
       .performUpdate(versionInfo!.latestVersion)
-      .then(function(data) {
+      .then(function() {
         self.setState({ isRefreshTimerActivated: true });
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   render() {
     const self = this;
+
+    if (self.state.isLoading) {
+      return <CenteredSpinner />;
+    }
+
     const versionInfo = this.state.versionInfo;
 
     if (!versionInfo) {
-      return <CenteredSpinner />;
+      return <ErrorRetry />;
     }
 
     return (

@@ -14,21 +14,23 @@ import {
 } from "../../models/IRegistryInfo";
 import DockerRegistryAdd from "./DockerRegistryAdd";
 import { emitDefaultRegistryChanged } from "../../actions/DefaultRegistryActions";
+import ErrorRetry from "../global/ErrorRetry";
 
 class DockerRegistries extends ApiComponent<
   { emitDefaultRegistryChanged: Function },
-  { apiData: IRegistryApi | undefined }
+  { apiData: IRegistryApi | undefined; isLoading: boolean }
 > {
   constructor(props: any) {
     super(props);
     this.state = {
-      apiData: undefined
+      apiData: undefined,
+      isLoading: true
     };
   }
 
   fetchData() {
     const self = this;
-    this.setState({ apiData: undefined });
+    this.setState({ apiData: undefined, isLoading: true });
     this.apiManager
       .getDockerRegistries()
       .then(function(data) {
@@ -37,12 +39,15 @@ class DockerRegistries extends ApiComponent<
           (data as IRegistryApi).defaultPushRegistryId
         );
       })
-      .catch(Toaster.createCatcher());
+      .catch(Toaster.createCatcher())
+      .then(function() {
+        self.setState({ isLoading: false });
+      });
   }
 
   changeDefault(id: string) {
     const self = this;
-    this.setState({ apiData: undefined });
+    this.setState({ apiData: undefined, isLoading: true });
 
     this.apiManager
       .setDefaultPushDockerRegistry(id)
@@ -65,7 +70,7 @@ class DockerRegistries extends ApiComponent<
         )
         .indexOf(true) >= 0;
 
-    this.setState({ apiData: undefined });
+    this.setState({ apiData: undefined, isLoading: true });
 
     (isSelfHosted
       ? this.apiManager.disableSelfHostedDockerRegistry()
@@ -82,7 +87,7 @@ class DockerRegistries extends ApiComponent<
 
   editRegistry(dockerRegistry: IRegistryInfo) {
     const self = this;
-    this.setState({ apiData: undefined });
+    this.setState({ apiData: undefined, isLoading: true });
 
     this.apiManager
       .updateDockerRegistry(dockerRegistry)
@@ -97,7 +102,7 @@ class DockerRegistries extends ApiComponent<
 
   addDockerRegistry(dockerRegistry: IRegistryInfo) {
     const self = this;
-    this.setState({ apiData: undefined });
+    this.setState({ apiData: undefined, isLoading: true });
     (dockerRegistry.registryType === IRegistryTypes.LOCAL_REG
       ? self.apiManager.enableSelfHostedDockerRegistry()
       : self.apiManager.addDockerRegistry(dockerRegistry)
@@ -117,8 +122,12 @@ class DockerRegistries extends ApiComponent<
 
   render() {
     const self = this;
-    if (!this.state.apiData) {
+    if (this.state.isLoading) {
       return <CenteredSpinner />;
+    }
+
+    if (!this.state.apiData) {
+      return <ErrorRetry />;
     }
 
     return (
