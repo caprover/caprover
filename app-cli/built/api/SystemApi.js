@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MainApi = require("./MainApi");
-const LoginApi = require("./LoginApi");
+const MainApi = require('./MainApi');
+const LoginApi = require('./LoginApi');
 // const spinnerUtil = require("../../utils/spinner")
 class SystemApi {
     constructor() {
-        this.ipAddressOfServer = "";
-        this.customDomainFromUser = "";
-        this.newPasswordFirstTry = "";
+        this.ipAddressOfServer = '';
+        this.customDomainFromUser = '';
+        this.newPasswordFirstTry = '';
     }
     setCustomDomainFromUser(newCustomDomainFromUser) {
         this.customDomainFromUser = newCustomDomainFromUser;
@@ -26,7 +27,7 @@ class SystemApi {
             try {
                 const customOptions = {
                     headers: {
-                        "x-captain-auth": LoginApi.token
+                        'x-captain-auth': LoginApi.token
                     }
                 };
                 const data = yield MainApi.post(`${baseUrl}/api/v1/user/system/changerootdomain/`, {
@@ -43,7 +44,7 @@ class SystemApi {
         return __awaiter(this, void 0, void 0, function* () {
             const customOptions = {
                 headers: {
-                    "x-captain-auth": LoginApi.token
+                    'x-captain-auth': LoginApi.token
                 }
             };
             try {
@@ -62,7 +63,7 @@ class SystemApi {
             try {
                 const customOptions = {
                     headers: {
-                        "x-captain-auth": LoginApi.token
+                        'x-captain-auth': LoginApi.token
                     }
                 };
                 const data = yield MainApi.post(`${baseUrl}/api/v1/user/system/forcessl/`, {

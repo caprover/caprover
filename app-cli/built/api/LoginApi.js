@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,12 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MainApi = require("./MainApi");
-const SystemApi = require("./SystemApi");
-const { DEFAULT_PASSWORD } = require("../utils/constants");
+const MainApi = require('./MainApi');
+const SystemApi = require('./SystemApi');
+const { DEFAULT_PASSWORD } = require('../utils/constants');
 class LoginApi {
     constructor() {
-        this.token = "";
+        this.token = '';
         this.oldPassword = DEFAULT_PASSWORD;
     }
     setOldPassword(newPassword) {
@@ -40,7 +41,7 @@ class LoginApi {
             try {
                 const customOptions = {
                     headers: {
-                        "x-captain-auth": LoginApi.token
+                        'x-captain-auth': this.token
                     }
                 };
                 const form = {

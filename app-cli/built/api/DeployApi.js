@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,15 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MainApi = require("./MainApi");
-const MachineHelper = require("../helpers/MachineHelper");
-const { DEFAULT_BRANCH_TO_PUSH, DEFAULT_APP_NAME } = require("../utils/constants");
+const MachineHelper_1 = require("../helpers/MachineHelper");
+const MainApi = require('./MainApi');
+const { DEFAULT_BRANCH_TO_PUSH, DEFAULT_APP_NAME } = require('../utils/constants');
 class DeployApi {
     constructor() {
-        this.machineToDeploy = {};
         this.branchToPush = DEFAULT_BRANCH_TO_PUSH;
         this.appName = DEFAULT_APP_NAME;
-        this.appUrl = "";
+        this.appUrl = '';
     }
     setMachineToDeploy(machineToDeploy) {
         this.machineToDeploy = machineToDeploy;
@@ -22,14 +22,13 @@ class DeployApi {
     updateMachineToDeploy(machineToDeploy) {
         let possibleMachine = {};
         // Look machine by host
-        if (machineToDeploy.startsWith("http")) {
-            possibleMachine = MachineHelper.machines.find(machine => machine.baseUrl === machineToDeploy);
+        if (machineToDeploy.startsWith('http')) {
+            this.machineToDeploy = MachineHelper_1.default.getMachines().find((machine) => machine.baseUrl === machineToDeploy);
         }
         else {
             // Look machine by name
-            possibleMachine = MachineHelper.machines.find(machine => machine.name === machineToDeploy);
+            this.machineToDeploy = MachineHelper_1.default.getMachines().find((machine) => machine.name === machineToDeploy);
         }
-        this.machineToDeploy = possibleMachine;
     }
     setBranchToPush(branchToPush) {
         this.branchToPush = branchToPush;
@@ -40,8 +39,8 @@ class DeployApi {
     }
     setAppUrl() {
         this.appUrl = this.machineToDeploy.baseUrl
-            .replace("//captain.", "//" + this.appName + ".")
-            .replace("https://", "http://");
+            .replace('//captain.', '//' + this.appName + '.')
+            .replace('https://', 'http://');
     }
     fetchBuildLogs() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -49,7 +48,7 @@ class DeployApi {
                 const { authToken, baseUrl } = this.machineToDeploy;
                 const customOptions = {
                     headers: {
-                        "x-captain-auth": authToken
+                        'x-captain-auth': authToken
                     }
                 };
                 const data = yield MainApi.get(`${baseUrl}/api/v1/user/appData/${this.appName}`, customOptions);
@@ -71,7 +70,7 @@ class DeployApi {
                 };
                 const options = {
                     headers: {
-                        "x-captain-auth": authToken
+                        'x-captain-auth': authToken
                     }
                 };
                 const data = yield MainApi.postWithFile(url, form, options);
@@ -92,7 +91,7 @@ class DeployApi {
                 const currentToken = this.machineToDeploy.authToken;
                 const options = {
                     headers: {
-                        "x-captain-auth": currentToken
+                        'x-captain-auth': currentToken
                     }
                 };
                 const response = yield MainApi.get(url, options);

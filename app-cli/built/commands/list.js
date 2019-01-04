@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const chalk = require('chalk');
 const MachineHelper_1 = require("../helpers/MachineHelper");
 const { printMessage } = require('../utils/messageHandler');

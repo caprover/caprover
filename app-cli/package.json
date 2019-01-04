@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@types/fs-extra": "^5.0.4",
+    "@types/request-promise": "^4.1.42",
     "chalk": "^2.4.1",
     "command-exists": "^1.2.8",
     "commander": "^2.19.0",

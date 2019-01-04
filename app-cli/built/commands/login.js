@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 const MachineHelper_1 = require("../helpers/MachineHelper");
 const { printMessage, printGreenMessage, printError } = require('../utils/messageHandler');
 const inquirer = require('inquirer');
