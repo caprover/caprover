@@ -5,7 +5,7 @@
   "main": "captainduckduck.js",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./built && npx tsc"
+    "build": "rm -rf ./built && npx tsc && chmod +x ./built -R"
   },
   "bin": {
     "captainduckduck": "./built/commands/captainduckduck.js",
