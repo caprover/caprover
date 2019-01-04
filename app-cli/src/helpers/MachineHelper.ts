@@ -39,6 +39,10 @@ class MachineHelper {
 		return this.machines;
 	}
 
+	getApps() {
+		return this.apps;
+	}
+
 	setMachines(newMachines: IMachine[]) {
 		this.machines = newMachines;
 

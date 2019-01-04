@@ -8,11 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MachineHelper = require('../helpers/MachineHelper');
+const MachineHelper_1 = require("../helpers/MachineHelper");
 const { printMessage } = require('../utils/messageHandler');
 const inquirer = require('inquirer');
 function generateQuestions() {
-    const listOfMachines = MachineHelper.getMachinesAsOptions();
+    const listOfMachines = MachineHelper_1.default.getMachinesAsOptions();
     return [
         {
             type: 'list',
@@ -38,7 +38,7 @@ function logout() {
         if (!captainNameToLogout) {
             printMessage('\nOperation cancelled by the user...\n', true);
         }
-        MachineHelper.logoutMachine(captainNameToLogout);
+        MachineHelper_1.default.logoutMachine(captainNameToLogout);
     });
 }
 module.exports = logout;

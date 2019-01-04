@@ -1,8 +1,8 @@
 "use strict";
 const DeployApi = require('../api/DeployApi');
-const MachineHelper = require('../helpers/MachineHelper');
+const MachineHelper_1 = require("../helpers/MachineHelper");
 function initMachineFromLocalStorage() {
-    const possibleApp = MachineHelper.apps.find((app) => app.cwd === process.cwd());
+    const possibleApp = MachineHelper_1.default.getApps().find((app) => app.cwd === process.cwd());
     if (possibleApp) {
         DeployApi.setMachineToDeploy(possibleApp.machineToDeploy);
         DeployApi.setAppName(possibleApp.appName);
@@ -11,7 +11,7 @@ function initMachineFromLocalStorage() {
 }
 // Saves the app directory into local storage
 function saveMachineToLocalStorage() {
-    const apps = MachineHelper.apps;
+    const apps = MachineHelper_1.default.getApps();
     const currentDirectory = process.cwd();
     let appExists = false;
     // Update app
@@ -27,7 +27,7 @@ function saveMachineToLocalStorage() {
         }
         return app;
     });
-    MachineHelper.setApps(updatedApps);
+    MachineHelper_1.default.setApps(updatedApps);
     if (!appExists) {
         const newApp = {
             cwd: process.cwd(),
@@ -36,7 +36,7 @@ function saveMachineToLocalStorage() {
             machineToDeploy: DeployApi.machineToDeploy
         };
         updatedApps.push(newApp);
-        MachineHelper.setApps(apps);
+        MachineHelper_1.default.setApps(apps);
     }
 }
 module.exports = {

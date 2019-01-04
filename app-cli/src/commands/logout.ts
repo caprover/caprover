@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const MachineHelper = require('../helpers/MachineHelper');
+import MachineHelper from '../helpers/MachineHelper';
 const { printMessage } = require('../utils/messageHandler');
 const inquirer = require('inquirer');
 

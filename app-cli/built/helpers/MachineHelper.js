@@ -31,6 +31,9 @@ class MachineHelper {
     getMachines() {
         return this.machines;
     }
+    getApps() {
+        return this.apps;
+    }
     setMachines(newMachines) {
         this.machines = newMachines;
         configs.set('captainMachines', newMachines);

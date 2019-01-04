@@ -1,10 +1,10 @@
 import { IApp } from '../models/IModels';
 
 const DeployApi = require('../api/DeployApi');
-const MachineHelper = require('../helpers/MachineHelper');
+import MachineHelper from '../helpers/MachineHelper';
 
 function initMachineFromLocalStorage() {
-	const possibleApp = MachineHelper.apps.find((app: IApp) => app.cwd === process.cwd());
+	const possibleApp = MachineHelper.getApps().find((app: IApp) => app.cwd === process.cwd());
 
 	if (possibleApp) {
 		DeployApi.setMachineToDeploy(possibleApp.machineToDeploy);
@@ -17,7 +17,7 @@ function initMachineFromLocalStorage() {
 
 // Saves the app directory into local storage
 function saveMachineToLocalStorage() {
-	const apps = MachineHelper.apps;
+	const apps = MachineHelper.getApps();
 	const currentDirectory = process.cwd();
 	let appExists = false;
 	// Update app
