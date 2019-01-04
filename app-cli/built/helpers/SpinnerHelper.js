@@ -1,13 +1,10 @@
-const ora = require("ora");
+const ora = require('ora');
 class SpinnerHelper {
-    constructor() {
-        this.spinner;
+    start(message) {
+        this.spinner = ora(message).start();
     }
     setColor(color) {
         this.spinner.color = color;
-    }
-    start(message) {
-        this.spinner = ora(message).start();
     }
     stop() {
         this.spinner.stop();
