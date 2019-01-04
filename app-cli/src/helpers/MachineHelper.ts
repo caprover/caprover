@@ -35,6 +35,10 @@ class MachineHelper {
 		return [ ...firstItemInOption, ...listOfMachines ];
 	}
 
+	getMachines() {
+		return this.machines;
+	}
+
 	setMachines(newMachines: IMachine[]) {
 		this.machines = newMachines;
 
@@ -104,4 +108,6 @@ class MachineHelper {
 	}
 }
 
-module.exports = new MachineHelper();
+const instance = new MachineHelper();
+
+export default instance;

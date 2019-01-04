@@ -52,7 +52,7 @@ function saveMachineToLocalStorage() {
 	}
 }
 
-module.exports = {
+export = {
 	initMachineFromLocalStorage,
 	saveMachineToLocalStorage
 };

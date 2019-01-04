@@ -1,6 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const MachineHelper = require('../helpers/MachineHelper');
+const MachineHelper_1 = require("../helpers/MachineHelper");
 function cleanUpUrl(url) {
     if (!url || !url.length)
         return null;
@@ -13,7 +12,7 @@ function cleanUpUrl(url) {
     return cleanedUrl.replace('http://', '').replace('https://', '').trim();
 }
 function findDefaultCaptainName() {
-    let currentSuffix = MachineHelper.machines.length + 1;
+    let currentSuffix = MachineHelper_1.default.getMachines().length + 1;
     while (!isSuffixValid(currentSuffix)) {
         currentSuffix++;
     }
@@ -23,7 +22,7 @@ function getCaptainFullName(suffix) {
     const formatSuffix = suffix < 10 ? `0${suffix}` : suffix;
     return `captain-${formatSuffix}`;
 }
-const isSuffixValid = (suffixNumber) => MachineHelper.machines.map((machine) => {
+const isSuffixValid = (suffixNumber) => MachineHelper_1.default.getMachines().map((machine) => {
     machine.name !== getCaptainFullName(suffixNumber);
 });
 module.exports = {

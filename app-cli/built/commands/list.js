@@ -1,19 +1,18 @@
 #!/usr/bin/env node
-const chalk = require("chalk");
-const MachineHelper = require("../helpers/MachineHelper");
-const { printMessage } = require("../utils/messageHandler");
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const chalk = require('chalk');
+const MachineHelper_1 = require("../helpers/MachineHelper");
+const { printMessage } = require('../utils/messageHandler');
 function _displayMachine(machine) {
-    console.log(">> " +
-        chalk.greenBright(machine.name) +
-        " at " +
-        chalk.cyan(machine.baseUrl));
+    console.log('>> ' + chalk.greenBright(machine.name) + ' at ' + chalk.cyan(machine.baseUrl));
 }
 function list() {
-    printMessage("\nLogged in Captain Machines:\n");
-    MachineHelper.machines.map(machine => {
+    printMessage('\nLogged in Captain Machines:\n');
+    MachineHelper_1.default.getMachines().map((machine) => {
         _displayMachine(machine);
     });
-    printMessage("");
+    printMessage('');
 }
 module.exports = list;
 //# sourceMappingURL=list.js.map

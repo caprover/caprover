@@ -28,6 +28,9 @@ class MachineHelper {
         });
         return [...firstItemInOption, ...listOfMachines];
     }
+    getMachines() {
+        return this.machines;
+    }
     setMachines(newMachines) {
         this.machines = newMachines;
         configs.set('captainMachines', newMachines);
@@ -73,5 +76,6 @@ class MachineHelper {
         printMessage(`You are now logged out from ${removedMachine.name} at ${removedMachine.baseUrl}...\n`);
     }
 }
-module.exports = new MachineHelper();
+const instance = new MachineHelper();
+exports.default = instance;
 //# sourceMappingURL=MachineHelper.js.map

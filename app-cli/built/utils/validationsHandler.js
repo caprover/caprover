@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require('fs-extra');
 const DeployApi = require('../api/DeployApi');
 const { printError } = require('./messageHandler');
@@ -17,6 +19,7 @@ function validateIsGitRepository() {
         printError('\n**** ERROR: You are not in a git root directory. This command will only deploys the current directory ****\n', true);
     }
 }
+exports.validateIsGitRepository = validateIsGitRepository;
 function validateDefinitionFile() {
     const captainDefinitionExists = fs.pathExistsSync('./captain-definition');
     if (!captainDefinitionExists) {
@@ -42,6 +45,7 @@ function validateDefinitionFile() {
         }
     }
 }
+exports.validateDefinitionFile = validateDefinitionFile;
 // Only show that question if there is no option given as argument
 function optionIsNotGiven(allOptions, option) {
     // console.log(allOptions)
@@ -50,12 +54,14 @@ function optionIsNotGiven(allOptions, option) {
     }
     return true;
 }
+exports.optionIsNotGiven = optionIsNotGiven;
 function isIpAddress(ipaddress) {
     if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
         return true;
     }
     return false;
 }
+exports.isIpAddress = isIpAddress;
 function validateAuthentication() {
     return __awaiter(this, void 0, void 0, function* () {
         // 1. Check if valid auth
@@ -74,11 +80,5 @@ function validateAuthentication() {
         }
     });
 }
-module.exports = {
-    validateAuthentication,
-    validateIsGitRepository,
-    validateDefinitionFile,
-    isIpAddress,
-    optionIsNotGiven
-};
+exports.validateAuthentication = validateAuthentication;
 //# sourceMappingURL=validationsHandler.js.map

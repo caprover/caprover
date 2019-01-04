@@ -161,8 +161,7 @@ function deleteFileFromDisk(filePath: string) {
 		fs.removeSync(filePath);
 	}
 }
-
-module.exports = {
+export = {
 	gitArchiveFile,
 	getFileStream,
 	uploadFile,

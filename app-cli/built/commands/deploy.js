@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7,18 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MachineHelper = require("../helpers/MachineHelper");
-const DeployApi = require("../api/DeployApi");
-const LoginApi = require("../api/LoginApi");
-const { printError, printMessage } = require("../utils/messageHandler");
-const { validateIsGitRepository, validateDefinitionFile, optionIsNotGiven, validateAuthentication } = require("../utils/validationsHandler");
-const { uploadFile } = require("../utils/fileHelper");
-const { gitArchiveFile } = require("../utils/fileHelper");
-const fs = require("fs-extra");
-const path = require("path");
-const inquirer = require("inquirer");
-const commandExistsSync = require("command-exists").sync;
-const { initMachineFromLocalStorage } = require("../utils/machineUtils");
+Object.defineProperty(exports, "__esModule", { value: true });
+const MachineHelper_1 = require("../helpers/MachineHelper");
+const inquirer = require('inquirer');
+const DeployApi = require('../api/DeployApi');
+const LoginApi = require('../api/LoginApi');
+const { printError, printMessage } = require('../utils/messageHandler');
+const { validateIsGitRepository, validateDefinitionFile, optionIsNotGiven, validateAuthentication } = require('../utils/validationsHandler');
+const { uploadFile } = require('../utils/fileHelper');
+const { gitArchiveFile } = require('../utils/fileHelper');
+const fs = require('fs-extra');
+const path = require('path');
+const commandExistsSync = require('command-exists').sync;
+const { initMachineFromLocalStorage } = require('../utils/machineUtils');
 function deployAsDefaultValues() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -26,13 +28,13 @@ function deployAsDefaultValues() {
             if (isValidAuthentication) {
                 const { appName, branchToPush, machineToDeploy } = DeployApi;
                 if (!appName || !branchToPush || !machineToDeploy) {
-                    printError("Default deploy failed. There are no default options selected.", true);
+                    printError('Default deploy failed. There are no default options selected.', true);
                 }
                 printMessage(`Deploying to ${machineToDeploy.name}`);
                 deployFromGitProject();
             }
             else {
-                printError("Incorrect login details", true);
+                printError('Incorrect login details', true);
             }
         }
         catch (e) {
@@ -51,14 +53,14 @@ function deployAsStateless(host, appName, branch, pass) {
             const data = JSON.parse(response);
             const newToken = data.token;
             // Update the token to the machine that corresponds (if needed)
-            MachineHelper.updateMachineAuthToken(name, newToken);
+            MachineHelper_1.default.updateMachineAuthToken(name, newToken);
             if (data) {
                 printMessage(`Starting stateless deploy to\n${host}\n${branch}\n${appName}`);
                 deployFromGitProject();
             }
         }
         else {
-            printError("You are missing parameters for deploying on stateless. <host> <password> <app name> <branch>");
+            printError('You are missing parameters for deploying on stateless. <host> <password> <app name> <branch>');
         }
     });
 }
@@ -69,11 +71,11 @@ function deployFromTarFile(tarFile) {
             if (isValidAuthentication) {
                 // Send from tar file
                 const filePath = tarFile;
-                const gitHash = "sendviatarfile";
+                const gitHash = 'sendviatarfile';
                 yield uploadFile(filePath, gitHash);
             }
             else {
-                printError("Incorrect login details", true);
+                printError('Incorrect login details', true);
             }
         }
         catch (e) {
@@ -82,11 +84,11 @@ function deployFromTarFile(tarFile) {
     });
 }
 function deployFromGitProject() {
-    if (!commandExistsSync("git")) {
+    if (!commandExistsSync('git')) {
         printError("'git' command not found...");
         printError("Captain needs 'git' to create tar file of your source files...", true);
     }
-    const zipFileNameToDeploy = "temporary-captain-to-deploy.tar";
+    const zipFileNameToDeploy = 'temporary-captain-to-deploy.tar';
     const zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy);
     printMessage(`Saving tar file to:\n${zipFileFullPath}\n`);
     // Removes the temporarly file created
@@ -109,7 +111,7 @@ function deploy(options) {
             validateIsGitRepository();
             validateDefinitionFile();
         }
-        printMessage("Preparing deployment to Captain...\n");
+        printMessage('Preparing deployment to Captain...\n');
         if (options.default) {
             deployAsDefaultValues();
         }
@@ -122,38 +124,38 @@ function deploy(options) {
         else {
             const questions = [
                 {
-                    type: "list",
-                    name: "captainNameToDeploy",
-                    default: DeployApi.machineToDeploy.name || "",
-                    message: "Select the Captain Machine you want to deploy to:",
-                    choices: MachineHelper.getMachinesAsOptions(),
-                    when: () => optionIsNotGiven(options, "host")
+                    type: 'list',
+                    name: 'captainNameToDeploy',
+                    default: DeployApi.machineToDeploy.name || '',
+                    message: 'Select the Captain Machine you want to deploy to:',
+                    choices: MachineHelper_1.default.getMachinesAsOptions(),
+                    when: () => optionIsNotGiven(options, 'host')
                 },
                 {
-                    type: "input",
-                    default: DeployApi.branchToPush || "master",
-                    name: "branchToPush",
+                    type: 'input',
+                    default: DeployApi.branchToPush || 'master',
+                    name: 'branchToPush',
                     message: "Enter the 'git' branch you would like to deploy:",
-                    when: () => optionIsNotGiven(options, "branch")
+                    when: () => optionIsNotGiven(options, 'branch')
                 },
                 {
-                    type: "input",
+                    type: 'input',
                     default: DeployApi.appName,
-                    name: "appName",
-                    message: "Enter the Captain app name this directory will be deployed to:",
-                    when: () => optionIsNotGiven(options, "appName")
+                    name: 'appName',
+                    message: 'Enter the Captain app name this directory will be deployed to:',
+                    when: () => optionIsNotGiven(options, 'appName')
                 },
                 {
-                    type: "confirm",
-                    name: "confirmedToDeploy",
-                    message: "Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.",
+                    type: 'confirm',
+                    name: 'confirmedToDeploy',
+                    message: 'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
                     default: true,
-                    when: () => optionIsNotGiven(options, "stateless")
+                    when: () => optionIsNotGiven(options, 'stateless')
                 }
             ];
             const answers = yield inquirer.prompt(questions);
             if (!answers.confirmedToDeploy && !options.stateless) {
-                printMessage("\nOperation cancelled by the user...\n");
+                printMessage('\nOperation cancelled by the user...\n');
                 process.exit(0);
             }
             const captainNameToDeploy = answers.captainNameToDeploy;
@@ -171,7 +173,7 @@ function deploy(options) {
                         deployFromGitProject();
                     }
                     else {
-                        printError("Incorrect login details", true);
+                        printError('Incorrect login details', true);
                     }
                 }
                 catch (e) {

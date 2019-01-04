@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7,35 +8,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MachineHelper = require("../helpers/MachineHelper");
-const { printMessage } = require("../utils/messageHandler");
-const inquirer = require("inquirer");
+const MachineHelper = require('../helpers/MachineHelper');
+const { printMessage } = require('../utils/messageHandler');
+const inquirer = require('inquirer');
 function generateQuestions() {
     const listOfMachines = MachineHelper.getMachinesAsOptions();
     return [
         {
-            type: "list",
-            name: "captainNameToLogout",
-            message: "Select the Captain Machine you want to logout from:",
+            type: 'list',
+            name: 'captainNameToLogout',
+            message: 'Select the Captain Machine you want to logout from:',
             choices: listOfMachines
         },
         {
-            type: "confirm",
-            name: "confirmedToLogout",
-            message: "Are you sure you want to logout from this Captain machine?",
+            type: 'confirm',
+            name: 'confirmedToLogout',
+            message: 'Are you sure you want to logout from this Captain machine?',
             default: false,
-            when: answers => answers.captainNameToLogout
+            when: (answers) => answers.captainNameToLogout
         }
     ];
 }
 function logout() {
     return __awaiter(this, void 0, void 0, function* () {
         const questions = generateQuestions();
-        printMessage("Logout from a Captain Machine and clear auth info");
+        printMessage('Logout from a Captain Machine and clear auth info');
         const answers = yield inquirer.prompt(questions);
         const { captainNameToLogout } = answers;
         if (!captainNameToLogout) {
-            printMessage("\nOperation cancelled by the user...\n", true);
+            printMessage('\nOperation cancelled by the user...\n', true);
         }
         MachineHelper.logoutMachine(captainNameToLogout);
     });

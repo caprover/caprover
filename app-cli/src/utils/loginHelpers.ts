@@ -1,6 +1,5 @@
 import { IMachine } from '../models/IModels';
-
-const MachineHelper = require('../helpers/MachineHelper');
+import MachineHelper from '../helpers/MachineHelper';
 
 function cleanUpUrl(url: string) {
 	if (!url || !url.length) return null;
@@ -17,7 +16,7 @@ function cleanUpUrl(url: string) {
 }
 
 function findDefaultCaptainName() {
-	let currentSuffix = MachineHelper.machines.length + 1;
+	let currentSuffix = MachineHelper.getMachines().length + 1;
 
 	while (!isSuffixValid(currentSuffix)) {
 		currentSuffix++;
@@ -33,11 +32,11 @@ function getCaptainFullName(suffix: number) {
 }
 
 const isSuffixValid = (suffixNumber: number) =>
-	MachineHelper.machines.map((machine: IMachine) => {
+	MachineHelper.getMachines().map((machine: IMachine) => {
 		machine.name !== getCaptainFullName(suffixNumber);
 	});
 
-module.exports = {
+export = {
 	cleanUpUrl,
 	findDefaultCaptainName,
 	isSuffixValid,

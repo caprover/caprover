@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const DeployApi = require('../api/DeployApi');
 const MachineHelper = require('../helpers/MachineHelper');
 function initMachineFromLocalStorage() {

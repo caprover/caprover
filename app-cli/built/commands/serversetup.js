@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7,39 +8,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MachineHelper = require("../helpers/MachineHelper");
-const SystemApi = require("../api/SystemApi");
-const LoginApi = require("../api/LoginApi");
-const inquirer = require("inquirer");
-const { findDefaultCaptainName } = require("../utils/loginHelpers");
-const { isIpAddress } = require("../utils/validationsHandler");
-const { SAMPLE_IP, DEFAULT_PASSWORD } = require("../utils/constants");
-const { printMessage, printError, printMessageAndExit, errorHandler } = require("../utils/messageHandler");
+const validationsHandler_1 = require("../utils/validationsHandler");
+const SystemApi = require('../api/SystemApi');
+const LoginApi = require('../api/LoginApi');
+const inquirer = require('inquirer');
+const { findDefaultCaptainName } = require('../utils/loginHelpers');
+const { SAMPLE_IP, DEFAULT_PASSWORD } = require('../utils/constants');
+const { printMessage, printError, printMessageAndExit, errorHandler } = require('../utils/messageHandler');
+const MachineHelper_1 = require("../helpers/MachineHelper");
 let newPasswordFirstTry = undefined;
 const questions = [
     {
-        type: "list",
-        name: "hasInstalledCaptain",
-        message: "Have you already installed Captain on your server by running the following line:" +
-            "\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?",
-        default: "Yes",
-        choices: ["Yes", "No"],
-        filter: value => {
+        type: 'list',
+        name: 'hasInstalledCaptain',
+        message: 'Have you already installed Captain on your server by running the following line:' +
+            '\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?',
+        default: 'Yes',
+        choices: ['Yes', 'No'],
+        filter: (value) => {
             const answerFromUser = value.trim();
-            if (answerFromUser === "Yes")
+            if (answerFromUser === 'Yes')
                 return answerFromUser;
-            printMessage("\n\nCannot start the setup process if Captain is not installed.");
-            printMessageAndExit("Please read tutorial on CaptainDuckDuck.com to learn how to install CaptainDuckDuck on a server.");
+            printMessage('\n\nCannot start the setup process if Captain is not installed.');
+            printMessageAndExit('Please read tutorial on CaptainDuckDuck.com to learn how to install CaptainDuckDuck on a server.');
         }
     },
     {
-        type: "input",
+        type: 'input',
         default: SAMPLE_IP,
-        name: "captainAddress",
-        message: "Enter IP address of your captain server:",
+        name: 'captainAddress',
+        message: 'Enter IP address of your captain server:',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const ipFromUser = value.trim();
-            if (ipFromUser === SAMPLE_IP || !isIpAddress(ipFromUser)) {
+            if (ipFromUser === SAMPLE_IP || !validationsHandler_1.isIpAddress(ipFromUser)) {
                 printError(`\nThis is an invalid IP Address: ${ipFromUser}`, true);
             }
             try {
@@ -56,9 +57,9 @@ const questions = [
         })
     },
     {
-        type: "password",
-        name: "captainOriginalPassword",
-        message: "Enter your current password:",
+        type: 'password',
+        name: 'captainOriginalPassword',
+        message: 'Enter your current password:',
         when: () => !LoginApi.token,
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -75,11 +76,11 @@ const questions = [
         })
     },
     {
-        type: "input",
-        name: "captainRootDomain",
-        message: "Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you" +
-            " setup your DNS to point *.test.yourdomain.com to ip address of your server" +
-            ": ",
+        type: 'input',
+        name: 'captainRootDomain',
+        message: 'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
+            ' setup your DNS to point *.test.yourdomain.com to ip address of your server' +
+            ': ',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const captainRootDomainFromUser = value.trim();
@@ -96,8 +97,8 @@ const questions = [
         })
     },
     {
-        type: "input",
-        name: "emailAddress",
+        type: 'input',
+        name: 'emailAddress',
         message: "Enter your 'valid' email address to enable HTTPS: ",
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -114,25 +115,25 @@ const questions = [
         })
     },
     {
-        type: "password",
-        name: "newPasswordFirstTry",
-        message: "Enter a new password:",
-        filter: value => {
+        type: 'password',
+        name: 'newPasswordFirstTry',
+        message: 'Enter a new password:',
+        filter: (value) => {
             newPasswordFirstTry = value;
             return value;
         }
     },
     {
-        type: "password",
-        name: "newPassword",
-        message: "Enter a new password:",
+        type: 'password',
+        name: 'newPassword',
+        message: 'Enter a new password:',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const { customDomainFromUser } = SystemApi;
             try {
                 const confirmPasswordValueFromUser = value;
                 const machineUrl = `https://${customDomainFromUser}`;
                 if (newPasswordFirstTry !== confirmPasswordValueFromUser) {
-                    printError("Passwords do not match", true);
+                    printError('Passwords do not match', true);
                 }
                 const changePassData = yield LoginApi.changePass(machineUrl, confirmPasswordValueFromUser);
                 if (changePassData) {
@@ -142,32 +143,32 @@ const questions = [
                 }
             }
             catch (e) {
-                printError("\nIMPORTANT!! Server setup is completed by password is not changed.");
-                printError("\nYou CANNOT use serversetup anymore. To continue:");
+                printError('\nIMPORTANT!! Server setup is completed by password is not changed.');
+                printError('\nYou CANNOT use serversetup anymore. To continue:');
                 printError(`\n- Go to https://${customDomainFromUser} login with default password and change the password in settings.`);
                 printError(`\n- In terminal (here), type captainduckduck login and enter this as your root domain: ${customDomainFromUser}`, true);
             }
         })
     },
     {
-        type: "input",
-        name: "captainName",
-        message: "Enter a name for this Captain machine:",
+        type: 'input',
+        name: 'captainName',
+        message: 'Enter a name for this Captain machine:',
         default: findDefaultCaptainName(),
-        validate: value => {
+        validate: (value) => {
             const newMachineName = value.trim();
-            MachineHelper.machines.map(machine => machine.name === newMachineName &&
+            MachineHelper_1.default.getMachines().map((machine) => machine.name === newMachineName &&
                 `${newMachineName} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`);
             if (value.match(/^[-\d\w]+$/i)) {
                 return true;
             }
-            return "Please enter a Captain Name.";
+            return 'Please enter a Captain Name.';
         }
     }
 ];
 function serversetup() {
     return __awaiter(this, void 0, void 0, function* () {
-        printMessage("\nSetup your Captain server\n");
+        printMessage('\nSetup your Captain server\n');
         const answers = yield inquirer.prompt(questions);
         const captainAddress = `https://${SystemApi.customDomainFromUser}`;
         const newMachine = {
@@ -175,9 +176,9 @@ function serversetup() {
             baseUrl: captainAddress,
             name: answers.captainName
         };
-        MachineHelper.addMachine(newMachine);
+        MachineHelper_1.default.addMachine(newMachine);
         printMessage(`\n\nCaptain is available at ${captainAddress}`);
-        printMessage("\nFor more details and docs see http://www.captainduckduck.com\n\n");
+        printMessage('\nFor more details and docs see http://www.captainduckduck.com\n\n');
     });
 }
 module.exports = serversetup;

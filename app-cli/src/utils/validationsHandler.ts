@@ -4,7 +4,7 @@ const { printError } = require('./messageHandler');
 const { requestLogin } = require('../commands/login');
 const { initMachineFromLocalStorage } = require('../utils/machineUtils');
 
-function validateIsGitRepository() {
+export function validateIsGitRepository() {
 	const gitFolderExists = fs.pathExistsSync('./.git');
 
 	if (!gitFolderExists) {
@@ -15,7 +15,7 @@ function validateIsGitRepository() {
 	}
 }
 
-function validateDefinitionFile() {
+export function validateDefinitionFile() {
 	const captainDefinitionExists = fs.pathExistsSync('./captain-definition');
 
 	if (!captainDefinitionExists) {
@@ -53,7 +53,7 @@ function validateDefinitionFile() {
 }
 
 // Only show that question if there is no option given as argument
-function optionIsNotGiven(allOptions: { [id: string]: any }, option: string) {
+export function optionIsNotGiven(allOptions: { [id: string]: any }, option: string) {
 	// console.log(allOptions)
 	if (allOptions[option]) {
 		return false;
@@ -62,7 +62,7 @@ function optionIsNotGiven(allOptions: { [id: string]: any }, option: string) {
 	return true;
 }
 
-function isIpAddress(ipaddress: string) {
+export function isIpAddress(ipaddress: string) {
 	if (
 		/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
 			ipaddress
@@ -74,7 +74,7 @@ function isIpAddress(ipaddress: string) {
 	return false;
 }
 
-async function validateAuthentication() {
+export async function validateAuthentication() {
 	// 1. Check if valid auth
 	const isAuthenticated = await DeployApi.isAuthTokenValid();
 
@@ -92,11 +92,3 @@ async function validateAuthentication() {
 		return Boolean(isAuthenticated);
 	}
 }
-
-module.exports = {
-	validateAuthentication,
-	validateIsGitRepository,
-	validateDefinitionFile,
-	isIpAddress,
-	optionIsNotGiven
-};
