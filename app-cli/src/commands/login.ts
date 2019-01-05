@@ -1,50 +1,58 @@
 #!/usr/bin/env node
 
-import MachineHelper from '../helpers/MachineHelper';
+import * as inquirer from 'inquirer';
+import StdOutUtil from '../utils/StdOutUtil';
+import StorageHelper from '../utils/StorageHelper';
+import Constants from '../utils/Constants';
+import Utils from '../utils/Utils';
+import CliHelper from '../utils/CliHelper';
+import { IHashMapGeneric } from '../models/IHashMapGeneric';
+import CliApiManager from '../api/CliApiManager';
 
-const { printMessage, printGreenMessage, printError } = require('../utils/messageHandler');
-const inquirer = require('inquirer');
-const DeployApi = require('../api/DeployApi');
-const { cleanUpUrl, findDefaultCaptainName } = require('../utils/loginHelpers');
-const { SAMPLE_DOMAIN } = require('../utils/constants');
-const LoginApi = require('../api/LoginApi');
+const SAMPLE_DOMAIN = Constants.SAMPLE_DOMAIN;
+const cleanUpUrl = Utils.cleanUpUrl;
+
+// const DeployApi = require('../api/DeployApi');
+// const { cleanUpUrl, findDefaultCaptainName } = require('../utils/loginHelpers');
+// const { SAMPLE_DOMAIN } = require('../utils/constants');
+// const LoginApi = require('../api/LoginApi');
 
 // In case the token is expired
-async function requestLogin() {
-	const { baseUrl, name } = DeployApi.machineToDeploy;
+// async function requestLogin() {
+// 	const { baseUrl, name } = DeployApi.machineToDeploy;
 
-	printMessage('Your auth token is not valid anymore. Try to login again.');
+// 	printMessage('Your auth token is not valid anymore. Try to login again.');
 
-	const questions = [
-		{
-			type: 'password',
-			name: 'captainPassword',
-			message: 'Please enter your password for ' + baseUrl,
-			validate: (value: string) => {
-				if (value && value.trim()) {
-					return true;
-				}
+// 	const questions = [
+// 		{
+// 			type: 'password',
+// 			name: 'captainPassword',
+// 			message: 'Please enter your password for ' + baseUrl,
+// 			validate: (value: string) => {
+// 				if (value && value.trim()) {
+// 					return true;
+// 				}
 
-				return 'Please enter your password for ' + baseUrl;
-			}
-		}
-	];
-	const loginPassword = await inquirer.prompt(questions);
-	const password = loginPassword.captainPassword;
-	const response = await LoginApi.loginMachine(baseUrl, password);
-	const data = JSON.parse(response);
-	const newToken = data.token;
+// 				return 'Please enter your password for ' + baseUrl;
+// 			}
+// 		}
+// 	];
+// 	const loginPassword = await inquirer.prompt(questions);
+// 	const password = loginPassword.captainPassword;
+// 	const response = await LoginApi.loginMachine(baseUrl, password);
+// 	const data = JSON.parse(response);
+// 	const newToken = data.token;
 
-	if (!newToken) return false;
+// 	if (!newToken) return false;
 
-	// Update the token to the machine that corresponds
-	MachineHelper.updateMachineAuthToken(name, newToken);
+// 	// Update the token to the machine that corresponds
+// 	MachineHelper.updateMachineAuthToken(name, newToken);
 
-	return true;
-}
+// 	return true;
+// }
 
 async function login() {
-	printMessage('Login to a Captain Machine');
+	StdOutUtil.printMessage('Login to a Captain Machine');
 
 	const questions = [
 		{
@@ -59,7 +67,7 @@ async function login() {
 
 				if (!cleanUpUrl(value)) return 'This is an invalid URL: ' + value;
 
-				MachineHelper.getMachines().map((machine) => {
+				StorageHelper.get().getMachines().map((machine) => {
 					if (cleanUpUrl(machine.baseUrl) === cleanUpUrl(value)) {
 						return `${value} already exist as ${machine.name}. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
 					}
@@ -94,9 +102,9 @@ async function login() {
 			type: 'input',
 			name: 'captainName',
 			message: 'Enter a name for this Captain machine:',
-			default: findDefaultCaptainName(),
+			default: CliHelper.get().findDefaultCaptainName(),
 			validate: (value: string) => {
-				MachineHelper.getMachines().map((machine) => {
+				StorageHelper.get().getMachines().map((machine) => {
 					if (machine.name === value) {
 						return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
 					}
@@ -110,36 +118,25 @@ async function login() {
 			}
 		}
 	];
-	const answers = await inquirer.prompt(questions);
+	const answers = (await inquirer.prompt(questions)) as IHashMapGeneric<string>;
 	const { captainHasRootSsl, captainPassword, captainAddress, captainName } = answers;
 	const handleHttp = captainHasRootSsl ? 'https://' : 'http://';
 	const baseUrl = `${handleHttp}${cleanUpUrl(captainAddress)}`;
 
 	try {
-		const data = await LoginApi.loginMachine(baseUrl, captainPassword);
-		const response = JSON.parse(data);
-
-		// TODO - This status should be 200 maybe?
-		if (response.status !== 100) {
-			throw new Error(JSON.stringify(response, null, 2));
-		}
-
-		const newMachine = {
-			authToken: response.token,
+		const tokenToIgnore = await CliApiManager.get({
+			authToken: '',
 			baseUrl,
 			name: captainName
-		};
+		}).getAuthToken(captainPassword);
 
-		MachineHelper.addMachine(newMachine);
-
-		printGreenMessage(`Logged in successfully to ${baseUrl}`);
-
-		printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
+		StdOutUtil.printGreenMessage(`Logged in successfully to ${baseUrl}`);
+		StdOutUtil.printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
 	} catch (error) {
 		const errorMessage = error.message ? error.message : error;
 
-		printError(`Something bad happened. Cannot save "${captainName}" \n${errorMessage}`);
+		StdOutUtil.printError(`Something bad happened. Cannot save "${captainName}" \n${errorMessage}`);
 	}
 }
 
-export = { login, requestLogin };
+export default login;

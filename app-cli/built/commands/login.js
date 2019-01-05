@@ -8,46 +8,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const MachineHelper_1 = require("../helpers/MachineHelper");
-const { printMessage, printGreenMessage, printError } = require('../utils/messageHandler');
-const inquirer = require('inquirer');
-const DeployApi = require('../api/DeployApi');
-const { cleanUpUrl, findDefaultCaptainName } = require('../utils/loginHelpers');
-const { SAMPLE_DOMAIN } = require('../utils/constants');
-const LoginApi = require('../api/LoginApi');
+Object.defineProperty(exports, "__esModule", { value: true });
+const inquirer = require("inquirer");
+const StdOutUtil_1 = require("../utils/StdOutUtil");
+const StorageHelper_1 = require("../utils/StorageHelper");
+const Constants_1 = require("../utils/Constants");
+const Utils_1 = require("../utils/Utils");
+const CliHelper_1 = require("../utils/CliHelper");
+const CliApiManager_1 = require("../api/CliApiManager");
+const SAMPLE_DOMAIN = Constants_1.default.SAMPLE_DOMAIN;
+const cleanUpUrl = Utils_1.default.cleanUpUrl;
+// const DeployApi = require('../api/DeployApi');
+// const { cleanUpUrl, findDefaultCaptainName } = require('../utils/loginHelpers');
+// const { SAMPLE_DOMAIN } = require('../utils/constants');
+// const LoginApi = require('../api/LoginApi');
 // In case the token is expired
-function requestLogin() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { baseUrl, name } = DeployApi.machineToDeploy;
-        printMessage('Your auth token is not valid anymore. Try to login again.');
-        const questions = [
-            {
-                type: 'password',
-                name: 'captainPassword',
-                message: 'Please enter your password for ' + baseUrl,
-                validate: (value) => {
-                    if (value && value.trim()) {
-                        return true;
-                    }
-                    return 'Please enter your password for ' + baseUrl;
-                }
-            }
-        ];
-        const loginPassword = yield inquirer.prompt(questions);
-        const password = loginPassword.captainPassword;
-        const response = yield LoginApi.loginMachine(baseUrl, password);
-        const data = JSON.parse(response);
-        const newToken = data.token;
-        if (!newToken)
-            return false;
-        // Update the token to the machine that corresponds
-        MachineHelper_1.default.updateMachineAuthToken(name, newToken);
-        return true;
-    });
-}
+// async function requestLogin() {
+// 	const { baseUrl, name } = DeployApi.machineToDeploy;
+// 	printMessage('Your auth token is not valid anymore. Try to login again.');
+// 	const questions = [
+// 		{
+// 			type: 'password',
+// 			name: 'captainPassword',
+// 			message: 'Please enter your password for ' + baseUrl,
+// 			validate: (value: string) => {
+// 				if (value && value.trim()) {
+// 					return true;
+// 				}
+// 				return 'Please enter your password for ' + baseUrl;
+// 			}
+// 		}
+// 	];
+// 	const loginPassword = await inquirer.prompt(questions);
+// 	const password = loginPassword.captainPassword;
+// 	const response = await LoginApi.loginMachine(baseUrl, password);
+// 	const data = JSON.parse(response);
+// 	const newToken = data.token;
+// 	if (!newToken) return false;
+// 	// Update the token to the machine that corresponds
+// 	MachineHelper.updateMachineAuthToken(name, newToken);
+// 	return true;
+// }
 function login() {
     return __awaiter(this, void 0, void 0, function* () {
-        printMessage('Login to a Captain Machine');
+        StdOutUtil_1.default.printMessage('Login to a Captain Machine');
         const questions = [
             {
                 type: 'input',
@@ -60,7 +64,7 @@ function login() {
                     }
                     if (!cleanUpUrl(value))
                         return 'This is an invalid URL: ' + value;
-                    MachineHelper_1.default.getMachines().map((machine) => {
+                    StorageHelper_1.default.get().getMachines().map((machine) => {
                         if (cleanUpUrl(machine.baseUrl) === cleanUpUrl(value)) {
                             return `${value} already exist as ${machine.name}. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
                         }
@@ -92,9 +96,9 @@ function login() {
                 type: 'input',
                 name: 'captainName',
                 message: 'Enter a name for this Captain machine:',
-                default: findDefaultCaptainName(),
+                default: CliHelper_1.default.get().findDefaultCaptainName(),
                 validate: (value) => {
-                    MachineHelper_1.default.getMachines().map((machine) => {
+                    StorageHelper_1.default.get().getMachines().map((machine) => {
                         if (machine.name === value) {
                             return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
                         }
@@ -106,31 +110,24 @@ function login() {
                 }
             }
         ];
-        const answers = yield inquirer.prompt(questions);
+        const answers = (yield inquirer.prompt(questions));
         const { captainHasRootSsl, captainPassword, captainAddress, captainName } = answers;
         const handleHttp = captainHasRootSsl ? 'https://' : 'http://';
         const baseUrl = `${handleHttp}${cleanUpUrl(captainAddress)}`;
         try {
-            const data = yield LoginApi.loginMachine(baseUrl, captainPassword);
-            const response = JSON.parse(data);
-            // TODO - This status should be 200 maybe?
-            if (response.status !== 100) {
-                throw new Error(JSON.stringify(response, null, 2));
-            }
-            const newMachine = {
-                authToken: response.token,
+            const tokenToIgnore = yield CliApiManager_1.default.get({
+                authToken: '',
                 baseUrl,
                 name: captainName
-            };
-            MachineHelper_1.default.addMachine(newMachine);
-            printGreenMessage(`Logged in successfully to ${baseUrl}`);
-            printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
+            }).getAuthToken(captainPassword);
+            StdOutUtil_1.default.printGreenMessage(`Logged in successfully to ${baseUrl}`);
+            StdOutUtil_1.default.printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
         }
         catch (error) {
             const errorMessage = error.message ? error.message : error;
-            printError(`Something bad happened. Cannot save "${captainName}" \n${errorMessage}`);
+            StdOutUtil_1.default.printError(`Something bad happened. Cannot save "${captainName}" \n${errorMessage}`);
         }
     });
 }
-module.exports = { login, requestLogin };
+exports.default = login;
 //# sourceMappingURL=login.js.map
