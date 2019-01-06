@@ -11,7 +11,7 @@ const login_1 = require("./login");
 const list_1 = require("./list");
 const logout_1 = require("./logout");
 const deploy_1 = require("./deploy");
-// import serversetup = require('./serversetup');
+const serversetup_1 = require("./serversetup");
 // Setup
 program.version(packagejson.version).description(packagejson.description);
 // Commands
@@ -27,12 +27,12 @@ program.command('list').alias('ls').description('List all Captain machines curre
 program.command('logout').description('Logout from a specific Captain machine.').action(() => {
     logout_1.default();
 });
-// program
-// 	.command('serversetup')
-// 	.description('Performs necessary actions and prepares your Captain server.')
-// 	.action(() => {
-// 		serversetup();
-// 	});
+program
+    .command('serversetup')
+    .description('Performs necessary actions and prepares your Captain server.')
+    .action(() => {
+    serversetup_1.default();
+});
 program
     .command('deploy')
     .description("Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine.")

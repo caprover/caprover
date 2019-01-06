@@ -8,6 +8,13 @@ class CliHelper {
             CliHelper.instance = new CliHelper();
         return CliHelper.instance;
     }
+    isNameValid(value) {
+        value = value || '';
+        if (!!value && value.match(/^[-\d\w]+$/i) && value.indexOf('--') < 0) {
+            return true;
+        }
+        return false;
+    }
     getAppsAsOptions(apps) {
         const firstItemInOption = [
             {

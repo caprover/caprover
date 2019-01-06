@@ -13,6 +13,7 @@ class HttpClient {
         this.onAuthFailure = onAuthFailure;
         this.GET = 'GET';
         this.POST = 'POST';
+        this.POST_DATA = 'POST_DATA';
         this.isDestroyed = false;
         //
     }
@@ -80,8 +81,8 @@ class HttpClient {
                 });
             })
                 .catch(function (error) {
-                Logger_1.default.log('');
-                Logger_1.default.error(error.message || error);
+                // Logger.log('');
+                // Logger.error(error.message || error);
                 return new Promise(function (resolve, reject) {
                     if (!self.isDestroyed)
                         return reject(error);
@@ -93,8 +94,8 @@ class HttpClient {
     fetchInternal(method, endpoint, variables) {
         if (method === this.GET)
             return this.getReq(endpoint, variables);
-        if (method === this.POST)
-            return this.postReq(endpoint, variables);
+        if (method === this.POST || method === this.POST_DATA)
+            return this.postReq(endpoint, variables, method);
         throw new Error('Unknown method: ' + method);
     }
     getReq(endpoint, variables) {
@@ -106,11 +107,18 @@ class HttpClient {
             return data;
         });
     }
-    postReq(endpoint, variables) {
+    postReq(endpoint, variables, method) {
         const self = this;
+        if (method === this.POST_DATA)
+            return Request.post(this.baseUrl + endpoint, {
+                headers: self.createHeaders(),
+                formData: variables
+            }).then(function (data) {
+                return data;
+            });
         return Request.post(this.baseUrl + endpoint, {
             headers: self.createHeaders(),
-            formData: variables
+            form: variables
         }).then(function (data) {
             return data;
         });

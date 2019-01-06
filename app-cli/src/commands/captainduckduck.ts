@@ -12,7 +12,7 @@ import login from './login';
 import list from './list';
 import logout from './logout';
 import deploy from './deploy';
-// import serversetup = require('./serversetup');
+import serversetup from './serversetup';
 
 // Setup
 program.version(packagejson.version).description(packagejson.description);
@@ -34,12 +34,12 @@ program.command('logout').description('Logout from a specific Captain machine.')
 	logout();
 });
 
-// program
-// 	.command('serversetup')
-// 	.description('Performs necessary actions and prepares your Captain server.')
-// 	.action(() => {
-// 		serversetup();
-// 	});
+program
+	.command('serversetup')
+	.description('Performs necessary actions and prepares your Captain server.')
+	.action(() => {
+		serversetup();
+	});
 
 program
 	.command('deploy')

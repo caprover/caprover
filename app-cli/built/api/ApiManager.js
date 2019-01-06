@@ -69,7 +69,7 @@ class ApiManager {
     uploadAppData(appName, file) {
         const http = this.http;
         return Promise.resolve() //
-            .then(http.fetch(http.POST, '/user/appData/' + appName + '?detached=1', { sourceFile: file })); // TODO user/apps/appData
+            .then(http.fetch(http.POST_DATA, '/user/appData/' + appName + '?detached=1', { sourceFile: file })); // TODO user/apps/appData
     }
     uploadCaptainDefinitionContent(appName, captainDefinition, gitHash, detached) {
         const http = this.http;

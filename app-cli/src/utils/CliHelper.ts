@@ -10,6 +10,14 @@ export default class CliHelper {
 		return CliHelper.instance;
 	}
 
+	isNameValid(value: string) {
+		value = value || '';
+		if (!!value && value.match(/^[-\d\w]+$/i) && value.indexOf('--') < 0) {
+			return true;
+		}
+		return false;
+	}
+
 	getAppsAsOptions(apps: any[]) {
 		const firstItemInOption = [
 			{

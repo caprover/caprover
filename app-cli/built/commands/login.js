@@ -33,11 +33,15 @@ function login() {
                     }
                     if (!cleanUpUrl(value))
                         return 'This is an invalid URL: ' + value;
+                    let found = undefined;
                     StorageHelper_1.default.get().getMachines().map((machine) => {
                         if (cleanUpUrl(machine.baseUrl) === cleanUpUrl(value)) {
-                            return `${value} already exist as ${machine.name}. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+                            found = machine.name;
                         }
                     });
+                    if (found) {
+                        return `${value} already exist as ${found} in your currently logged in machines. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+                    }
                     if (value && value.trim()) {
                         return true;
                     }
@@ -67,12 +71,11 @@ function login() {
                 message: 'Enter a name for this Captain machine:',
                 default: CliHelper_1.default.get().findDefaultCaptainName(),
                 validate: (value) => {
-                    StorageHelper_1.default.get().getMachines().map((machine) => {
-                        if (machine.name === value) {
-                            return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
-                        }
-                    });
-                    if (value.match(/^[-\d\w]+$/i)) {
+                    value = value.trim();
+                    if (StorageHelper_1.default.get().findMachine(value)) {
+                        return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+                    }
+                    if (CliHelper_1.default.get().isNameValid(value)) {
                         return true;
                     }
                     return 'Please enter a Captain Name.';

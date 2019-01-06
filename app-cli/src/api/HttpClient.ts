@@ -9,6 +9,7 @@ var CAPTAIN = 'captain';
 export default class HttpClient {
 	public readonly GET = 'GET';
 	public readonly POST = 'POST';
+	public readonly POST_DATA = 'POST_DATA';
 	public isDestroyed = false;
 
 	constructor(private baseUrl: string, private authToken: string, private onAuthFailure: () => Promise<any>) {
@@ -32,7 +33,7 @@ export default class HttpClient {
 		this.isDestroyed = true;
 	}
 
-	fetch(method: 'GET' | 'POST', endpoint: string, variables: any) {
+	fetch(method: 'GET' | 'POST' | 'POST_DATA', endpoint: string, variables: any) {
 		const self = this;
 		return function(): Promise<any> {
 			return Promise.resolve() //
@@ -82,8 +83,8 @@ export default class HttpClient {
 					});
 				})
 				.catch(function(error) {
-					Logger.log('');
-					Logger.error(error.message || error);
+					// Logger.log('');
+					// Logger.error(error.message || error);
 					return new Promise(function(resolve, reject) {
 						if (!self.isDestroyed) return reject(error);
 						Logger.dev('Destroyed catch not called');
@@ -92,10 +93,10 @@ export default class HttpClient {
 		};
 	}
 
-	fetchInternal(method: 'GET' | 'POST', endpoint: string, variables: any) {
+	fetchInternal(method: 'GET' | 'POST' | 'POST_DATA', endpoint: string, variables: any) {
 		if (method === this.GET) return this.getReq(endpoint, variables);
 
-		if (method === this.POST) return this.postReq(endpoint, variables);
+		if (method === this.POST || method === this.POST_DATA) return this.postReq(endpoint, variables, method);
 
 		throw new Error('Unknown method: ' + method);
 	}
@@ -111,12 +112,20 @@ export default class HttpClient {
 		});
 	}
 
-	postReq(endpoint: string, variables: any) {
+	postReq(endpoint: string, variables: any, method: 'GET' | 'POST' | 'POST_DATA') {
 		const self = this;
+
+		if (method === this.POST_DATA)
+			return Request.post(this.baseUrl + endpoint, {
+				headers: self.createHeaders(),
+				formData: variables
+			}).then(function(data) {
+				return data;
+			});
 
 		return Request.post(this.baseUrl + endpoint, {
 			headers: self.createHeaders(),
-			formData: variables
+			form: variables
 		}).then(function(data) {
 			return data;
 		});

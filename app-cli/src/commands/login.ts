@@ -12,7 +12,6 @@ import CliApiManager from '../api/CliApiManager';
 const SAMPLE_DOMAIN = Constants.SAMPLE_DOMAIN;
 const cleanUpUrl = Utils.cleanUpUrl;
 
-
 async function login() {
 	StdOutUtil.printMessage('Login to a Captain Machine');
 
@@ -29,11 +28,16 @@ async function login() {
 
 				if (!cleanUpUrl(value)) return 'This is an invalid URL: ' + value;
 
+				let found = undefined;
 				StorageHelper.get().getMachines().map((machine) => {
 					if (cleanUpUrl(machine.baseUrl) === cleanUpUrl(value)) {
-						return `${value} already exist as ${machine.name}. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+						found = machine.name;
 					}
 				});
+
+				if (found) {
+					return `${value} already exist as ${found} in your currently logged in machines. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+				}
 
 				if (value && value.trim()) {
 					return true;
@@ -66,13 +70,13 @@ async function login() {
 			message: 'Enter a name for this Captain machine:',
 			default: CliHelper.get().findDefaultCaptainName(),
 			validate: (value: string) => {
-				StorageHelper.get().getMachines().map((machine) => {
-					if (machine.name === value) {
-						return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
-					}
-				});
+				value = value.trim();
 
-				if (value.match(/^[-\d\w]+$/i)) {
+				if (StorageHelper.get().findMachine(value)) {
+					return `${value} already exist. If you want to replace the existing entry, you have to first use <logout> command, and then re-login.`;
+				}
+
+				if (CliHelper.get().isNameValid(value)) {
 					return true;
 				}
 
