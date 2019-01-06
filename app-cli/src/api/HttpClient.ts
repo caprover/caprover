@@ -1,6 +1,6 @@
-import axios from 'axios';
 import ErrorFactory from '../utils/ErrorFactory';
 import Logger from '../utils/Logger';
+import * as Request from 'request-promise';
 
 var TOKEN_HEADER = 'x-captain-auth';
 var NAMESPACE = 'x-namespace';
@@ -45,15 +45,17 @@ export default class HttpClient {
 				.then(function() {
 					return self.fetchInternal(method, endpoint, variables); //
 				})
-				.then(function(axiosResponse) {
-					const data = axiosResponse.data; // this is an axios thing!
+				.then(function(requestResponse) {
+					const data = JSON.parse(requestResponse);
 					if (data.status === ErrorFactory.STATUS_AUTH_TOKEN_INVALID) {
 						return self
 							.onAuthFailure() //
 							.then(function() {
-								return self.fetchInternal(method, endpoint, variables).then(function(newAxiosResponse) {
-									return newAxiosResponse.data;
-								});
+								return self
+									.fetchInternal(method, endpoint, variables)
+									.then(function(newRequestResponse) {
+										return newRequestResponse;
+									});
 							});
 					} else {
 						return data;
@@ -80,6 +82,7 @@ export default class HttpClient {
 					});
 				})
 				.catch(function(error) {
+					Logger.log('');
 					Logger.error(error.message || error);
 					return new Promise(function(resolve, reject) {
 						if (!self.isDestroyed) return reject(error);
@@ -99,26 +102,23 @@ export default class HttpClient {
 
 	getReq(endpoint: string, variables: any) {
 		const self = this;
-		return axios
-			.get(this.baseUrl + endpoint, {
-				params: variables,
-				headers: self.createHeaders()
-			}) //
-			.then(function(data) {
-				//console.log(data);
-				return data;
-			});
+
+		return Request.get(this.baseUrl + endpoint, {
+			headers: self.createHeaders(),
+			qs: variables
+		}).then(function(data) {
+			return data;
+		});
 	}
 
 	postReq(endpoint: string, variables: any) {
 		const self = this;
-		return axios
-			.post(this.baseUrl + endpoint, variables, {
-				headers: self.createHeaders()
-			}) //
-			.then(function(data) {
-				//console.log(data);
-				return data;
-			});
+
+		return Request.post(this.baseUrl + endpoint, {
+			headers: self.createHeaders(),
+			formData: variables
+		}).then(function(data) {
+			return data;
+		});
 	}
 }

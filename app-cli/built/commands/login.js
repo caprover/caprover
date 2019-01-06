@@ -18,37 +18,6 @@ const CliHelper_1 = require("../utils/CliHelper");
 const CliApiManager_1 = require("../api/CliApiManager");
 const SAMPLE_DOMAIN = Constants_1.default.SAMPLE_DOMAIN;
 const cleanUpUrl = Utils_1.default.cleanUpUrl;
-// const DeployApi = require('../api/DeployApi');
-// const { cleanUpUrl, findDefaultCaptainName } = require('../utils/loginHelpers');
-// const { SAMPLE_DOMAIN } = require('../utils/constants');
-// const LoginApi = require('../api/LoginApi');
-// In case the token is expired
-// async function requestLogin() {
-// 	const { baseUrl, name } = DeployApi.machineToDeploy;
-// 	printMessage('Your auth token is not valid anymore. Try to login again.');
-// 	const questions = [
-// 		{
-// 			type: 'password',
-// 			name: 'captainPassword',
-// 			message: 'Please enter your password for ' + baseUrl,
-// 			validate: (value: string) => {
-// 				if (value && value.trim()) {
-// 					return true;
-// 				}
-// 				return 'Please enter your password for ' + baseUrl;
-// 			}
-// 		}
-// 	];
-// 	const loginPassword = await inquirer.prompt(questions);
-// 	const password = loginPassword.captainPassword;
-// 	const response = await LoginApi.loginMachine(baseUrl, password);
-// 	const data = JSON.parse(response);
-// 	const newToken = data.token;
-// 	if (!newToken) return false;
-// 	// Update the token to the machine that corresponds
-// 	MachineHelper.updateMachineAuthToken(name, newToken);
-// 	return true;
-// }
 function login() {
     return __awaiter(this, void 0, void 0, function* () {
         StdOutUtil_1.default.printMessage('Login to a Captain Machine');

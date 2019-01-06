@@ -59,19 +59,17 @@ class ApiManager {
     getAllApps() {
         const http = this.http;
         return Promise.resolve() //
-            .then(http.fetch(http.GET, '/user/apps/appDefinitions', {}));
+            .then(http.fetch(http.GET, '/user/appDefinitions', {})); // TODO user/apps/appDefinitions
     }
     fetchBuildLogs(appName) {
         const http = this.http;
         return Promise.resolve() //
-            .then(http.fetch(http.GET, '/user/apps/appData/' + appName, {}));
+            .then(http.fetch(http.GET, '/user/appData/' + appName, {})); // TODO user/apps/appData
     }
     uploadAppData(appName, file) {
         const http = this.http;
-        var formData = new FormData();
-        formData.append('sourceFile', file);
         return Promise.resolve() //
-            .then(http.fetch(http.POST, '/user/apps/appData/' + appName + '?detached=1', formData));
+            .then(http.fetch(http.POST, '/user/appData/' + appName + '?detached=1', { sourceFile: file })); // TODO user/apps/appData
     }
     uploadCaptainDefinitionContent(appName, captainDefinition, gitHash, detached) {
         const http = this.http;

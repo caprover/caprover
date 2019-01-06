@@ -18,5 +18,5 @@ class SpinnerHelper {
         this.spinner.fail();
     }
 }
-exports.default = SpinnerHelper;
+exports.default = new SpinnerHelper();
 //# sourceMappingURL=SpinnerHelper.js.map

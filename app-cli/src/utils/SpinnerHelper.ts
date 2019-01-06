@@ -24,4 +24,4 @@ class SpinnerHelper {
 	}
 }
 
-export default SpinnerHelper;
+export default new SpinnerHelper();

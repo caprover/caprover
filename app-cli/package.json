@@ -46,7 +46,6 @@
     "@types/inquirer": "^0.0.43",
     "@types/request-promise": "^4.1.42",
     "@types/update-notifier": "^2.5.0",
-    "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "command-exists": "^1.2.8",
     "commander": "^2.19.0",
@@ -56,6 +55,8 @@
     "npm": "^6.5.0",
     "ora": "^3.0.0",
     "progress": "^2.0.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "typescript": "^3.2.2",
     "update-notifier": "^2.5.0"
   },

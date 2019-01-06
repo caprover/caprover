@@ -11,8 +11,8 @@ import * as program from 'commander';
 import login from './login';
 import list from './list';
 import logout from './logout';
+import deploy from './deploy';
 // import serversetup = require('./serversetup');
-// import deploy = require('./deploy');
 
 // Setup
 program.version(packagejson.version).description(packagejson.description);
@@ -41,21 +41,21 @@ program.command('logout').description('Logout from a specific Captain machine.')
 // 		serversetup();
 // 	});
 
-// program
-// 	.command('deploy')
-// 	.description(
-// 		"Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine."
-// 	)
-// 	.option('-t, --tarFile <value>', 'Specify file to be uploaded (rather than using git archive)')
-// 	.option('-d, --default', 'Run with default options')
-// 	.option('-s, --stateless', 'Run deploy stateless')
-// 	.option('-h, --host <value>', 'Only for stateless mode: Host of the captain machine')
-// 	.option('-a, --appName <value>', 'Only for stateless mode: Name of the app')
-// 	.option('-p, --pass <value>', 'Only for stateless mode: Password for Captain')
-// 	.option('-b, --branch <value>', 'Only for stateless mode: Branch name (default master)')
-// 	.action((options: any) => {
-// 		deploy(options);
-// 	});
+program
+	.command('deploy')
+	.description(
+		"Deploy your app (current directory) to a specific Captain machine. You'll be prompted to choose your Captain machine."
+	)
+	.option('-t, --tarFile <value>', 'Specify file to be uploaded (rather than using git archive)')
+	.option('-d, --default', 'Run with default options')
+	.option('-s, --stateless', 'Run deploy stateless')
+	.option('-h, --host <value>', 'Only for stateless mode: Host of the captain machine')
+	.option('-a, --appName <value>', 'Only for stateless mode: Name of the app')
+	.option('-p, --pass <value>', 'Only for stateless mode: Password for Captain')
+	.option('-b, --branch <value>', 'Only for stateless mode: Branch name (default master)')
+	.action((options: any) => {
+		deploy(options);
+	});
 
 // Error on unknown commands
 program.on('command:*', () => {

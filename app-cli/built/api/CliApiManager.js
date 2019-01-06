@@ -19,9 +19,11 @@ class CliApiManager {
         if (!CliApiManager.instances[hashKey])
             CliApiManager.instances[hashKey] = new ApiManager_1.default(capMachine.baseUrl + '/api/v1', function (token) {
                 capMachine.authToken = token;
-                StorageHelper_1.default.get().saveMachine(capMachine);
+                if (capMachine.name)
+                    StorageHelper_1.default.get().saveMachine(capMachine);
                 return Promise.resolve();
             });
+        CliApiManager.instances[hashKey].setAuthToken(capMachine.authToken);
         return CliApiManager.instances[hashKey];
     }
 }

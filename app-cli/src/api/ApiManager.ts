@@ -4,6 +4,8 @@ import { IRegistryInfo } from '../models/IRegistryInfo';
 import { ICaptainDefinition } from '../models/ICaptainDefinition';
 import { IVersionInfo } from '../models/IVersionInfo';
 import { IAppDef } from '../models/AppDef';
+import * as fs from 'fs-extra';
+import IBuildLogs from '../models/IBuildLogs';
 
 export default class ApiManager {
 	private static lastKnownPassword: string = process.env.REACT_APP_DEFAULT_PASSWORD
@@ -87,22 +89,20 @@ export default class ApiManager {
 		const http = this.http;
 
 		return Promise.resolve() //
-			.then(http.fetch(http.GET, '/user/apps/appDefinitions', {}));
+			.then(http.fetch(http.GET, '/user/appDefinitions', {})); // TODO user/apps/appDefinitions
 	}
 
-	fetchBuildLogs(appName: string) {
+	fetchBuildLogs(appName: string): Promise<IBuildLogs> {
 		const http = this.http;
 
 		return Promise.resolve() //
-			.then(http.fetch(http.GET, '/user/apps/appData/' + appName, {}));
+			.then(http.fetch(http.GET, '/user/appData/' + appName, {})); // TODO user/apps/appData
 	}
 
-	uploadAppData(appName: string, file: File) {
+	uploadAppData(appName: string, file: fs.ReadStream) {
 		const http = this.http;
-		var formData = new FormData();
-		formData.append('sourceFile', file);
 		return Promise.resolve() //
-			.then(http.fetch(http.POST, '/user/apps/appData/' + appName + '?detached=1', formData));
+			.then(http.fetch(http.POST, '/user/appData/' + appName + '?detached=1', { sourceFile: file })); // TODO user/apps/appData
 	}
 
 	uploadCaptainDefinitionContent(

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = require("axios");
 const ErrorFactory_1 = require("../utils/ErrorFactory");
 const Logger_1 = require("../utils/Logger");
+const Request = require("request-promise");
 var TOKEN_HEADER = 'x-captain-auth';
 var NAMESPACE = 'x-namespace';
 var CAPTAIN = 'captain';
@@ -44,14 +44,16 @@ class HttpClient {
                 .then(function () {
                 return self.fetchInternal(method, endpoint, variables); //
             })
-                .then(function (axiosResponse) {
-                const data = axiosResponse.data; // this is an axios thing!
+                .then(function (requestResponse) {
+                const data = JSON.parse(requestResponse);
                 if (data.status === ErrorFactory_1.default.STATUS_AUTH_TOKEN_INVALID) {
                     return self
                         .onAuthFailure() //
                         .then(function () {
-                        return self.fetchInternal(method, endpoint, variables).then(function (newAxiosResponse) {
-                            return newAxiosResponse.data;
+                        return self
+                            .fetchInternal(method, endpoint, variables)
+                            .then(function (newRequestResponse) {
+                            return newRequestResponse;
                         });
                     });
                 }
@@ -78,6 +80,7 @@ class HttpClient {
                 });
             })
                 .catch(function (error) {
+                Logger_1.default.log('');
                 Logger_1.default.error(error.message || error);
                 return new Promise(function (resolve, reject) {
                     if (!self.isDestroyed)
@@ -96,24 +99,19 @@ class HttpClient {
     }
     getReq(endpoint, variables) {
         const self = this;
-        return axios_1.default
-            .get(this.baseUrl + endpoint, {
-            params: variables,
-            headers: self.createHeaders()
-        }) //
-            .then(function (data) {
-            //console.log(data);
+        return Request.get(this.baseUrl + endpoint, {
+            headers: self.createHeaders(),
+            qs: variables
+        }).then(function (data) {
             return data;
         });
     }
     postReq(endpoint, variables) {
         const self = this;
-        return axios_1.default
-            .post(this.baseUrl + endpoint, variables, {
-            headers: self.createHeaders()
-        }) //
-            .then(function (data) {
-            //console.log(data);
+        return Request.post(this.baseUrl + endpoint, {
+            headers: self.createHeaders(),
+            formData: variables
+        }).then(function (data) {
             return data;
         });
     }
