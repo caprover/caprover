@@ -3,108 +3,115 @@
 import * as inquirer from 'inquirer';
 import StdOutUtil from '../utils/StdOutUtil';
 import { validateIsGitRepository, validateDefinitionFile, ensureAuthentication } from '../utils/ValidationsHandler';
-import { IMachine, IDeployedDirectory } from '../models/storage/StoredObjects';
+import { IMachine, IDeployedDirectory, IDeploySource, IDeployParams } from '../models/storage/StoredObjects';
 import StorageHelper from '../utils/StorageHelper';
 import CliHelper from '../utils/CliHelper';
 import { IHashMapGeneric } from '../models/IHashMapGeneric';
 import DeployHelper from '../utils/DeployHelper';
-
-// async function deployAsStateless(host: string, appName: string, branch: string, pass: string) {
-// 	const isStateless = host && appName && branch && pass;
-
-// 	if (isStateless) {
-// 		// login first
-// 		StdOutUtil.printMessage(`Trying to login to ${host}\n`);
-
-// 		const { name } = DeployApi.machineToDeploy;
-// 		const response = await LoginApi.loginMachine(host, pass);
-// 		const data = JSON.parse(response);
-// 		const newToken = data.token;
-
-// 		// Update the token to the machine that corresponds (if needed)
-// 		MachineHelper.updateMachineAuthToken(name, newToken);
-
-// 		if (data) {
-// 			StdOutUtil.printMessage(`Starting stateless deploy to\n${host}\n${branch}\n${appName}`);
-
-// 			deployFromGitProject();
-// 		}
-// 	} else {
-// 		StdOutUtil.printError(
-// 			'You are missing parameters for deploying on stateless. <host> <password> <app name> <branch>'
-// 		);
-// 	}
-// }
-
-// async function deployFromTarFile(tarFile: string) {
-// 	try {
-// 		const isValidAuthentication = await validateAuthentication();
-
-// 		if (isValidAuthentication) {
-// 			// Send from tar file
-// 			const filePath = tarFile;
-// 			const gitHash = 'sendviatarfile';
-
-// 			await uploadFile(filePath, gitHash);
-// 		} else {
-// 			StdOutUtil.printError('Incorrect login details', true);
-// 		}
-// 	} catch (e) {
-// 		StdOutUtil.printError(e.message, true);
-// 	}
-// }
+import CliApiManager from '../api/CliApiManager';
 
 async function deploy(options: any) {
 	const possibleApp = StorageHelper.get()
 		.getDeployedDirectories()
 		.find((dir: IDeployedDirectory) => dir.cwd === process.cwd());
 
-	if (!options.tarFile) {
+	StdOutUtil.printMessage('Preparing deployment to Captain...\n');
+
+	let deployParams: IDeployParams = { deploySource: {} };
+
+	if (options.default) {
+		deployParams = {
+			captainMachine: possibleApp ? StorageHelper.get().findMachine(possibleApp.machineNameToDeploy) : undefined,
+			deploySource: possibleApp ? possibleApp.deploySource : {},
+			appName: possibleApp ? possibleApp.appName : undefined
+		};
+	}
+
+	if (options.appName) {
+		deployParams.appName = options.appName;
+	}
+
+	if (options.branch) {
+		deployParams.deploySource.branchToPush = options.branch;
+	}
+
+	if (options.tarFile) {
+		deployParams.deploySource.tarFilePath = options.tarFile;
+	}
+
+	if (!deployParams.deploySource.tarFilePath) {
 		if (!validateIsGitRepository() || !validateDefinitionFile()) {
 			return;
 		}
 	}
 
-	StdOutUtil.printMessage('Preparing deployment to Captain...\n');
+	if (options.pass || options.host) {
+		if (options.pass && options.host) {
+			deployParams.captainMachine = {
+				authToken: '',
+				baseUrl: options.host,
+				name: ''
+			};
+			await CliApiManager.get(deployParams.captainMachine).getAuthToken(options.pass);
+		} else {
+			StdOutUtil.printError('host and pass should be either both defined or both undefined', true);
+			return;
+		}
+	}
 
-	let deployParams: IHashMapGeneric<string> = possibleApp
-		? {
-				captainNameToDeploy: possibleApp.machineNameToDeploy,
-				branchToPush: possibleApp.branchToPush,
-				appName: possibleApp.appName
-			}
-		: {};
+	// Show questions for what is being missing in deploy params
+	let allApps: any = undefined;
+	if (deployParams.captainMachine) {
+		allApps = await ensureAuthentication(deployParams.captainMachine);
+	}
 
-	if (options.default) { // TODO
-		//deployAsDefaultValues();
-		//}
-		// else if (options.stateless) {
-		// 	deployAsStateless(options.host, options.appName, options.branch, options.pass);
-		// }
-		// else if (options.tarFile) {
-		// 	deployFromTarFile(options.tarFile);
-	} else {
+	{
 		const questions = [
 			{
 				type: 'list',
 				name: 'captainNameToDeploy',
 				default: possibleApp ? possibleApp.machineNameToDeploy : '',
 				message: 'Select the Captain Machine you want to deploy to:',
-				choices: CliHelper.get().getMachinesAsOptions()
+				choices: CliHelper.get().getMachinesAsOptions(),
+				when: () => !deployParams.captainMachine,
+				filter: async (capName: string) => {
+					deployParams.captainMachine = StorageHelper.get().findMachine(capName);
+					if (deployParams.captainMachine) allApps = await ensureAuthentication(deployParams.captainMachine);
+					return capName;
+				}
 			},
 			{
 				type: 'input',
-				default: possibleApp ? possibleApp.branchToPush : 'master',
+				default:
+					possibleApp && possibleApp.deploySource.branchToPush
+						? possibleApp.deploySource.branchToPush
+						: 'master',
 				name: 'branchToPush',
 				message: "Enter the 'git' branch you would like to deploy:",
-				when: (answers: IHashMapGeneric<string>) => !!answers.captainNameToDeploy
+				filter: async (branchToPushEntered: string) => {
+					deployParams.deploySource.branchToPush = branchToPushEntered;
+					return branchToPushEntered;
+				},
+				when: (answers: IHashMapGeneric<string>) =>
+					!deployParams.deploySource.branchToPush &&
+					!deployParams.deploySource.tarFilePath &&
+					!!deployParams.captainMachine
 			},
 			{
-				type: 'input',
+				type: 'list',
 				default: possibleApp ? possibleApp.appName : '',
 				name: 'appName',
 				message: 'Enter the Captain app name this directory will be deployed to:',
-				when: (answers: IHashMapGeneric<string>) => !!answers.branchToPush
+				choices: (answers: IHashMapGeneric<string>) => {
+					return CliHelper.get().getAppsAsOptions(allApps);
+				},
+				filter: async (appNameEntered: string) => {
+					deployParams.appName = appNameEntered;
+					return appNameEntered;
+				},
+				when: (answers: IHashMapGeneric<string>) =>
+					(!!deployParams.deploySource.branchToPush || !!deployParams.deploySource.tarFilePath) &&
+					!deployParams.appName
 			},
 			{
 				type: 'confirm',
@@ -112,28 +119,24 @@ async function deploy(options: any) {
 				message:
 					'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
 				default: true,
-				when: (answers: IHashMapGeneric<string>) => !!answers.appName
+				when: (answers: IHashMapGeneric<string>) =>
+					!!deployParams.appName &&
+					!!deployParams.captainMachine &&
+					(!!deployParams.deploySource.branchToPush || !!deployParams.deploySource.tarFilePath)
 			}
 		];
-		const answers = (await inquirer.prompt(questions)) as IHashMapGeneric<string>;
+		const answersToIgnore = (await inquirer.prompt(questions)) as IHashMapGeneric<string>;
 
-		if (!answers.confirmedToDeploy) {
+		if (!answersToIgnore.confirmedToDeploy) {
 			StdOutUtil.printMessage('\nOperation cancelled by the user...\n');
 			process.exit(0);
 			return;
 		}
-		deployParams = answers;
 	}
 
-	const branchToPush = deployParams.branchToPush;
-	const appName = deployParams.appName;
-	const capMachine = StorageHelper.get()
-		.getMachines()
-		.find((machine) => machine.name === deployParams.captainNameToDeploy)!;
-
 	try {
-		await new DeployHelper(capMachine, appName, branchToPush) //
-			.deployFromGitProject();
+		await new DeployHelper(deployParams) //
+			.startDeploy();
 	} catch (e) {
 		StdOutUtil.printError(e.message, true);
 	}

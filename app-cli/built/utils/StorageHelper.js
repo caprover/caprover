@@ -17,6 +17,9 @@ class StorageHelper {
     getMachines() {
         return Utils_1.default.copyObject(this.data.get(CAP_MACHINES) || []);
     }
+    findMachine(machineName) {
+        return this.getMachines().find((m) => m.name === machineName);
+    }
     removeMachine(machineName) {
         const machines = this.getMachines();
         const removedMachine = machines.filter((machine) => machine.name === machineName)[0];

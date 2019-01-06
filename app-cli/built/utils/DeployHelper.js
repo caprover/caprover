@@ -15,36 +15,41 @@ const child_process_1 = require("child_process");
 const StdOutUtil_1 = require("../utils/StdOutUtil");
 const ProgressBar = require('progress');
 const commandExistsSync = require('command-exists').sync;
-const ValidationsHandler_1 = require("../utils/ValidationsHandler");
 const CliApiManager_1 = require("../api/CliApiManager");
 const SpinnerHelper_1 = require("../utils/SpinnerHelper");
 class DeployHelper {
-    constructor(machineToDeploy, appName, branchToPush) {
-        this.machineToDeploy = machineToDeploy;
-        this.appName = appName;
-        this.branchToPush = branchToPush;
+    constructor(deployParams) {
+        this.deployParams = deployParams;
         this.lastLineNumberPrinted = -10000; // we want to show all lines to begin with!
         //
     }
-    gitArchiveFile(zipFileFullPath) {
+    gitArchiveFile(zipFileFullPath, branchToPush) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            child_process_1.exec(`git archive --format tar --output "${zipFileFullPath}" ${self.branchToPush}`, (err, stdout, stderr) => {
+            // Removes the temporary file created
+            if (fs.pathExistsSync(zipFileFullPath))
+                fs.removeSync(zipFileFullPath);
+            if (!commandExistsSync('git')) {
+                StdOutUtil_1.default.printError("'git' command not found...\nCaptain needs 'git' to create tar file of your source files...", true);
+                reject("Captain needs 'git' to create tar file of your source files...");
+                return;
+            }
+            child_process_1.exec(`git archive --format tar --output "${zipFileFullPath}" ${branchToPush}`, (err, stdout, stderr) => {
                 if (err) {
                     StdOutUtil_1.default.printError(`TAR file failed\n${err}\n`);
                     fs.removeSync(zipFileFullPath);
                     reject(new Error('TAR file failed'));
                     return;
                 }
-                child_process_1.exec(`git rev-parse ${self.branchToPush}`, (err, stdout, stderr) => {
+                child_process_1.exec(`git rev-parse ${branchToPush}`, (err, stdout, stderr) => {
                     const gitHash = (stdout || '').trim();
                     if (err || !/^[a-f0-9]{40}$/.test(gitHash)) {
-                        StdOutUtil_1.default.printError(`Cannot find hash of last commit on this branch: ${self.branchToPush}\n${gitHash}\n${err}\n`);
+                        StdOutUtil_1.default.printError(`Cannot find hash of last commit on this branch: ${branchToPush}\n${gitHash}\n${err}\n`);
                         reject(new Error('rev-parse failed'));
                         return;
                     }
-                    StdOutUtil_1.default.printMessage(`Pushing last commit on ${self.branchToPush}: ${gitHash}`);
-                    resolve();
+                    StdOutUtil_1.default.printMessage(`Pushing last commit on ${branchToPush}: ${gitHash}`);
+                    resolve(gitHash);
                 });
             });
         });
@@ -63,50 +68,55 @@ class DeployHelper {
         });
         fileStream.on('end', () => {
             StdOutUtil_1.default.printMessage('This might take several minutes. PLEASE BE PATIENT...');
-            SpinnerHelper_1.default.start('Building your source code...');
+            SpinnerHelper_1.default.start('Building your source code...\n');
             SpinnerHelper_1.default.setColor('yellow');
         });
         return fileStream;
     }
-    deployFromGitProject() {
+    startDeploy() {
         return __awaiter(this, void 0, void 0, function* () {
-            const appName = this.appName;
-            const branchToPush = this.branchToPush;
-            const machineToDeploy = this.machineToDeploy;
-            if (!appName || !branchToPush || !machineToDeploy) {
-                StdOutUtil_1.default.printError('Default deploy failed. Missing appName or branchToPush or machineToDeploy.', true);
+            const appName = this.deployParams.appName;
+            const branchToPush = this.deployParams.deploySource.branchToPush;
+            const tarFilePath = this.deployParams.deploySource.tarFilePath;
+            const machineToDeploy = this.deployParams.captainMachine;
+            if (!appName || (!branchToPush && !tarFilePath) || !machineToDeploy) {
+                StdOutUtil_1.default.printError('Default deploy failed. Missing appName or branchToPush/tarFilePath or machineToDeploy.', true);
                 return;
             }
-            if (!commandExistsSync('git')) {
-                StdOutUtil_1.default.printError("'git' command not found...");
-                StdOutUtil_1.default.printError("Captain needs 'git' to create tar file of your source files...", true);
+            if (branchToPush && tarFilePath) {
+                StdOutUtil_1.default.printError('Default deploy failed. branchToPush/tarFilePath cannot both be present.', true);
                 return;
+            }
+            let tarFileCreatedByCli = false;
+            const tarFileNameToDeploy = tarFilePath ? tarFilePath : 'temporary-captain-to-deploy.tar';
+            const tarFileFullPath = tarFileNameToDeploy.startsWith('/')
+                ? tarFileNameToDeploy // absolute path
+                : path.join(process.cwd(), tarFileNameToDeploy); // relative path
+            let gitHash = '';
+            if (branchToPush) {
+                tarFileCreatedByCli = true;
+                StdOutUtil_1.default.printMessage(`Saving tar file to:\n${tarFileFullPath}\n`);
+                gitHash = yield this.gitArchiveFile(tarFileFullPath, branchToPush);
             }
             StdOutUtil_1.default.printMessage(`Deploying ${appName} to ${machineToDeploy.name}`);
-            yield ValidationsHandler_1.ensureAuthentication(machineToDeploy);
-            const zipFileNameToDeploy = 'temporary-captain-to-deploy.tar';
-            const zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy);
-            StdOutUtil_1.default.printMessage(`Saving tar file to:\n${zipFileFullPath}\n`);
-            // Removes the temporary file created
-            if (fs.pathExistsSync(zipFileFullPath))
-                fs.removeSync(zipFileFullPath);
-            yield this.gitArchiveFile(zipFileFullPath);
             try {
                 StdOutUtil_1.default.printMessage(`Uploading the file to ${machineToDeploy.baseUrl}`);
-                yield CliApiManager_1.default.get(machineToDeploy).uploadAppData(appName, this.getFileStream(zipFileFullPath));
+                yield CliApiManager_1.default.get(machineToDeploy).uploadAppData(appName, this.getFileStream(tarFileFullPath));
                 StdOutUtil_1.default.printMessage(`Upload done.`);
-                fs.removeSync(zipFileFullPath);
+                if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath))
+                    fs.removeSync(tarFileFullPath);
                 this.startFetchingBuildLogs(machineToDeploy, appName);
             }
             catch (e) {
-                if (fs.pathExistsSync(zipFileFullPath))
-                    fs.removeSync(zipFileFullPath);
+                if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath))
+                    fs.removeSync(tarFileFullPath);
                 throw e;
             }
         });
     }
     onLogRetrieved(data, machineToDeploy, appName) {
         return __awaiter(this, void 0, void 0, function* () {
+            const self = this;
             if (data) {
                 const lines = data.logs.lines;
                 const firstLineNumberOfLogs = data.logs.firstLineNumber;
@@ -130,8 +140,11 @@ class DeployHelper {
             }
             if (data && !data.isAppBuilding) {
                 if (!data.isBuildFailed) {
+                    const appUrl = self.deployParams.captainMachine.baseUrl
+                        .replace('https://', 'http://')
+                        .replace('//captain.', '//' + appName + '.');
                     StdOutUtil_1.default.printGreenMessage(`Deployed successfully: ${appName}`);
-                    StdOutUtil_1.default.printMagentaMessage(`App is available`, true); // TODO add url
+                    StdOutUtil_1.default.printMagentaMessage(`App is available at ${appUrl}`, true);
                 }
                 else {
                     StdOutUtil_1.default.printError(`\nSomething bad happened. Cannot deploy "${appName}"\n`, true);

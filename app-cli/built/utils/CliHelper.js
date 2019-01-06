@@ -8,6 +8,23 @@ class CliHelper {
             CliHelper.instance = new CliHelper();
         return CliHelper.instance;
     }
+    getAppsAsOptions(apps) {
+        const firstItemInOption = [
+            {
+                name: '-- CANCEL --',
+                value: '',
+                short: ''
+            }
+        ];
+        const listOfApps = apps.map((app) => {
+            return {
+                name: `${app.appName}`,
+                value: `${app.appName}`,
+                short: `${app.appName}`
+            };
+        });
+        return [...firstItemInOption, ...listOfApps];
+    }
     getMachinesAsOptions() {
         const machines = StorageHelper_1.default.get().getMachines();
         const firstItemInOption = [

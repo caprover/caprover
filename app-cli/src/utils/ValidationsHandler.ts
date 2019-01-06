@@ -71,14 +71,17 @@ export function isIpAddress(ipaddress: string) {
 }
 export async function ensureAuthentication(machine: IMachine) {
 	let isAuthenticated = false;
+	let allApps = undefined;
 	try {
-		let ignoreVal = await CliApiManager.get(machine).getAllApps();
-		isAuthenticated = true;
+		allApps = await CliApiManager.get(machine).getAllApps();
 	} catch (e) {
 		// ignore
 	}
 
-	if (!isAuthenticated) {
+	if (!allApps) {
 		const loggedInStatus = await requestLogin(machine);
+		allApps = await CliApiManager.get(machine).getAllApps();
 	}
+
+	return allApps
 }

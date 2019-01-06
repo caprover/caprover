@@ -10,8 +10,27 @@ export default class CliHelper {
 		return CliHelper.instance;
 	}
 
+	getAppsAsOptions(apps: any[]) {
+		const firstItemInOption = [
+			{
+				name: '-- CANCEL --',
+				value: '',
+				short: ''
+			}
+		];
+		const listOfApps = apps.map((app) => {
+			return {
+				name: `${app.appName}`,
+				value: `${app.appName}`,
+				short: `${app.appName}`
+			};
+		});
+
+		return [ ...firstItemInOption, ...listOfApps ];
+	}
+
 	getMachinesAsOptions() {
-		const machines = StorageHelper.get().getMachines()
+		const machines = StorageHelper.get().getMachines();
 		const firstItemInOption = [
 			{
 				name: '-- CANCEL --',
@@ -31,10 +50,9 @@ export default class CliHelper {
 	}
 
 	logoutMachine(machineName: string) {
-		const removedMachine =  StorageHelper.get().removeMachine(machineName);
-		StdOutUtil. printMessage(`You are now logged out from ${removedMachine.name} at ${removedMachine.baseUrl}...\n`);
+		const removedMachine = StorageHelper.get().removeMachine(machineName);
+		StdOutUtil.printMessage(`You are now logged out from ${removedMachine.name} at ${removedMachine.baseUrl}...\n`);
 	}
-
 
 	findDefaultCaptainName() {
 		let currentSuffix = StorageHelper.get().getMachines().length + 1;

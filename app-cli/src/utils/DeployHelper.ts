@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-import * as inquirer from 'inquirer';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { exec } from 'child_process';
 import StdOutUtil from '../utils/StdOutUtil';
 const ProgressBar = require('progress');
 const commandExistsSync = require('command-exists').sync;
-import { validateIsGitRepository, validateDefinitionFile, ensureAuthentication } from '../utils/ValidationsHandler';
-import { IMachine, IDeployedDirectory } from '../models/storage/StoredObjects';
+import { IMachine, IDeployParams } from '../models/storage/StoredObjects';
 import CliApiManager from '../api/CliApiManager';
 import SpinnerHelper from '../utils/SpinnerHelper';
 import IBuildLogs from '../models/IBuildLogs';
@@ -16,42 +14,51 @@ import IBuildLogs from '../models/IBuildLogs';
 export default class DeployHelper {
 	private lastLineNumberPrinted = -10000; // we want to show all lines to begin with!
 
-	constructor(private machineToDeploy: IMachine, private appName: string, private branchToPush: string) {
+	constructor(private deployParams: IDeployParams) {
 		//
 	}
 
-	private gitArchiveFile(zipFileFullPath: string) {
+	private gitArchiveFile(zipFileFullPath: string, branchToPush: string) {
 		const self = this;
-		return new Promise(function(resolve, reject) {
-			exec(
-				`git archive --format tar --output "${zipFileFullPath}" ${self.branchToPush}`,
-				(err, stdout, stderr) => {
-					if (err) {
-						StdOutUtil.printError(`TAR file failed\n${err}\n`);
+		return new Promise<string>(function(resolve, reject) {
+			// Removes the temporary file created
+			if (fs.pathExistsSync(zipFileFullPath)) fs.removeSync(zipFileFullPath);
 
-						fs.removeSync(zipFileFullPath);
+			if (!commandExistsSync('git')) {
+				StdOutUtil.printError(
+					"'git' command not found...\nCaptain needs 'git' to create tar file of your source files...",
+					true
+				);
+				reject("Captain needs 'git' to create tar file of your source files...");
+				return;
+			}
 
-						reject(new Error('TAR file failed'));
+			exec(`git archive --format tar --output "${zipFileFullPath}" ${branchToPush}`, (err, stdout, stderr) => {
+				if (err) {
+					StdOutUtil.printError(`TAR file failed\n${err}\n`);
+
+					fs.removeSync(zipFileFullPath);
+
+					reject(new Error('TAR file failed'));
+					return;
+				}
+
+				exec(`git rev-parse ${branchToPush}`, (err, stdout, stderr) => {
+					const gitHash = (stdout || '').trim();
+
+					if (err || !/^[a-f0-9]{40}$/.test(gitHash)) {
+						StdOutUtil.printError(
+							`Cannot find hash of last commit on this branch: ${branchToPush}\n${gitHash}\n${err}\n`
+						);
+						reject(new Error('rev-parse failed'));
+
 						return;
 					}
 
-					exec(`git rev-parse ${self.branchToPush}`, (err, stdout, stderr) => {
-						const gitHash = (stdout || '').trim();
-
-						if (err || !/^[a-f0-9]{40}$/.test(gitHash)) {
-							StdOutUtil.printError(
-								`Cannot find hash of last commit on this branch: ${self.branchToPush}\n${gitHash}\n${err}\n`
-							);
-							reject(new Error('rev-parse failed'));
-
-							return;
-						}
-
-						StdOutUtil.printMessage(`Pushing last commit on ${self.branchToPush}: ${gitHash}`);
-						resolve();
-					});
-				}
-			);
+					StdOutUtil.printMessage(`Pushing last commit on ${branchToPush}: ${gitHash}`);
+					resolve(gitHash);
+				});
+			});
 		});
 	}
 
@@ -72,7 +79,7 @@ export default class DeployHelper {
 		fileStream.on('end', () => {
 			StdOutUtil.printMessage('This might take several minutes. PLEASE BE PATIENT...');
 
-			SpinnerHelper.start('Building your source code...');
+			SpinnerHelper.start('Building your source code...\n');
 
 			SpinnerHelper.setColor('yellow');
 		});
@@ -80,49 +87,56 @@ export default class DeployHelper {
 		return fileStream;
 	}
 
-	async deployFromGitProject() {
-		const appName = this.appName;
-		const branchToPush = this.branchToPush;
-		const machineToDeploy = this.machineToDeploy;
+	async startDeploy() {
+		const appName = this.deployParams.appName;
+		const branchToPush = this.deployParams.deploySource.branchToPush;
+		const tarFilePath = this.deployParams.deploySource.tarFilePath;
+		const machineToDeploy = this.deployParams.captainMachine;
 
-		if (!appName || !branchToPush || !machineToDeploy) {
-			StdOutUtil.printError('Default deploy failed. Missing appName or branchToPush or machineToDeploy.', true);
+		if (!appName || (!branchToPush && !tarFilePath) || !machineToDeploy) {
+			StdOutUtil.printError(
+				'Default deploy failed. Missing appName or branchToPush/tarFilePath or machineToDeploy.',
+				true
+			);
 			return;
 		}
 
-		if (!commandExistsSync('git')) {
-			StdOutUtil.printError("'git' command not found...");
-
-			StdOutUtil.printError("Captain needs 'git' to create tar file of your source files...", true);
+		if (branchToPush && tarFilePath) {
+			StdOutUtil.printError('Default deploy failed. branchToPush/tarFilePath cannot both be present.', true);
 			return;
+		}
+
+		let tarFileCreatedByCli = false;
+		const tarFileNameToDeploy = tarFilePath ? tarFilePath : 'temporary-captain-to-deploy.tar';
+
+		const tarFileFullPath = tarFileNameToDeploy.startsWith('/')
+			? tarFileNameToDeploy // absolute path
+			: path.join(process.cwd(), tarFileNameToDeploy); // relative path
+
+		let gitHash = '';
+
+		if (branchToPush) {
+			tarFileCreatedByCli = true;
+
+			StdOutUtil.printMessage(`Saving tar file to:\n${tarFileFullPath}\n`);
+
+			gitHash = await this.gitArchiveFile(tarFileFullPath, branchToPush);
 		}
 
 		StdOutUtil.printMessage(`Deploying ${appName} to ${machineToDeploy.name}`);
 
-		await ensureAuthentication(machineToDeploy);
-
-		const zipFileNameToDeploy = 'temporary-captain-to-deploy.tar';
-		const zipFileFullPath = path.join(process.cwd(), zipFileNameToDeploy);
-
-		StdOutUtil.printMessage(`Saving tar file to:\n${zipFileFullPath}\n`);
-
-		// Removes the temporary file created
-		if (fs.pathExistsSync(zipFileFullPath)) fs.removeSync(zipFileFullPath);
-
-		await this.gitArchiveFile(zipFileFullPath);
-
 		try {
 			StdOutUtil.printMessage(`Uploading the file to ${machineToDeploy.baseUrl}`);
 
-			await CliApiManager.get(machineToDeploy).uploadAppData(appName, this.getFileStream(zipFileFullPath));
+			await CliApiManager.get(machineToDeploy).uploadAppData(appName, this.getFileStream(tarFileFullPath));
 
 			StdOutUtil.printMessage(`Upload done.`);
 
-			fs.removeSync(zipFileFullPath);
+			if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath)) fs.removeSync(tarFileFullPath);
 
 			this.startFetchingBuildLogs(machineToDeploy, appName);
 		} catch (e) {
-			if (fs.pathExistsSync(zipFileFullPath)) fs.removeSync(zipFileFullPath);
+			if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath)) fs.removeSync(tarFileFullPath);
 
 			throw e;
 		}
@@ -155,7 +169,7 @@ export default class DeployHelper {
 
 		if (data && !data.isAppBuilding) {
 			if (!data.isBuildFailed) {
-				const appUrl = self.machineToDeploy.baseUrl
+				const appUrl = self.deployParams.captainMachine!.baseUrl
 					.replace('https://', 'http://')
 					.replace('//captain.', '//' + appName + '.');
 				StdOutUtil.printGreenMessage(`Deployed successfully: ${appName}`);

@@ -62,16 +62,18 @@ exports.isIpAddress = isIpAddress;
 function ensureAuthentication(machine) {
     return __awaiter(this, void 0, void 0, function* () {
         let isAuthenticated = false;
+        let allApps = undefined;
         try {
-            let ignoreVal = yield CliApiManager_1.default.get(machine).getAllApps();
-            isAuthenticated = true;
+            allApps = yield CliApiManager_1.default.get(machine).getAllApps();
         }
         catch (e) {
             // ignore
         }
-        if (!isAuthenticated) {
+        if (!allApps) {
             const loggedInStatus = yield requestLogin_1.default(machine);
+            allApps = yield CliApiManager_1.default.get(machine).getAllApps();
         }
+        return allApps;
     });
 }
 exports.ensureAuthentication = ensureAuthentication;
