@@ -17,6 +17,13 @@ class StorageHelper {
     getMachines() {
         return Utils_1.default.copyObject(this.data.get(CAP_MACHINES) || []);
     }
+    removeMachine(machineName) {
+        const machines = this.getMachines();
+        const removedMachine = machines.filter((machine) => machine.name === machineName)[0];
+        const newMachines = machines.filter((machine) => machine.name !== machineName);
+        this.data.set(CAP_MACHINES, newMachines);
+        return removedMachine;
+    }
     saveMachine(machineToSaveOrUpdate) {
         const currMachines = this.getMachines();
         let updatedMachine = false;

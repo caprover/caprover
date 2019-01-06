@@ -130,7 +130,7 @@ async function login() {
 			name: captainName
 		}).getAuthToken(captainPassword);
 
-		StdOutUtil.printGreenMessage(`Logged in successfully to ${baseUrl}`);
+		StdOutUtil.printGreenMessage(`\nLogged in successfully to ${baseUrl}`);
 		StdOutUtil.printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
 	} catch (error) {
 		const errorMessage = error.message ? error.message : error;

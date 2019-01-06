@@ -9,10 +9,10 @@ import * as program from 'commander';
 
 // Command actions
 import login from './login';
+import list from './list';
+import logout from './logout';
 // import serversetup = require('./serversetup');
-// import list = require('./list');
 // import deploy = require('./deploy');
-// import logout = require('./logout');
 
 // Setup
 program.version(packagejson.version).description(packagejson.description);
@@ -26,20 +26,20 @@ program
 		login();
 	});
 
+program.command('list').alias('ls').description('List all Captain machines currently logged in.').action(() => {
+	list();
+});
+
+program.command('logout').description('Logout from a specific Captain machine.').action(() => {
+	logout();
+});
+
 // program
 // 	.command('serversetup')
 // 	.description('Performs necessary actions and prepares your Captain server.')
 // 	.action(() => {
 // 		serversetup();
 // 	});
-
-// program.command('logout').description('Logout from a specific Captain machine.').action(() => {
-// 	logout();
-// });
-
-// program.command('list').alias('ls').description('List all Captain machines currently logged in.').action(() => {
-// 	list();
-// });
 
 // program
 // 	.command('deploy')

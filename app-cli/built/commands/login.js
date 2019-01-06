@@ -120,7 +120,7 @@ function login() {
                 baseUrl,
                 name: captainName
             }).getAuthToken(captainPassword);
-            StdOutUtil_1.default.printGreenMessage(`Logged in successfully to ${baseUrl}`);
+            StdOutUtil_1.default.printGreenMessage(`\nLogged in successfully to ${baseUrl}`);
             StdOutUtil_1.default.printGreenMessage(`Authorization token is now saved as ${captainName} \n`);
         }
         catch (error) {

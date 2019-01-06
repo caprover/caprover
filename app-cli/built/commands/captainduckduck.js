@@ -8,10 +8,10 @@ const StdOutUtil_1 = require("../utils/StdOutUtil");
 const program = require("commander");
 // Command actions
 const login_1 = require("./login");
+const list_1 = require("./list");
+const logout_1 = require("./logout");
 // import serversetup = require('./serversetup');
-// import list = require('./list');
 // import deploy = require('./deploy');
-// import logout = require('./logout');
 // Setup
 program.version(packagejson.version).description(packagejson.description);
 // Commands
@@ -21,18 +21,18 @@ program
     .action(() => {
     login_1.default();
 });
+program.command('list').alias('ls').description('List all Captain machines currently logged in.').action(() => {
+    list_1.default();
+});
+program.command('logout').description('Logout from a specific Captain machine.').action(() => {
+    logout_1.default();
+});
 // program
 // 	.command('serversetup')
 // 	.description('Performs necessary actions and prepares your Captain server.')
 // 	.action(() => {
 // 		serversetup();
 // 	});
-// program.command('logout').description('Logout from a specific Captain machine.').action(() => {
-// 	logout();
-// });
-// program.command('list').alias('ls').description('List all Captain machines currently logged in.').action(() => {
-// 	list();
-// });
 // program
 // 	.command('deploy')
 // 	.description(

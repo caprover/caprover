@@ -24,6 +24,15 @@ export default class StorageHelper {
 		return Utils.copyObject(this.data.get(CAP_MACHINES) || []);
 	}
 
+	removeMachine(machineName: string) {
+		const machines = this.getMachines();
+		const removedMachine = machines.filter((machine) => machine.name === machineName)[0];
+		const newMachines = machines.filter((machine) => machine.name !== machineName);
+		this.data.set(CAP_MACHINES, newMachines);
+
+		return removedMachine;
+	}
+
 	saveMachine(machineToSaveOrUpdate: IMachine) {
 		const currMachines = this.getMachines();
 		let updatedMachine = false;

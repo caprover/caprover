@@ -1,5 +1,6 @@
 import StorageHelper from './StorageHelper';
 import { IMachine } from '../models/storage/StoredObjects';
+import StdOutUtil from './StdOutUtil';
 
 export default class CliHelper {
 	static instance: CliHelper;
@@ -8,6 +9,32 @@ export default class CliHelper {
 		if (!CliHelper.instance) CliHelper.instance = new CliHelper();
 		return CliHelper.instance;
 	}
+
+	getMachinesAsOptions() {
+		const machines = StorageHelper.get().getMachines()
+		const firstItemInOption = [
+			{
+				name: '-- CANCEL --',
+				value: '',
+				short: ''
+			}
+		];
+		const listOfMachines = machines.map((machine) => {
+			return {
+				name: `${machine.name} at ${machine.baseUrl}`,
+				value: `${machine.name}`,
+				short: `${machine.name} at ${machine.baseUrl}`
+			};
+		});
+
+		return [ ...firstItemInOption, ...listOfMachines ];
+	}
+
+	logoutMachine(machineName: string) {
+		const removedMachine =  StorageHelper.get().removeMachine(machineName);
+		StdOutUtil. printMessage(`You are now logged out from ${removedMachine.name} at ${removedMachine.baseUrl}...\n`);
+	}
+
 
 	findDefaultCaptainName() {
 		let currentSuffix = StorageHelper.get().getMachines().length + 1;
