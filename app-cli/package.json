@@ -1,13 +1,19 @@
 {
   "name": "captainduckduck",
-  "version": "1.0.16",
+  "version": "1.1.0",
   "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
   "main": "captainduckduck.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "rm -rf ./built && npx tsc && chmod +x ./built -R"
   },
   "bin": {
-    "captainduckduck": "./captainduckduck.js"
+    "captainduckduck": "./built/commands/captainduckduck.js",
+    "captainduckduck-deploy": "./built/commands/deploy.js",
+    "captainduckduck-list": "./built/commands/list.js",
+    "captainduckduck-login": "./built/commands/login.js",
+    "captainduckduck-logout": "./built/commands/logout.js",
+    "captainduckduck-serversetup": "./built/commands/serversetup.js"
   },
   "repository": {
     "type": "git",
@@ -27,16 +33,38 @@
   ],
   "author": "Kasra Bigdeli",
   "license": "Apache-2.0",
+  "lint-staged": {
+    "./**/*.{js}": [
+      "co-eslint",
+      "co-prettier --write",
+      "git add"
+    ]
+  },
   "dependencies": {
-    "chalk": "^2.4.1",
+    "@types/configstore": "^4.0.0",
+    "@types/fs-extra": "^5.0.4",
+    "@types/inquirer": "^0.0.43",
+    "@types/request-promise": "^4.1.42",
+    "@types/update-notifier": "^2.5.0",
+    "chalk": "^2.4.2",
     "command-exists": "^1.2.8",
     "commander": "^2.19.0",
     "configstore": "^4.0.0",
     "fs-extra": "^7.0.1",
     "inquirer": "^6.2.1",
+    "npm": "^6.5.0",
     "ora": "^3.0.0",
     "progress": "^2.0.3",
     "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "typescript": "^3.2.2",
     "update-notifier": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "eslint": "^5.12.0",
+    "eslint-plugin-jest": "^21.27.2",
+    "jest": "^23.6.0",
+    "prettier": "^1.15.3"
   }
 }
