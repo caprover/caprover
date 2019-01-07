@@ -14,6 +14,7 @@ import SpinnerHelper from '../utils/SpinnerHelper';
 
 let newPasswordFirstTry: string | undefined = undefined;
 let lastWorkingPassword: string = Constants.DEFAULT_PASSWORD;
+let serverIpAddress = '';
 
 let captainMachine: IMachine = {
 	authToken: '',
@@ -58,6 +59,7 @@ const questions = [
 				// login using captain42. and set the ipAddressToServer
 				captainMachine.baseUrl = `http://${ipFromUser}:3000`;
 				await CliApiManager.get(captainMachine).getAuthToken(lastWorkingPassword);
+				serverIpAddress = ipFromUser;
 			} catch (e) {
 				// User may have used a different default password
 				if (e.captainStatus === ErrorFactory.STATUS_WRONG_PASSWORD) return '';
@@ -87,8 +89,7 @@ const questions = [
 		name: 'captainRootDomain',
 		message:
 			'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
-			' setup your DNS to point *.test.yourdomain.com to ip address of your server' +
-			': ',
+			' setup your DNS to point *.test.yourdomain.com to ip address of your server.',
 		filter: async (value: string) => {
 			const captainRootDomainFromUser = value.trim();
 			try {
@@ -96,6 +97,26 @@ const questions = [
 				captainMachine = Utils.copyObject(captainMachine);
 				captainMachine.baseUrl = `http://captain.${captainRootDomainFromUser}`;
 			} catch (e) {
+				StdOutUtil.printError('\n\n');
+				if (e.captainStatus === ErrorFactory.VERIFICATION_FAILED) {
+					if (captainRootDomainFromUser.indexOf('/') >= 0) {
+						StdOutUtil.printError(
+							'DO NOT include http in your base domain, it should be just plain domain, e.g., test.domain.com'
+						);
+					}
+
+					if (captainRootDomainFromUser.indexOf('*') >= 0) {
+						StdOutUtil.printError(
+							'DO NOT include * in your base domain, it should be just plain domain, e.g., test.domain.com'
+						);
+					}
+
+					StdOutUtil.printError(
+						`\n\nCannot verify that http://captain.${captainRootDomainFromUser} points to your server IP.\n` +
+							`\nAre you sure that you set *.${captainRootDomainFromUser} points to ${serverIpAddress}\n\n` +
+							`Double check your DNS. If everything looks correct, note that, DNS changes take up to 24 hrs to work properly. Check with your Domain Provider.`
+					);
+				}
 				StdOutUtil.errorHandler(e);
 			}
 
@@ -108,6 +129,12 @@ const questions = [
 		message: 'Enter a new password:',
 		filter: (value: string) => {
 			newPasswordFirstTry = value;
+
+			if (!newPasswordFirstTry) {
+				StdOutUtil.printError('Password empty.', true);
+				throw new Error('Password empty');
+			}
+
 			return value;
 		}
 	},
@@ -118,10 +145,11 @@ const questions = [
 		filter: async (value: string) => {
 			const confirmPasswordValueFromUser = value;
 
-			if (newPasswordFirstTry !== confirmPasswordValueFromUser) {
+			if ((newPasswordFirstTry !== confirmPasswordValueFromUser)) {
 				StdOutUtil.printError('Passwords do not match. Try serversetup again.', true);
 				throw new Error('Password mismatch');
 			}
+
 			return '';
 		}
 	},

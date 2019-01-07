@@ -21,6 +21,7 @@ const ErrorFactory_1 = require("../utils/ErrorFactory");
 const SpinnerHelper_1 = require("../utils/SpinnerHelper");
 let newPasswordFirstTry = undefined;
 let lastWorkingPassword = Constants_1.default.DEFAULT_PASSWORD;
+let serverIpAddress = '';
 let captainMachine = {
     authToken: '',
     baseUrl: '',
@@ -56,6 +57,7 @@ const questions = [
                 // login using captain42. and set the ipAddressToServer
                 captainMachine.baseUrl = `http://${ipFromUser}:3000`;
                 yield CliApiManager_1.default.get(captainMachine).getAuthToken(lastWorkingPassword);
+                serverIpAddress = ipFromUser;
             }
             catch (e) {
                 // User may have used a different default password
@@ -86,8 +88,7 @@ const questions = [
         type: 'input',
         name: 'captainRootDomain',
         message: 'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
-            ' setup your DNS to point *.test.yourdomain.com to ip address of your server' +
-            ': ',
+            ' setup your DNS to point *.test.yourdomain.com to ip address of your server.',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const captainRootDomainFromUser = value.trim();
             try {
@@ -96,6 +97,18 @@ const questions = [
                 captainMachine.baseUrl = `http://captain.${captainRootDomainFromUser}`;
             }
             catch (e) {
+                StdOutUtil_1.default.printError('\n\n');
+                if (e.captainStatus === ErrorFactory_1.default.VERIFICATION_FAILED) {
+                    if (captainRootDomainFromUser.indexOf('/') >= 0) {
+                        StdOutUtil_1.default.printError('DO NOT include http in your base domain, it should be just plain domain, e.g., test.domain.com');
+                    }
+                    if (captainRootDomainFromUser.indexOf('*') >= 0) {
+                        StdOutUtil_1.default.printError('DO NOT include * in your base domain, it should be just plain domain, e.g., test.domain.com');
+                    }
+                    StdOutUtil_1.default.printError(`\n\nCannot verify that http://captain.${captainRootDomainFromUser} points to your server IP.\n` +
+                        `\nAre you sure that you set *.${captainRootDomainFromUser} points to ${serverIpAddress}\n\n` +
+                        `Double check your DNS. If everything looks correct, note that, DNS changes take up to 24 hrs to work properly. Check with your Domain Provider.`);
+                }
                 StdOutUtil_1.default.errorHandler(e);
             }
             return captainRootDomainFromUser;
@@ -107,6 +120,10 @@ const questions = [
         message: 'Enter a new password:',
         filter: (value) => {
             newPasswordFirstTry = value;
+            if (!newPasswordFirstTry) {
+                StdOutUtil_1.default.printError('Password empty.', true);
+                throw new Error('Password empty');
+            }
             return value;
         }
     },
@@ -116,7 +133,7 @@ const questions = [
         message: 'Enter your new password again:',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const confirmPasswordValueFromUser = value;
-            if (newPasswordFirstTry !== confirmPasswordValueFromUser) {
+            if ((newPasswordFirstTry !== confirmPasswordValueFromUser)) {
                 StdOutUtil_1.default.printError('Passwords do not match. Try serversetup again.', true);
                 throw new Error('Password mismatch');
             }
