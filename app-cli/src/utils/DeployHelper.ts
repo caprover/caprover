@@ -10,6 +10,7 @@ import { IMachine, IDeployParams } from '../models/storage/StoredObjects';
 import CliApiManager from '../api/CliApiManager';
 import SpinnerHelper from '../utils/SpinnerHelper';
 import IBuildLogs from '../models/IBuildLogs';
+import StorageHelper from './StorageHelper';
 
 export default class DeployHelper {
 	private lastLineNumberPrinted = -10000; // we want to show all lines to begin with!
@@ -92,6 +93,7 @@ export default class DeployHelper {
 		const branchToPush = this.deployParams.deploySource.branchToPush;
 		const tarFilePath = this.deployParams.deploySource.tarFilePath;
 		const machineToDeploy = this.deployParams.captainMachine;
+		const deploySource = this.deployParams.deploySource;
 
 		if (!appName || (!branchToPush && !tarFilePath) || !machineToDeploy) {
 			StdOutUtil.printError(
@@ -131,6 +133,13 @@ export default class DeployHelper {
 			await CliApiManager.get(machineToDeploy).uploadAppData(appName, this.getFileStream(tarFileFullPath));
 
 			StdOutUtil.printMessage(`Upload done.`);
+
+			StorageHelper.get().saveDeployedDirectory({
+				appName: appName,
+				cwd: process.cwd(),
+				deploySource: deploySource,
+				machineNameToDeploy: machineToDeploy.name
+			});
 
 			if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath)) fs.removeSync(tarFileFullPath);
 
@@ -172,11 +181,10 @@ export default class DeployHelper {
 				const appUrl = self.deployParams.captainMachine!.baseUrl
 					.replace('https://', 'http://')
 					.replace('//captain.', '//' + appName + '.');
-				StdOutUtil.printGreenMessage(`Deployed successfully: ${appName}`);
-
+				StdOutUtil.printGreenMessage(`\n\n\nDeployed successfully: ${appName}`);
 				StdOutUtil.printMagentaMessage(`App is available at ${appUrl}`, true);
 			} else {
-				StdOutUtil.printError(`\nSomething bad happened. Cannot deploy "${appName}"\n`, true);
+				StdOutUtil.printError(`\n\nSomething bad happened. Cannot deploy "${appName}"\n`, true);
 			}
 		} else {
 			setTimeout(() => {

@@ -30,6 +30,9 @@ function deploy(options) {
                 appName: possibleApp ? possibleApp.appName : undefined
             };
         }
+        else if (possibleApp) {
+            StdOutUtil_1.default.printMessage(`\n\n**********\n\nProtip: You seem to have deployed ${possibleApp.appName} from this directory in the past, use --default flag to avoid having to re-enter the information.\n\n**********\n\n`);
+        }
         if (options.appName) {
             deployParams.appName = options.appName;
         }
@@ -63,7 +66,10 @@ function deploy(options) {
         if (deployParams.captainMachine) {
             allApps = yield ValidationsHandler_1.ensureAuthentication(deployParams.captainMachine);
         }
-        {
+        const allParametersAreSupplied = !!deployParams.appName &&
+            !!deployParams.captainMachine &&
+            (!!deployParams.deploySource.branchToPush || !!deployParams.deploySource.tarFilePath);
+        if (!allParametersAreSupplied) {
             const questions = [
                 {
                     type: 'list',
@@ -112,7 +118,7 @@ function deploy(options) {
                 {
                     type: 'confirm',
                     name: 'confirmedToDeploy',
-                    message: 'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
+                    message: 'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. \n  Please confirm so that deployment process can start.',
                     default: true,
                     when: (answers) => !!deployParams.appName &&
                         !!deployParams.captainMachine &&

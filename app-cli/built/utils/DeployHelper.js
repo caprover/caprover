@@ -17,6 +17,7 @@ const ProgressBar = require('progress');
 const commandExistsSync = require('command-exists').sync;
 const CliApiManager_1 = require("../api/CliApiManager");
 const SpinnerHelper_1 = require("../utils/SpinnerHelper");
+const StorageHelper_1 = require("./StorageHelper");
 class DeployHelper {
     constructor(deployParams) {
         this.deployParams = deployParams;
@@ -79,6 +80,7 @@ class DeployHelper {
             const branchToPush = this.deployParams.deploySource.branchToPush;
             const tarFilePath = this.deployParams.deploySource.tarFilePath;
             const machineToDeploy = this.deployParams.captainMachine;
+            const deploySource = this.deployParams.deploySource;
             if (!appName || (!branchToPush && !tarFilePath) || !machineToDeploy) {
                 StdOutUtil_1.default.printError('Default deploy failed. Missing appName or branchToPush/tarFilePath or machineToDeploy.', true);
                 return;
@@ -103,6 +105,12 @@ class DeployHelper {
                 StdOutUtil_1.default.printMessage(`Uploading the file to ${machineToDeploy.baseUrl}`);
                 yield CliApiManager_1.default.get(machineToDeploy).uploadAppData(appName, this.getFileStream(tarFileFullPath));
                 StdOutUtil_1.default.printMessage(`Upload done.`);
+                StorageHelper_1.default.get().saveDeployedDirectory({
+                    appName: appName,
+                    cwd: process.cwd(),
+                    deploySource: deploySource,
+                    machineNameToDeploy: machineToDeploy.name
+                });
                 if (tarFileCreatedByCli && fs.pathExistsSync(tarFileFullPath))
                     fs.removeSync(tarFileFullPath);
                 this.startFetchingBuildLogs(machineToDeploy, appName);
@@ -143,11 +151,11 @@ class DeployHelper {
                     const appUrl = self.deployParams.captainMachine.baseUrl
                         .replace('https://', 'http://')
                         .replace('//captain.', '//' + appName + '.');
-                    StdOutUtil_1.default.printGreenMessage(`Deployed successfully: ${appName}`);
+                    StdOutUtil_1.default.printGreenMessage(`\n\n\nDeployed successfully: ${appName}`);
                     StdOutUtil_1.default.printMagentaMessage(`App is available at ${appUrl}`, true);
                 }
                 else {
-                    StdOutUtil_1.default.printError(`\nSomething bad happened. Cannot deploy "${appName}"\n`, true);
+                    StdOutUtil_1.default.printError(`\n\nSomething bad happened. Cannot deploy "${appName}"\n`, true);
                 }
             }
             else {

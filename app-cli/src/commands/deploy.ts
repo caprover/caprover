@@ -25,6 +25,10 @@ async function deploy(options: any) {
 			deploySource: possibleApp ? possibleApp.deploySource : {},
 			appName: possibleApp ? possibleApp.appName : undefined
 		};
+	} else if (possibleApp) {
+		StdOutUtil.printMessage(
+			`\n\n**********\n\nProtip: You seem to have deployed ${possibleApp.appName} from this directory in the past, use --default flag to avoid having to re-enter the information.\n\n**********\n\n`
+		);
 	}
 
 	if (options.appName) {
@@ -65,7 +69,12 @@ async function deploy(options: any) {
 		allApps = await ensureAuthentication(deployParams.captainMachine);
 	}
 
-	{
+	const allParametersAreSupplied =
+		!!deployParams.appName &&
+		!!deployParams.captainMachine &&
+		(!!deployParams.deploySource.branchToPush || !!deployParams.deploySource.tarFilePath);
+
+	if (!allParametersAreSupplied) {
 		const questions = [
 			{
 				type: 'list',
@@ -117,7 +126,7 @@ async function deploy(options: any) {
 				type: 'confirm',
 				name: 'confirmedToDeploy',
 				message:
-					'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. Please confirm so that deployment process can start.',
+					'Note that uncommitted files and files in gitignore (if any) will not be pushed to server. \n  Please confirm so that deployment process can start.',
 				default: true,
 				when: (answers: IHashMapGeneric<string>) =>
 					!!deployParams.appName &&
