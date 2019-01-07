@@ -69,7 +69,7 @@ You will then see your application being uploaded, after that, your application 
 
 You can also deploy directly with one command:
 ```bash
-captainduckduck deploy -s -h https://captain.root.domain.com -a app-name -p password -b branchName
+captainduckduck deploy -h https://captain.root.domain.com -a app-name -p password -b branchName
 ```
 
 This can be useful if you want to integrate CI/CD pipeline.
