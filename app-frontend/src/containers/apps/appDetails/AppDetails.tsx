@@ -95,11 +95,11 @@ export default class AppDetails extends ApiComponent<
           <p className={appDef.hasPersistentData ? "" : "hide-on-demand"}>
             <b>IMPORTANT:</b>
             <i> {appDef.appName}</i> is an app with persistent data. After
-            deleting the app from CaptainDuckDuck, you will have to manually SSH
+            deleting the app from CapRover, you will have to manually SSH
             to your server, and delete Persistent Directories on your server.
             Refer to the
             <a
-              href="https://captainduckduck.com/docs/app-configuration.html#removing-persistent-apps"
+              href="https://caprover.com/docs/app-configuration.html#removing-persistent-apps"
               target="_blank"
               rel="noopener noreferrer"
             >

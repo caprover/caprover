@@ -1523,7 +1523,7 @@ const connectionParams: Docker.DockerOptions =
               port: Number(dockerApiAddressSplited[2]),
           }
 
-connectionParams.version = 'v1.39'
+connectionParams.version = 'v1.30'
 
 const dockerApiInstance = new DockerApi(connectionParams)
 

@@ -7,9 +7,9 @@ export default class DockerRegistriesStaticInfo extends Component {
       <div>
         <p>
           Setting up Docker Registry is <b>only required</b> if you plan to run
-          your Captain on a cluster. For single node Captain deployments, Docker
-          Registry is not recommended as it makes deployment significantly
-          slower.
+          your CapRover on a cluster. For single node CapRover deployments,
+          Docker Registry is not recommended as it makes deployment
+          significantly slower.
         </p>
         <Collapse>
           <Collapse.Panel header="More info" key="1">
@@ -22,13 +22,13 @@ export default class DockerRegistriesStaticInfo extends Component {
               to run on them.
             </p>
             <p>
-              Captain provides two methods for you to setup your docker
+              CapRover provides two methods for you to setup your docker
               registry:
             </p>
             <ul>
               <li>
                 <b>Self hosted Docker Registry:</b> This is the simplest way to
-                setup a docker registry. Captain creates an instance of Docker
+                setup a docker registry. CapRover creates an instance of Docker
                 Registry on the main machine and it manages the registry for
                 you. However, it has its own limitation. If your main machine is
                 destroyed, your local images will be lost. In most cases, this

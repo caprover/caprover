@@ -287,7 +287,7 @@ export default class AppConfigs extends Component<
               }}
             >
               {value.hostPath
-                ? "Let Captain manage path"
+                ? "Let CapRover manage path"
                 : "Set specific host path"}
             </Button>
           </Col>
@@ -307,7 +307,7 @@ export default class AppConfigs extends Component<
         <h4>
           Persistent Directories &nbsp;
           <a
-            href="https://captainduckduck.com/docs/app-configuration.html#persistent-or-not"
+            href="https://caprover.com/docs/app-configuration.html#persistent-or-not"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -402,7 +402,7 @@ export default class AppConfigs extends Component<
         <h4>
           Port Mapping &nbsp;
           <a
-            href="https://captainduckduck.com/docs/app-configuration.html#port-mapping"
+            href="https://caprover.com/docs/app-configuration.html#port-mapping"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -476,7 +476,7 @@ export default class AppConfigs extends Component<
             Pre-Deploy Script
             <a
               style={{ paddingLeft: 10 }}
-              href="https://captainduckduck.com/docs/pre-deploy-script.html"
+              href="https://caprover.com/docs/pre-deploy-script.html"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -490,7 +490,7 @@ export default class AppConfigs extends Component<
             autoComplete="off"
             autoCapitalize="off"
             className="code-input"
-            placeholder="var preDeployFunction = function (captainAppObj, dockerUpdateObject) ..."
+            placeholder="var preDeployFunction = function (capRoverAppObj, dockerUpdateObject) ..."
             rows={4}
             value={app.preDeployFunction ? app.preDeployFunction : ""}
             onChange={e => {

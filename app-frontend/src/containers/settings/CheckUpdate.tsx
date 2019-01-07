@@ -69,10 +69,10 @@ export default class CheckUpdate extends ApiComponent<
     return (
       <div>
         <p>
-          Captain allows in-place updates to be installed. However, always read
-          the change logs before updating your Captain. There might be breaking
+          CapRover allows in-place updates to be installed. However, always read
+          the change logs before updating your CapRover. There might be breaking
           changes that you need to be aware of. The update usually takes around
-          60 seconds and your Captain may become unresponsive until the update
+          60 seconds and your CapRover may become unresponsive until the update
           process is finished. Your apps will stay functional and responsive
           during this time, except for a very short period of 10 seconds or
           less.
@@ -99,7 +99,7 @@ export default class CheckUpdate extends ApiComponent<
         </div>
 
         <div className={!versionInfo.canUpdate ? "" : "hide-on-demand"}>
-          <Alert message="Your Captain is the latest version." type="info" />
+          <Alert message="Your CapRover is the latest version." type="info" />
         </div>
 
         <ReloadCaptainModal
@@ -111,8 +111,8 @@ export default class CheckUpdate extends ApiComponent<
               server connection speed.
             </p>
             <p>
-              Your Captain dashboard is not functional during the update. Please
-              wait until this page is refreshed automatically.
+              Your CapRover dashboard is not functional during the update.
+              Please wait until this page is refreshed automatically.
             </p>
 
             <br />

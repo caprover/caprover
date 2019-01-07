@@ -110,7 +110,7 @@ export default class Dashboard extends ApiComponent<
             content: (
               <div>
                 <p>
-                  Captain uses{" "}
+                  CapRover uses{" "}
                   <a
                     href="https://letsencrypt.org/"
                     target="_blank"
@@ -127,7 +127,7 @@ export default class Dashboard extends ApiComponent<
                   domain ever again. Make sure you use a good root domain. A
                   good practice is to go one level deeper and setup your root
                   domain. For example, if you own <code>example.com</code>, use{" "}
-                  <code>*.captainroot.example.com</code> as your root domain.
+                  <code>*.caprover-root.example.com</code> as your root domain.
                   This will allow you to better manage your subdomains, do not
                   use <code>*.example.com</code> as your root domain.
                 </p>
@@ -229,21 +229,21 @@ export default class Dashboard extends ApiComponent<
     return (
       <Row>
         <Col span={14} offset={5}>
-          <Card title="Captain Root Domain Configurations">
+          <Card title="CapRover Root Domain Configurations">
             <div>
               <p>
-                The very first thing that Captain needs is a root domain. For
+                The very first thing that CapRover needs is a root domain. For
                 example, if you own <i>myawesomecompany.com</i>, you can use{" "}
                 <i>captain.myawesomecompany.com</i> or{" "}
                 <i>foo.bar.myawesomecompany.com</i> as your root domain. First,
                 you need to make sure that the ip address for all subdomains of
-                the root domain resolve to the Captain ip address. To do this,
+                the root domain resolve to the CapRover ip address. To do this,
                 go to the DNS settings in your domain provider website, and set
                 a wild card A entry.
                 <br /> For example: <b> Type:</b> <u>A</u>,{" "}
-                <b>Name (or host):</b> <u>*.captain</u>,
+                <b>Name (or host):</b> <u>*.caprover-root</u>,
                 <b> IP (or Points to):</b> <u>110.120.130.140</u> where this is
-                the IP address of your captain machine.
+                the IP address of your CapRover machine.
               </p>
               <p>
                 <i>
@@ -329,12 +329,12 @@ export default class Dashboard extends ApiComponent<
     return (
       <Row>
         <Col span={18} offset={3}>
-          <Card title="Captain Initial Setup">
+          <Card title="CapRover Initial Setup">
             <div>
               <h3>Congratulations! 🎉🎉</h3>
               <p>
-                <b /> You have installed CaptainDuckDuck successfully! You can
-                set up your CaptainDuckDuck instance in two ways:
+                <b /> You have installed CapRover successfully! You can set up
+                your CapRover instance in two ways:
               </p>
 
               <ul>
@@ -342,12 +342,11 @@ export default class Dashboard extends ApiComponent<
                   <b>Command Line Tool (RECOMMENDED): </b> On your local
                   machine, simply run
                   <br />
-                  <code>npm i -g captainduckduck</code>
+                  <code>npm i -g caprover</code>
                   <br />
                   followed by
                   <br />
-                  <code>captainduckduck serversetup</code>. Then follow the
-                  guide.
+                  <code>caprover serversetup</code>. Then follow the guide.
                 </li>
                 <li>
                   <b>Use the panel below: </b> This is a non-guided version of

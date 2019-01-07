@@ -29,7 +29,7 @@ export default class Login extends ApiComponent<RouteComponentProps<any>> {
             transform: "translate(-50%,-50%)"
           }}
         >
-          <Card title="CaptainDuckDuck" style={{ width: 300 }}>
+          <Card title="CapRover" style={{ width: 300 }}>
             <WrappedNormalLoginForm
               onLoginRequested={(password: string) =>
                 self.onLoginRequested(password)

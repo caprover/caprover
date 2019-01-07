@@ -102,31 +102,31 @@ class CertbotManager {
         });
     }
     /*
-  Certificate Name: customdomain-another.hm2.captainduckduck.com
-    Domains: customdomain-another.hm2.captainduckduck.com
+  Certificate Name: customdomain-another.hm2.caprover.com
+    Domains: customdomain-another.hm2.caprover.com
     Expiry Date: 2019-03-22 04:22:55+00:00 (VALID: 81 days)
-    Certificate Path: /etc/letsencrypt/live/customdomain-another.hm2.captainduckduck.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/customdomain-another.hm2.captainduckduck.com/privkey.pem
-  Certificate Name: testing.cp.hm.captainduckduck.com
-    Domains: testing.cp.hm.captainduckduck.com
+    Certificate Path: /etc/letsencrypt/live/customdomain-another.hm2.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/customdomain-another.hm2.caprover.com/privkey.pem
+  Certificate Name: testing.cp.hm.caprover.com
+    Domains: testing.cp.hm.caprover.com
     Expiry Date: 2019-03-21 18:42:17+00:00 (VALID: 81 days)
-    Certificate Path: /etc/letsencrypt/live/testing.cp.hm.captainduckduck.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/testing.cp.hm.captainduckduck.com/privkey.pem
-  Certificate Name: registry.cp.hm.captainduckduck.com
-    Domains: registry.cp.hm.captainduckduck.com
+    Certificate Path: /etc/letsencrypt/live/testing.cp.hm.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/testing.cp.hm.caprover.com/privkey.pem
+  Certificate Name: registry.cp.hm.caprover.com
+    Domains: registry.cp.hm.caprover.com
     Expiry Date: 2019-03-25 04:56:45+00:00 (VALID: 84 days)
-    Certificate Path: /etc/letsencrypt/live/registry.cp.hm.captainduckduck.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/registry.cp.hm.captainduckduck.com/privkey.pem
-  Certificate Name: captain.cp.hm.captainduckduck.com
-    Domains: captain.cp.hm.captainduckduck.com
+    Certificate Path: /etc/letsencrypt/live/registry.cp.hm.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/registry.cp.hm.caprover.com/privkey.pem
+  Certificate Name: captain.cp.hm.caprover.com
+    Domains: captain.cp.hm.caprover.com
     Expiry Date: 2019-03-20 22:25:50+00:00 (VALID: 80 days)
-    Certificate Path: /etc/letsencrypt/live/captain.cp.hm.captainduckduck.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/captain.cp.hm.captainduckduck.com/privkey.pem
-  Certificate Name: testing2.cp.hm.captainduckduck.com
-    Domains: testing2.cp.hm.captainduckduck.com
+    Certificate Path: /etc/letsencrypt/live/captain.cp.hm.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/captain.cp.hm.caprover.com/privkey.pem
+  Certificate Name: testing2.cp.hm.caprover.com
+    Domains: testing2.cp.hm.caprover.com
     Expiry Date: 2019-03-21 18:42:55+00:00 (VALID: 81 days)
-    Certificate Path: /etc/letsencrypt/live/testing2.cp.hm.captainduckduck.com/fullchain.pem
-    Private Key Path: /etc/letsencrypt/live/testing2.cp.hm.captainduckduck.com/privkey.pem
+    Certificate Path: /etc/letsencrypt/live/testing2.cp.hm.caprover.com/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/testing2.cp.hm.caprover.com/privkey.pem
 
 */
     ensureAllCurrentlyRegisteredDomainsHaveDirs() {

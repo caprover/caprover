@@ -1196,7 +1196,7 @@ const connectionParams = dockerApiAddressSplited.length < 2
             host: dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1],
             port: Number(dockerApiAddressSplited[2]),
         };
-connectionParams.version = 'v1.39';
+connectionParams.version = 'v1.30';
 const dockerApiInstance = new DockerApi(connectionParams);
 exports.default = DockerApi;
 //# sourceMappingURL=DockerApi.js.map

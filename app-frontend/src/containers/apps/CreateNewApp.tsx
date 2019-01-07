@@ -65,7 +65,7 @@ export default class CreateNewApp extends Component<
               &nbsp;&nbsp;
               <Tooltip title="Mostly used for databases, see docs for details.">
                 <a
-                  href="https://captainduckduck.com/docs/app-configuration.html#persistent-or-not"
+                  href="https://caprover.com/docs/app-configuration.html#persistent-or-not"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

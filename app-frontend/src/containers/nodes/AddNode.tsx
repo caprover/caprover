@@ -56,7 +56,7 @@ export default class AddNode extends Component<
             <Col span={11}>
               <Input
                 style={{ marginBottom: 10 }}
-                addonBefore="Captain IP Address"
+                addonBefore="CapRover IP Address"
                 placeholder="123.123.123.123"
                 type="text"
                 value={nodeToAdd.captainIpAddress}

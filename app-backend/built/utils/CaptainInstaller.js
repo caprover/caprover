@@ -32,26 +32,26 @@ function checkSystemReq() {
             console.log('   Docker Version passed.');
         }
         else {
-            console.log('Warning!! Minimum Docker version is 17.06.x CaptainDuckDuck may not run properly on your Docker version.');
+            console.log('Warning!! Minimum Docker version is 17.06.x CapRover may not run properly on your Docker version.');
         }
         return DockerApi_1.default.get().getDockerInfo();
     })
         .then(function (output) {
         if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
-            console.log('Warning!!    CaptainDuckDuck and Docker work best on Ubuntu - specially when it comes to storage drivers.');
+            console.log('Warning!!    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.');
         }
         else {
             console.log('   Ubuntu detected.');
         }
         if (output.Architecture.toLowerCase().indexOf('x86') < 0) {
-            console.log('Warning!!    Default CaptainDuckDuck is compiled for X86 CPU. To use CaptainDuckDuck on other CPUs you can build from the source code');
+            console.log('Warning!!    Default CapRover is compiled for X86 CPU. To use CapRover on other CPUs you can build from the source code');
         }
         else {
             console.log('   X86 CPU detected.');
         }
         let totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0);
         if (totalMemInMb < 1000) {
-            console.log('Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CaptainDuckDuck system requirements.');
+            console.log('Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CapRover system requirements.');
         }
         else {
             console.log('   Total RAM ' + totalMemInMb + ' MB');
@@ -103,13 +103,14 @@ function checkPortOrThrow(ipAddr, portToTest) {
     }
     function printError() {
         console.log(' ');
-        console.log('Installation script of CaptainDuckDuck has recently changed.');
-        console.log('Did your install script contain -p 80:80 -p 443:443 -p 3000:3000 ? If not, read "Getting Started" part of the docs!');
-        console.log('If you are using the new script, and still seeing this message, read below!');
-        console.log(' ');
         console.log(' ');
         console.log('Your firewall may have been blocking an in-use port: ' + portToTest);
-        console.log('A simple solution on Ubuntu systems is to run: ufw disable');
+        console.log('A simple solution on Ubuntu systems is to run "ufw disable"');
+        console.log('Or just allowing necessary ports:');
+        console.log('    ufw allow 80,443,3000,996,7946,4789,2377/tcp');
+        console.log('    ufw allow 7946,4789,2377/udp');
+        console.log('     ');
+        console.log('     ');
         console.log('See docs for more details on how to fix firewall issues');
         console.log(' ');
         console.log('If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),');

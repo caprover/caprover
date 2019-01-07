@@ -82,16 +82,16 @@ export default class NginxConfig extends ApiComponent<
           isRefreshTimerActivated={self.state.isRefreshTimerActivated}
         >
           <div>
-            Nginx is successfully updated, Captain will restart in 30 seconds.{" "}
+            Nginx is successfully updated, CapRover will restart in 30 seconds.{" "}
             <b>Please wait until the page is automatically refreshed.</b>
             <br />
             <br />
           </div>
         </ReloadCaptainModal>{" "}
         <p>
-          Captain allows you to set custom configurations for your nginx router.
-          This will allow high customization level in terms of caching, special
-          routing, http2 and etc.
+          CapRover allows you to set custom configurations for your nginx
+          router. This will allow high customization level in terms of caching,
+          special routing, http2 and etc.
         </p>
         <p>
           Note that templates are build using EJS template pattern. Do not
@@ -124,7 +124,7 @@ export default class NginxConfig extends ApiComponent<
           <div style={{ height: 40 }} />
         </div>
         <p>
-          <b>Captain Config Location in nginx container</b>:
+          <b>CapRover Config Location in nginx container</b>:
           /etc/nginx/conf.d/captain-root.conf
         </p>
         <div

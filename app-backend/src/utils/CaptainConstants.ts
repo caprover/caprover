@@ -9,7 +9,7 @@ const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
 const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/override.json'
 
 const configs = {
-    publishedNameOnDockerHub: 'dockersaturn/captainduckduck',
+    publishedNameOnDockerHub: 'caprover/caprover',
 
     defaultMaxLogSize: '512m',
 
@@ -99,7 +99,7 @@ let data = {
 
     // ********************* Local Docker Constants  ************************
 
-    defaultEmail: 'runner@captainduckduck.com',
+    defaultEmail: 'runner@caprover.com',
 
     captainSaltSecretKey: 'captain-salt',
 

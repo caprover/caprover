@@ -121,12 +121,13 @@ class PageRoot extends ApiComponent<
                 <span>
                   <h3 style={{ color: "#fff" }}>
                     <img
-                      src="/favicon.ico"
+                      src="/icon-512x512.png"
                       style={{
+                        height: 45,
                         marginRight: 10
                       }}
                     />
-                    CaptainDuckDuck
+                    CapRover
                   </h3>
                 </span>
 
@@ -135,7 +136,7 @@ class PageRoot extends ApiComponent<
               <Col span={12}>
                 <Row type="flex" justify="end">
                   <a
-                    href="https://github.com/githubsaturn/captainduckduck"
+                    href="https://github.com/caprover/caprover"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ marginRight: 20 }}
@@ -144,7 +145,7 @@ class PageRoot extends ApiComponent<
                   </a>
 
                   <a
-                    href="https://captainduckduck.com"
+                    href="https://caprover.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ marginRight: 70 }}

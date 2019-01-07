@@ -25,10 +25,11 @@ export default class NetDataDescription extends Component {
           without disrupting their core function.
         </p>
         <p>
-          Captain provides a simple interface to enable NetData on your captain
-          instance. Currently, Captain only supports installing NetData on your{" "}
-          <b>leader node</b>, i.e., the node where Captain instance resides.
-          This limitation is due to a limitation in Docker interface,
+          CapRover provides a simple interface to enable NetData on your
+          CapRover instance. Currently, CapRover only supports installing
+          NetData on your <b>leader node</b>, i.e., the node where CapRover
+          instance resides. This limitation is due to a limitation in Docker
+          interface,
           <a
             href="https://github.com/moby/moby/issues/25885/"
             target="_blank"

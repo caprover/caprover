@@ -296,7 +296,7 @@ class LoadBalancerManager {
             return ejs.render(defaultPageTemplate, {
                 message_title: 'Nothing here yet :/',
                 message_body: '',
-                message_link: 'https://captainduckduck.com/',
+                message_link: 'https://caprover.com/',
                 message_link_title: 'Read Docs',
             });
         })
@@ -309,7 +309,7 @@ class LoadBalancerManager {
             return ejs.render(defaultPageTemplate, {
                 message_title: 'An Error Occurred :/',
                 message_body: '',
-                message_link: 'https://captainduckduck.com/',
+                message_link: 'https://caprover.com/',
                 message_link_title: 'Read Docs',
             });
         })
@@ -322,7 +322,7 @@ class LoadBalancerManager {
             return ejs.render(defaultPageTemplate, {
                 message_title: 'NGINX 502 Error :/',
                 message_body: "If you are the developer, check your application's logs. See the link below for details",
-                message_link: 'https://captainduckduck.com/docs/troubleshooting.html#successful-deploy-but-502-bad-gateway-error',
+                message_link: 'https://caprover.com/docs/troubleshooting.html#successful-deploy-but-502-bad-gateway-error',
                 message_link_title: 'Docs - 502 Troubleshooting',
             });
         })
