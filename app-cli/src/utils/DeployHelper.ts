@@ -27,10 +27,10 @@ export default class DeployHelper {
 
 			if (!commandExistsSync('git')) {
 				StdOutUtil.printError(
-					"'git' command not found...\nCaptain needs 'git' to create tar file of your source files...",
+					"'git' command not found...\nCapRover needs 'git' to create tar file of your source files...",
 					true
 				);
-				reject("Captain needs 'git' to create tar file of your source files...");
+				reject("CapRover needs 'git' to create tar file of your source files...");
 				return;
 			}
 

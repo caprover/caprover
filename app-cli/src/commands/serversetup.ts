@@ -27,8 +27,8 @@ const questions = [
 		type: 'list',
 		name: 'hasInstalledCaptain',
 		message:
-			'Have you already installed Captain on your server by running the following line:' +
-			'\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?',
+			'Have you already installed CapRover on your server by running the following line:' +
+			'\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock caprover/caprover ?',
 		default: 'Yes',
 		choices: [ 'Yes', 'No' ],
 		filter: (value: string) => {
@@ -36,10 +36,10 @@ const questions = [
 
 			if (answerFromUser === 'Yes') return answerFromUser;
 
-			StdOutUtil.printMessage('\n\nCannot start the setup process if Captain is not installed.');
+			StdOutUtil.printMessage('\n\nCannot start the setup process if CapRover is not installed.');
 
 			StdOutUtil.printMessageAndExit(
-				'Please read tutorial on CaptainDuckDuck.com to learn how to install CaptainDuckDuck on a server.'
+				'Please read tutorial on CapRover.com to learn how to install CapRover on a server.'
 			);
 		}
 	},
@@ -47,7 +47,7 @@ const questions = [
 		type: 'input',
 		default: Constants.SAMPLE_IP,
 		name: 'captainAddress',
-		message: 'Enter IP address of your captain server:',
+		message: 'Enter IP address of your CapRover server:',
 		filter: async (value: string) => {
 			const ipFromUser = value.trim();
 
@@ -88,7 +88,7 @@ const questions = [
 		type: 'input',
 		name: 'captainRootDomain',
 		message:
-			'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
+			'Enter a root domain for this CapRover server. For example, enter test.yourdomain.com if you' +
 			' setup your DNS to point *.test.yourdomain.com to ip address of your server.',
 		filter: async (value: string) => {
 			const captainRootDomainFromUser = value.trim();
@@ -182,7 +182,7 @@ const questions = [
 						`Instead, go to ${captainMachine.baseUrl} and change your password on settings page.`
 					);
 					StdOutUtil.printError(
-						`Then, Use captainduckduck login on your local machine to connect to your server.`
+						`Then, Use caprover login on your local machine to connect to your server.`
 					);
 				}
 				SpinnerHelper.fail();
@@ -195,7 +195,7 @@ const questions = [
 	{
 		type: 'input',
 		name: 'captainName',
-		message: 'Enter a name for this Captain machine:',
+		message: 'Enter a name for this CapRover machine:',
 		default: CliHelper.get().findDefaultCaptainName(),
 		validate: (value: string) => {
 			const newMachineName = value.trim();
@@ -210,21 +210,21 @@ const questions = [
 				return true;
 			}
 
-			return 'Please enter a valid Captain Name. Small letters, numbers, single hyphen.';
+			return 'Please enter a valid CapRover Name. Small letters, numbers, single hyphen.';
 		}
 	}
 ];
 
 async function serversetup() {
-	StdOutUtil.printMessage('\nSetup your Captain server\n');
+	StdOutUtil.printMessage('\nSetup your CapRover server\n');
 
 	const answersIgnore = await inquirer.prompt(questions);
 
 	StorageHelper.get().saveMachine(captainMachine);
 
-	StdOutUtil.printMessage(`\n\nCaptain is available at ${captainMachine.baseUrl}`);
+	StdOutUtil.printMessage(`\n\nCapRover is available at ${captainMachine.baseUrl}`);
 
-	StdOutUtil.printMessage('\nFor more details and docs see http://www.captainduckduck.com\n\n');
+	StdOutUtil.printMessage('\nFor more details and docs see http://www.CapRover.com\n\n');
 }
 
 export default serversetup;

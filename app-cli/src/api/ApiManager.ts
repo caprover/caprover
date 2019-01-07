@@ -89,20 +89,20 @@ export default class ApiManager {
 		const http = this.http;
 
 		return Promise.resolve() //
-			.then(http.fetch(http.GET, '/user/appDefinitions', {})); // TODO user/apps/appDefinitions
+			.then(http.fetch(http.GET, '/user/apps/appDefinitions', {}));
 	}
 
 	fetchBuildLogs(appName: string): Promise<IBuildLogs> {
 		const http = this.http;
 
 		return Promise.resolve() //
-			.then(http.fetch(http.GET, '/user/appData/' + appName, {})); // TODO user/apps/appData
+			.then(http.fetch(http.GET, '/user/apps/appData/' + appName, {}));
 	}
 
 	uploadAppData(appName: string, file: fs.ReadStream) {
 		const http = this.http;
 		return Promise.resolve() //
-			.then(http.fetch(http.POST_DATA, '/user/appData/' + appName + '?detached=1', { sourceFile: file })); // TODO user/apps/appData
+			.then(http.fetch(http.POST_DATA, '/user/apps/appData/' + appName + '?detached=1', { sourceFile: file }));
 	}
 
 	uploadCaptainDefinitionContent(

@@ -31,23 +31,23 @@ const questions = [
     {
         type: 'list',
         name: 'hasInstalledCaptain',
-        message: 'Have you already installed Captain on your server by running the following line:' +
-            '\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck ?',
+        message: 'Have you already installed CapRover on your server by running the following line:' +
+            '\nmkdir /captain && docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock caprover/caprover ?',
         default: 'Yes',
         choices: ['Yes', 'No'],
         filter: (value) => {
             const answerFromUser = value.trim();
             if (answerFromUser === 'Yes')
                 return answerFromUser;
-            StdOutUtil_1.default.printMessage('\n\nCannot start the setup process if Captain is not installed.');
-            StdOutUtil_1.default.printMessageAndExit('Please read tutorial on CaptainDuckDuck.com to learn how to install CaptainDuckDuck on a server.');
+            StdOutUtil_1.default.printMessage('\n\nCannot start the setup process if CapRover is not installed.');
+            StdOutUtil_1.default.printMessageAndExit('Please read tutorial on CapRover.com to learn how to install CapRover on a server.');
         }
     },
     {
         type: 'input',
         default: Constants_1.default.SAMPLE_IP,
         name: 'captainAddress',
-        message: 'Enter IP address of your captain server:',
+        message: 'Enter IP address of your CapRover server:',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const ipFromUser = value.trim();
             if (ipFromUser === Constants_1.default.SAMPLE_IP || !ValidationsHandler_1.isIpAddress(ipFromUser)) {
@@ -87,7 +87,7 @@ const questions = [
     {
         type: 'input',
         name: 'captainRootDomain',
-        message: 'Enter a root domain for this Captain server. For example, enter test.yourdomain.com if you' +
+        message: 'Enter a root domain for this CapRover server. For example, enter test.yourdomain.com if you' +
             ' setup your DNS to point *.test.yourdomain.com to ip address of your server.',
         filter: (value) => __awaiter(this, void 0, void 0, function* () {
             const captainRootDomainFromUser = value.trim();
@@ -163,7 +163,7 @@ const questions = [
                 if (forcedSsl) {
                     StdOutUtil_1.default.printError('Server is setup, but password was not changed due to an error. You cannot use serversetup again.');
                     StdOutUtil_1.default.printError(`Instead, go to ${captainMachine.baseUrl} and change your password on settings page.`);
-                    StdOutUtil_1.default.printError(`Then, Use captainduckduck login on your local machine to connect to your server.`);
+                    StdOutUtil_1.default.printError(`Then, Use caprover login on your local machine to connect to your server.`);
                 }
                 SpinnerHelper_1.default.fail();
                 StdOutUtil_1.default.errorHandler(e);
@@ -174,7 +174,7 @@ const questions = [
     {
         type: 'input',
         name: 'captainName',
-        message: 'Enter a name for this Captain machine:',
+        message: 'Enter a name for this CapRover machine:',
         default: CliHelper_1.default.get().findDefaultCaptainName(),
         validate: (value) => {
             const newMachineName = value.trim();
@@ -186,17 +186,17 @@ const questions = [
                 captainMachine.name = newMachineName;
                 return true;
             }
-            return 'Please enter a valid Captain Name. Small letters, numbers, single hyphen.';
+            return 'Please enter a valid CapRover Name. Small letters, numbers, single hyphen.';
         }
     }
 ];
 function serversetup() {
     return __awaiter(this, void 0, void 0, function* () {
-        StdOutUtil_1.default.printMessage('\nSetup your Captain server\n');
+        StdOutUtil_1.default.printMessage('\nSetup your CapRover server\n');
         const answersIgnore = yield inquirer.prompt(questions);
         StorageHelper_1.default.get().saveMachine(captainMachine);
-        StdOutUtil_1.default.printMessage(`\n\nCaptain is available at ${captainMachine.baseUrl}`);
-        StdOutUtil_1.default.printMessage('\nFor more details and docs see http://www.captainduckduck.com\n\n');
+        StdOutUtil_1.default.printMessage(`\n\nCapRover is available at ${captainMachine.baseUrl}`);
+        StdOutUtil_1.default.printMessage('\nFor more details and docs see http://www.CapRover.com\n\n');
     });
 }
 exports.default = serversetup;

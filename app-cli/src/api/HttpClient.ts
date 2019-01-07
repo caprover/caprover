@@ -78,7 +78,7 @@ export default class HttpClient {
 					// network request returns back.
 					return new Promise(function(resolve, reject) {
 						// data.data here is the "data" field inside the API response! {status: 100, description: "Login succeeded", data: {…}}
-						if (!self.isDestroyed) return resolve(data.data || { token: data.token }); // TODO remove || for API V2
+						if (!self.isDestroyed) return resolve(data.data);
 						Logger.dev('Destroyed then not called');
 					});
 				})

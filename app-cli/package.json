@@ -1,19 +1,19 @@
 {
-  "name": "captainduckduck",
+  "name": "caprover",
   "version": "1.1.0",
-  "description": "CLI tool for CaptainDuckDuck. See CaptainDuckDuck.com for more details.",
-  "main": "captainduckduck.js",
+  "description": "CLI tool for CapRover. See CapRover.com for more details.",
+  "main": "./built/commands/caprover.js",
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./built && npx tsc && chmod +x ./built -R"
   },
   "bin": {
-    "captainduckduck": "./built/commands/captainduckduck.js",
-    "captainduckduck-deploy": "./built/commands/deploy.js",
-    "captainduckduck-list": "./built/commands/list.js",
-    "captainduckduck-login": "./built/commands/login.js",
-    "captainduckduck-logout": "./built/commands/logout.js",
-    "captainduckduck-serversetup": "./built/commands/serversetup.js"
+    "caprover": "./built/commands/caprover.js",
+    "caprover-deploy": "./built/commands/deploy.js",
+    "caprover-list": "./built/commands/list.js",
+    "caprover-login": "./built/commands/login.js",
+    "caprover-logout": "./built/commands/logout.js",
+    "caprover-serversetup": "./built/commands/serversetup.js"
   },
   "repository": {
     "type": "git",

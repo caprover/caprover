@@ -13,14 +13,14 @@ const SAMPLE_DOMAIN = Constants.SAMPLE_DOMAIN;
 const cleanUpUrl = Utils.cleanUpUrl;
 
 async function login() {
-	StdOutUtil.printMessage('Login to a Captain Machine');
+	StdOutUtil.printMessage('Login to a CapRover Machine');
 
 	const questions = [
 		{
 			type: 'input',
 			default: SAMPLE_DOMAIN,
 			name: 'captainAddress',
-			message: '\nEnter address of the Captain machine. \nIt is captain.[your-captain-root-domain] :',
+			message: '\nEnter address of the CapRover machine. \nIt is captain.[your-captain-root-domain] :',
 			validate: (value: string) => {
 				if (value === SAMPLE_DOMAIN) {
 					return 'Enter a valid URL';
@@ -49,7 +49,7 @@ async function login() {
 		{
 			type: 'confirm',
 			name: 'captainHasRootSsl',
-			message: 'Is HTTPS activated for this Captain machine?',
+			message: 'Is HTTPS activated for this CapRover machine?',
 			default: true
 		},
 		{
@@ -80,7 +80,7 @@ async function login() {
 					return true;
 				}
 
-				return 'Please enter a Captain Name.';
+				return 'Please enter a CapRover Name.';
 			}
 		}
 	];

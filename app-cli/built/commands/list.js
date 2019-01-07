@@ -8,7 +8,7 @@ function _displayMachine(machine) {
     console.log('>> ' + chalk_1.default.greenBright(machine.name) + ' at ' + chalk_1.default.cyan(machine.baseUrl));
 }
 function list() {
-    StdOutUtil_1.default.printMessage('\nLogged in Captain Machines:\n');
+    StdOutUtil_1.default.printMessage('\nLogged in CapRover Machines:\n');
     StorageHelper_1.default.get().getMachines().map((machine) => {
         _displayMachine(machine);
     });

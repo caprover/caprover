@@ -20,13 +20,13 @@ const SAMPLE_DOMAIN = Constants_1.default.SAMPLE_DOMAIN;
 const cleanUpUrl = Utils_1.default.cleanUpUrl;
 function login() {
     return __awaiter(this, void 0, void 0, function* () {
-        StdOutUtil_1.default.printMessage('Login to a Captain Machine');
+        StdOutUtil_1.default.printMessage('Login to a CapRover Machine');
         const questions = [
             {
                 type: 'input',
                 default: SAMPLE_DOMAIN,
                 name: 'captainAddress',
-                message: '\nEnter address of the Captain machine. \nIt is captain.[your-captain-root-domain] :',
+                message: '\nEnter address of the CapRover machine. \nIt is captain.[your-captain-root-domain] :',
                 validate: (value) => {
                     if (value === SAMPLE_DOMAIN) {
                         return 'Enter a valid URL';
@@ -51,7 +51,7 @@ function login() {
             {
                 type: 'confirm',
                 name: 'captainHasRootSsl',
-                message: 'Is HTTPS activated for this Captain machine?',
+                message: 'Is HTTPS activated for this CapRover machine?',
                 default: true
             },
             {
@@ -78,7 +78,7 @@ function login() {
                     if (CliHelper_1.default.get().isNameValid(value)) {
                         return true;
                     }
-                    return 'Please enter a Captain Name.';
+                    return 'Please enter a CapRover Name.';
                 }
             }
         ];

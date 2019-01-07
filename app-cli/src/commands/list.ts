@@ -10,7 +10,7 @@ function _displayMachine(machine: IMachine) {
 }
 
 function list() {
-	StdOutUtil.printMessage('\nLogged in Captain Machines:\n');
+	StdOutUtil.printMessage('\nLogged in CapRover Machines:\n');
 
 	StorageHelper.get().getMachines().map((machine) => {
 		_displayMachine(machine);

@@ -31,8 +31,8 @@ class DeployHelper {
             if (fs.pathExistsSync(zipFileFullPath))
                 fs.removeSync(zipFileFullPath);
             if (!commandExistsSync('git')) {
-                StdOutUtil_1.default.printError("'git' command not found...\nCaptain needs 'git' to create tar file of your source files...", true);
-                reject("Captain needs 'git' to create tar file of your source files...");
+                StdOutUtil_1.default.printError("'git' command not found...\nCapRover needs 'git' to create tar file of your source files...", true);
+                reject("CapRover needs 'git' to create tar file of your source files...");
                 return;
             }
             child_process_1.exec(`git archive --format tar --output "${zipFileFullPath}" ${branchToPush}`, (err, stdout, stderr) => {
