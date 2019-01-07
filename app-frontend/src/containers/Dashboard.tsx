@@ -268,16 +268,16 @@ export default class Dashboard extends ApiComponent<
             <Row>
               <div>
                 <p>
-                  For example, if you set <code>*.captainroot.example.com</code>{" "}
+                  For example, if you set <code>*.my-root.example.com</code>{" "}
                   to the IP address of your server, just enter{" "}
-                  <code>captainroot.example.com</code> in the box below:
+                  <code>my-root.example.com</code> in the box below:
                 </p>
                 <br />
                 <div>
                   <Search
                     addonBefore="[wildcard]&nbsp;."
                     disabled={self.state.apiData.hasRootSsl}
-                    placeholder="captainroot.example.com"
+                    placeholder="my-root.example.com"
                     defaultValue={self.state.apiData.rootDomain + ""}
                     enterButton="Update Domain"
                     onSearch={value => self.updateRootDomain(value)}
