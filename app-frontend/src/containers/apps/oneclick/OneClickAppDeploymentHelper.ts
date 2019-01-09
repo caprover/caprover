@@ -98,7 +98,7 @@ export default class OneClickAppDeploymentHelper {
         captainDefinition.imageName = dockerComposeService.image;
       } else {
         captainDefinition.dockerfileLines =
-          dockerComposeService.dockerFileLines;
+          dockerComposeService.dockerfileLines;
       }
 
       return self.apiManager.uploadCaptainDefinitionContent(
