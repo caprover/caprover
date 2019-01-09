@@ -1,6 +1,6 @@
-IMPORTANT: DO NOT POST issues that are not specific to CaptainDuckDuck. Issues and questions related to Docker will get closed.
+IMPORTANT: DO NOT POST issues that are not specific to CapRover. Issues and questions related to Docker will get closed.
 
-> If you are trying to see how to deploy a particular app using dockerfileLines property - please change your questions to Dockerfile and post it where appropriate such as Stackoverflow. This is not a CaptainDuckDuck related issue.
+> If you are trying to see how to deploy a particular app using dockerfileLines property - please change your questions to Dockerfile and post it where appropriate such as StackOverflow. This is a Docker question, not a CapRover specific issue.
 
 
 What is the problem?
