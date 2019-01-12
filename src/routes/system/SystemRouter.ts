@@ -146,8 +146,8 @@ router.get('/versionInfo/', function(req, res, next) {
                 ApiStatusCodes.STATUS_OK,
                 'Version Info Retrieved'
             )
-            let currentVersion = CaptainConstants.version.split('.')
-            let latestVersion = CaptainConstants.version.split('.')
+            let currentVersion = CaptainConstants.configs.version.split('.')
+            let latestVersion = CaptainConstants.configs.version.split('.')
 
             let canUpdate = false
 

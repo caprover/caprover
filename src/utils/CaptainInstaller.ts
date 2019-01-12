@@ -281,7 +281,7 @@ export function install() {
             let captainNameAndVersion =
                 CaptainConstants.configs.publishedNameOnDockerHub +
                 ':' +
-                CaptainConstants.version
+                CaptainConstants.configs.version
 
             if (CaptainConstants.isDebug) {
                 captainNameAndVersion =

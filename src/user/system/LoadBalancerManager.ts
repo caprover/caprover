@@ -347,7 +347,7 @@ class LoadBalancerManager {
 
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.nginxImageName,
+                    CaptainConstants.configs.nginxImageName,
                     CaptainConstants.nginxServiceName,
                     [
                         {
@@ -501,7 +501,7 @@ class LoadBalancerManager {
 
                 return dockerApi.updateService(
                     CaptainConstants.nginxServiceName,
-                    CaptainConstants.nginxImageName,
+                    CaptainConstants.configs.nginxImageName,
                     [
                         {
                             containerPath: CaptainConstants.nginxStaticRootDir,

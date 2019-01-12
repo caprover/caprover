@@ -11,6 +11,8 @@ const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/override.json'
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
+    version: '0.7.3',
+
     defaultMaxLogSize: '512m',
 
     buildLogSize: 50,
@@ -18,6 +20,16 @@ const configs = {
     preCheckForWildCard: true,
 
     registrySubDomainPort: 996,
+
+    netDataImageName: 'titpetric/netdata:1.8',
+
+    registryImageName: 'registry:2',
+
+    appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
+
+    nginxImageName: 'nginx:1',
+
+    defaultEmail: 'runner@caprover.com',
 }
 
 let data = {
@@ -26,8 +38,6 @@ let data = {
     // ******************** Global Constants *********************
 
     apiVersion: 'v2',
-
-    version: '0.7.3',
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
@@ -85,21 +95,9 @@ let data = {
 
     debugSourceDirectory: '', // Only used in debug mode
 
-    // **************** DockerHub Image Names ********************
-
-    certbotImageName: 'dockersaturn/certbot-sleeping:v0.29.1',
-
-    netDataImageName: 'titpetric/netdata:1.8',
-
-    registryImageName: 'registry:2',
-
-    appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
-
-    nginxImageName: 'nginx:1',
-
     // ********************* Local Docker Constants  ************************
 
-    defaultEmail: 'runner@caprover.com',
+    certbotImageName: 'dockersaturn/certbot-sleeping:v0.29.1',
 
     captainSaltSecretKey: 'captain-salt',
 

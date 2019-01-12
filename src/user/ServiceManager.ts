@@ -617,7 +617,7 @@ class ServiceManager {
                     // if we pass in networks here. Almost always it results in a delayed update which causes
                     // update errors if they happen right away!
                     return dockerApi.createServiceOnNodeId(
-                        CaptainConstants.appPlaceholderImageName,
+                        CaptainConstants.configs.appPlaceholderImageName,
                         serviceName,
                         undefined,
                         undefined,

@@ -12,7 +12,7 @@ const router = express.Router()
 const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
     schemaVersion: 2,
     dockerfileLines: [
-        'FROM ' + CaptainConstants.appPlaceholderImageName,
+        'FROM ' + CaptainConstants.configs.appPlaceholderImageName,
         'CMD [ "npm", "start" ]',
     ],
 })

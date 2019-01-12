@@ -595,7 +595,7 @@ class CaptainManager {
 
                     return dockerApi.createStickyContainer(
                         CaptainConstants.netDataContainerName,
-                        CaptainConstants.netDataImageName,
+                        CaptainConstants.configs.netDataImageName,
                         vols,
                         CaptainConstants.captainNetworkName,
                         envVars,

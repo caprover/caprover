@@ -92,7 +92,7 @@ class SelfHostedDockerRegistry {
         function createRegistryServiceOnNode(nodeId: string) {
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.registryImageName,
+                    CaptainConstants.configs.registryImageName,
                     CaptainConstants.registryServiceName,
                     undefined,
                     nodeId,
@@ -182,7 +182,7 @@ class SelfHostedDockerRegistry {
 
                 return dockerApi.updateService(
                     CaptainConstants.registryServiceName,
-                    CaptainConstants.registryImageName,
+                    CaptainConstants.configs.registryImageName,
                     [
                         {
                             containerPath: '/cert-files',
