@@ -1,7 +1,0 @@
-# Node modules
-/node_modules
-
-# JetBrains
-.idea
-
-/temp_upload

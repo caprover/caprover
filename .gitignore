@@ -1,5 +1,13 @@
-app-backend/temp_upload
-app-backend/currentdirectory
+temp_upload
+currentdirectory
+
+# Node modules
+/node_modules
+
+# JetBrains
+.idea
+
+/temp_upload
 
 # Logs
 logs
