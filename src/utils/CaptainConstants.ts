@@ -1,4 +1,5 @@
 import fs = require('fs-extra')
+import path = require('path')
 import EnvVars = require('./EnvVars')
 
 const CAPTAIN_BASE_DIRECTORY = '/captain'
@@ -6,12 +7,13 @@ const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sit
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
 
-const CONSTANT_FILE_OVERRIDE = CAPTAIN_DATA_DIRECTORY + '/override.json'
+const CONSTANT_FILE_OVERRIDE_BUILD = path.join(__dirname, '../../config-override.json')
+const CONSTANT_FILE_OVERRIDE_USER = CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '0.7.3',
+    version: '0.0.1',
 
     defaultMaxLogSize: '512m',
 
@@ -134,21 +136,27 @@ let data = {
     headerNamespace: 'x-namespace',
 }
 
-let overridingValuesConfigs = fs.readJsonSync(CONSTANT_FILE_OVERRIDE, {
-    throws: false,
-})
+function overrideFromFile(fileName: string) {
+    let overridingValuesConfigs = fs.readJsonSync(fileName, {
+        throws: false,
+    })
 
-if (!!overridingValuesConfigs) {
-    for (let prop in overridingValuesConfigs) {
-        if (!overridingValuesConfigs.hasOwnProperty(prop)) {
-            continue
+    if (!!overridingValuesConfigs) {
+        for (let prop in overridingValuesConfigs) {
+            if (!overridingValuesConfigs.hasOwnProperty(prop)) {
+                continue
+            }
+
+            console.log('Overriding ' + prop + ' from ' + fileName)
+            // @ts-ignore
+            configs[prop] = overridingValuesConfigs[prop]
         }
-
-        console.log('Overriding ' + prop)
-        // @ts-ignore
-        configs[prop] = overridingValuesConfigs[prop]
     }
 }
+
+overrideFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
+
+overrideFromFile(CONSTANT_FILE_OVERRIDE_USER)
 
 if (data.isDebug) {
     let devDirectoryOnLocalMachine = fs
