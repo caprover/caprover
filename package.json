@@ -6,6 +6,7 @@
     "start": "node ./bin/www",
     "dev": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && sudo ./dev-reset-service.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "build": "npx tsc",
     "test": "jest"
   },
   "dependencies": {
