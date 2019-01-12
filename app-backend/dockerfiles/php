@@ -1,2 +1,0 @@
-COPY ./ /var/www/html/
-# COPY config/php.ini /usr/local/etc/php/

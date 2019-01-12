@@ -1,6 +1,0 @@
-# add git-ignore syntax here of things you don't want copied into docker image
-
-.git
-node_modules
-temp_upload
-.idea
