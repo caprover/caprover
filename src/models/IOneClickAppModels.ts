@@ -15,11 +15,14 @@ export interface IOneClickVariable {
 
 export interface IDockerComposeService {
   image?: string;
-  dockerfileLines?: string[]; // This is our property, not DockerCompose. We use this instead of image if we need to extend the image.
   volumes?: string[];
   ports?: string[];
   environment?: IHashMapGeneric<string>;
   depends_on?: string[];
+  
+  // These are CapRover property, not DockerCompose. We use this instead of image if we need to extend the image.
+ dockerfileLines?: string[];
+ containerHttpPort: number;
 }
 
 export interface IOneClickTemplate {

@@ -32,12 +32,13 @@ export default class OneClickAppDeployProgress extends Component<{
             {steps[index]}
           </span>
         ),
+        key: steps[index],
         icon: undefined
       });
     }
 
     return stepsInfo.map(s => {
-      return <Step icon={s.icon} title={s.text} />;
+      return <Step key={s.key} icon={s.icon} title={s.text} />;
     });
   }
 

@@ -145,6 +145,7 @@ export default class ApiManager {
     var appPushWebhook = appDefinition.appPushWebhook;
     var customNginxConfig = appDefinition.customNginxConfig;
     var preDeployFunction = appDefinition.preDeployFunction;
+    var containerHttpPort = appDefinition.containerHttpPort;
     const http = this.http;
 
     return Promise.resolve() //
@@ -160,6 +161,7 @@ export default class ApiManager {
           appPushWebhook: appPushWebhook,
           nodeId: nodeId,
           preDeployFunction: preDeployFunction,
+          containerHttpPort: containerHttpPort,
           envVars: envVars
         })
       );

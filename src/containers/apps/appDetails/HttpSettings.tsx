@@ -297,6 +297,28 @@ export default class HttpSettings extends Component<
         <br />
 
         <Row>
+          <Col span={6} style={{ width: 300 }}>
+            <Tooltip title="HTTP port inside the container. Default is 80. Change only if the app is running in a different port. This is used only for HTTP apps, not databases.">
+              <Input
+                addonBefore="Container HTTP Port"
+                type="number"
+                defaultValue={app.containerHttpPort + ""}
+                onChange={e => {
+                  const newApiData = Utils.copyObject(this.props.apiData);
+                  newApiData.appDefinition.containerHttpPort = Number(
+                    e.target.value
+                  );
+                  this.props.updateApiData(newApiData);
+                }}
+              />
+            </Tooltip>
+          </Col>
+        </Row>
+
+        <br />
+        <br />
+
+        <Row>
           <Checkbox
             onChange={(e: any) => {
               const newApiData = Utils.copyObject(this.props.apiData!);
@@ -304,7 +326,7 @@ export default class HttpSettings extends Component<
               this.props.updateApiData(newApiData);
             }}
           >
-            Enforce HTTPS by redirecting all HTTP traffic to HTTPS
+            Force HTTPS by redirecting all HTTP traffic to HTTPS
           </Checkbox>
           <Tooltip title="Forcing HTTPS causes domains without HTTPS to malfunction. Make sure you enable HTTPS for the domain you want to use, before enabling Force HTTPS option.">
             <Icon type="info-circle" />

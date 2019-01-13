@@ -70,7 +70,9 @@ export default class LoadBalancerStats extends ApiComponent<
   }
 
   componentWillUnmount() {
-    if (super.componentWillMount) super.componentWillMount();
+    if (super.componentWillUnmount) {
+      super.componentWillUnmount();
+    }
     if (this.updateApiInterval) {
       clearInterval(this.updateApiInterval);
     }
