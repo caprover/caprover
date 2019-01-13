@@ -6,7 +6,7 @@ if ! [ $(id -u) = 0 ]; then
 fi
 
 pwd > currentdirectory
-docker service rm captain-captain captain-nginx captain-certbot captain-registry
+docker service rm $(docker service ls -q)
 sleep 1s
 docker secret rm captain-salt
 docker build -t captain-debug -f dockerfile-captain.debug .
