@@ -429,6 +429,7 @@ class AppsDataStore {
         volumes: IAppVolume[],
         nodeId: string,
         notExposeAsWebApp: boolean,
+        containerHttpPort: number,
         forceSsl: boolean,
         ports: IAppPort[],
         repoInfo: RepoInfo,
@@ -495,6 +496,7 @@ class AppsDataStore {
                 }
 
                 appObj.notExposeAsWebApp = !!notExposeAsWebApp
+                appObj.containerHttpPort = containerHttpPort
                 appObj.forceSsl = !!forceSsl
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
@@ -660,6 +662,8 @@ class AppsDataStore {
                 serverWithSubDomain.publicDomain = appName + '.' + rootDomain
                 serverWithSubDomain.localDomain = localDomain
                 serverWithSubDomain.forceSsl = forceSsl
+                const httpPort = webApp.containerHttpPort || 80
+                serverWithSubDomain.containerHttpPort = httpPort
                 serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
 
                 servers.push(serverWithSubDomain)
@@ -670,6 +674,7 @@ class AppsDataStore {
                     for (let idx = 0; idx < customDomainArray.length; idx++) {
                         const d = customDomainArray[idx]
                         servers.push({
+                            containerHttpPort: httpPort,
                             hasSsl: d.hasSsl,
                             forceSsl: forceSsl,
                             publicDomain: d.publicDomain,

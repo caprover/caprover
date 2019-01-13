@@ -50,7 +50,7 @@ if (!s.forceSsl || s.hasSsl) {
         # https://docs.docker.com/engine/userguide/networking/configure-dns/
         # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
-        set $upstream http://<%-s.localDomain%>;
+        set $upstream http://<%-s.localDomain%>:<%-s.containerHttpPort%>;
 
         location / {
             proxy_pass $upstream;

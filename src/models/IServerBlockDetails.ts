@@ -4,6 +4,7 @@ interface IServerBlockDetails {
     publicDomain: string
     localDomain: string
     nginxConfigTemplate: string
+    containerHttpPort: number
 
     crtPath?: string
     keyPath?: string

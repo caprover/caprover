@@ -51,6 +51,7 @@ interface IAppDefinitionBase {
     notExposeAsWebApp: boolean
     hasPersistentData: boolean
     hasDefaultSubDomainSsl: boolean
+    containerHttpPort?: number
     forceSsl: boolean
     nodeId?: string
     instanceCount: number

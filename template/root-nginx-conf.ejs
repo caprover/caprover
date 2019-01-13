@@ -80,7 +80,7 @@
             proxy_read_timeout 120s;
         }
 
-        # Used by Let's Encrypt and CaptainDuckDuck self health monitoring
+        # Used by Let's Encrypt and CapRover self health monitoring
         location /.well-known/ {
             root <%-captain.staticWebRoot%>;
         }

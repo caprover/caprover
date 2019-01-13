@@ -415,6 +415,7 @@ class ServiceManager {
         volumes: IAppVolume[],
         nodeId: string,
         notExposeAsWebApp: boolean,
+        containerHttpPort: number,
         forceSsl: boolean,
         ports: IAppPort[],
         repoInfo: RepoInfo,
@@ -509,10 +510,13 @@ class ServiceManager {
                         volumes,
                         nodeId,
                         notExposeAsWebApp,
+                        containerHttpPort,
                         forceSsl,
                         ports,
                         repoInfo,
-                        CaptainManager.getAuthenticator(dataStore.getNameSpace()),
+                        CaptainManager.getAuthenticator(
+                            dataStore.getNameSpace()
+                        ),
                         customNginxConfig,
                         preDeployFunction
                     )
