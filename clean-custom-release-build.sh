@@ -12,7 +12,7 @@ mkdir /captain
 if docker service ps captain-captain ; then
     echo "captain-captain service already exists. Trying to update it..."
 else
-    echo "Installing CaptainDuckDuck..."
+    echo "Installing CapRover..."
     docker run \
        -v /var/run/docker.sock:/var/run/docker.sock \
        captain-custom-release-build

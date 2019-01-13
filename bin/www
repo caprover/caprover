@@ -22,7 +22,7 @@ if (!EnvVars.IS_CAPTAIN_INSTANCE) {
  */
 
 var app = require('../built/app');
-var debug = require('debug')('captain-duckduck:server');
+var debug = require('debug')('caprover:server');
 var http = require('http');
 
 /**

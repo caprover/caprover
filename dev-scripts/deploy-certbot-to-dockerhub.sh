@@ -3,7 +3,7 @@
 CERTBOT_VERSION_DOCKERFILE="v0.29.1"
 
 
-SLEEPING_CERT_BOT_IMAGE_NAME="dockersaturn/certbot-sleeping"
+SLEEPING_CERT_BOT_IMAGE_NAME="caprover/certbot-sleeping"
 
 echo "Deploying to Docker hub - certbot version: $CERTBOT_VERSION_DOCKERFILE"
 

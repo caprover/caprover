@@ -27,7 +27,7 @@ const configs = {
 
     registryImageName: 'registry:2',
 
-    appPlaceholderImageName: 'dockersaturn/app-placeholder:latest',
+    appPlaceholderImageName: 'caprover/caprover-placeholder-app:latest',
 
     nginxImageName: 'nginx:1',
 
@@ -99,7 +99,7 @@ let data = {
 
     // ********************* Local Docker Constants  ************************
 
-    certbotImageName: 'dockersaturn/certbot-sleeping:v0.29.1',
+    certbotImageName: 'caprover/certbot-sleeping:v0.29.1',
 
     captainSaltSecretKey: 'captain-salt',
 
