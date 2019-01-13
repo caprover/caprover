@@ -2,7 +2,7 @@ import { IHashMapGeneric } from "./IHashMapGeneric";
 
 export interface IOneClickAppIdentifier {
   name: string;
-  download_url: string;
+  url: string;
 }
 
 export interface IOneClickVariable {

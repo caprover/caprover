@@ -7,7 +7,6 @@ import CenteredSpinner from "../../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
 import { IOneClickAppIdentifier } from "../../../models/IOneClickAppModels";
 
-
 export default class OneClickAppSelector extends Component<
   RouteComponentProps<any>,
   {
@@ -57,14 +56,16 @@ export default class OneClickAppSelector extends Component<
             <Card title="One Click Apps">
               <p>
                 Choose an app, a database or a bundle (app+database) from the
-                list below. The rest is magic, well... Wizard! One click apps
-                will be retrieved from this GitHub Repo:{" "}
+                list below. The rest is magic, well... Wizard!
+              </p>
+              <p>
+                One click apps are retrieved from :{" "}
                 <a
-                  href="https://github.com/githubsaturn/testing-v1-one-click-apps"
+                  href="https://github.com/caprover/one-click-apps"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  testing-v1-one-click-apps
+                  CapRover One Click Apps Repository
                 </a>
               </p>
               <div style={{ height: 50 }} />
