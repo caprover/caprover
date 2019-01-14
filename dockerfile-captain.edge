@@ -9,7 +9,7 @@ COPY package.json /usr/src/app/
 RUN npm install && npm cache clean --force
 COPY . /usr/src/app
 RUN npm run build
-RUN mv edge-overrride.json overrride.json
+RUN mv ./edge-override.json ./config-override.json
 
 
 # Build frontend code
