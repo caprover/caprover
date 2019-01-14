@@ -1,47 +1,87 @@
 #!/usr/bin/env node
 
-const exec = require('child_process').exec;
-const request = require('request');
+const execOriginal = require('child_process').exec;
+const requestOriginal = require('request');
 
-const version = require('./src/utils/CaptainConstants').version;
-const publishedNameOnDockerHub = require('./src/utils/CaptainConstants').publishedNameOnDockerHub;
+function exec(command) {
+    return new Promise(function (resolve, reject) {
+        execOriginal(command, function (err, stdout, stderr) {
 
-console.log(version);
-console.log(' ');
+            if (stderr) {
+                console.log('stderr');
+                console.log(stderr);
+            }
+
+            if (err) {
+                reject(err)
+                return
+            }
+
+            resolve(stdout)
+        })
+    })
+}
 
 
-exec('git status', function (err, stdout, stderr) {
+function request(url) {
+    return new Promise(function (resolve, reject) {
+        requestOriginal(url, function (error, response, body) {
+            if (body) {
+                body = JSON.parse(body);
+            }
 
-    if (err) {
-        console.log(err);
-        return;
-    }
+            if (error || !body) {
+                console.log('Error while fetching tags from Docker Hub!');
+                reject(error);
+                return;
+            }
 
-    var l1 = 'On branch master';
-    var l2 = 'Your branch is up to date with \'origin/master\'';
-    var l3 = 'nothing to commit, working tree clean';
 
-    if (stdout.indexOf(l1) < 0 || stdout.indexOf(l2) < 0 || stdout.indexOf(l3) < 0) {
-        console.log('Make sure you are on master branch, in sync with remote, and your working directory is clean');
-        return;
-    }
-    fetchTagsFromHub();
-});
+            resolve(body)
+        })
+    })
+}
 
-function fetchTagsFromHub() {
 
-    var URL = 'https://hub.docker.com/v2/repositories/' + publishedNameOnDockerHub + '/tags';
 
-    request(URL, function (error, response, body) {
+const publishedNameOnDockerHub = 'caprover/caprover';
+let version = ''
 
-        if (body) {
-            body = JSON.parse(body);
+exec('npm run build')
+    .then(function (data) {
+        data = (data + '').trim()
+        console.log('----------')
+        console.log(data)
+        console.log('----------')
+        if (!data.startsWith('> caprover@0.0.0') || !data.endsWith('rm -rf ./built && npx tsc')) {
+            console.log('Unexpected output:')
+            throw new Error(data)
         }
 
-        if (error || !body || !body.results || !body.results.length) {
+        version = require('./built/utils/CaptainConstants').configs.version;
+
+        return exec('git status')
+    })
+    .then(function (data) {
+        var l1 = 'On branch master';
+        var l2 = 'Your branch is up to date with \'origin/master\'';
+        var l3 = 'nothing to commit, working tree clean';
+
+        if (data.indexOf(l1) < 0 || data.indexOf(l2) < 0 || data.indexOf(l3) < 0) {
+            console.log('Make sure you are on master branch, in sync with remote, and your working directory is clean');
+            throw new Error(data)
+        }
+
+        var URL = 'https://hub.docker.com/v2/repositories/' + publishedNameOnDockerHub + '/tags';
+
+        return request(URL)
+
+    })
+    .then(function (body) {
+
+        if (!body.results || !body.results.length) {
             console.log('Error while fetching tags from Docker Hub!');
-            console.log(error);
-            return;
+            throw error;
         }
 
         var highestTag = '';
@@ -77,40 +117,26 @@ function fetchTagsFromHub() {
             }
         }
 
-        if (!isVersionValid || !highestTagValue) {
-            console.log('The version you are pushing is not valid!');
-            return;
+        if (!isVersionValid || !highestTagValue || !version) {
+            throw new Error('The version you are pushing is not valid! ' + version);
         }
 
         console.log('Pushing ' + version);
 
-        buildAndPush();
+        var t1 = publishedNameOnDockerHub + ':' + 'latest';
+        var t2 = publishedNameOnDockerHub + ':' + version;
 
 
-    });
-}
-
-
-function buildAndPush() {
-
-    var t1 = publishedNameOnDockerHub + ':' + 'latest';
-    var t2 = publishedNameOnDockerHub + ':' + version;
-    let command = 'docker build -t ' + t1 + ' -t ' + t2 + ' -f dockerfile-captain.release . && docker push ' + t1 + ' && docker push ' + t2;
-    exec(command, function (err, stdout, stderr) {
-
-        if (err) {
-            console.log('ERROR');
-            console.log(err);
-        }
+        return exec(`docker build -t ${t1} -t ${t2} -f dockerfile-captain.release . && docker push ${t1} && docker push ${t2}`)
+    })
+    .then(function (stdout) {
         if (stdout) {
             console.log('stdout');
             console.log(stdout);
         }
-        if (stderr) {
-            console.log('stderr');
-            console.log(stderr);
-        }
 
-    });
-
-}
+    })
+    .catch(function (err) {
+        console.error(err)
+        process.exit(1)
+    })
