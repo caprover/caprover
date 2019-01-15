@@ -128,12 +128,25 @@ export default class ImageMaker {
                                     captainDefinition.imageName
                                 }). Therefore, no build process is needed.`
                             )
+
                             self.buildLogs[appName].log(
-                                `The app (${appName}) will be re-deployed with this image: ${
+                                `Pulling this image: ${
                                     captainDefinition.imageName
-                                }`
+                                } This process might take a few minutes.`
                             )
-                            return captainDefinition.imageName + ''
+
+                            const providedImageName =
+                                captainDefinition.imageName + ''
+
+                            return Promise.resolve() //
+                                .then(function() {
+                                    return self.dockerApi.pullImage(
+                                        providedImageName
+                                    )
+                                })
+                                .then(function() {
+                                    return providedImageName
+                                })
                         }
 
                         return self.getBuildPushAndReturnImageName(
@@ -163,7 +176,7 @@ export default class ImageMaker {
                 return fs
                     .remove(baseDir)
                     .then(function() {
-                        throw new Error('ensure catch')
+                        throw err
                     })
                     .catch(function() {
                         return Promise.reject(err)
@@ -176,7 +189,7 @@ export default class ImageMaker {
                             imageSource.uploadedTarPathSource.uploadedTarPath
                         )
                         .then(function() {
-                            throw new Error('ensure catch')
+                            throw err
                         })
                         .catch(function() {
                             return Promise.reject(err)
@@ -186,6 +199,7 @@ export default class ImageMaker {
             })
             .then(function() {
                 self.activeBuilds[appName] = false
+                self.buildLogs[appName].log(`Build has finished successfully!`)
                 return {
                     imageName: fullImageName,
                     gitHash: gitHash,
@@ -193,6 +207,7 @@ export default class ImageMaker {
             })
             .catch(function(error) {
                 self.activeBuilds[appName] = false
+                self.buildLogs[appName].log(`Build has failed!`)
                 return Promise.reject(error)
             })
     }

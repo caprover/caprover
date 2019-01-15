@@ -294,9 +294,13 @@ class DockerApi {
             })
     }
 
-    pullImage(imageName: string, tag: string) {
+    pullImage(imageNameIncludingTag: string) {
         const self = this
-        tag = tag || 'latest'
+
+        const nameAndTag = imageNameIncludingTag.split(':')
+
+        const tag = nameAndTag[1] || 'latest'
+        const imageName = nameAndTag[0]
 
         return Promise.resolve()
             .then(function() {
@@ -480,8 +484,7 @@ class DockerApi {
 
         return Promise.resolve()
             .then(function() {
-                const nameAndTag = imageName.split(':')
-                return self.pullImage(nameAndTag[0], nameAndTag[1] || 'latest')
+                return self.pullImage(imageName)
             })
             .then(function() {
                 return self.dockerode.createContainer({
