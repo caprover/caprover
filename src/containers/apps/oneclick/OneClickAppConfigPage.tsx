@@ -44,7 +44,7 @@ export default class OneClickAppConfigPage extends Component<
   }
 
   componentWillUnmount() {
-    if (super.componentWillMount) super.componentWillMount();
+    if (super.componentWillUnmount) super.componentWillUnmount();
     this.isUnmount = true;
   }
 
