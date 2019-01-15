@@ -55,6 +55,8 @@ class DockerRegistryHelper {
             .then(function(data) {
                 if (!data) return fullImageName
 
+                const imageNameWithoutDockerAuth = fullImageName
+
                 fullImageName =
                     data.registryDomain +
                     '/' +
@@ -73,8 +75,20 @@ class DockerRegistryHelper {
 
                         Logger.d('Docker Auth is found. Pushing the image...')
 
-                        return self.dockerApi
-                            .pushImage(fullImageName, authObj, buildLogs)
+                        return Promise.resolve()
+                            .then(function() {
+                                return self.dockerApi.retag(
+                                    imageNameWithoutDockerAuth,
+                                    fullImageName
+                                )
+                            })
+                            .then(function() {
+                                return self.dockerApi.pushImage(
+                                    fullImageName,
+                                    authObj,
+                                    buildLogs
+                                )
+                            })
                             .catch(function(error: AnyError) {
                                 return new Promise<
                                     void

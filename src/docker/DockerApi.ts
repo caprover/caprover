@@ -513,6 +513,39 @@ class DockerApi {
             })
     }
 
+    retag(currentName: string, targetName: string) {
+        const self = this
+        return Promise.resolve().then(function() {
+            const currentSplit = currentName.split(':')
+            const targetSplit = targetName.split(':')
+
+            if (targetSplit.length < 2 || targetSplit.length < 2) {
+                throw new Error(
+                    'This method only support image tags with version'
+                )
+            }
+
+            if (currentSplit[currentSplit.length - 1].indexOf('/') > 0) {
+                throw new Error(
+                    'This method only support image tags with version - current image.'
+                )
+            }
+
+            const targetVersion = targetSplit[targetSplit.length - 1]
+
+            if (targetVersion.indexOf('/') > 0) {
+                throw new Error(
+                    'This method only support image tags with version - target image.'
+                )
+            }
+
+            return self.dockerode.getImage(currentName).tag({
+                tag: targetVersion,
+                repo: targetSplit.slice(0, targetSplit.length - 1).join(':'),
+            })
+        })
+    }
+
     pushImage(imageName: string, authObj: DockerAuthObj, buildLogs: BuildLog) {
         const self = this
 
