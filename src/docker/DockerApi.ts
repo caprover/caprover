@@ -1392,16 +1392,14 @@ class DockerApi {
                 // Service is deployed (or updated) with an image from a private registry
                 // Then the service is updated with a public image like nginx or something.
                 // Without this hack, the update fails!!!
-                // if (!updatedData.authconfig) {
-                //     updatedData.authconfig = {
-                //         username: 'test',
-                //         password: 'test',
-                //         serveraddress: 'https://index.docker.io/v1/',
-                //     }
-                // }
+                if (!updatedData.authconfig) {
+                    updatedData.authconfig = {
+                        username: '',
+                        password: '',
+                        serveraddress: 'docker.io/v1',
+                    }
+                }
                 // updatedData.registryAuthFrom = 'previous-spec'
-
-                console.log(JSON.stringify(updatedData))
 
                 instanceCount = Number(instanceCount)
 

@@ -638,45 +638,6 @@ class ServiceManager {
             })
             .then(function(data) {
                 dockerAuthObject = data
-
-                if (!data) {
-                    // If no docker auth is found for that image, default auth to the default auth object.
-                    // This stupid hack is necessary. Otherwise, the following scenario will fail
-                    // Service is deployed (or updated) with an image from a private registry
-                    // Then the service is updated with a public image like nginx or something.
-                    // Without this hack, the update fails!!!
-                    return Promise.resolve()
-                        .then(function() {
-                            return self.dockerRegistryHelper.getDefaultPushRegistryId()
-                        })
-                        .then(function(defaultId) {
-                            if (!defaultId) {
-                                return Promise.resolve()
-                            }
-
-                            return self.dockerRegistryHelper
-                                .getAllRegistries()
-                                .then(function(regs) {
-                                    for (
-                                        let index = 0;
-                                        index < regs.length;
-                                        index++
-                                    ) {
-                                        const r = regs[index]
-
-                                        if (r.id === defaultId) {
-                                            dockerAuthObject = {
-                                                serveraddress: r.registryDomain,
-                                                username: r.registryUser,
-                                                password: r.registryPassword,
-                                                // email: CaptainConstants.defaultEmail, // email is optional
-                                            }
-                                            return
-                                        }
-                                    }
-                                })
-                        })
-                }
             })
             .then(function() {
                 return self.createPreDeployFunctionIfExist(app)
