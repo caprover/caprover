@@ -792,11 +792,11 @@ class DockerApi {
                     )
                 }
 
-                if (retryCount < 3) {
+                if (retryCount < 4) {
                     return new Promise<void>(function(resolve) {
                         setTimeout(function() {
                             resolve()
-                        }, 3000)
+                        }, 4000)
                     }).then(function() {
                         Logger.d(
                             'Retrying to get containerId for ' +
@@ -1385,11 +1385,13 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
                 updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
 
-                // if (authObject) TODO
-                // print updatedData.authconfig
-                {
+                if (authObject) {
                     updatedData.authconfig = authObject
                 }
+
+                Logger.d('Updating: ' + serviceName)
+                // TODO REMOVE
+                Logger.d(JSON.stringify(updatedData.authconfig))
 
                 instanceCount = Number(instanceCount)
 
