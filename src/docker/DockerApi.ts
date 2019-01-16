@@ -1392,6 +1392,21 @@ class DockerApi {
                 // Service is deployed (or updated) with an image from a private registry
                 // Then the service is updated with a public image like nginx or something.
                 // Without this hack, the update fails!!!
+                // To replicate the bug:
+                // - Remove this
+                // - Create a manager and a worker
+                // - Create a app and have it locked to the worker node
+                // - Deploy a few sample apps, it works fine.
+                // - Then try to deploy a simple imageName such as "nginx:1". This will fail!
+                // - Even with "docker service update srv-captain--name --image nginx:1 --force" it will still fail
+                // - The only way that you can make it work is by passing --wit-registry-auth flag to CLI.
+                // I did some reverse engineering to see what happens under the hood, and it appears that docker uses empty user/pass
+                // So I did that below, and things started working!
+                // See https://github.com/docker/cli/blob/b9f150b17eea7ea8f92e3a961f666bc599bb4fdf/cli/command/service/update.go#L209
+                // and
+                // https://github.com/docker/cli/blob/0c444c521ff43f4341fcb2e673f93e364e8f2fcf/cli/command/registry.go#L176
+                // and
+                // https://github.com/docker/cli/blob/0c444c521ff43f4341fcb2e673f93e364e8f2fcf/cli/command/registry.go#L61
                 if (!updatedData.authconfig) {
                     updatedData.authconfig = {
                         username: '',
