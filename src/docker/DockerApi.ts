@@ -1385,7 +1385,9 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
                 updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
 
-                if (authObject) {
+                // if (authObject) TODO
+                // print updatedData.authconfig
+                {
                     updatedData.authconfig = authObject
                 }
 
