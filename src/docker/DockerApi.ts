@@ -1385,9 +1385,19 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
                 updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
 
-                // TODO? if (authObject)
                 updatedData.authconfig = authObject
-                console.log('authObject ' + JSON.stringify(updatedData.authconfig))
+
+                // This stupid hack is necessary. Otherwise, the following scenario will fail
+                // Service is deployed (or updated) with an image from a private registry
+                // Then the service is updated with a public image like nginx or something.
+                // Without this hack, the update fails!!!
+                if (!updatedData.authconfig) {
+                    updatedData.authconfig = {
+                        username: 'test',
+                        password: 'test',
+                        serveraddress: 'https://index.docker.io/v1/',
+                    }
+                }
 
                 instanceCount = Number(instanceCount)
 
