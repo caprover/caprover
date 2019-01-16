@@ -1387,6 +1387,7 @@ class DockerApi {
 
                 // TODO? if (authObject)
                 updatedData.authconfig = authObject
+                console.log('authObject ' + JSON.stringify(updatedData.authconfig))
 
                 instanceCount = Number(instanceCount)
 
