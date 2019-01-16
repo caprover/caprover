@@ -1385,13 +1385,8 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
                 updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
 
-                if (authObject) {
-                    updatedData.authconfig = authObject
-                }
-
-                Logger.d('Updating: ' + serviceName)
-                // TODO REMOVE
-                Logger.d(JSON.stringify(updatedData.authconfig))
+                // TODO? if (authObject)
+                updatedData.authconfig = authObject
 
                 instanceCount = Number(instanceCount)
 
