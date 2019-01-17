@@ -79,8 +79,12 @@ export default class OneClickAppDeploymentHelper {
             });
           });
 
-          if (dockerComposeService.containerHttpPort){
+          if (dockerComposeService.containerHttpPort) {
             appDef.containerHttpPort = dockerComposeService.containerHttpPort;
+          }
+
+          if (!!dockerComposeService.notExposeAsWebApp) {
+            appDef.notExposeAsWebApp = true;
           }
 
           return self.apiManager.updateConfigAndSave(appName, appDef);
@@ -108,7 +112,7 @@ export default class OneClickAppDeploymentHelper {
       return self.apiManager.uploadCaptainDefinitionContent(
         appName,
         captainDefinition,
-        '',
+        "",
         false
       );
     });

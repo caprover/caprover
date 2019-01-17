@@ -19,10 +19,11 @@ export interface IDockerComposeService {
   ports?: string[];
   environment?: IHashMapGeneric<string>;
   depends_on?: string[];
-  
+
   // These are CapRover property, not DockerCompose. We use this instead of image if we need to extend the image.
- dockerfileLines?: string[];
- containerHttpPort: number;
+  dockerfileLines?: string[];
+  containerHttpPort: number;
+  notExposeAsWebApp: boolean; // This is actually a string "true", make sure to double negate!
 }
 
 export interface IOneClickTemplate {
