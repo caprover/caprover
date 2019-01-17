@@ -60,7 +60,7 @@
         resolver 127.0.0.11 valid=10s;
         set $upstream http://<%-captain.serviceName%>:<%-captain.serviceExposedPort%>;
 
-        # IMPORTANT!! Except proxy_read_timeout, this block should be same as location /api/v1/user/appData
+        # IMPORTANT!! Except proxy_read_timeout, this block should be same as location /api/v2/user/apps/appData
         location / {
             proxy_pass $upstream;
             proxy_set_header Host $host;
@@ -70,7 +70,7 @@
         }
 
         # temporary until build process becomes an asynchronous process
-        location /api/v1/user/appData {
+        location /api/v2/user/apps/appData {
             proxy_pass $upstream;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
