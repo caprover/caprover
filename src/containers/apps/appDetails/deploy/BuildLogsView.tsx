@@ -168,8 +168,10 @@ export default class BuildLogsView extends ApiComponent<
           >
             <div
               id="buildlog-text-id"
+              className="code-input"
               style={{
                 overflow: "scroll",
+                whiteSpace: "pre",
                 height: 250,
                 border: "2px solid #cccccc",
                 backgroundColor: "#f6f6f6",
@@ -178,7 +180,7 @@ export default class BuildLogsView extends ApiComponent<
                 fontSize: "90%"
               }}
             >
-              <pre>{self.state.buildLogs}</pre>
+              {self.state.buildLogs}
             </div>
           </div>
         </div>
