@@ -183,7 +183,7 @@ export default class Deployment extends ApiComponent<
                 ? window.location.protocol +
                   "//captain." +
                   this.props.apiData.rootDomain +
-                  "/api/v1/user/webhooks/triggerbuild?namespace=captain&token=" +
+                  "/api/v2/user/apps/webhooks/triggerbuild?namespace=captain&token=" +
                   app.appPushWebhook!.pushWebhookToken
                 : "** Add repo info and save for this webhook to appear **"
             }
@@ -193,7 +193,6 @@ export default class Deployment extends ApiComponent<
         <GitRepoForm
           gitRepoValues={repoInfo}
           updateRepoInfo={newRepo => {
-            console.log(newRepo);
             const newApiData = Utils.copyObject(this.props.apiData);
             if (newApiData.appDefinition.appPushWebhook) {
               newApiData.appDefinition.appPushWebhook.repoInfo = Utils.copyObject(
