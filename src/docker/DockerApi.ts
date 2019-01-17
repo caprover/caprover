@@ -87,11 +87,11 @@ class DockerApi {
                 if (data.length > 0) {
                     return Promise.resolve(data[0].NodeID)
                 } else {
-                    if (retryCount < 4) {
+                    if (retryCount < 10) {
                         return new Promise<void>(function(resolve) {
                             setTimeout(function() {
                                 resolve()
-                            }, 4000)
+                            }, 3000)
                         }).then(function() {
                             Logger.d(
                                 'Retrying to get NodeID for ' +
@@ -792,11 +792,11 @@ class DockerApi {
                     )
                 }
 
-                if (retryCount < 4) {
+                if (retryCount < 10) {
                     return new Promise<void>(function(resolve) {
                         setTimeout(function() {
                             resolve()
-                        }, 4000)
+                        }, 3000)
                     }).then(function() {
                         Logger.d(
                             'Retrying to get containerId for ' +
