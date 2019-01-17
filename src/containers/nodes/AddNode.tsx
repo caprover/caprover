@@ -100,7 +100,10 @@ export default class AddNode extends Component<
           </Row>
 
           <Row type="flex" justify="end">
-            <Button type="primary" onClick={() => self.props.onAddNodeClicked(self.state.nodeToAdd)}>
+            <Button
+              type="primary"
+              onClick={() => self.props.onAddNodeClicked(self.state.nodeToAdd)}
+            >
               <Icon type="cluster" /> &nbsp; Join Cluster
             </Button>
           </Row>

@@ -36,7 +36,7 @@ export default abstract class UploaderPlainTextBase extends ApiComponent<
         return self.apiManager.uploadCaptainDefinitionContent(
           self.props.appName,
           JSON.parse(captainDefinitionToBeUploaded),
-          '',
+          "",
           true
         );
       })

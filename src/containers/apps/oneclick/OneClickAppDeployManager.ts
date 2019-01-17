@@ -1,7 +1,10 @@
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
 import Utils from "../../../utils/Utils";
 import OneClickAppDeploymentHelper from "./OneClickAppDeploymentHelper";
-import { IOneClickTemplate, IDockerComposeService } from "../../../models/IOneClickAppModels";
+import {
+  IOneClickTemplate,
+  IDockerComposeService
+} from "../../../models/IOneClickAppModels";
 
 interface IDeploymentStep {
   stepName: string;

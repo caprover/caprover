@@ -268,8 +268,8 @@ export default class Dashboard extends ApiComponent<
             <Row>
               <div>
                 <p>
-                  For example, if you set <code>*.my-root.example.com</code>{" "}
-                  to the IP address of your server, just enter{" "}
+                  For example, if you set <code>*.my-root.example.com</code> to
+                  the IP address of your server, just enter{" "}
                   <code>my-root.example.com</code> in the box below:
                 </p>
                 <br />

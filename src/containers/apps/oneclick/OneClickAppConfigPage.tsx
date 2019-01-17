@@ -15,7 +15,6 @@ import { IOneClickTemplate } from "../../../models/IOneClickAppModels";
 
 export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
 
-
 export default class OneClickAppConfigPage extends Component<
   RouteComponentProps<any>,
   {

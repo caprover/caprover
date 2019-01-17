@@ -133,8 +133,8 @@ export default class Deployment extends ApiComponent<
         </h4>
         <p>
           Use CLI deploy command. This is the easiest method as it only requires
-          a simply command like <code>caprover deploy</code>. Read more
-          about it in the{" "}
+          a simply command like <code>caprover deploy</code>. Read more about it
+          in the{" "}
           <a
             href="https://caprover.com/docs/get-started.html#step-4-deploy-the-test-app"
             target="_blank"
