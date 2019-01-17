@@ -12,7 +12,7 @@ const router = express.Router()
 const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
     schemaVersion: 2,
     dockerfileLines: [
-        'FROM ' + CaptainConstants.configs.appPlaceholderImageName
+        'FROM ' + CaptainConstants.configs.appPlaceholderImageName,
     ],
 })
 
@@ -316,7 +316,9 @@ router.post('/update/', function(req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp
     let customNginxConfig = req.body.customNginxConfig
     let forceSsl = !!req.body.forceSsl
-    let repoInfo = req.body.repoInfo || {}
+    let repoInfo = !!req.body.appPushWebhook
+        ? req.body.appPushWebhook.repoInfo || {}
+        : {}
     let envVars = req.body.envVars || []
     let volumes = req.body.volumes || []
     let ports = req.body.ports || []
