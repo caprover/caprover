@@ -143,9 +143,6 @@ class CaptainManager {
                 )
             })
             .then(function() {
-                return loadBalancerManager.init(myNodeId, dataStore)
-            })
-            .then(function() {
                 const valueIfNotExist = CaptainConstants.isDebug
                     ? DEBUG_SALT
                     : uuid()
@@ -192,6 +189,9 @@ class CaptainManager {
             })
             .then(function() {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
+            })
+            .then(function() {
+                return loadBalancerManager.init(myNodeId, dataStore)
             })
             .then(function() {
                 return new MigrateCaptainDuckDuck(

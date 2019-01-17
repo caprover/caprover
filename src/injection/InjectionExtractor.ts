@@ -18,7 +18,7 @@ class InjectionExtractor {
     static extractAppAndUserForWebhook(res: Response) {
         return {
             user: res.locals.user as UserInjected,
-            appName: res.locals.namespace as string,
+            appName: res.locals.appName as string,
             app: res.locals.app as IAppDef,
         }
     }
