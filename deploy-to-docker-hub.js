@@ -58,7 +58,7 @@ exec('npm run build')
             throw new Error(data)
         }
 
-        return exec (`rm -rf ./build`)
+        return exec(`rm -rf ./build`)
 
     })
     .then(function () {
@@ -122,6 +122,7 @@ exec('npm run build')
         }
 
         if (!isVersionValid || !highestTagValue || !version) {
+            console.log(`isVersionValid: ${isVersionValid}   highestTagValue: ${highestTagValue}`)
             throw new Error('The version you are pushing is not valid! ' + version);
         }
 
