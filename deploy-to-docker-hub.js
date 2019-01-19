@@ -127,7 +127,7 @@ exec('npm run build')
         var t2 = publishedNameOnDockerHub + ':' + version;
 
 
-        return exec(`docker build -t ${t1} -t ${t2} -f dockerfile-captain.release . && docker push ${t1} && docker push ${t2}`)
+        return exec(`sudo docker build -t ${t1} -t ${t2} -f dockerfile-captain.release . && docker push ${t1} && docker push ${t2}`)
     })
     .then(function (stdout) {
         if (stdout) {
