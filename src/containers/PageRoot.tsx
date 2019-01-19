@@ -118,7 +118,7 @@ class PageRoot extends ApiComponent<
           <div>
             <Row>
               <Col span={12}>
-                <span>
+                <div>
                   <h3 style={{ color: "#fff" }}>
                     <img
                       src="/icon-512x512.png"
@@ -128,10 +128,9 @@ class PageRoot extends ApiComponent<
                       }}
                     />
                     CapRover
+                    {self.createUpdateAvailableIfNeeded()}
                   </h3>
-                </span>
-
-                {self.createUpdateAvailableIfNeeded()}
+                </div>
               </Col>
               <Col span={12}>
                 <Row type="flex" justify="end">
