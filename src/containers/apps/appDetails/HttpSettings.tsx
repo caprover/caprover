@@ -320,6 +320,7 @@ export default class HttpSettings extends Component<
 
         <Row>
           <Checkbox
+            defaultChecked={!!this.props.apiData.appDefinition.forceSsl}
             onChange={(e: any) => {
               const newApiData = Utils.copyObject(this.props.apiData!);
               newApiData.appDefinition.forceSsl = !!e.target.checked;
