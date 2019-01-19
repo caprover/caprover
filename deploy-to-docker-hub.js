@@ -110,15 +110,7 @@ exec('npm run build')
         var isVersionValid = false;
 
         if (getTagValue(version) > highestTagValue) {
-
-            if ((getTagValue(version) - highestTagValue) === 1) // hotfix version fix
-            {
-                isVersionValid = true;
-            }
-
-            if ((getTagValue(version) - highestTagValue) <= 1000 && getTagValue(version) % 1000 === 0) { //minor version upgrade
-                isVersionValid = true;
-            }
+            isVersionValid = true;
         }
 
         if (!isVersionValid || !highestTagValue || !version) {
