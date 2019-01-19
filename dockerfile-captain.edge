@@ -5,10 +5,10 @@ WORKDIR /usr/src/app
 
 # Build backend code
 
-COPY package.json /usr/src/app/
-RUN npm install && npm cache clean --force
 COPY . /usr/src/app
+RUN npm install && npm cache clean --force
 RUN npm run build
+
 RUN mv ./edge-override.json ./config-override.json
 
 

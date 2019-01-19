@@ -7,7 +7,7 @@
     "dev": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && sudo ./dev-scripts/dev-reset-service.sh",
     "clean": "sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "build": "echo \"USE DEPLOY SCRIPT\" ",
+    "build": "rm -rf ./built && npx tsc",
     "test": "jest"
   },
   "dependencies": {
