@@ -58,6 +58,10 @@ exec('npm run build')
             throw new Error(data)
         }
 
+        return exec (`rm -rf ./build`)
+
+    })
+    .then(function () {
         version = require('./built/utils/CaptainConstants').configs.version;
 
         return exec('git status')
