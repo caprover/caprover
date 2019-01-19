@@ -131,8 +131,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             'A simple solution on Ubuntu systems is to run "ufw disable"'
         )
         console.log('Or just allowing necessary ports:')
-        console.log('    ufw allow 80,443,3000,996,7946,4789,2377/tcp')
-        console.log('    ufw allow 7946,4789,2377/udp')
+        console.log(CaptainConstants.disableFirewallCommand)
         console.log('     ')
         console.log('     ')
         console.log('See docs for more details on how to fix firewall issues')

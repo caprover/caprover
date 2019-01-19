@@ -7,8 +7,12 @@ const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sit
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
 
-const CONSTANT_FILE_OVERRIDE_BUILD = path.join(__dirname, '../../config-override.json')
-const CONSTANT_FILE_OVERRIDE_USER = CAPTAIN_DATA_DIRECTORY + '/config-override.json'
+const CONSTANT_FILE_OVERRIDE_BUILD = path.join(
+    __dirname,
+    '../../config-override.json'
+)
+const CONSTANT_FILE_OVERRIDE_USER =
+    CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
@@ -134,6 +138,11 @@ let data = {
     headerAuth: 'x-captain-auth',
 
     headerNamespace: 'x-namespace',
+
+    // *********************     ETC       ************************
+
+    disableFirewallCommand:
+        'ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
 }
 
 function overrideFromFile(fileName: string) {

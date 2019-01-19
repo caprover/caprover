@@ -659,10 +659,12 @@ class CaptainManager {
                             Logger.d('SSH Client :: ready')
                             // TODO also run ufw allow stuff
                             conn.exec(
-                                dockerApi.createJoinCommand(
-                                    captainIpAddress,
-                                    token
-                                ),
+                                CaptainConstants.disableFirewallCommand +
+                                    ' ' +
+                                    dockerApi.createJoinCommand(
+                                        captainIpAddress,
+                                        token
+                                    ),
                                 function(err, stream) {
                                     if (err) {
                                         Logger.e(err)
