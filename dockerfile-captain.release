@@ -3,8 +3,6 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 
-
-
 # Build backend code
 
 COPY . /usr/src/app
@@ -24,8 +22,6 @@ RUN git clone https://github.com/githubsaturn/caprover-frontend.git && \
     npm install && npm cache clean --force && \
     npm run build && \
     mv ./build ../dist-frontend
-
-
 
 
 ENV NODE_ENV production

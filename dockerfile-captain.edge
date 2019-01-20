@@ -15,7 +15,7 @@ RUN mv ./edge-override.json ./config-override.json
 # Build frontend code
 
  # This quick hack invalidates the cache
-ADD http://worldclockapi.com/api/json/utc/now /time.now
+ADD https://api.github.com/repos/caprover/caprover/commits /time.now
 
 RUN git clone https://github.com/githubsaturn/caprover-frontend.git && \
     cd caprover-frontend && \
