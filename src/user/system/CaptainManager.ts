@@ -657,7 +657,6 @@ class CaptainManager {
                     })
                         .on('ready', function() {
                             Logger.d('SSH Client :: ready')
-                            // TODO also run ufw allow stuff
                             conn.exec(
                                 CaptainConstants.disableFirewallCommand +
                                     ' ' +
