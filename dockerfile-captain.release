@@ -12,7 +12,7 @@ RUN npm run build
 
 
 
-# Build frontend code
+# Build frontend code using a fixed hash commit
 
 ENV FRONTEND_COMMIT_HASH 21b6f6f1369f86cc6abbf48ff3d793e5a962bb1a
 
