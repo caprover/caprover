@@ -1,15 +1,15 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[ISSUE] "
+title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**IMPORTANT:** DO NOT POST issues that are not specific to CapRover. Issues and questions related to Docker will get closed.
+**IMPORTANT:** This is a bug report. If you are having problem with deploying a particular app use the deployment issue type.
 
-> If you are trying to see how to deploy a particular app using a customized dockerfile - please change your questions to Dockerfile and post it where appropriate such as StackOverflow. This is a Docker question, not a CapRover specific issue.
+> If you are having problems with deploying a particular app using a customized dockerfile - please change your questions to Dockerfile and post it where appropriate such as StackOverflow. This is a Docker question, not a CapRover specific issue.
 
 --------------------------------------------------------------------------
 
