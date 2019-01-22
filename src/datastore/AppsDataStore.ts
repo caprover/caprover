@@ -130,11 +130,13 @@ class AppsDataStore {
                             )
                         }
 
-                        if (obj.hostPath && !isValidPath(obj.hostPath)) {
-                            throw ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Invalid volume host path: ' + obj.hostPath
-                            )
+                        if (obj.hostPath) {
+                            if (!isValidPath(obj.hostPath)) {
+                                throw ApiStatusCodes.createError(
+                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                    'Invalid volume host path: ' + obj.hostPath
+                                )
+                            }
                         } else {
                             if (
                                 !obj.volumeName ||
