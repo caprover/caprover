@@ -125,10 +125,6 @@ class DataStore {
         })
     }
 
-    getBuiltImageNameBase(appName: string) {
-        return 'img-' + this.getNameSpace() + '--' + appName
-    }
-
     getRootDomain() {
         return this.data.get(CUSTOM_DOMAIN) || DEFAULT_CAPTAIN_ROOT_DOMAIN
     }

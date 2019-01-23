@@ -33,7 +33,7 @@ class ServiceManager {
         this.imageMaker = new ImageMaker(
             this.dockerRegistryHelper,
             this.dockerApi,
-            this.dataStore,
+            this.dataStore.getNameSpace(),
             this.buildLogs,
             this.activeBuilds
         )

@@ -35,19 +35,18 @@
 
 */
 
-import DockerApi from '../docker/DockerApi'
-import CaptainConstants = require('../utils/CaptainConstants')
 import fs = require('fs-extra')
 import tar = require('tar')
 import path = require('path')
+import DockerApi from '../docker/DockerApi'
+import CaptainConstants = require('../utils/CaptainConstants')
 import TemplateHelper = require('./TemplateHelper')
-import GitHelper = require('../utils/GitHelper')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import { AnyError } from '../models/OtherTypes'
-import BuildLog = require('./BuildLog')
-import DataStore = require('../datastore/DataStore')
-import DockerRegistryHelper = require('./DockerRegistryHelper')
 import { IBuiltImage } from '../models/IBuiltImage'
+import GitHelper = require('../utils/GitHelper')
+import BuildLog = require('./BuildLog')
+import DockerRegistryHelper = require('./DockerRegistryHelper')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -58,7 +57,7 @@ export default class ImageMaker {
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
-        private datastore: DataStore,
+        private namespace: string,
         private buildLogs: IHashMapGeneric<BuildLog>,
         private activeBuilds: IHashMapGeneric<boolean>
     ) {
@@ -100,9 +99,8 @@ export default class ImageMaker {
         const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
-        const baseImageNameWithoutVerAndReg = self.datastore.getBuiltImageNameBase(
-            appName
-        ) // img-captain--myapp
+        const baseImageNameWithoutVerAndReg =
+            'img-' + this.namespace + '--' + appName // img-captain--myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
         return Promise.resolve() //
