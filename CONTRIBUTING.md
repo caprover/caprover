@@ -3,7 +3,9 @@
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or any other method with the owners of this repository before making a change. The best way is our Telegram channel:
 
-`https://join.slack.com/t/captainduckduck/shared_invite/enQtNDEwMjc3MjcxNjUzLWQ4YjljN2JiMGU5Nzk5NjcwMDEzNDNiMTNkOTVhNTA4YTYwOThkNDkyMTlkMDFhMzAzOTA5YjcwY2E4NWRkYzk`
+```
+https://join.slack.com/t/captainduckduck/shared_invite/enQtNDEwMjc3MjcxNjUzLWQ4YjljN2JiMGU5Nzk5NjcwMDEzNDNiMTNkOTVhNTA4YTYwOThkNDkyMTlkMDFhMzAzOTA5YjcwY2E4NWRkYzk
+```
 
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
