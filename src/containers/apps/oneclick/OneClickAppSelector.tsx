@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import ApiComponent from "../../global/ApiComponent";
 import OneClickAppsApi from "../../../api/OneClickAppsApi";
 import Toaster from "../../../utils/Toaster";
-import { Row, Col, Card, Select, Button } from "antd";
+import { Row, Col, Card, Select, Button, Icon } from "antd";
 import CenteredSpinner from "../../global/CenteredSpinner";
 import { RouteComponentProps } from "react-router";
 import { IOneClickAppIdentifier } from "../../../models/IOneClickAppModels";
@@ -80,8 +80,19 @@ export default class OneClickAppSelector extends Component<
                   {self.createOptions()}
                 </Select>
               </Row>
-              <div style={{ height: 60 }} />
-              <Row type="flex" justify="end" align="middle">
+              <div style={{ height: 60 }} />{" "}
+              <Row type="flex" justify="space-between" align="middle">
+                <div>
+                  <a
+                    href="https://caprover.com/docs/one-click-apps.html#what-about-other-apps"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon type="info-circle" />
+                  </a>
+                  &nbsp; What if the app/database I want is not listed here?
+                  &nbsp;
+                </div>
                 <Button
                   onClick={() =>
                     self.props.history.push(
