@@ -1471,6 +1471,22 @@ class DockerApi {
             })
     }
 
+    getLogForService(serviceName: string, tailCount: number) {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                // TODO REMOVE any once dockerode definition is fixed.
+                // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/32508
+                return (self.dockerode.getService(serviceName) as any) //
+                    .logs({
+                        tail: tailCount,
+                        timestamps: true,
+                        stdout: true,
+                        stderr: true,
+                    })
+            })
+    }
+
     getDockerVersion() {
         const self = this
 

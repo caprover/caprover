@@ -14,6 +14,26 @@ const upload = multer({
     dest: TEMP_UPLOAD,
 })
 
+router.get('/:appName/logs', function(req, res, next) {
+    let appName = req.params.appName
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager
+
+    return Promise.resolve()
+        .then(function() {
+            return serviceManager.getAppLogs(appName)
+        })
+        .then(function(logs) {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'App build status retrieved'
+            )
+            baseApi.data = {logs}
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
 router.get('/:appName/', function(req, res, next) {
     let appName = req.params.appName
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user

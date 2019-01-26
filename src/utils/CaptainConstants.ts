@@ -23,6 +23,8 @@ const configs = {
 
     buildLogSize: 50,
 
+    appLogSize: 500,
+
     preCheckForWildCard: true,
 
     registrySubDomainPort: 996,

@@ -570,6 +570,24 @@ class ServiceManager {
         this.buildLogs[appName].onBuildFailed(error)
     }
 
+    getAppLogs(appName: string) {
+        const self = this
+
+        const serviceName = this.dataStore
+            .getAppsDataStore()
+            .getServiceName(appName)
+
+        const dockerApi = this.dockerApi
+
+        return Promise.resolve() //
+            .then(function() {
+                return dockerApi.getLogForService(
+                    serviceName,
+                    CaptainConstants.configs.appLogSize
+                )
+            })
+    }
+
     ensureServiceInitedAndUpdated(appName: string) {
         Logger.d('Ensure service inited and Updated for: ' + appName)
         const self = this
