@@ -39,6 +39,7 @@ export default class AppLogsView extends ApiComponent<
       "\u0001\u0000\u0000\u0000",
       "\u0002\u0000\u0000\u0000"
     ];
+    const ansiRegex = Utils.getAnsiColorRegex();
     this.apiManager
       .fetchAppLogs(this.props.appName)
       .then(function(logInfo: { logs: string }) {
@@ -46,7 +47,7 @@ export default class AppLogsView extends ApiComponent<
           .split(new RegExp(separators.join("|"), "g"))
           .map(s => {
             // See https://docs.docker.com/engine/api/v1.30/#operation/ContainerAttach for logs headers
-            return s.substring(4, s.length);
+            return s.substring(4, s.length).replace(ansiRegex, "");
             // add sorting if needed: new Date(s.substring(4+30, s.length)).getTime()
           })
           .join("");
@@ -56,17 +57,20 @@ export default class AppLogsView extends ApiComponent<
         }
 
         const firstLogs = !self.state.appLogsStringified;
-        self.setState({ appLogsStringified: logsProcessed });
 
         let textareaNow = document.getElementById("applogs-text-id");
-        if (
+        // Almost at the bottom. So keep the scroll at the bottom. Otherwise, user, may have manually scrolled up. Respect the user!
+        const shouldScrollToBottom =
           firstLogs ||
           (!!textareaNow &&
             Math.abs(
               textareaNow.scrollTop -
                 (textareaNow.scrollHeight - textareaNow.offsetHeight)
-            ) < 100) // Almost at the bottom. So keep the scroll at the bottom. Otherwise, user, may have manually scrolled up. Respect the user!
-        )
+            ) < 100);
+
+        self.setState({ appLogsStringified: logsProcessed });
+
+        if (shouldScrollToBottom)
           setTimeout(function() {
             let textarea = document.getElementById("applogs-text-id");
             if (textarea) textarea.scrollTop = textarea.scrollHeight;
