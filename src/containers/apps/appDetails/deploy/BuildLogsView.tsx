@@ -168,16 +168,9 @@ export default class BuildLogsView extends ApiComponent<
           >
             <div
               id="buildlog-text-id"
-              className="code-input"
+              className="logs-output"
               style={{
-                overflow: "scroll",
-                whiteSpace: "pre",
-                height: 250,
-                border: "2px solid #cccccc",
-                backgroundColor: "#f6f6f6",
-                borderRadius: 5,
-                padding: 10,
-                fontSize: "90%"
+                whiteSpace: "pre"
               }}
             >
               {self.state.buildLogs}

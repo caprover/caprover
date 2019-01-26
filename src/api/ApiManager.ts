@@ -99,6 +99,13 @@ export default class ApiManager {
       .then(http.fetch(http.GET, "/user/apps/appData/" + appName, {}));
   }
 
+  fetchAppLogs(appName: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, `/user/apps/appData/${appName}/logs`, {}));
+  }
+
   uploadAppData(appName: string, file: File) {
     const http = this.http;
     var formData = new FormData();

@@ -12,6 +12,7 @@ import UploaderPlainTextDockerfile from "./UploaderPlainTextDockerfile";
 import ApiComponent from "../../../global/ApiComponent";
 import AppVersionTable from "./AppVersionTable";
 import Toaster from "../../../../utils/Toaster";
+import AppLogsView from "./AppLogsView";
 
 interface IDeploymentTabProps extends AppDetailsTabProps {
   onUpdateConfigAndSave: () => void;
@@ -128,6 +129,10 @@ export default class Deployment extends ApiComponent<
         />
 
         <div style={{ height: 20 }} />
+        <AppLogsView appName={app.appName!} key={app.appName! + "-LogsView"} />
+
+        <hr />
+        <div style={{ height: 40 }} />
         <h4>
           <Icon type="rocket" /> Method 1: Official CLI
         </h4>
