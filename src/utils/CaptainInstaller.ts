@@ -44,7 +44,7 @@ function checkSystemReq() {
         .then(function(output) {
             if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
                 console.log(
-                    'Warning!!    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.'
+                    '******* Warning *******    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.'
                 )
             } else {
                 console.log('   Ubuntu detected.')
@@ -52,7 +52,7 @@ function checkSystemReq() {
 
             if (output.Architecture.toLowerCase().indexOf('x86') < 0) {
                 console.log(
-                    'Warning!!    Default CapRover is compiled for X86 CPU. To use CapRover on other CPUs you can build from the source code'
+                    '******* Warning *******    Default CapRover is compiled for X86 CPU. To use CapRover on other CPUs you can build from the source code'
                 )
             } else {
                 console.log('   X86 CPU detected.')
@@ -62,7 +62,7 @@ function checkSystemReq() {
 
             if (totalMemInMb < 1000) {
                 console.log(
-                    'Warning!!    With less than 1GB RAM, complex Docker builds might fail, see CapRover system requirements.'
+                    '******* Warning *******   With less than 1GB RAM, Docker builds might fail, see CapRover system requirements.'
                 )
             } else {
                 console.log('   Total RAM ' + totalMemInMb + ' MB')
