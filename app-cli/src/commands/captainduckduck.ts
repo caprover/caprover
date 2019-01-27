@@ -14,6 +14,16 @@ import logout from './logout';
 import deploy from './deploy';
 import serversetup from './serversetup';
 
+
+console.log('*************** DEPRECATION NOTICE *******************')
+console.log('******************************************************')
+console.log(' ')
+console.log(' ')
+console.log('     CaptainDuckDuck is now updated, rebranded and distributed as CapRover. See CapRover.com for details.')
+console.log(' ')
+console.log(' ')
+console.log('******************************************************')
+
 // Setup
 program.version(packagejson.version).description(packagejson.description);
 
