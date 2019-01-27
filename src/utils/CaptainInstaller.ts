@@ -181,10 +181,23 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
     })
 }
 
+function printTroubleShootingUrl() {
+    console.log('     ')
+    console.log(' Installation of CapRover is starting...     ')
+    console.log(
+        'For troubleshooting, please see: https://caprover.com/docs/troubleshooting.html'
+    )
+    console.log('     ')
+    console.log('     ')
+}
+
 let myIp4: string
 
 export function install() {
     Promise.resolve()
+        .then(function() {
+            printTroubleShootingUrl()
+        })
         .then(function() {
             return checkSystemReq()
         })
