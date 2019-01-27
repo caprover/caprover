@@ -1480,10 +1480,14 @@ class DockerApi {
                 return (self.dockerode.getService(serviceName) as any) //
                     .logs({
                         tail: tailCount,
+                        follow: false,
                         timestamps: true,
                         stdout: true,
                         stderr: true,
                     })
+            })
+            .then(function(data) {
+                return data && data.toString ? data.toString('utf8') : data
             })
     }
 

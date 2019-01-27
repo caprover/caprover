@@ -26,7 +26,7 @@ router.get('/:appName/logs', function(req, res, next) {
         .then(function(logs) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'App build status retrieved'
+                'App runtime logs are retrieved'
             )
             baseApi.data = {logs}
             res.send(baseApi)
