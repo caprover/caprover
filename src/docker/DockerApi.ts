@@ -1487,7 +1487,13 @@ class DockerApi {
                     })
             })
             .then(function(data) {
-                return data && data.toString ? data.toString('utf8') : data
+                if (Buffer.isBuffer(data)) {
+                    return data.toString('utf8')
+                }
+
+                throw new Error(
+                    'Logs are not instance of Buffer! Cannot be parsed!!'
+                )
             })
     }
 
