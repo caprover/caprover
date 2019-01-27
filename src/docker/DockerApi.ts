@@ -1488,7 +1488,7 @@ class DockerApi {
             })
             .then(function(data) {
                 if (Buffer.isBuffer(data)) {
-                    return data.toString('utf8')
+                    return data.toString('ascii')
                 }
 
                 throw new Error(
