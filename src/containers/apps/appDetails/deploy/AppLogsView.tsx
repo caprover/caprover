@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import * as utf8 from "utf8";
 import ApiComponent from "../../../global/ApiComponent";
 import Toaster from "../../../../utils/Toaster";
 import ClickableLink from "../../../global/ClickableLink";
@@ -43,14 +44,17 @@ export default class AppLogsView extends ApiComponent<
     this.apiManager
       .fetchAppLogs(this.props.appName)
       .then(function(logInfo: { logs: string }) {
-        const logsProcessed = logInfo.logs
-          .split(new RegExp(separators.join("|"), "g"))
-          .map(s => {
-            // See https://docs.docker.com/engine/api/v1.30/#operation/ContainerAttach for logs headers
-            return s.substring(4, s.length).replace(ansiRegex, "");
-            // add sorting if needed: new Date(s.substring(4+30, s.length)).getTime()
-          })
-          .join("");
+        const logsProcessed = utf8.decode(
+          logInfo.logs
+            .split(new RegExp(separators.join("|"), "g"))
+            .map(s => {
+              // See https://docs.docker.com/engine/api/v1.30/#operation/ContainerAttach for logs headers
+              return s.substring(4, s.length);
+              // add sorting if needed: new Date(s.substring(4+30, s.length)).getTime()
+            })
+            .join("")
+            .replace(ansiRegex, "")
+        );
 
         if (logsProcessed === self.state.appLogsStringified) {
           return;
