@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import * as utf8 from "utf8";
+import utf8 from "utf8";
 import ApiComponent from "../../../global/ApiComponent";
 import Toaster from "../../../../utils/Toaster";
 import ClickableLink from "../../../global/ClickableLink";
