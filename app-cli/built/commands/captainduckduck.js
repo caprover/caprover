@@ -12,6 +12,14 @@ const list_1 = require("./list");
 const logout_1 = require("./logout");
 const deploy_1 = require("./deploy");
 const serversetup_1 = require("./serversetup");
+console.log('*************** DEPRECATION NOTICE *******************');
+console.log('******************************************************');
+console.log(' ');
+console.log(' ');
+console.log('     CaptainDuckDuck is now updated, rebranded and distributed as CapRover. See CapRover.com for details.');
+console.log(' ');
+console.log(' ');
+console.log('******************************************************');
 // Setup
 program.version(packagejson.version).description(packagejson.description);
 // Commands
