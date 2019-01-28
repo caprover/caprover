@@ -312,6 +312,30 @@ class AppsDataStore {
         })
     }
 
+    addCustomDomainForAppForMigration(
+        appName: string,
+        hasDefaultSubDomainSsl: boolean,
+        customDomains: any[]
+    ) {
+        const self = this
+
+        return this.getAppDefinition(appName) //
+            .then(function(app) {
+                app.customDomain = app.customDomain || []
+
+                for (let idx = 0; idx < customDomains.length; idx++) {
+                    app.customDomain.push({
+                        publicDomain: customDomains[idx].publicDomain + '',
+                        hasSsl: !!customDomains[idx].hasSsl,
+                    })
+                }
+
+                app.hasDefaultSubDomainSsl = !!hasDefaultSubDomainSsl
+
+                return self.saveApp(appName, app)
+            })
+    }
+
     verifyCustomDomainBelongsToApp(appName: string, customDomain: string) {
         const self = this
 

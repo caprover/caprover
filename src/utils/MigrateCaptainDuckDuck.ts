@@ -265,6 +265,15 @@ export default class MigrateCaptainDuckDuck {
                                     app.preDeployFunction
                                 )
                                 .then(function() {
+                                    const customDomains = app.customDomain || []
+                                    const hasDefaultSubDomainSsl = !!app.hasDefaultSubDomainSsl
+                                    return appStore.addCustomDomainForAppForMigration(
+                                        appName,
+                                        hasDefaultSubDomainSsl,
+                                        customDomains
+                                    )
+                                })
+                                .then(function() {
                                     const oldVers: any[] = app.versions || []
                                     const newVers: IAppVersion[] = []
                                     const newVersOnlyDeployVersion: IAppVersion[] = []
