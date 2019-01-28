@@ -414,15 +414,20 @@ class AppsDataStore {
             // Just in case some versions from the db were deleted manually!!!
             for (let index = 0; index < versions.length; index++) {
                 const element = versions[index]
-                if (newVersionIndex < element.version) {
+                if (newVersionIndex <= element.version) {
                     newVersionIndex = element.version + 1
                 }
+
+                // In Ver <= v1.1.0, timeStamp was set to new Date().toString() which creates an inconsistent date format.
+                element.timeStamp = element.timeStamp
+                    ? new Date(element.timeStamp + '').toISOString()
+                    : new Date().toISOString()
             }
 
             versions.push({
                 version: newVersionIndex,
                 gitHash: undefined,
-                timeStamp: new Date().toString(),
+                timeStamp: new Date().toISOString(),
             })
 
             return self.saveApp(appName, app).then(function() {
