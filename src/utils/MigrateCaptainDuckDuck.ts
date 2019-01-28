@@ -248,22 +248,7 @@ export default class MigrateCaptainDuckDuck {
                                 repoInfo.repo = extracted.repo
                             }
 
-                            return appStore
-                                .updateAppDefinitionInDb(
-                                    appName,
-                                    Number(app.instanceCount),
-                                    app.envVars || [],
-                                    app.volumes || [],
-                                    app.nodeId || '',
-                                    !!app.notExposeAsWebApp,
-                                    80,
-                                    !!app.forceSsl,
-                                    app.ports || [],
-                                    repoInfo,
-                                    self.authenticator,
-                                    app.customNginxConfig,
-                                    app.preDeployFunction
-                                )
+                            return Promise.resolve()
                                 .then(function() {
                                     const customDomains = app.customDomain || []
                                     const hasDefaultSubDomainSsl = !!app.hasDefaultSubDomainSsl
@@ -330,6 +315,23 @@ export default class MigrateCaptainDuckDuck {
                                             ? newVersOnlyDeployVersion
                                             : newVers,
                                         deployedVersion
+                                    )
+                                })
+                                .then(function() {
+                                    return appStore.updateAppDefinitionInDb(
+                                        appName,
+                                        Number(app.instanceCount),
+                                        app.envVars || [],
+                                        app.volumes || [],
+                                        app.nodeId || '',
+                                        !!app.notExposeAsWebApp,
+                                        80,
+                                        !!app.forceSsl,
+                                        app.ports || [],
+                                        repoInfo,
+                                        self.authenticator,
+                                        app.customNginxConfig,
+                                        app.preDeployFunction
                                     )
                                 })
                         })
