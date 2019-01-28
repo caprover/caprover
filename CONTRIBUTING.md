@@ -12,17 +12,18 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Pull Request Process
 
-1. IF APPLICABLE: Update the README.md with details of changes to the interface, this includes new environment 
+1. IF APPLICABLE: Update the docs (https://github.com/caprover/caprover-website) with details of changes to the interface, this includes new environment 
    variables, exposed ports, useful file locations and container parameters.
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
 4. To keep the process simple with just a few contributors, development happens directly on the master branch
    and releases will be deployed on the same branch.
+5. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
    
 ## Running dev environment
 
 First, you need a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
-or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README)
+or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README). Ubuntu is the best dev environment for CapRover.
 
 > Docker for Mac users: You need to add `/captain` to shared paths.  
 > To do so, click on the Docker icon -> Preferences -> File Sharing and add `/captain`
@@ -31,12 +32,12 @@ Log in to your machine, clone the git repo, go to `app-backend` directory and ru
 
 ```bash
 $   npm install
-$   ./dev-clean-run-as-dev.sh
+$   ./dev-scripts/dev-clean-run-as-dev.sh
 ```
 You are good to go! You can run the following line to see the logs for the back-end service.
 
 ```bash
-docker service logs captain-captain --follow
+npm run dev
 ```
 The main differences between the release and debug mode are:
 - docker image is created from the local source file, instead of getting pulled from Docker hub
@@ -48,7 +49,8 @@ The main differences between the release and debug mode are:
 
 Captain by default uses `captain.localhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
-`*.captain-x` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
+`*.captain.localhost` (wild card domain) to your local IP. A simple `hosts` change won't be useful as we need a wildcard entry.
+
 On ubuntu 16, it's as simple of editing this file:
 `/etc/NetworkManager/dnsmasq.d/dnsmasq-localhost.conf` (create if does not exist)
 And add this line to it: `address=/captain.localhost/192.168.1.2` where `192.168.1.2` is your local IP address.
@@ -57,19 +59,16 @@ path of it will be printed on the terminal, otherwise, there won't be anything p
 
 
 ### front end development:
-First, you simply run the debug build for the backend service as explained above.
-Then go to `app-frontend` and run `yarn` followed by `yarn start`. Frontend app is based on CreateReactApp.
-
-Change the endpoint for the backend server to your debug instance by editing this file:
-`ApiManager.ts`
+See https://github.com/caprover/caprover-frontend
 
 ### CLI development:
-Just simply install dependencies in `app-cli` directory by running `npm install` and you are good to go!
+
+See https://github.com/caprover/caprover-cli
 
 ### Backend development:
 Start the debug build for the backend service as explained above. To see any changes you make,
 first save the changes, then you need to restart the service either by sending a request to `/force-exit` endpoint,
-or by running `./dev-reset-service.sh` script which is available in `app-backend` directory.
+or by running `npm run dev`.
 
 ### Security Issues
 Security issues are high priority and they will be addressed immediately. If you find a security issue, please do not post as a public issue, instead, please email it to us: security at caprover dot com.
