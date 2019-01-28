@@ -1,7 +1,7 @@
 # Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue,
-email, or any other method with the owners of this repository before making a change. The best way is our Telegram channel:
+email, or any other method with the owners of this repository before making a change. The best way is our Slack channel:
 
 ```
 https://join.slack.com/t/captainduckduck/shared_invite/enQtNDEwMjc3MjcxNjUzLWQ4YjljN2JiMGU5Nzk5NjcwMDEzNDNiMTNkOTVhNTA4YTYwOThkNDkyMTlkMDFhMzAzOTA5YjcwY2E4NWRkYzk
