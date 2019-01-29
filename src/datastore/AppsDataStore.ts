@@ -41,7 +41,10 @@ class AppsDataStore {
         return Promise.resolve()
             .then(function() {
                 if (!appName) {
-                    throw new Error('App Name should not be empty')
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'App Name should not be empty'
+                    )
                 }
 
                 let pushWebhook = app.appPushWebhook
@@ -83,6 +86,18 @@ class AppsDataStore {
                     }
                 }
 
+                if (app.envVars) {
+                    for (let i = 0; i < app.envVars.length; i++) {
+                        const element = app.envVars[i]
+                        if (!element.key) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Environmental Variable key is empty!'
+                            )
+                        }
+                    }
+                }
+
                 if (app.ports) {
                     for (let i = 0; i < app.ports.length; i++) {
                         const obj = app.ports[i]
@@ -94,12 +109,16 @@ class AppsDataStore {
                                 !isPortValid(containerPort) ||
                                 !isPortValid(hostPort)
                             ) {
-                                throw new Error(
+                                throw ApiStatusCodes.createError(
+                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
                                     `Invalid ports: ${hostPort} or ${containerPort}`
                                 )
                             }
                         } else {
-                            throw new Error('Host or container port is missing')
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                `Host or container port is missing`
+                            )
                         }
                     }
                 }
@@ -111,7 +130,8 @@ class AppsDataStore {
                             !obj.containerPath ||
                             !(obj.volumeName || obj.hostPath)
                         ) {
-                            throw new Error(
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
                                 'containerPath or the source paths (volume name or host path) are missing'
                             )
                         }
@@ -212,7 +232,10 @@ class AppsDataStore {
 
         return this.getAppDefinitions().then(function(allApps) {
             if (!appName) {
-                throw new Error('App Name should not be empty')
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'App Name should not be empty'
+                )
             }
 
             const app = allApps[appName]
@@ -251,8 +274,8 @@ class AppsDataStore {
                     }
                 }
             }
-
-            throw new Error(
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
                 `customDomain: ${customDomain} is not attached to app ${appName}`
             )
         })
@@ -363,11 +386,17 @@ class AppsDataStore {
         builtImage: IBuiltImage
     ) {
         if (!appName) {
-            throw new Error('App Name should not be empty')
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'App Name should not be empty'
+            )
         }
 
         if (!builtImage || !builtImage.imageName) {
-            throw new Error('ImageName Name should not be empty')
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'ImageName Name should not be empty'
+            )
         }
 
         const self = this
@@ -389,7 +418,8 @@ class AppsDataStore {
                 }
 
                 if (!found) {
-                    throw new Error(
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
                         `Version trying to deploy not found ${deployedVersion}`
                     )
                 }
@@ -402,7 +432,10 @@ class AppsDataStore {
 
     createNewVersion(appName: string) {
         if (!appName) {
-            throw new Error('App Name should not be empty')
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'App Name should not be empty'
+            )
         }
         const self = this
 
@@ -539,6 +572,12 @@ class AppsDataStore {
                         const obj = ports[i]
                         const containerPort = Number(obj.containerPort)
                         const hostPort = Number(obj.hostPort)
+
+                        if (!containerPort && !hostPort) {
+                            // Empty entry... Skipping...
+                            continue
+                        }
+
                         appObj.ports.push({
                             hostPort: hostPort,
                             containerPort: containerPort,
@@ -550,12 +589,18 @@ class AppsDataStore {
                     appObj.envVars = []
                     for (let i = 0; i < envVars.length; i++) {
                         const obj = envVars[i]
-                        if (obj.key && obj.value) {
-                            appObj.envVars.push({
-                                key: obj.key,
-                                value: obj.value,
-                            })
+                        obj.key = (obj.key || '').trim()
+                        obj.value = obj.value || ''
+
+                        if (!obj.key && !obj.value) {
+                            // Empty entry... Skipping...
+                            continue
                         }
+
+                        appObj.envVars.push({
+                            key: obj.key,
+                            value: obj.value,
+                        })
                     }
                 }
 
@@ -566,13 +611,22 @@ class AppsDataStore {
                         const obj = volumes[i]
 
                         const newVol = {
-                            containerPath: obj.containerPath,
+                            containerPath: (obj.containerPath || '').trim(),
                         } as IAppVolume
 
                         if (obj.hostPath) {
-                            newVol.hostPath = obj.hostPath
+                            newVol.hostPath = (obj.hostPath || '').trim()
                         } else {
-                            newVol.volumeName = obj.volumeName
+                            newVol.volumeName = (obj.volumeName || '').trim()
+                        }
+
+                        if (
+                            !newVol.containerPath &&
+                            !newVol.hostPath &&
+                            !newVol.volumeName
+                        ) {
+                            // Empty entry... Skipping...
+                            continue
                         }
 
                         appObj.volumes.push(newVol)
