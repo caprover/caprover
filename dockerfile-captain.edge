@@ -9,10 +9,11 @@ WORKDIR /usr/src/app
 # Build backend code
 
 COPY . /usr/src/app
-RUN npm install && npm cache clean --force
-RUN npm run build
 
-RUN mv ./edge-override.json ./config-override.json
+RUN npm install && \
+     npm cache clean --force && \
+     npm run build && \
+     mv ./edge-override.json ./config-override.json
 
 
 # Build frontend code
@@ -26,7 +27,9 @@ RUN mkdir -p /usr/src/app-frontend && cd /usr/src/app-frontend && \
     git log --max-count=1 && \
     npm install && npm cache clean --force && \
     npm run build && \
-    mv ./build ../../app/dist-frontend
+    mv ./build ../../app/dist-frontend && \
+    cd / && \
+    rm -rf /usr/src/app-frontend
 
 
 ENV NODE_ENV production
