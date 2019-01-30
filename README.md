@@ -1,7 +1,7 @@
 ### CapRover (formerly CaptainDuckDuck)
 #### Easiest app/database deployment platform and webserver package for your NodeJS, Python, PHP, Ruby, Go applications. No Docker, nginx knowledge required! &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcaprover%2Fcaprover&via=cap_rover&text=I%20found%20the%20easiest%20webserver%20package%20for%20NodeJS%2C%20PHP%2C%20MySQL%2C%20WordPress%20and%20everything%21&hashtags=CapRover%2Cnodejs%2Cdocker%2Cnginx%2Cwebdev)
 
-[![YouTube](https://raw.githubusercontent.com/caprover/caprover-website/6794bf75ca45c4afb16b038b9274bd8fd34e9882/graphics/screenshots.gif)](https://www.youtube.com/watch?v=XDrTmGSDW3s)
+[![YouTube](https://raw.githubusercontent.com/caprover/caprover-website/master/graphics/screenshots-video.gif)](https://www.youtube.com/watch?v=XDrTmGSDW3s)
 
 ### Seriously! Who should care about CapRover?
 - A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
