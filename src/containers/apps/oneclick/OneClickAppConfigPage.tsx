@@ -12,6 +12,8 @@ import OneClickAppDeployManager, {
 import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 import DomUtils from "../../../utils/DomUtils";
 import { IOneClickTemplate } from "../../../models/IOneClickAppModels";
+import { TEMPLATE_ONE_CLICK_APP } from "./OneClickAppSelector";
+const queryString = require("query-string");
 
 export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
 
@@ -49,8 +51,22 @@ export default class OneClickAppConfigPage extends Component<
 
   componentDidMount() {
     const self = this;
-    new OneClickAppsApi()
-      .getOneClickAppByName(this.props.match.params.appName)
+
+    const appNameFromPath = this.props.match.params.appName;
+    let promiseToFetchOneClick =
+      appNameFromPath === TEMPLATE_ONE_CLICK_APP
+        ? new Promise(function(resolve, reject) {
+            resolve(
+              JSON.parse(
+                queryString.parse(self.props.location.search, {
+                  ignoreQueryPrefix: true
+                }).oneClickAppStringifiedData
+              )
+            );
+          })
+        : new OneClickAppsApi().getOneClickAppByName(appNameFromPath);
+
+    promiseToFetchOneClick
       .then(function(data: IOneClickTemplate) {
         if ((data.captainVersion || "").toString() !== "1") {
           message.error(
