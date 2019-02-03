@@ -421,6 +421,7 @@ class ServiceManager {
     updateAppDefinition(
         appName: string,
         instanceCount: number,
+        captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
         nodeId: string,
@@ -516,6 +517,7 @@ class ServiceManager {
                     .updateAppDefinitionInDb(
                         appName,
                         instanceCount,
+                        captainDefinitionRelativeFilePath,
                         envVars,
                         volumes,
                         nodeId,

@@ -313,6 +313,8 @@ router.post('/update/', function(req, res, next) {
 
     let appName = req.body.appName
     let nodeId = req.body.nodeId
+    let captainDefinitionRelativeFilePath =
+        req.body.captainDefinitionRelativeFilePath
     let notExposeAsWebApp = req.body.notExposeAsWebApp
     let customNginxConfig = req.body.customNginxConfig
     let forceSsl = !!req.body.forceSsl
@@ -342,6 +344,7 @@ router.post('/update/', function(req, res, next) {
         .updateAppDefinition(
             appName,
             Number(instanceCount),
+            captainDefinitionRelativeFilePath,
             envVars,
             volumes,
             nodeId,

@@ -321,6 +321,7 @@ export default class MigrateCaptainDuckDuck {
                                     return appStore.updateAppDefinitionInDb(
                                         appName,
                                         Number(app.instanceCount),
+                                        CaptainConstants.defaultCaptainDefinitionPath,
                                         app.envVars || [],
                                         app.volumes || [],
                                         app.nodeId || '',

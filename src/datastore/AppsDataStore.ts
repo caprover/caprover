@@ -494,6 +494,7 @@ class AppsDataStore {
     updateAppDefinitionInDb(
         appName: string,
         instanceCount: number,
+        captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
         nodeId: string,
@@ -562,6 +563,11 @@ class AppsDataStore {
 
                 if (instanceCount >= 0) {
                     appObj.instanceCount = instanceCount
+                }
+
+                if (captainDefinitionRelativeFilePath) {
+                    appObj.captainDefinitionRelativeFilePath =
+                        captainDefinitionRelativeFilePath + ''
                 }
 
                 appObj.notExposeAsWebApp = !!notExposeAsWebApp
