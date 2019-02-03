@@ -8,7 +8,8 @@
     "clean": "sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "build": "rm -rf ./built && npx tsc",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "opencollective-postinstall"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -49,6 +50,7 @@
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "on-finished": "^2.3.0",
+    "opencollective-postinstall": "^2.0.1",
     "public-ip": "^3.0.0",
     "recursive-readdir": "^2.2.2",
     "request": "^2.88.0",
@@ -60,9 +62,14 @@
     "tslint": "^5.12.1",
     "typescript": "^3.2.4",
     "uuid": "^3.3.2",
-    "validator": "^10.11.0"
+    "validator": "^10.11.0",
+    "opencollective": "^1.0.3"
   },
   "devDependencies": {
     "jest": "^24.0.0"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/caprover"
   }
 }
