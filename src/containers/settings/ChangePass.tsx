@@ -36,7 +36,7 @@ export default class ChangePass extends ApiComponent<
       .changePass(this.state.old, this.state.new1)
       .catch(Toaster.createCatcher())
       .then(function() {
-        self.apiManager.getAuthToken(self.state.new1)
+        self.apiManager.getAuthToken(self.state.new1);
         self.setState({ isLoading: false });
         message.success("Password changed successfully!");
       });
@@ -50,22 +50,19 @@ export default class ChangePass extends ApiComponent<
     return (
       <div>
         Old Password
-        <Input
-          type="password"
+        <Input.Password
           onChange={e => this.setState({ old: e.target.value })}
         />
         <div style={{ height: 20 }} />
         <hr />
         <div style={{ height: 20 }} />
         New Password
-        <Input
-          type="password"
+        <Input.Password
           onChange={e => this.setState({ new1: e.target.value })}
         />
         <div style={{ height: 20 }} />
         Confirm New Password
-        <Input
-          type="password"
+        <Input.Password
           onChange={e => this.setState({ new2: e.target.value })}
         />
         <div style={{ height: 40 }} />

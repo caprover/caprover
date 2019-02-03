@@ -61,9 +61,8 @@ class NormalLoginForm extends React.Component<any, any> {
           {getFieldDecorator("password", {
             rules: [{ required: true, message: "Please input your Password!" }]
           })(
-            <Input
+            <Input.Password
               prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-              type="password"
               placeholder="Password"
             />
           )}
