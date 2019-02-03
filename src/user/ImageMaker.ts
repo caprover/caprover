@@ -115,6 +115,7 @@ export default class ImageMaker {
                 gitHash = gitHashFromImageSource
                 // some users convert the directory into TAR instead of converting the content into TAR.
                 // we go one level deep and try to find the right directory.
+                // Also, they may have no captain-definition file, in that case, fall back to Dockerfile if exists.
                 return self.getAbsolutePathOfCaptainDefinition(
                     rawDir,
                     captainDefinitionRelativeFilePath
@@ -450,24 +451,59 @@ export default class ImageMaker {
     ) {
         const self = this
 
-        function isCaptainDefinitionInDir(dir: string) {
-            const pathToCheck = path.join(
+        function isCaptainDefinitionOrDockerfileInDir(dir: string) {
+            const captainDefinitionPossiblePath = path.join(
                 dir,
                 captainDefinitionRelativeFilePath
             )
             return Promise.resolve()
                 .then(function() {
-                    return fs.pathExists(pathToCheck)
+                    return fs.pathExists(captainDefinitionPossiblePath)
                 })
                 .then(function(exits) {
-                    return !!exits && fs.statSync(pathToCheck).isFile()
+                    return (
+                        !!exits &&
+                        fs.statSync(captainDefinitionPossiblePath).isFile()
+                    )
+                })
+                .then(function(captainDefinitionExists) {
+                    if (captainDefinitionExists) return true
+
+                    // Falling back to plain Dockerfile, check if it exists!
+
+                    const dockerfilePossiblePath = path.join(dir, DOCKER_FILE)
+                    return fs
+                        .pathExists(dockerfilePossiblePath)
+                        .then(function(exits) {
+                            return (
+                                !!exits &&
+                                fs.statSync(dockerfilePossiblePath).isFile()
+                            )
+                        })
+                        .then(function(dockerfileExists) {
+                            if (!dockerfileExists) return false
+
+                            const captainDefinitionDefault: ICaptainDefinition = {
+                                schemaVersion: 2,
+                                dockerfilePath: './' + DOCKER_FILE,
+                            }
+
+                            return fs
+                                .outputFile(
+                                    captainDefinitionPossiblePath,
+                                    JSON.stringify(captainDefinitionDefault)
+                                )
+                                .then(function() {
+                                    return true
+                                })
+                        })
                 })
         }
 
         return Promise.resolve()
             .then(function() {
                 // make sure if you need to go to child directory
-                return isCaptainDefinitionInDir(originalDirectory)
+                return isCaptainDefinitionOrDockerfileInDir(originalDirectory)
             })
             .then(function(exists) {
                 if (exists) return originalDirectory
@@ -481,7 +517,7 @@ export default class ImageMaker {
                     .then(function(files) {
                         files = files || []
                         if (files.length === 1) {
-                            return isCaptainDefinitionInDir(
+                            return isCaptainDefinitionOrDockerfileInDir(
                                 path.join(originalDirectory, files[0])
                             ) //
                                 .then(function(existsInChild) {
