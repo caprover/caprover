@@ -102,6 +102,12 @@ export default class Deployment extends ApiComponent<
           branch: "",
           repo: ""
         };
+
+    const webhookPushUrlRelativePath = hasPushToken
+      ? "/user/apps/webhooks/triggerbuild?namespace=captain&token=" +
+        app.appPushWebhook!.pushWebhookToken
+      : "";
+
     return (
       <div>
         <BuildLogsView
@@ -190,8 +196,8 @@ export default class Deployment extends ApiComponent<
                 ? window.location.protocol +
                   "//captain." +
                   this.props.apiData.rootDomain +
-                  "/api/v2/user/apps/webhooks/triggerbuild?namespace=captain&token=" +
-                  app.appPushWebhook!.pushWebhookToken
+                  "/api/v2" +
+                  webhookPushUrlRelativePath
                 : "** Add repo info and save for this webhook to appear **"
             }
           />
@@ -214,6 +220,20 @@ export default class Deployment extends ApiComponent<
           }}
         />
         <Row type="flex" justify="end">
+          <Button
+            disabled={!hasPushToken}
+            style={{ marginRight: 10 }}
+            onClick={() => {
+              self.apiManager
+                .forceBuild(webhookPushUrlRelativePath)
+                .then(function() {
+                  self.onUploadSuccess();
+                })
+                .catch(Toaster.createCatcher());
+            }}
+          >
+            Force Build
+          </Button>
           <Button
             disabled={!repoInfo.repo}
             type="primary"
@@ -255,9 +275,7 @@ export default class Deployment extends ApiComponent<
             />
           </Col>
           <Col span={6}>
-            <div
-              style={{ paddingLeft: 24 }}
-            >
+            <div style={{ paddingLeft: 24 }}>
               <Tooltip title="You shouldn't need to change this path unless you have a repository with multiple captain-definition files (mono repos). Read docs for captain definition before editing this">
                 <Button
                   type="default"

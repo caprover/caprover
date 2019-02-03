@@ -413,6 +413,13 @@ export default class ApiManager {
       );
   }
 
+  forceBuild(webhookPath: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.POST, webhookPath, {}));
+  }
+
   getAllNodes() {
     const http = this.http;
 

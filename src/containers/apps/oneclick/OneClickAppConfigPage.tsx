@@ -57,11 +57,9 @@ export default class OneClickAppConfigPage extends Component<
       appNameFromPath === TEMPLATE_ONE_CLICK_APP
         ? new Promise(function(resolve, reject) {
             resolve(
-              JSON.parse(
-                queryString.parse(self.props.location.search, {
-                  ignoreQueryPrefix: true
-                }).oneClickAppStringifiedData
-              )
+              JSON.parse(queryString.parse(self.props.location.search)[
+                "oneClickAppStringifiedData"
+              ] as string)
             );
           })
         : new OneClickAppsApi().getOneClickAppByName(appNameFromPath);
