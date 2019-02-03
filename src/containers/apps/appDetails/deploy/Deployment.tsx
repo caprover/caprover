@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AppDetailsTabProps } from "../AppDetails";
 import BuildLogsView from "./BuildLogsView";
-import { Col, Row, Upload, Input, message, Icon, Button } from "antd";
+import { Col, Row, Upload, Input, message, Icon, Button, Tooltip } from "antd";
 import TarUploader from "./TarUploader";
 import GitRepoForm from "./GitRepoForm";
 import { RepoInfo, IAppDef, IAppVersion } from "../../AppDefinition";
@@ -21,6 +21,7 @@ export default class Deployment extends ApiComponent<
   IDeploymentTabProps,
   {
     dummyVar: undefined;
+    forceEditableCaptainDefinitionPath: boolean;
     buildLogRecreationId: string;
     updatedVersions:
       | { versions: IAppVersion[]; deployedVersion: number }
@@ -31,6 +32,7 @@ export default class Deployment extends ApiComponent<
     super(props);
     this.state = {
       dummyVar: undefined,
+      forceEditableCaptainDefinitionPath: false,
       updatedVersions: undefined,
       buildLogRecreationId: ""
     };
@@ -236,6 +238,40 @@ export default class Deployment extends ApiComponent<
           appName={app.appName!}
           onUploadSucceeded={() => self.onUploadSuccess()}
         />
+        <div style={{ height: 20 }} />
+        <Row>
+          <Col span={6} style={{ width: 400 }}>
+            <Input
+              addonBefore="captain-definition Relative Path"
+              type="text"
+              defaultValue={app.captainDefinitionRelativeFilePath + ""}
+              disabled={!this.state.forceEditableCaptainDefinitionPath}
+              onChange={e => {
+                const newApiData = Utils.copyObject(this.props.apiData);
+                newApiData.appDefinition.captainDefinitionRelativeFilePath =
+                  e.target.value;
+                this.props.updateApiData(newApiData);
+              }}
+            />
+          </Col>
+          <Col span={6}>
+            <div
+              style={{ paddingLeft: 24 }}
+            >
+              <Tooltip title="You shouldn't need to change this path unless you have a repository with multiple captain-definition files (mono repos). Read docs for captain definition before editing this">
+                <Button
+                  type="default"
+                  disabled={this.state.forceEditableCaptainDefinitionPath}
+                  onClick={() =>
+                    this.setState({ forceEditableCaptainDefinitionPath: true })
+                  }
+                >
+                  Edit
+                </Button>
+              </Tooltip>
+            </div>
+          </Col>
+        </Row>
       </div>
     );
   }
