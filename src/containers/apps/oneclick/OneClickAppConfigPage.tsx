@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import queryString from "query-string";
 import OneClickAppsApi from "../../../api/OneClickAppsApi";
 import { RouteComponentProps } from "react-router";
 import { IHashMapGeneric } from "../../../models/IHashMapGeneric";
@@ -13,7 +14,6 @@ import OneClickAppDeployProgress from "./OneClickAppDeployProgress";
 import DomUtils from "../../../utils/DomUtils";
 import { IOneClickTemplate } from "../../../models/IOneClickAppModels";
 import { TEMPLATE_ONE_CLICK_APP } from "./OneClickAppSelector";
-const queryString = require("query-string");
 
 export const ONE_CLICK_APP_NAME_VAR_NAME = "$$cap_appname";
 
