@@ -57,7 +57,17 @@ class ServiceManager {
             })
             .then(function(appVersion) {
                 deployedVersion = appVersion
-                return self.imageMaker.ensureImage(source, appName, appVersion)
+                return dataStore
+                    .getAppsDataStore()
+                    .getAppDefinition(appName)
+                    .then(function(app) {
+                        return self.imageMaker.ensureImage(
+                            source,
+                            appName,
+                            app.captainDefinitionRelativeFilePath,
+                            appVersion
+                        )
+                    })
             })
             .then(function(builtImage) {
                 return dataStore

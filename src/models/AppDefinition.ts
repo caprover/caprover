@@ -52,6 +52,7 @@ interface IAppDefinitionBase {
     hasPersistentData: boolean
     hasDefaultSubDomainSsl: boolean
     containerHttpPort?: number
+    captainDefinitionRelativeFilePath: string
     forceSsl: boolean
     nodeId?: string
     instanceCount: number

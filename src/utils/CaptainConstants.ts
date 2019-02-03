@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.1.0',
+    version: '1.2.0',
 
     defaultMaxLogSize: '512m',
 
@@ -54,6 +54,8 @@ let data = {
     rootNameSpace: 'captain',
 
     // *********************** Disk Paths ************************
+
+    defaultCaptainDefinitionPath: './captain-definition',
 
     dockerSocketPath: '/var/run/docker.sock',
 

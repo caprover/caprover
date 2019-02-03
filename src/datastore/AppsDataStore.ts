@@ -200,6 +200,11 @@ class AppsDataStore {
                 allAppsUnencrypted[appName] = allApps[appName]
                 const appUnencrypted = allAppsUnencrypted[appName]
 
+                // captainDefinitionFilePath added in v1.2.0, we need to backfill if it doesn't exists.
+                appUnencrypted.captainDefinitionRelativeFilePath =
+                    appUnencrypted.captainDefinitionRelativeFilePath ||
+                    CaptainConstants.defaultCaptainDefinitionPath
+
                 const appSave = allApps[appName] as IAppDefSaved
 
                 if (
@@ -208,7 +213,7 @@ class AppsDataStore {
                     appSave.appPushWebhook.repoInfo.passwordEncrypted
                 ) {
                     const repo = appSave.appPushWebhook!.repoInfo
-                    appUnencrypted!.appPushWebhook = {
+                    appUnencrypted.appPushWebhook = {
                         tokenVersion: appSave.appPushWebhook.tokenVersion,
                         pushWebhookToken:
                             appSave.appPushWebhook.pushWebhookToken,
@@ -701,6 +706,8 @@ class AppsDataStore {
             const defaultAppDefinition: IAppDef = {
                 hasPersistentData: !!hasPersistentData,
                 instanceCount: 1,
+                captainDefinitionRelativeFilePath:
+                    CaptainConstants.defaultCaptainDefinitionPath,
                 networks: [CaptainConstants.captainNetworkName],
                 envVars: [],
                 volumes: [],

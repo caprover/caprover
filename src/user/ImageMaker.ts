@@ -50,7 +50,6 @@ import DockerRegistryHelper = require('./DockerRegistryHelper')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
-const CAPTAIN_DEFINITION_FILE = 'captain-definition'
 const DOCKER_FILE = 'Dockerfile'
 
 export default class ImageMaker {
@@ -80,6 +79,7 @@ export default class ImageMaker {
     ensureImage(
         imageSource: IImageSource,
         appName: string,
+        captainDefinitionRelativeFilePath: string,
         appVersion: number
     ): Promise<IBuiltImage> {
         const self = this
@@ -105,20 +105,24 @@ export default class ImageMaker {
 
         return Promise.resolve() //
             .then(function() {
-                return self.ensureDirectoryWithCaptainDefinition(
+                return self.extractContentIntoDestDirectory(
                     imageSource,
-                    rawDir
+                    rawDir,
+                    captainDefinitionRelativeFilePath
                 )
             })
             .then(function(gitHashFromImageSource) {
                 gitHash = gitHashFromImageSource
                 // some users convert the directory into TAR instead of converting the content into TAR.
                 // we go one level deep and try to find the right directory.
-                return self.correctDirectoryAndEnsureCaptainDefinition(rawDir)
+                return self.getAbsolutePathOfCaptainDefinition(
+                    rawDir,
+                    captainDefinitionRelativeFilePath
+                )
             })
-            .then(function(correctedDir) {
+            .then(function(captainDefinitionAbsolutePath) {
                 return self
-                    .getCaptainDefinition(correctedDir)
+                    .getCaptainDefinition(captainDefinitionAbsolutePath)
                     .then(function(captainDefinition) {
                         if (captainDefinition.imageName) {
                             self.buildLogs[appName].log(
@@ -149,7 +153,7 @@ export default class ImageMaker {
 
                         return self.getBuildPushAndReturnImageName(
                             captainDefinition,
-                            correctedDir,
+                            path.dirname(captainDefinitionAbsolutePath),
                             tarFilePath,
                             baseImageNameWithoutVerAndReg,
                             appName,
@@ -258,14 +262,16 @@ export default class ImageMaker {
     }
 
     /**
-     * Returns a promise that resolve to path a directory where source files + captain definition
+     * Extracts the content of IImageSource into destDirectory and returns a promise that resolvea
+     * to git hash that was provided in IImageSource
      *
      * @param source        the image source
      * @param destDirectory the path to directory where we want to have all our contents
      */
-    private ensureDirectoryWithCaptainDefinition(
+    private extractContentIntoDestDirectory(
         source: IImageSource,
-        destDirectory: string
+        destDirectory: string,
+        captainDefinitionRelativeFilePath: string
     ) {
         return Promise.resolve() //
             .then(function() {
@@ -311,7 +317,10 @@ export default class ImageMaker {
                 if (captainDefinitionContentSource) {
                     return fs
                         .outputFile(
-                            destDirectory + '/' + CAPTAIN_DEFINITION_FILE,
+                            path.join(
+                                destDirectory,
+                                captainDefinitionRelativeFilePath
+                            ),
                             captainDefinitionContentSource.captainDefinitionContent
                         )
                         .then(function() {
@@ -338,14 +347,10 @@ export default class ImageMaker {
             })
     }
 
-    private getCaptainDefinition(directoryWithCaptainDefinition: string) {
+    private getCaptainDefinition(captainDefinitionAbsolutePath: string) {
         return Promise.resolve() //
             .then(function() {
-                return fs.readJson(
-                    directoryWithCaptainDefinition +
-                        '/' +
-                        CAPTAIN_DEFINITION_FILE
-                )
+                return fs.readJson(captainDefinitionAbsolutePath)
             })
             .then(function(data: ICaptainDefinition) {
                 if (!data) {
@@ -439,13 +444,17 @@ export default class ImageMaker {
             })
     }
 
-    private correctDirectoryAndEnsureCaptainDefinition(
-        originalDirectory: string
+    private getAbsolutePathOfCaptainDefinition(
+        originalDirectory: string,
+        captainDefinitionRelativeFilePath: string
     ) {
         const self = this
 
         function isCaptainDefinitionInDir(dir: string) {
-            const pathToCheck = path.join(dir, CAPTAIN_DEFINITION_FILE)
+            const pathToCheck = path.join(
+                dir,
+                captainDefinitionRelativeFilePath
+            )
             return Promise.resolve()
                 .then(function() {
                     return fs.pathExists(pathToCheck)
@@ -494,6 +503,12 @@ export default class ImageMaker {
                             'Captain Definition file does not exist!'
                         )
                     })
+            })
+            .then(function(correctedRootDirectory) {
+                return path.join(
+                    correctedRootDirectory,
+                    captainDefinitionRelativeFilePath
+                )
             })
     }
 
