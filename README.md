@@ -1,5 +1,5 @@
 ### CapRover (formerly CaptainDuckDuck)
-#### Easiest app/database deployment platform and webserver package for your NodeJS, Python, PHP, Ruby, Go applications. No Docker, nginx knowledge required! &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcaprover%2Fcaprover&via=cap_rover&text=I%20found%20the%20easiest%20webserver%20package%20for%20NodeJS%2C%20PHP%2C%20MySQL%2C%20WordPress%20and%20everything%21&hashtags=CapRover%2Cnodejs%2Cdocker%2Cnginx%2Cwebdev)
+#### Easiest app/database deployment platform and webserver package for your NodeJS, Python, PHP, Ruby, Go applications. No Docker, nginx knowledge required! &nbsp; [![Backers on Open Collective](https://opencollective.com/caprover/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/caprover/sponsors/badge.svg)](#sponsors) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcaprover%2Fcaprover&via=cap_rover&text=I%20found%20the%20easiest%20webserver%20package%20for%20NodeJS%2C%20PHP%2C%20MySQL%2C%20WordPress%20and%20everything%21&hashtags=CapRover%2Cnodejs%2Cdocker%2Cnginx%2Cwebdev)
 
 [![YouTube](https://raw.githubusercontent.com/caprover/caprover-website/master/graphics/screenshots-video-small.gif)](https://www.youtube.com/watch?v=XDrTmGSDW3s)
 
@@ -13,3 +13,33 @@
 ## Learn More!
 
 For more details and documentation, please visit https://CapRover.com/
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/caprover/caprover/graphs/contributors"><img src="https://opencollective.com/caprover/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/caprover#backer)]
+
+<a href="https://opencollective.com/caprover#backers" target="_blank"><img src="https://opencollective.com/caprover/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/caprover#sponsor)]
+
+<a href="https://opencollective.com/caprover/sponsor/0/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/1/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/2/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/3/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/4/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/5/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/6/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/7/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/8/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/caprover/sponsor/9/website" target="_blank"><img src="https://opencollective.com/caprover/sponsor/9/avatar.svg"></a>
+
+
