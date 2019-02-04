@@ -47,7 +47,9 @@ function getPushedBranches(req: express.Request) {
 
 router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
     // From this point on, we don't want to error out. Just do the build process in the background
-    res.sendStatus(200)
+    res.send(
+        new BaseApi(ApiStatusCodes.STATUS_OK, 'Build webhook has triggered')
+    )
 
     Promise.resolve()
         .then(function() {
