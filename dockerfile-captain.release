@@ -6,8 +6,9 @@ WORKDIR /usr/src/app
 # Build backend code
 
 COPY . /usr/src/app
-RUN npm install && npm cache clean --force
-RUN npm run build
+RUN npm install && \
+     npm cache clean --force && \
+     npm run build 
 
 
 
@@ -22,8 +23,9 @@ RUN mkdir -p /usr/src/app-frontend && cd /usr/src/app-frontend && \
     git reset --hard ${FRONTEND_COMMIT_HASH} && \
     npm install && npm cache clean --force && \
     npm run build && \
-    mv ./build ../../app/dist-frontend
-
+    mv ./build ../../app/dist-frontend && \
+    cd / && \
+    rm -rf /usr/src/app-frontend
 
 ENV NODE_ENV production
 ENV PORT 3000
