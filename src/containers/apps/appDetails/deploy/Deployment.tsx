@@ -108,6 +108,13 @@ export default class Deployment extends ApiComponent<
         app.appPushWebhook!.pushWebhookToken
       : "";
 
+    const webhookPushUrlFullPath =
+      window.location.protocol +
+      "//captain." +
+      this.props.apiData.rootDomain +
+      "/api/v2" +
+      webhookPushUrlRelativePath;
+
     return (
       <div>
         <BuildLogsView
@@ -193,11 +200,7 @@ export default class Deployment extends ApiComponent<
             disabled={!hasPushToken}
             defaultValue={
               hasPushToken
-                ? window.location.protocol +
-                  "//captain." +
-                  this.props.apiData.rootDomain +
-                  "/api/v2" +
-                  webhookPushUrlRelativePath
+                ? webhookPushUrlFullPath
                 : "** Add repo info and save for this webhook to appear **"
             }
           />
@@ -274,7 +277,7 @@ export default class Deployment extends ApiComponent<
               }}
             />
           </Col>
-          <Col span={6}>
+          <Col span={12}>
             <div style={{ paddingLeft: 24 }}>
               <Tooltip title="You shouldn't need to change this path unless you have a repository with multiple captain-definition files (mono repos). Read docs for captain definition before editing this">
                 <Button
@@ -287,8 +290,18 @@ export default class Deployment extends ApiComponent<
                   Edit
                 </Button>
               </Tooltip>
+              <Button
+                style={{ marginLeft: 20 }}
+                disabled={!this.state.forceEditableCaptainDefinitionPath}
+                type="primary"
+                onClick={() => self.props.onUpdateConfigAndSave()}
+              >
+                Save &amp; Update
+              </Button>
             </div>
           </Col>
+
+          <Col span={6} />
         </Row>
       </div>
     );
