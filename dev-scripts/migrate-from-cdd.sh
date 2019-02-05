@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Run this script on the server to migrate from CaptainDuckDuck.
-################## EDGE VERSION ##### UNTESTED #################
 
 cd / && \
 docker service scale captain-captain=0 && \
@@ -15,7 +14,7 @@ mv /captain/letencrypt /captain/data/ && \
 mv /captain/nginx-shared /captain/data/ && \
 mv /captain/registry /captain/data/ && \
 mv /captain/config.conf /captain/data/ && \
-docker pull caprover/caprover-edge && \
-docker service update --image caprover/caprover-edge captain-captain && \
+docker pull caprover/caprover && \
+docker service update --image caprover/caprover captain-captain && \
 docker service scale captain-captain=1 --detach && \
 docker service logs captain-captain --follow
