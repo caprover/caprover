@@ -22,4 +22,6 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 
 ## Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/caprover#backer)]
+Thank you to all our backers! 🙏 
+
+[![Donate](https://opencollective.com/caprover/donate/button.png?color=blue)](https://opencollective.com/caprover#backer)
