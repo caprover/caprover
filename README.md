@@ -17,6 +17,9 @@ For more details and documentation, please visit https://CapRover.com/
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/caprover/caprover/graphs/contributors"><img src="https://opencollective.com/caprover/contributors.svg?width=690" /></a>
+<a href="https://github.com/caprover/caprover/graphs/contributors"><img src="https://opencollective.com/caprover/contributors.svg?width=690&button=false" /></a>
 
 
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/caprover#backer)]
