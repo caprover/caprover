@@ -5,7 +5,7 @@ const requestOriginal = require('request');
 
 function exec(command) {
     return new Promise(function (resolve, reject) {
-        execOriginal(command, function (err, stdout, stderr) {
+        processToRun = execOriginal(command, function (err, stdout, stderr) {
 
             if (stderr) {
                 console.log('stderr');
@@ -19,6 +19,10 @@ function exec(command) {
 
             resolve(stdout)
         })
+
+        if (processToRun.stdout && processToRun.stdout.pipe) {
+            processToRun.stdout.pipe(process.stdout);
+        }
     })
 }
 
