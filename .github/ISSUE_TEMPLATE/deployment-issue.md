@@ -2,7 +2,7 @@
 name: Deployment Issue
 about: Problem with deploying your apps
 title: "[Deployment Issue]"
-labels: question
+labels: deployment-issue
 assignees: ''
 
 ---
