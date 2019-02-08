@@ -325,7 +325,7 @@ class PageRoot extends ApiComponent<
                 paddingBottom: 36,
                 height: "100%",
                 overflowY: "scroll",
-                marginRight: self.state.collapsed ? 0 : -200,
+                marginRight: self.state.collapsed ? 0 : self.props.isMobile ? -200 : 0,
                 transition: "margin-right 0.3s ease"
               }}
               id="main-content-layout"
