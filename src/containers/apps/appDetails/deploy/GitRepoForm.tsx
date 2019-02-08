@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Row, Col, Form, Input } from "antd";
 import { RepoInfo } from "../../AppDefinition";
 import Utils from "../../../../utils/Utils";
+import PasswordField from "../../../global/PasswordField";
 
 export default class GitRepoForm extends Component<{
   gitRepoValues: RepoInfo;
@@ -63,16 +64,10 @@ export default class GitRepoForm extends Component<{
               />
             </Col>
             <Col span={12}>
-              <Input
-                style={{ marginBottom: 20 }}
-                value={this.props.gitRepoValues.password}
+              <PasswordField
+                defaultValue={this.props.gitRepoValues.password}
                 addonBefore="Password"
                 placeholder="githubpassword"
-                spellCheck={false}
-                autoCorrect="off"
-                autoComplete="off"
-                autoCapitalize="off"
-                type="text"
                 onChange={e => {
                   const newObj = Utils.copyObject(this.props.gitRepoValues);
                   newObj.password = e.target.value;

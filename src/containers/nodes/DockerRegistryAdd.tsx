@@ -6,6 +6,7 @@ import {
   IRegistryApi
 } from "../../models/IRegistryInfo";
 import Utils from "../../utils/Utils";
+import PasswordField from "../global/PasswordField";
 
 const ADDING_LOCAL = "ADDING_LOCAL";
 const ADDING_REMOTE = "ADDING_REMOTE";
@@ -98,11 +99,10 @@ export default class DockerRegistryAdd extends Component<
               }}
             />
             <div style={{ height: 20 }} />
-            <Input
+            <PasswordField
               addonBefore="Password"
               placeholder="mypassword"
-              type="text"
-              value={self.state.remoteRegistryToAdd.registryPassword}
+              defaultValue={self.state.remoteRegistryToAdd.registryPassword}
               onChange={e => {
                 const newData = Utils.copyObject(
                   self.state.remoteRegistryToAdd

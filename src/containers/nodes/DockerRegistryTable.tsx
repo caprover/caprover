@@ -8,6 +8,7 @@ import {
 import ClickableLink from "../global/ClickableLink";
 import Utils from "../../utils/Utils";
 import { ColumnProps } from "antd/lib/table";
+import PasswordField from "../global/PasswordField";
 
 const EDITING_MODAL = "EDITING_MODAL";
 const DELETING_MODAL = "DELETING_MODAL";
@@ -137,11 +138,10 @@ export default class DockerRegistryTable extends Component<
           }}
         />
         <div style={{ height: 20 }} />
-        <Input
+        <PasswordField
           addonBefore="Password"
           placeholder="mypassword"
-          type="text"
-          value={self.state.remoteRegistryToEdit!.registryPassword}
+          defaultValue={self.state.remoteRegistryToEdit!.registryPassword}
           onChange={e => {
             const newData = Utils.copyObject(self.state.remoteRegistryToEdit!);
             newData.registryPassword = e.target.value;

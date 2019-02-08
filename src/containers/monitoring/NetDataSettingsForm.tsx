@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Row, Col, Input, Checkbox, Button } from "antd";
 import Utils from "../../utils/Utils";
+import PasswordField from "../global/PasswordField";
 
 export default class NetDataSettingsForm extends Component<{
   netDataInfo: any;
@@ -111,10 +112,8 @@ export default class NetDataSettingsForm extends Component<{
 
               <Col className="netdata-field" span={12}>
                 SMTP password
-                <Input
-                  type="text"
-                  placeholder="your password"
-                  value={netDataInfo.data.smtp.password}
+                <PasswordField
+                  defaultValue={netDataInfo.data.smtp.password}
                   onChange={e =>
                     self.changeModel("smtp", "password", e.target.value)
                   }

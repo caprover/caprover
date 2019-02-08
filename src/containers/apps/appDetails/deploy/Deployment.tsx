@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AppDetailsTabProps } from "../AppDetails";
 import BuildLogsView from "./BuildLogsView";
-import { Col, Row, Upload, Input, message, Icon, Button } from "antd";
+import { Col, Row, Upload, Input, message, Icon, Button, Tooltip } from "antd";
 import TarUploader from "./TarUploader";
 import GitRepoForm from "./GitRepoForm";
 import { RepoInfo, IAppDef, IAppVersion } from "../../AppDefinition";
@@ -12,6 +12,7 @@ import UploaderPlainTextDockerfile from "./UploaderPlainTextDockerfile";
 import ApiComponent from "../../../global/ApiComponent";
 import AppVersionTable from "./AppVersionTable";
 import Toaster from "../../../../utils/Toaster";
+import AppLogsView from "./AppLogsView";
 
 interface IDeploymentTabProps extends AppDetailsTabProps {
   onUpdateConfigAndSave: () => void;
@@ -20,6 +21,7 @@ export default class Deployment extends ApiComponent<
   IDeploymentTabProps,
   {
     dummyVar: undefined;
+    forceEditableCaptainDefinitionPath: boolean;
     buildLogRecreationId: string;
     updatedVersions:
       | { versions: IAppVersion[]; deployedVersion: number }
@@ -30,6 +32,7 @@ export default class Deployment extends ApiComponent<
     super(props);
     this.state = {
       dummyVar: undefined,
+      forceEditableCaptainDefinitionPath: false,
       updatedVersions: undefined,
       buildLogRecreationId: ""
     };
@@ -99,6 +102,19 @@ export default class Deployment extends ApiComponent<
           branch: "",
           repo: ""
         };
+
+    const webhookPushUrlRelativePath = hasPushToken
+      ? "/user/apps/webhooks/triggerbuild?namespace=captain&token=" +
+        app.appPushWebhook!.pushWebhookToken
+      : "";
+
+    const webhookPushUrlFullPath =
+      window.location.protocol +
+      "//captain." +
+      this.props.apiData.rootDomain +
+      "/api/v2" +
+      webhookPushUrlRelativePath;
+
     return (
       <div>
         <BuildLogsView
@@ -128,6 +144,10 @@ export default class Deployment extends ApiComponent<
         />
 
         <div style={{ height: 20 }} />
+        <AppLogsView appName={app.appName!} key={app.appName! + "-LogsView"} />
+
+        <hr />
+        <div style={{ height: 40 }} />
         <h4>
           <Icon type="rocket" /> Method 1: Official CLI
         </h4>
@@ -180,11 +200,7 @@ export default class Deployment extends ApiComponent<
             disabled={!hasPushToken}
             defaultValue={
               hasPushToken
-                ? window.location.protocol +
-                  "//captain." +
-                  this.props.apiData.rootDomain +
-                  "/api/v2/user/apps/webhooks/triggerbuild?namespace=captain&token=" +
-                  app.appPushWebhook!.pushWebhookToken
+                ? webhookPushUrlFullPath
                 : "** Add repo info and save for this webhook to appear **"
             }
           />
@@ -207,6 +223,20 @@ export default class Deployment extends ApiComponent<
           }}
         />
         <Row type="flex" justify="end">
+          <Button
+            disabled={!hasPushToken}
+            style={{ marginRight: 10 }}
+            onClick={() => {
+              self.apiManager
+                .forceBuild(webhookPushUrlRelativePath)
+                .then(function() {
+                  self.onUploadSuccess();
+                })
+                .catch(Toaster.createCatcher());
+            }}
+          >
+            Force Build
+          </Button>
           <Button
             disabled={!repoInfo.repo}
             type="primary"
@@ -231,6 +261,48 @@ export default class Deployment extends ApiComponent<
           appName={app.appName!}
           onUploadSucceeded={() => self.onUploadSuccess()}
         />
+        <div style={{ height: 20 }} />
+        <Row>
+          <Col span={6} style={{ width: 400 }}>
+            <Input
+              addonBefore="captain-definition Relative Path"
+              type="text"
+              defaultValue={app.captainDefinitionRelativeFilePath + ""}
+              disabled={!this.state.forceEditableCaptainDefinitionPath}
+              onChange={e => {
+                const newApiData = Utils.copyObject(this.props.apiData);
+                newApiData.appDefinition.captainDefinitionRelativeFilePath =
+                  e.target.value;
+                this.props.updateApiData(newApiData);
+              }}
+            />
+          </Col>
+          <Col span={12}>
+            <div style={{ paddingLeft: 24 }}>
+              <Tooltip title="You shouldn't need to change this path unless you have a repository with multiple captain-definition files (mono repos). Read docs for captain definition before editing this">
+                <Button
+                  type="default"
+                  disabled={this.state.forceEditableCaptainDefinitionPath}
+                  onClick={() =>
+                    this.setState({ forceEditableCaptainDefinitionPath: true })
+                  }
+                >
+                  Edit
+                </Button>
+              </Tooltip>
+              <Button
+                style={{ marginLeft: 20 }}
+                disabled={!this.state.forceEditableCaptainDefinitionPath}
+                type="primary"
+                onClick={() => self.props.onUpdateConfigAndSave()}
+              >
+                Save &amp; Update
+              </Button>
+            </div>
+          </Col>
+
+          <Col span={6} />
+        </Row>
       </div>
     );
   }

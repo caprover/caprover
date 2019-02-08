@@ -19,7 +19,7 @@ class ErrorFactory {
   constructor() {}
 
   createError(status: number, message: string) {
-    let e = new Error(message) as any;
+    let e = new Error(message || "null") as any;
     e.captainStatus = status;
     e.captainMessage = message;
     return e;

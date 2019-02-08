@@ -26,3 +26,14 @@ hr {
 .netdata-field {
     margin-bottom: 20px;
 }
+
+.logs-output {
+    font-family: Menlo, Monaco, "SFMono-Regular", Consolas, "Liberation Mono", Courier, monospace !important;
+    overflow: scroll;
+    height: 250px;
+    border: 2px solid #cccccc;
+    background-color: #f6f6f6;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 90%;
+}

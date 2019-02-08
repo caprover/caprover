@@ -99,6 +99,13 @@ export default class ApiManager {
       .then(http.fetch(http.GET, "/user/apps/appData/" + appName, {}));
   }
 
+  fetchAppLogs(appName: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.GET, `/user/apps/appData/${appName}/logs`, {}));
+  }
+
   uploadAppData(appName: string, file: File) {
     const http = this.http;
     var formData = new FormData();
@@ -136,6 +143,8 @@ export default class ApiManager {
 
   updateConfigAndSave(appName: string, appDefinition: IAppDef) {
     var instanceCount = appDefinition.instanceCount;
+    var captainDefinitionRelativeFilePath =
+      appDefinition.captainDefinitionRelativeFilePath;
     var envVars = appDefinition.envVars;
     var notExposeAsWebApp = appDefinition.notExposeAsWebApp;
     var forceSsl = appDefinition.forceSsl;
@@ -153,6 +162,7 @@ export default class ApiManager {
         http.fetch(http.POST, "/user/apps/appDefinitions/update", {
           appName: appName,
           instanceCount: instanceCount,
+          captainDefinitionRelativeFilePath: captainDefinitionRelativeFilePath,
           notExposeAsWebApp: notExposeAsWebApp,
           forceSsl: forceSsl,
           volumes: volumes,
@@ -401,6 +411,13 @@ export default class ApiManager {
           registryId
         })
       );
+  }
+
+  forceBuild(webhookPath: string) {
+    const http = this.http;
+
+    return Promise.resolve() //
+      .then(http.fetch(http.POST, webhookPath, {}));
   }
 
   getAllNodes() {
