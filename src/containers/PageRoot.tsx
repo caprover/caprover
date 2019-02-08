@@ -58,6 +58,7 @@ class PageRoot extends ApiComponent<
   RootPageInterface,
   {
     versionInfo: IVersionInfo | undefined;
+    collapsed: Boolean;
   }
 > {
   private mainContainer: RefObject<HTMLDivElement>;
@@ -66,7 +67,8 @@ class PageRoot extends ApiComponent<
     super(props);
     this.mainContainer = React.createRef();
     this.state = {
-      versionInfo: undefined
+      versionInfo: undefined,
+      collapsed: false
     };
   }
 
@@ -140,8 +142,13 @@ class PageRoot extends ApiComponent<
     this.props.history.push("/" + param.key);
   }
 
+  toggleSider = () => {
+    this.setState({ collapsed: !this.state.collapsed })
+  }
+
   render() {
     const self = this;
+    console.log(this.state.collapsed)
     return (
       <Layout className="full-screen-bg">
         { !self.props.isMobile && 
@@ -211,7 +218,9 @@ class PageRoot extends ApiComponent<
             collapsible 
             width={200} 
             collapsedWidth={self.props.isMobile ? 0 : 50} 
-            style={{ background: "#fff", zIndex: 2 }} >
+            style={{ background: "#fff", zIndex: 2 }} 
+            onCollapse={self.toggleSider}
+          >
             <Menu
               selectedKeys={[self.props.location.pathname.substring(1)]}
               onSelect={(param: SelectParam) => {
@@ -315,7 +324,9 @@ class PageRoot extends ApiComponent<
                 paddingTop: 12,
                 paddingBottom: 36,
                 height: "100%",
-                overflowY: "scroll"
+                overflowY: "scroll",
+                marginRight: self.state.collapsed ? 0 : -200,
+                transition: "margin-right 0.3s ease"
               }}
               id="main-content-layout"
             >
