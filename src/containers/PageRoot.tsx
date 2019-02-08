@@ -20,8 +20,38 @@ import { connect } from "react-redux";
 
 const { Header, Content, Sider } = Layout;
 
+const MENU_ITEMS = [
+  {
+    key: "dashboard",
+    name: "Dashboard",
+    icon: "laptop"
+  },
+  {
+    key: "apps",
+    name: "Apps",
+    icon: "code"
+  },
+  {
+    key: "monitoring",
+    name: "Monitoring",
+    icon: "dashboard"
+  },
+  {
+    key: "cluster",
+    name: "Cluster",
+    icon: "cluster"
+  },
+  {
+    key: "settings",
+    name: "Settings",
+    icon: "setting"
+  },
+]
+
+
 interface RootPageInterface extends RouteComponentProps<any> {
   rootElementKey: string;
+  isMobile: boolean;
 }
 
 class PageRoot extends ApiComponent<
@@ -114,6 +144,7 @@ class PageRoot extends ApiComponent<
     const self = this;
     return (
       <Layout className="full-screen-bg">
+        { !self.props.isMobile && 
         <Header className="header">
           <div>
             <Row>
@@ -173,10 +204,16 @@ class PageRoot extends ApiComponent<
               </Col>
             </Row>
           </div>
-        </Header>
+        </Header>}
         <Layout>
-          <Sider collapsible width={200} style={{ background: "#fff" }}>
+          <Sider 
+            breakpoint="lg" 
+            collapsible 
+            width={200} 
+            collapsedWidth={self.props.isMobile ? 0 : 50} 
+            style={{ background: "#fff", zIndex: 2 }} >
             <Menu
+              selectedKeys={[self.props.location.pathname.substring(1)]}
               onSelect={(param: SelectParam) => {
                 self.onSelectMenu(param);
               }}
@@ -185,37 +222,90 @@ class PageRoot extends ApiComponent<
               defaultSelectedKeys={["dashboard"]}
               style={{ height: "100%", borderRight: 0 }}
             >
-              <Menu.Item key="dashboard">
+            {self.props.isMobile && 
+            <Menu.Item>
+                <h3 style={{ color: "#fff" }}>
+                  <img
+                    src="/icon-512x512.png"
+                    style={{
+                      height: 30,
+                      marginRight: 10
+                    }}
+                  />
+                  CapRover
+                </h3>
+            </Menu.Item>}
+
+            {MENU_ITEMS.map(item => (
+              <Menu.Item key={item.key}>
                 <span>
-                  <Icon type="laptop" />
-                  <span>Dashboard</span>
+                  <Icon type={item.icon} />
+                  <span>{item.name}</span>
                 </span>
               </Menu.Item>
-              <Menu.Item key="apps">
-                <span>
-                  <Icon type="code" />
-                  <span>Apps</span>
-                </span>
-              </Menu.Item>
-              <Menu.Item key="monitoring">
-                <span>
-                  <Icon type="dashboard" />
-                  <span>Monitoring</span>
-                </span>
-              </Menu.Item>
-              <Menu.Item key="cluster">
-                <span>
-                  <Icon type="cluster" />
-                  <span>Cluster</span>
-                </span>
-              </Menu.Item>
-              <Menu.Item key="settings">
-                <span>
-                  <Icon type="setting" />
-                  <span>Settings</span>
-                </span>
-              </Menu.Item>
+            ))}
+
+
+
+            {self.props.isMobile && 
+            <Fragment>
+                <div 
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.65)",
+                    height: 1,
+                    width: "80%",
+                    margin: "15px auto"
+                  }}
+                />
+                <div 
+                  className="ant-menu-item" 
+                  role="menuitem"
+                  style={{ paddingLeft: 24 }}
+                >
+                    <a
+                      href="https://github.com/caprover/caprover"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                    <Icon type="github" />
+                      GitHub
+                    </a>
+                </div>
+
+                <div 
+                  className="ant-menu-item" 
+                  role="menuitem"
+                  style={{ paddingLeft: 24 }}
+                >
+                  <a
+                    href="https://caprover.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                  <Icon type="file-text" />
+                    Docs
+                  </a>
+                </div>
+
+                <div 
+                  className="ant-menu-item" 
+                  role="menuitem"
+                  style={{ paddingLeft: 24 }}
+                >
+                  <ClickableLink
+                    onLinkClicked={() => {
+                      self.apiManager.setAuthToken("");
+                      self.goToLogin();
+                    }}
+                  > <Icon type="logout" />
+                    Logout
+                  </ClickableLink>
+                </div>
+            </Fragment>}
+
             </Menu>
+
+
           </Sider>
           <Content>
             <div
@@ -258,7 +348,8 @@ class PageRoot extends ApiComponent<
 
 function mapStateToProps(state: any) {
   return {
-    rootElementKey: state.globalReducer.rootElementKey
+    rootElementKey: state.globalReducer.rootElementKey,
+    isMobile: state.globalReducer.isMobile
   };
 }
 

@@ -20,5 +20,8 @@ export default {
     ].join("|");
 
     return new RegExp(pattern, "g");
+  },
+  getResponsive() {
+    return (window.innerWidth < 768)
   }
 };

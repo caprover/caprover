@@ -6,6 +6,6 @@ export default function(state = {}, action: { payload: any; type: string }) {
     case ROOT_KEY_CHANGED:
       return { ...state, rootElementKey: Utils.generateUuidV4() };
     default:
-      return state;
+      return { ...state, isMobile: Utils.getResponsive() };
   }
 }
