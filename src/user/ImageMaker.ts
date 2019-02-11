@@ -143,8 +143,14 @@ export default class ImageMaker {
 
                             return Promise.resolve() //
                                 .then(function() {
-                                    return self.dockerApi.pullImage(
+                                    return self.dockerRegistryHelper.getDockerAuthObjectForImageName(
                                         providedImageName
+                                    )
+                                })
+                                .then(function(authObj) {
+                                    return self.dockerApi.pullImage(
+                                        providedImageName,
+                                        authObj
                                     )
                                 })
                                 .then(function() {

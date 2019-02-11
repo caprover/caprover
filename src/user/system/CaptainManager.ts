@@ -599,7 +599,8 @@ class CaptainManager {
                         vols,
                         CaptainConstants.captainNetworkName,
                         envVars,
-                        ['SYS_PTRACE']
+                        ['SYS_PTRACE'],
+                        undefined
                     )
                 }
 

@@ -294,7 +294,10 @@ class DockerApi {
             })
     }
 
-    pullImage(imageNameIncludingTag: string) {
+    pullImage(
+        imageNameIncludingTag: string,
+        authObj: DockerAuthObj | undefined
+    ) {
         const self = this
 
         const nameAndTag = imageNameIncludingTag.split(':')
@@ -307,6 +310,7 @@ class DockerApi {
                 return self.dockerode.createImage({
                     fromImage: imageName,
                     tag: tag,
+                    authconfig: authObj,
                 })
             })
             .then(function(stream) {
@@ -457,7 +461,8 @@ class DockerApi {
         volumes: IAppVolume[],
         network: string,
         arrayOfEnvKeyAndValue: IAppEnvVar[],
-        addedCapabilities: string[]
+        addedCapabilities: string[],
+        authObj: DockerAuthObj | undefined
     ) {
         const self = this
 
@@ -484,7 +489,7 @@ class DockerApi {
 
         return Promise.resolve()
             .then(function() {
-                return self.pullImage(imageName)
+                return self.pullImage(imageName, authObj)
             })
             .then(function() {
                 return self.dockerode.createContainer({
