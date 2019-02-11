@@ -4,8 +4,8 @@ const execOriginal = require('child_process').exec
 const requestOriginal = require('request')
 
 function exec(command) {
-    return new Promise(function(resolve, reject) {
-        processToRun = execOriginal(command, function(err, stdout, stderr) {
+    return new Promise(function (resolve, reject) {
+        processToRun = execOriginal(command, function (err, stdout, stderr) {
             if (stderr) {
                 console.log('stderr')
                 console.log(stderr)
@@ -26,8 +26,8 @@ function exec(command) {
 }
 
 function request(url) {
-    return new Promise(function(resolve, reject) {
-        requestOriginal(url, function(error, response, body) {
+    return new Promise(function (resolve, reject) {
+        requestOriginal(url, function (error, response, body) {
             if (body) {
                 body = JSON.parse(body)
             }
@@ -47,7 +47,7 @@ const publishedNameOnDockerHub = 'caprover/caprover'
 let version = ''
 
 exec('npm run build')
-    .then(function(data) {
+    .then(function (data) {
         data = (data + '').trim()
         console.log('----------')
         console.log(data)
@@ -63,13 +63,13 @@ exec('npm run build')
         version = require('./built/utils/CaptainConstants').configs.version
         return exec(`rm -rf ./built`)
     })
-    .then(function() {
+    .then(function () {
 
         return exec('git status')
     })
-    .then(function(data) {
+    .then(function (data) {
         var l1 = 'On branch master'
-        var l2 = "Your branch is up to date with 'origin/master'"
+        var l2 = "Your branch is up-to-date with 'origin/master'"
         var l3 = 'nothing to commit, working tree clean'
 
         if (
@@ -90,7 +90,7 @@ exec('npm run build')
 
         return request(URL)
     })
-    .then(function(body) {
+    .then(function (body) {
         if (!body.results || !body.results.length) {
             console.log('Error while fetching tags from Docker Hub!')
             throw error
@@ -142,13 +142,13 @@ exec('npm run build')
             `sudo docker build -t ${t1} -t ${t2} -f dockerfile-captain.release . && docker push ${t1} && docker push ${t2}`
         )
     })
-    .then(function(stdout) {
+    .then(function (stdout) {
         if (stdout) {
             console.log('stdout')
             console.log(stdout)
         }
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.error(err)
         process.exit(1)
     })
