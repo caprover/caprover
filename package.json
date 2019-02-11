@@ -60,14 +60,9 @@
     "tslint": "^5.12.1",
     "typescript": "^3.2.4",
     "uuid": "^3.3.2",
-    "validator": "^10.11.0",
-    "opencollective": "^1.0.3"
+    "validator": "^10.11.0"
   },
   "devDependencies": {
     "jest": "^24.0.0"
-  },
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/caprover"
   }
 }
