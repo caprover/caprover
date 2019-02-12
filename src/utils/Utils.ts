@@ -5,4 +5,7 @@ export default class Utils {
         input = input.replace(/^(?:https?:\/\/)?/i, '')
         return input
     }
+    static isNotGetRequest(req: { method: string }) {
+        return req.method !== 'GET'
+    }
 }

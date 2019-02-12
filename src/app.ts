@@ -16,6 +16,7 @@ import CaptainConstants = require('./utils/CaptainConstants')
 import LoginRouter = require('./routes/LoginRouter')
 import UserRouter = require('./routes/UserRouter')
 import InjectionExtractor = require('./injection/InjectionExtractor')
+import Utils from './utils/Utils'
 // import { NextFunction, Request, Response } from 'express'
 
 const httpProxy = httpProxyImport.createProxyServer({})
@@ -146,6 +147,14 @@ httpProxy.on('error', function(err, req, resOriginal) {
 })
 
 app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
+    if (Utils.isNotGetRequest(req)) {
+        res.writeHead(401, {
+            'Content-Type': 'text/plain',
+        })
+        res.send('Demo mode is for viewing only')
+        return
+    }
+
     httpProxy.web(req, res, {
         target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
     })

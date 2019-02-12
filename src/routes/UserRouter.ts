@@ -9,6 +9,8 @@ import RegistriesRouter = require('./RegistriesRouter')
 import onFinished = require('on-finished')
 import InjectionExtractor = require('../injection/InjectionExtractor')
 import CaptainManager = require('../user/system/CaptainManager')
+import Utils from '../utils/Utils'
+import EnvVars = require('../utils/EnvVars')
 
 const router = express.Router()
 
@@ -17,10 +19,6 @@ const threadLockNamespace = {} as IHashMapGeneric<boolean>
 router.use('/apps/webhooks/', Injector.injectUserForWebhook())
 
 router.use(Injector.injectUser())
-
-function isNotGetRequest(req: express.Request) {
-    return req.method !== 'GET'
-}
 
 router.use(function(req, res, next) {
     const user = InjectionExtractor.extractUserFromInjected(res).user
@@ -58,7 +56,16 @@ router.use(function(req, res, next) {
 
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
-    if (isNotGetRequest(req)) {
+    if (Utils.isNotGetRequest(req)) {
+        if (EnvVars.IS_DEMO_MODE) {
+            let response = new BaseApi(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'Demo mode is only for viewing purposes.'
+            )
+            res.send(response)
+            return
+        }
+
         if (threadLockNamespace[namespace]) {
             let response = new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
