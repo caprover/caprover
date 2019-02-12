@@ -582,7 +582,7 @@ class ServiceManager {
         this.buildLogs[appName].onBuildFailed(error)
     }
 
-    getAppLogs(appName: string) {
+    getAppLogs(appName: string, encoding: string) {
         const self = this
 
         const serviceName = this.dataStore
@@ -595,7 +595,8 @@ class ServiceManager {
             .then(function() {
                 return dockerApi.getLogForService(
                     serviceName,
-                    CaptainConstants.configs.appLogSize
+                    CaptainConstants.configs.appLogSize,
+                    encoding
                 )
             })
     }

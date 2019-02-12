@@ -1476,7 +1476,7 @@ class DockerApi {
             })
     }
 
-    getLogForService(serviceName: string, tailCount: number) {
+    getLogForService(serviceName: string, tailCount: number, encoding: string) {
         const self = this
         return Promise.resolve() //
             .then(function() {
@@ -1493,7 +1493,7 @@ class DockerApi {
             })
             .then(function(data) {
                 if (Buffer.isBuffer(data)) {
-                    return data.toString('ascii')
+                    return data.toString(encoding)
                 }
 
                 throw new Error(

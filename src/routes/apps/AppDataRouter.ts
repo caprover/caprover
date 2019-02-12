@@ -21,14 +21,17 @@ router.get('/:appName/logs', function(req, res, next) {
 
     return Promise.resolve()
         .then(function() {
-            return serviceManager.getAppLogs(appName)
+            return serviceManager.getAppLogs(
+                appName,
+                req.query.encoding ? req.query.encoding : 'ascii'
+            )
         })
         .then(function(logs) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App runtime logs are retrieved'
             )
-            baseApi.data = {logs}
+            baseApi.data = { logs }
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
