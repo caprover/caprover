@@ -15,7 +15,7 @@ RUN npm install && \
 
 # Build frontend code using a fixed hash commit
 
-ENV FRONTEND_COMMIT_HASH 2235f5510e5d8fe4a456391114d31089357cf8b0
+ENV FRONTEND_COMMIT_HASH 85432873748863601fdb465ebb7d39a27ec025e0
 
 RUN mkdir -p /usr/src/app-frontend && cd /usr/src/app-frontend && \
     git clone https://github.com/githubsaturn/caprover-frontend.git && \
