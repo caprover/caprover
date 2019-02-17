@@ -13,6 +13,8 @@ const WEBROOT_PATH_IN_CAPTAIN =
 const shouldUseStaging = false // CaptainConstants.isDebug;
 
 class CertbotManager {
+    private isOperationInProcess: boolean
+
     constructor(private dockerApi: DockerApi) {
         this.dockerApi = dockerApi
     }
@@ -213,11 +215,29 @@ class CertbotManager {
         const self = this
 
         return Promise.resolve().then(function() {
+            if (self.isOperationInProcess) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'Another operation is in process for Certbot. Please wait a few seconds and try again.'
+                )
+            }
+
+            self.isOperationInProcess = true
+
             const nonInterActiveCommand = [...cmd, '--non-interactive']
-            return dockerApi.executeCommand(
-                CaptainConstants.certbotServiceName,
-                nonInterActiveCommand
-            )
+            return dockerApi
+                .executeCommand(
+                    CaptainConstants.certbotServiceName,
+                    nonInterActiveCommand
+                )
+                .then(function(data) {
+                    self.isOperationInProcess = false
+                    return data
+                })
+                .catch(function(error) {
+                    self.isOperationInProcess = false
+                    throw error
+                })
         })
     }
 
