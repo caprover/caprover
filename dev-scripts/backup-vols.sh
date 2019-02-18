@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This may cause data corruption if your volumes are in active use!!
+
 mkdir -p /backup-vols
 
 vols=$(docker volume ls --quiet)
