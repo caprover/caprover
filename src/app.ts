@@ -30,7 +30,12 @@ app.use(favicon(path.join(__dirname, '../public', 'favicon.ico')))
 app.use(
     loggerMorgan('dev', {
         skip: function(req, res) {
-            return req.originalUrl === CaptainConstants.healthCheckEndPoint
+            return (
+                req.originalUrl === CaptainConstants.healthCheckEndPoint ||
+                req.originalUrl.startsWith(
+                    CaptainConstants.netDataRelativePath + '/'
+                )
+            )
         },
     })
 )
