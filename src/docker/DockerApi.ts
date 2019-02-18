@@ -827,7 +827,10 @@ class DockerApi {
         return self
             .getContainerIdByServiceName(serviceName)
             .then(function(containerIdFound) {
-                Logger.d('executeCommand Container: ' + containerIdFound)
+                const cmdForLogging = (cmd || []).join(' ')
+                Logger.d(
+                    `executeCommand Container: ${serviceName} ${cmdForLogging} `
+                )
 
                 if (!Array.isArray(cmd)) {
                     throw new Error(
