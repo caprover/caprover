@@ -22,15 +22,13 @@ const BACKUP_JSON = 'backup.json'
 export interface IBackupCallbacks {
     getNodesInfo: () => Promise<ServerDockerInfo[]>
     getCaptainSalt: () => string
+    getCertbotManager: () => CertbotManager
 }
 
 export default class BackupManager {
     private longOperationInProgress: boolean
 
-    constructor(
-        private iBackupCallbacks: IBackupCallbacks,
-        private certbotManager: CertbotManager
-    ) {
+    constructor() {
         //
     }
 
@@ -53,25 +51,27 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
-    createBackup() {
+    createBackup(iBackupCallbacks: IBackupCallbacks) {
         const self = this
+        const certbotManager = iBackupCallbacks.getCertbotManager()
+
         return Promise.resolve() //
             .then(function() {
-                self.certbotManager.lock()
+                certbotManager.lock()
                 return self
-                    .createBackupInternal()
+                    .createBackupInternal(iBackupCallbacks)
                     .then(function(data) {
-                        self.certbotManager.unlock()
+                        certbotManager.unlock()
                         return data
                     })
                     .catch(function(err) {
-                        self.certbotManager.unlock()
+                        certbotManager.unlock()
                         throw err
                     })
             })
     }
 
-    createBackupInternal() {
+    createBackupInternal(iBackupCallbacks: IBackupCallbacks) {
         const self = this
         return Promise.resolve() //
             .then(function() {
@@ -100,11 +100,11 @@ export default class BackupManager {
                         )
                     })
                     .then(function() {
-                        return self.iBackupCallbacks.getNodesInfo()
+                        return iBackupCallbacks.getNodesInfo()
                     })
                     .then(function(nodes) {
                         return fs.outputJson(RAW + '/meta/' + BACKUP_JSON, {
-                            salt: self.iBackupCallbacks.getCaptainSalt(),
+                            salt: iBackupCallbacks.getCaptainSalt(),
                             nodes: nodes,
                         })
                     })

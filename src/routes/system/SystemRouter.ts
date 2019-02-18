@@ -19,7 +19,7 @@ router.post('/createbackup/', function(req, res, next) {
 
     Promise.resolve()
         .then(function() {
-            return backupManager.createBackup()
+            return backupManager.createBackup(CaptainManager.get())
         })
         .then(function(pathOfBackup) {
             res.sendFile(pathOfBackup, {}, function(err) {

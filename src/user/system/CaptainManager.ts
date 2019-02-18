@@ -62,7 +62,7 @@ class CaptainManager {
         this.captainSalt = ''
         this.consecutiveHealthCheckFailCount = 0
         this.healthCheckUuid = uuid()
-        this.backupManager = new BackupManager(this, this.certbotManager)
+        this.backupManager = new BackupManager()
     }
 
     initialize() {
@@ -410,6 +410,10 @@ class CaptainManager {
 
     getBackupManager() {
         return this.backupManager
+    }
+
+    getCertbotManager() {
+        return this.certbotManager
     }
 
     isInitialized() {
