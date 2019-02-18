@@ -8,10 +8,26 @@ import SystemRouteSelfHostRegistry = require('./SystemRouteSelfHostRegistry')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import InjectionExtractor = require('../../injection/InjectionExtractor')
 import Utils from '../../utils/Utils'
+import * as path from 'path'
 
 const router = express.Router()
 
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
+
+router.post('/createbackup/', function(req, res, next) {
+    const backupManager = CaptainManager.get().getBackupManager()
+
+    Promise.resolve()
+        .then(function() {
+            return backupManager.createBackup()
+        })
+        .then(function(pathOfBackup) {
+            res.sendFile(pathOfBackup, {}, function(err) {
+                backupManager.deleteBackupDirectoryIfExists()
+            })
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
 
 router.post('/changerootdomain/', function(req, res, next) {
     let requestedCustomDomain = Utils.removeHttpHttps(

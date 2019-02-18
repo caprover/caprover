@@ -15,6 +15,7 @@ import DockerApi from '../../docker/DockerApi'
 import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Authenticator = require('../Authenticator')
+import BackupManager from './BackupManager'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 const SshClient = SshClientImport.Client
@@ -33,6 +34,7 @@ class CaptainManager {
     private certbotManager: CertbotManager
     private loadBalancerManager: LoadBalancerManager
     private dockerRegistry: SelfHostedDockerRegistry
+    private backupManager: BackupManager
     private myNodeId: string | undefined
     private inited: boolean
     private waitUntilRestarted: boolean
@@ -60,6 +62,7 @@ class CaptainManager {
         this.captainSalt = ''
         this.consecutiveHealthCheckFailCount = 0
         this.healthCheckUuid = uuid()
+        this.backupManager = new BackupManager(this, this.certbotManager)
     }
 
     initialize() {
@@ -405,8 +408,16 @@ class CaptainManager {
         return this.healthCheckUuid
     }
 
+    getBackupManager() {
+        return this.backupManager
+    }
+
     isInitialized() {
-        return this.inited && !this.waitUntilRestarted
+        return (
+            this.inited &&
+            !this.waitUntilRestarted &&
+            !this.backupManager.isRunning()
+        )
     }
 
     getCaptainImageTags() {
@@ -978,6 +989,7 @@ class CaptainManager {
     resetSelf() {
         const self = this
         Logger.d('Captain is resetting itself!')
+        self.waitUntilRestarted = true
         return new Promise<void>(function(resolve, reject) {
             setTimeout(function() {
                 const promiseToIgnore = self.dockerApi.updateService(

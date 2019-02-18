@@ -210,19 +210,27 @@ class CertbotManager {
             })
     }
 
+    lock() {
+        if (this.isOperationInProcess) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'Another operation is in process for Certbot. Please wait a few seconds and try again.'
+            )
+        }
+
+        this.isOperationInProcess = true
+    }
+
+    unlock() {
+        this.isOperationInProcess = false
+    }
+
     runCommand(cmd: string[]) {
         const dockerApi = this.dockerApi
         const self = this
 
         return Promise.resolve().then(function() {
-            if (self.isOperationInProcess) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'Another operation is in process for Certbot. Please wait a few seconds and try again.'
-                )
-            }
-
-            self.isOperationInProcess = true
+            self.lock()
 
             const nonInterActiveCommand = [...cmd, '--non-interactive']
             return dockerApi
@@ -231,11 +239,11 @@ class CertbotManager {
                     nonInterActiveCommand
                 )
                 .then(function(data) {
-                    self.isOperationInProcess = false
+                    self.unlock()
                     return data
                 })
                 .catch(function(error) {
-                    self.isOperationInProcess = false
+                    self.unlock()
                     throw error
                 })
         })
@@ -285,6 +293,9 @@ class CertbotManager {
             })
             .then(function(output) {
                 // Ignore output :)
+            })
+            .catch(function(err) {
+                Logger.e(err)
             })
     }
 
