@@ -234,6 +234,9 @@ class CaptainManager {
                 return Promise.resolve(true)
             })
             .then(function() {
+                return self.backupManager.startRestorationIfNeededPhase2()
+            })
+            .then(function() {
                 self.inited = true
 
                 self.performHealthCheck()

@@ -195,6 +195,8 @@ function printTroubleShootingUrl() {
 let myIp4: string
 
 export function install() {
+    const backupManger = new BackupManager()
+
     Promise.resolve()
         .then(function() {
             printTroubleShootingUrl()
@@ -250,13 +252,16 @@ export function install() {
             return checkPortOrThrow(myIp4, 3000)
         })
         .then(function() {
-            return new BackupManager().checkAndPrepareRestoration()
+            return backupManger.checkAndPrepareRestoration()
         })
         .then(function() {
             return DockerApi.get().initSwarm(myIp4)
         })
         .then(function(swarmId: string) {
             console.log('Swarm started: ' + swarmId)
+            return backupManger.startRestorationIfNeededPhase1()
+        })
+        .then(function() {
             return DockerApi.get().getLeaderNodeId()
         })
         .then(function(nodeId: string) {

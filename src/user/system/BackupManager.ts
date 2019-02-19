@@ -62,6 +62,22 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
+    startRestorationIfNeededPhase1() {
+        // if (/captain/restore/restore-instructions.json does exist):
+        // - Connect all extra nodes via SSH and get their NodeID
+        // - Replace the nodeId in apps with the new nodeId based on restore-instructions.json
+        // - Create a captain-salt secret using the data in restore
+        // - Copy restore files to proper places
+    }
+
+    startRestorationIfNeededPhase2() {
+        // if (/captain/restore/restore.json exists) GO TO RESTORE MODE:
+        // - Double check salt against "meta/captain-salt"
+        // - Iterate over all APPs and make sure they are inited properly
+        // - Delete /captain/restore
+        // - Wait until things settle (1 minute...)
+    }
+
     checkAndPrepareRestoration() {
         const self = this
         return Promise.resolve() //
