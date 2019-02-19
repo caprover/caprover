@@ -22,6 +22,7 @@ import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
 const SshClient = SshClientImport.Client
 
 const CURRENT_NODE_DONT_CHANGE = 'CURRENT_NODE_DONT_CHANGE'
+const IP_PLACEHOLDER = 'replace-me-with-new-ip-or-empty-see-docs'
 
 const BACKUP_JSON = 'backup.json'
 const RESTORE_INSTRUCTIONS = 'restore-instructions.json'
@@ -129,6 +130,12 @@ export default class BackupManager {
             if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
 
             if (!!n.newIp) {
+                if (n.newIp === IP_PLACEHOLDER) {
+                    throw new Error(
+                        `See backup docs! You must replace the place holder: ${IP_PLACEHOLDER} in ${RESTORE_JSON_ABS_PATH}`
+                    )
+                }
+
                 if (
                     !/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
                         n.newIp
@@ -340,7 +347,7 @@ export default class BackupManager {
                 })
             } else {
                 ret.nodesMapping.push({
-                    newIp: 'replace-me-with-new-ip-or-empty-see-docs',
+                    newIp: IP_PLACEHOLDER,
                     oldIp: s.ip,
                     privateKeyPath:
                         CaptainConstants.captainBaseDirectory + '/id_rsa',
