@@ -57,7 +57,7 @@ export default class BackupManager {
             !fs.pathExistsSync(CaptainConstants.restoreTarFilePath) ||
             !fs.statSync(CaptainConstants.restoreTarFilePath).isFile()
         )
-            return Promise.resolve()
+            return Promise.resolve(false)
 
         return Promise.resolve() //
             .then(function() {
@@ -70,10 +70,10 @@ export default class BackupManager {
                         cwd: CaptainConstants.restoreDirectoryPath,
                     })
                     .then(function() {
-                        return Utils.getNeverReturningPromise()
+                        return fs.remove(CaptainConstants.restoreTarFilePath)
                     })
-                    .then(function(data) {
-                        return Promise.resolve()
+                    .then(function() {
+                        return Promise.resolve(true)
                     })
             })
     }
