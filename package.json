@@ -8,7 +8,7 @@
     "clean": "sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "build": "rm -rf ./built && npx tsc",
-    "test": "jest"
+    "test": "rm -rf ./built && npx tsc && jest"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -19,6 +19,7 @@
     "@types/express": "^4.16.1",
     "@types/fs-extra": "^5.0.4",
     "@types/http-proxy": "^1.16.2",
+    "@types/jest": "^24.0.6",
     "@types/js-base64": "^2.3.1",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/morgan": "^1.7.35",
@@ -63,6 +64,7 @@
     "validator": "^10.11.0"
   },
   "devDependencies": {
-    "jest": "^24.0.0"
+    "jest": "^24.1.0",
+    "ts-jest": "^24.0.0"
   }
 }

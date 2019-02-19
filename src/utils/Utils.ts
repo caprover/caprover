@@ -8,4 +8,10 @@ export default class Utils {
     static isNotGetRequest(req: { method: string }) {
         return req.method !== 'GET'
     }
+
+    static getNeverReturningPromise() {
+        return new Promise((res, rej) => {
+            //
+        })
+    }
 }

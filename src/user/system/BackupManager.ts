@@ -1,7 +1,6 @@
 import uuid = require('uuid/v4')
 import SshClientImport = require('ssh2')
 import request = require('request')
-import fs = require('fs-extra')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import Logger = require('../../utils/Logger')
 import LoadBalancerManager = require('./LoadBalancerManager')
@@ -16,6 +15,8 @@ import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Authenticator = require('../Authenticator')
 import * as tar from 'tar'
+import * as fs from 'fs-extra'
+import Utils from '../../utils/Utils'
 
 const BACKUP_JSON = 'backup.json'
 
@@ -51,6 +52,32 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
+    checkAndPrepareRestoration() {
+        if (
+            !fs.pathExistsSync(CaptainConstants.restoreTarFilePath) ||
+            !fs.statSync(CaptainConstants.restoreTarFilePath).isFile()
+        )
+            return Promise.resolve()
+
+        return Promise.resolve() //
+            .then(function() {
+                return fs.ensureDir(CaptainConstants.restoreDirectoryPath)
+            })
+            .then(function() {
+                return tar
+                    .extract({
+                        file: CaptainConstants.restoreTarFilePath,
+                        cwd: CaptainConstants.restoreDirectoryPath,
+                    })
+                    .then(function() {
+                        return Utils.getNeverReturningPromise()
+                    })
+                    .then(function(data) {
+                        return Promise.resolve()
+                    })
+            })
+    }
+
     createBackup(iBackupCallbacks: IBackupCallbacks) {
         const self = this
         const certbotManager = iBackupCallbacks.getCertbotManager()
@@ -71,7 +98,7 @@ export default class BackupManager {
             })
     }
 
-    createBackupInternal(iBackupCallbacks: IBackupCallbacks) {
+    private createBackupInternal(iBackupCallbacks: IBackupCallbacks) {
         const self = this
         return Promise.resolve() //
             .then(function() {

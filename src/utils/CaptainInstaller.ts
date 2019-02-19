@@ -4,6 +4,7 @@ import CaptainConstants = require('./CaptainConstants')
 import EnvVar = require('./EnvVars')
 import http = require('http')
 import request = require('request')
+import BackupManager from '../user/system/BackupManager'
 
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
@@ -247,6 +248,9 @@ export function install() {
         })
         .then(function() {
             return checkPortOrThrow(myIp4, 3000)
+        })
+        .then(function() {
+            return new BackupManager().checkAndPrepareRestoration()
         })
         .then(function() {
             return DockerApi.get().initSwarm(myIp4)

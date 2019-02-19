@@ -77,6 +77,10 @@ let data = {
 
     captainBaseDirectory: CAPTAIN_BASE_DIRECTORY,
 
+    restoreTarFilePath: CAPTAIN_BASE_DIRECTORY + '/backup.tar',
+
+    restoreDirectoryPath: CAPTAIN_BASE_DIRECTORY + '/restoring',
+
     captainRootDirectoryTemp: CAPTAIN_ROOT_DIRECTORY_TEMP,
 
     captainRootDirectoryBackup: CAPTAIN_ROOT_DIRECTORY_TEMP + '/backup',
