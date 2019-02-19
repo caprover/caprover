@@ -26,7 +26,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-   // return cleanup()
+   return cleanup()
 })
 
 test('No backup file', () => {
