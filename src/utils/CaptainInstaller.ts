@@ -259,7 +259,7 @@ export function install() {
         })
         .then(function(swarmId: string) {
             console.log('Swarm started: ' + swarmId)
-            return backupManger.startRestorationIfNeededPhase1()
+            return backupManger.startRestorationIfNeededPhase1(myIp4)
         })
         .then(function() {
             return DockerApi.get().getLeaderNodeId()

@@ -9,6 +9,14 @@ export default class Utils {
         return req.method !== 'GET'
     }
 
+    static getDelayedPromise(time: number) {
+        return new Promise((res, rej) => {
+            setTimeout(() => {
+                res()
+            }, time)
+        })
+    }
+
     static getNeverReturningPromise() {
         return new Promise((res, rej) => {
             //

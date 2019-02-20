@@ -1,5 +1,4 @@
 import uuid = require('uuid/v4')
-import SshClientImport = require('ssh2')
 import request = require('request')
 import fs = require('fs-extra')
 import CaptainConstants = require('../../utils/CaptainConstants')
@@ -18,7 +17,6 @@ import Authenticator = require('../Authenticator')
 import BackupManager from './BackupManager'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
-const SshClient = SshClientImport.Client
 
 const MAX_FAIL_ALLOWED = 4
 const HEALTH_CHECK_INTERVAL = 20000 // ms
@@ -646,102 +644,6 @@ class CaptainManager {
                 }
 
                 return data
-            })
-    }
-
-    joinDockerNode(
-        captainIpAddress: string,
-        isManager: boolean,
-        remoteNodeIpAddress: string,
-        privateKey: string
-    ) {
-        const remoteUserName = 'root' // Docker requires root access. It has to be root.
-        const dockerApi = this.dockerApi
-
-        return Promise.resolve()
-            .then(function() {
-                return dockerApi.getJoinToken(isManager)
-            })
-            .then(function(token) {
-                return new Promise<void>(function(resolve, reject) {
-                    const conn = new SshClient()
-                    conn.on('error', function(err) {
-                        Logger.e(err)
-                        reject(
-                            ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'SSH Connection error!!'
-                            )
-                        )
-                    })
-                        .on('ready', function() {
-                            Logger.d('SSH Client :: ready')
-                            conn.exec(
-                                CaptainConstants.disableFirewallCommand +
-                                    ' ' +
-                                    dockerApi.createJoinCommand(
-                                        captainIpAddress,
-                                        token
-                                    ),
-                                function(err, stream) {
-                                    if (err) {
-                                        Logger.e(err)
-                                        reject(
-                                            ApiStatusCodes.createError(
-                                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                                'SSH Running command failed!!'
-                                            )
-                                        )
-                                        return
-                                    }
-
-                                    let hasExisted = false
-
-                                    stream
-                                        .on('close', function(
-                                            code: string,
-                                            signal: string
-                                        ) {
-                                            Logger.d(
-                                                'Stream :: close :: code: ' +
-                                                    code +
-                                                    ', signal: ' +
-                                                    signal
-                                            )
-                                            conn.end()
-                                            if (hasExisted) {
-                                                return
-                                            }
-                                            hasExisted = true
-                                            resolve()
-                                        })
-                                        .on('data', function(data: string) {
-                                            Logger.d('STDOUT: ' + data)
-                                        })
-                                        .stderr.on('data', function(data) {
-                                            Logger.e('STDERR: ' + data)
-                                            if (hasExisted) {
-                                                return
-                                            }
-                                            hasExisted = true
-                                            reject(
-                                                ApiStatusCodes.createError(
-                                                    ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                                    'Error during setup: ' +
-                                                        data
-                                                )
-                                            )
-                                        })
-                                }
-                            )
-                        })
-                        .connect({
-                            host: remoteNodeIpAddress,
-                            port: 22,
-                            username: remoteUserName,
-                            privateKey: privateKey,
-                        })
-                })
             })
     }
 

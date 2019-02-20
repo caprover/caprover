@@ -9,6 +9,8 @@ import CaptainConstants = require('../../utils/CaptainConstants')
 import InjectionExtractor = require('../../injection/InjectionExtractor')
 import Utils from '../../utils/Utils'
 import * as path from 'path'
+import DockerUtils from '../../docker/DockerUtils'
+import DockerApi from '../../docker/DockerApi'
 
 const router = express.Router()
 
@@ -370,7 +372,8 @@ router.post('/nodes/', function(req, res, next) {
             }
         })
         .then(function() {
-            return CaptainManager.get().joinDockerNode(
+            return DockerUtils.joinDockerNode(
+                DockerApi.get(),
                 captainIpAddress,
                 isManager,
                 remoteNodeIpAddress,

@@ -1021,13 +1021,17 @@ class DockerApi {
 
         return this.checkIfSecretExist(secretKey).then(function(secretExists) {
             if (secretExists) {
-                return true
+                return
             } else {
-                return self.dockerode.createSecret({
-                    Name: secretKey,
-                    Labels: {},
-                    Data: Base64.encode(valueIfNotExist),
-                })
+                return self.dockerode
+                    .createSecret({
+                        Name: secretKey,
+                        Labels: {},
+                        Data: Base64.encode(valueIfNotExist),
+                    })
+                    .then(function() {
+                        return
+                    })
             }
         })
     }

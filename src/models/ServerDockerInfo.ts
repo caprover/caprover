@@ -1,6 +1,6 @@
 interface ServerDockerInfo {
     nodeId: string
-    type: string
+    type: 'manager' | 'worker'
     isLeader: boolean
     hostname: string
     architecture: string

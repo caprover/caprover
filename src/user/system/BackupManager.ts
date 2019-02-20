@@ -19,6 +19,7 @@ import * as tar from 'tar'
 import * as fs from 'fs-extra'
 import Utils from '../../utils/Utils'
 import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
+import DockerUtils from '../../docker/DockerUtils'
 const SshClient = SshClientImport.Client
 
 const CURRENT_NODE_DONT_CHANGE = 'CURRENT_NODE_DONT_CHANGE'
@@ -27,7 +28,7 @@ const IP_PLACEHOLDER = 'replace-me-with-new-ip-or-empty-see-docs'
 const BACKUP_JSON = 'backup.json'
 const RESTORE_INSTRUCTIONS = 'restore-instructions.json'
 
-const RESTORE_JSON_ABS_PATH =
+const RESTORE_INSTRUCTIONS_ABS_PATH =
     CaptainConstants.restoreDirectoryPath + '/' + RESTORE_INSTRUCTIONS
 
 export interface IBackupCallbacks {
@@ -62,12 +63,135 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
-    startRestorationIfNeededPhase1() {
+    startRestorationIfNeededPhase1(captainIpAddress: string) {
         // if (/captain/restore/restore-instructions.json does exist):
         // - Connect all extra nodes via SSH and get their NodeID
         // - Replace the nodeId in apps with the new nodeId based on restore-instructions.json
         // - Create a captain-salt secret using the data in restore
         // - Copy restore files to proper places
+        const self = this
+
+        const oldNodeIdToNewIpMap: IHashMapGeneric<string> = {}
+
+        return Promise.resolve()
+            .then(function() {
+                if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
+
+                return fs
+                    .readJson(RESTORE_INSTRUCTIONS_ABS_PATH)
+                    .then(function(restoringInfo: RestoringInfo) {
+                        const ps: (() => Promise<void>)[] = []
+                        restoringInfo.nodesMapping.forEach(n => {
+                            let isManager = false
+
+                            restoringInfo.oldNodesForReference.forEach(oldN => {
+                                if (oldN.nodeData.ip === n.oldIp) {
+                                    oldNodeIdToNewIpMap[oldN.nodeData.nodeId] =
+                                        n.newIp
+                                    if (oldN.nodeData.type === 'manager') {
+                                        isManager = true
+                                    }
+                                }
+                            })
+
+                            ps.push(function() {
+                                return Promise.resolve().then(function() {
+                                    return DockerUtils.joinDockerNode(
+                                        DockerApi.get(),
+                                        captainIpAddress,
+                                        isManager,
+                                        n.newIp,
+                                        fs.readFileSync(
+                                            n.privateKeyPath,
+                                            'utf8'
+                                        )
+                                    )
+                                })
+                            })
+                        })
+
+                        return self.runPromises(ps)
+                    })
+                    .then(function() {
+                        Logger.d(
+                            'Waiting for 5 seconds for things to settle...'
+                        )
+                        return Utils.getDelayedPromise(5000)
+                    })
+                    .then(function() {
+                        return DockerApi.get().getNodesInfo()
+                    })
+                    .then(function(nodesInfo) {
+                        function getNewNodeIdForIp(ip: string) {
+                            let nodeId = ''
+                            nodesInfo.forEach(n => {
+                                if (n.ip === ip) nodeId = n.nodeId
+                            })
+
+                            if (nodeId) return nodeId
+
+                            throw new Error('No NodeID found for ' + ip)
+                        }
+
+                        const configFilePathRestoring =
+                            CaptainConstants.restoreDirectoryPath +
+                            '/data/config-captain.json'
+                        const configData: {
+                            appDefinitions: IHashMapGeneric<IAppDefSaved>
+                        } = fs.readJsonSync(configFilePathRestoring)
+
+                        Object.keys(oldNodeIdToNewIpMap).forEach(oldNodeId => {
+                            const newIp = oldNodeIdToNewIpMap[oldNodeId]
+                            Object.keys(configData.appDefinitions).forEach(
+                                appName => {
+                                    if (
+                                        configData.appDefinitions[appName]
+                                            .nodeId === oldNodeId
+                                    ) {
+                                        configData.appDefinitions[
+                                            appName
+                                        ].nodeId = newIp
+                                            ? getNewNodeIdForIp(newIp)
+                                            : '' // If user removed new IP, it will mean that the user is okay with this node being automatically assigned to a node ID
+                                    }
+                                }
+                            )
+                        })
+
+                        return fs.outputJson(
+                            configFilePathRestoring,
+                            configData
+                        )
+                    })
+                    .then(function() {
+                        return fs.readJson(
+                            CaptainConstants.restoreDirectoryPath +
+                                '/meta/backup.json'
+                        )
+                    })
+                    .then(function(data: BackupMeta) {
+                        const salt = data.salt
+
+                        if (!salt)
+                            throw new Error(
+                                'Something is wrong! Salt is empty in restoring meta file'
+                            )
+
+                        return DockerApi.get().ensureSecret(
+                            CaptainConstants.captainSaltSecretKey,
+                            salt
+                        )
+                    })
+                    .then(function() {
+                        fs.move(
+                            CaptainConstants.restoreDirectoryPath + '/data',
+                            CaptainConstants.captainDataDirectory
+                        )
+                    })
+            })
+            .then(function() {
+                Logger.d('Restoration Phase#1 is completed!')
+            })
     }
 
     startRestorationIfNeededPhase2() {
@@ -92,9 +216,9 @@ export default class BackupManager {
                 // 1) /captain/restore/restore-instructions.json exists
                 // 2) Or, /captain/restore does not exist
 
-                if (fs.pathExistsSync(RESTORE_JSON_ABS_PATH)) {
+                if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
                     return self.processRestoreInstructions(
-                        fs.readJsonSync(RESTORE_JSON_ABS_PATH)
+                        fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
                     )
                 }
             })
@@ -148,7 +272,7 @@ export default class BackupManager {
             if (!!n.newIp) {
                 if (n.newIp === IP_PLACEHOLDER) {
                     throw new Error(
-                        `See backup docs! You must replace the place holder: ${IP_PLACEHOLDER} in ${RESTORE_JSON_ABS_PATH}`
+                        `See backup docs! You must replace the place holder: ${IP_PLACEHOLDER} in ${RESTORE_INSTRUCTIONS_ABS_PATH}`
                     )
                 }
 
@@ -172,17 +296,18 @@ export default class BackupManager {
             }
         })
 
-        return self.runPromises(connectingFuncs, 0)
+        return self.runPromises(connectingFuncs)
     }
 
     runPromises(
         promises: (() => Promise<void>)[],
-        curr: number
+        curr?: number
     ): Promise<void> {
+        let currCorrected = curr ? curr : 0
         const self = this
-        if (promises.length > curr) {
-            return promises[curr]().then(function() {
-                return self.runPromises(promises, curr + 1)
+        if (promises.length > currCorrected) {
+            return promises[currCorrected]().then(function() {
+                return self.runPromises(promises, currCorrected + 1)
             })
         }
 
@@ -313,7 +438,7 @@ export default class BackupManager {
                 if (!fs.statSync(dirPath).isDirectory())
                     throw new Error('restore directory is not a directory!!')
 
-                if (!fs.pathExistsSync(RESTORE_JSON_ABS_PATH)) {
+                if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
                     return Promise.resolve() //
                         .then(function() {
                             const metaData = fs.readJsonSync(
@@ -328,7 +453,7 @@ export default class BackupManager {
                             )
 
                             return fs.outputJson(
-                                RESTORE_JSON_ABS_PATH,
+                                RESTORE_INSTRUCTIONS_ABS_PATH,
                                 self.createRestoreInstructionData(
                                     metaData,
                                     configData
@@ -337,7 +462,7 @@ export default class BackupManager {
                         })
                 }
 
-                if (!fs.statSync(RESTORE_JSON_ABS_PATH).isFile())
+                if (!fs.statSync(RESTORE_INSTRUCTIONS_ABS_PATH).isFile())
                     throw new Error('restore instructions is not a file!!')
             })
     }
