@@ -10,7 +10,7 @@ export default class Utils {
     }
 
     static getDelayedPromise(time: number) {
-        return new Promise((res, rej) => {
+        return new Promise<void>((res, rej) => {
             setTimeout(() => {
                 res()
             }, time)
@@ -21,5 +21,19 @@ export default class Utils {
         return new Promise((res, rej) => {
             //
         })
+    }
+
+    static runPromises(
+        promises: (() => Promise<void>)[],
+        curr?: number
+    ): Promise<void> {
+        let currCorrected = curr ? curr : 0
+        if (promises.length > currCorrected) {
+            return promises[currCorrected]().then(function() {
+                return Utils.runPromises(promises, currCorrected + 1)
+            })
+        }
+
+        return Promise.resolve()
     }
 }

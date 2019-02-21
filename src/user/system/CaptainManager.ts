@@ -15,6 +15,9 @@ import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Authenticator = require('../Authenticator')
 import BackupManager from './BackupManager'
+import ServiceManager = require('../ServiceManager')
+import Utils from '../../utils/Utils'
+import DomainResolveChecker from './DomainResolveChecker'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 
@@ -31,6 +34,7 @@ class CaptainManager {
     private dockerApi: DockerApi
     private certbotManager: CertbotManager
     private loadBalancerManager: LoadBalancerManager
+    private domainResolveChecker: DomainResolveChecker
     private dockerRegistry: SelfHostedDockerRegistry
     private backupManager: BackupManager
     private myNodeId: string | undefined
@@ -53,6 +57,10 @@ class CaptainManager {
             dockerApi,
             this.certbotManager,
             this.dataStore
+        )
+        this.domainResolveChecker = new DomainResolveChecker(
+            this.loadBalancerManager,
+            this.certbotManager
         )
         this.myNodeId = undefined
         this.inited = false
@@ -232,7 +240,12 @@ class CaptainManager {
                 return Promise.resolve(true)
             })
             .then(function() {
-                return self.backupManager.startRestorationIfNeededPhase2()
+                return self.backupManager.startRestorationIfNeededPhase2(
+                    self.getCaptainSalt(),
+                    () => {
+                        return self.ensureAllAppsInited()
+                    }
+                )
             })
             .then(function() {
                 self.inited = true
@@ -250,6 +263,10 @@ class CaptainManager {
                     process.exit(0)
                 }, 5000)
             })
+    }
+
+    getDomainResolveChecker() {
+        return this.domainResolveChecker
     }
 
     performHealthCheck() {
@@ -319,10 +336,11 @@ class CaptainManager {
                 callback(false)
             }, TIMEOUT_HEALTH_CHECK)
 
-            self.verifyCaptainOwnsDomainOrThrow(
-                captainPublicDomain,
-                '-healthcheck'
-            )
+            self.domainResolveChecker
+                .verifyCaptainOwnsDomainOrThrow(
+                    captainPublicDomain,
+                    '-healthcheck'
+                )
                 .then(function() {
                     if (callbackCalled) {
                         return
@@ -423,6 +441,40 @@ class CaptainManager {
             !this.waitUntilRestarted &&
             !this.backupManager.isRunning()
         )
+    }
+
+    ensureAllAppsInited() {
+        const self = this
+        return Promise.resolve() //
+            .then(function() {
+                return self.dataStore.getAppsDataStore().getAppDefinitions()
+            })
+            .then(function(apps) {
+                const promises: (() => Promise<void>)[] = []
+                const serviceManager = ServiceManager.get(
+                    self.dataStore.getNameSpace(),
+                    CaptainManager.getAuthenticator(
+                        self.dataStore.getNameSpace()
+                    ),
+                    self.dataStore,
+                    self.dockerApi,
+                    CaptainManager.get().getLoadBalanceManager(),
+                    CaptainManager.get().getDomainResolveChecker()
+                )
+                Object.keys(apps).forEach(appName => {
+                    promises.push(function() {
+                        return Promise.resolve() //
+                            .then(function() {
+                                return serviceManager.ensureServiceInitedAndUpdated(
+                                    appName
+                                )
+                            })
+                            .then(function() {
+                                return Utils.getDelayedPromise(5000)
+                            })
+                    })
+                })
+            })
     }
 
     getCaptainImageTags() {
@@ -730,81 +782,6 @@ class CaptainManager {
         return !!this.hasForceSsl
     }
 
-    /**
-     * Returns a promise successfully if verification is succeeded. If it fails, it throws an exception.
-     *
-     * @param domainName the domain to verify, app.mycaptainroot.com or www.myawesomeapp.com
-     * @param identifierSuffix an optional suffix to be added to the identifier file name to avoid name conflict
-     *
-     * @returns {Promise.<boolean>}
-     */
-    verifyCaptainOwnsDomainOrThrow(
-        domainName: string,
-        identifierSuffix: string | undefined
-    ) {
-        const self = this
-        const randomUuid = uuid()
-        const captainConfirmationPath =
-            CaptainConstants.captainConfirmationPath +
-            (identifierSuffix ? identifierSuffix : '')
-
-        return Promise.resolve()
-            .then(function() {
-                return self.certbotManager.domainValidOrThrow(domainName)
-            })
-            .then(function() {
-                return fs.outputFile(
-                    CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDomainSpecificHtmlDir +
-                        '/' +
-                        domainName +
-                        captainConfirmationPath,
-                    randomUuid
-                )
-            })
-            .then(function() {
-                return new Promise<void>(function(resolve) {
-                    setTimeout(function() {
-                        resolve()
-                    }, 1000)
-                })
-            })
-            .then(function() {
-                return new Promise<void>(function(resolve, reject) {
-                    const url =
-                        'http://' +
-                        domainName +
-                        ':' +
-                        CaptainConstants.nginxPortNumber +
-                        captainConfirmationPath
-
-                    request(
-                        url,
-
-                        function(error, response, body) {
-                            if (error || !body || body !== randomUuid) {
-                                Logger.e(
-                                    'Verification Failed for ' + domainName
-                                )
-                                Logger.e('Error        ' + error)
-                                Logger.e('body         ' + body)
-                                Logger.e('randomUuid   ' + randomUuid)
-                                reject(
-                                    ApiStatusCodes.createError(
-                                        ApiStatusCodes.VERIFICATION_FAILED,
-                                        'Verification Failed.'
-                                    )
-                                )
-                                return
-                            }
-
-                            resolve()
-                        }
-                    )
-                })
-            })
-    }
-
     getNginxConfig() {
         const self = this
         return Promise.resolve().then(function() {
@@ -823,41 +800,6 @@ class CaptainManager {
             })
     }
 
-    requestCertificateForDomain(domainName: string) {
-        return this.certbotManager.enableSsl(domainName)
-    }
-
-    verifyDomainResolvesToDefaultServerOnHost(domainName: string) {
-        const self = this
-        return new Promise<void>(function(resolve, reject) {
-            const url =
-                'http://' +
-                domainName +
-                CaptainConstants.captainConfirmationPath
-
-            Logger.d('Sending request to ' + url)
-
-            request(url, function(error, response, body) {
-                if (
-                    error ||
-                    !body ||
-                    body !==
-                        self.loadBalancerManager.getCaptainPublicRandomKey()
-                ) {
-                    reject(
-                        ApiStatusCodes.createError(
-                            ApiStatusCodes.VERIFICATION_FAILED,
-                            'Verification Failed.'
-                        )
-                    )
-                    return
-                }
-
-                resolve()
-            })
-        })
-    }
-
     changeCaptainRootDomain(requestedCustomDomain: string) {
         const self = this
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
@@ -872,7 +814,7 @@ class CaptainManager {
             ':' +
             CaptainConstants.nginxPortNumber
 
-        return self
+        return self.domainResolveChecker
             .verifyDomainResolvesToDefaultServerOnHost(url)
             .then(function() {
                 return self.dataStore.getHasRootSsl()

@@ -14,8 +14,6 @@ import ApiStatusCodes = require('../api/ApiStatusCodes')
 
 const dockerApi = DockerApiProvider.get()
 
-const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
-
 /**
  * Global dependency injection module
  */
@@ -58,18 +56,20 @@ export function injectUser() {
             .then(function(userDecoded) {
                 if (userDecoded) {
                     const datastore = DataStoreProvider.getDataStore(namespace)
-                    if (!serviceMangerCache[namespace]) {
-                        serviceMangerCache[namespace] = new ServiceManager(
-                            datastore,
-                            dockerApi,
-                            CaptainManager.get().getLoadBalanceManager()
-                        )
-                    }
+
+                    const serviceManager = ServiceManager.get(
+                        namespace,
+                        CaptainManager.getAuthenticator(namespace),
+                        datastore,
+                        dockerApi,
+                        CaptainManager.get().getLoadBalanceManager(),
+                        CaptainManager.get().getDomainResolveChecker()
+                    )
                     const user: UserModel.UserInjected = {
                         namespace: namespace,
                         dataStore: datastore,
-                        serviceManager: serviceMangerCache[namespace],
-                        initialized: serviceMangerCache[namespace].isInited(),
+                        serviceManager: serviceManager,
+                        initialized: serviceManager.isInited(),
                     }
                     res.locals.user = user
                 }
@@ -130,19 +130,20 @@ export function injectUserForWebhook() {
 
                 const datastore = DataStoreProvider.getDataStore(namespace)
 
-                if (!serviceMangerCache[namespace]) {
-                    serviceMangerCache[namespace] = new ServiceManager(
-                        datastore,
-                        dockerApi,
-                        CaptainManager.get().getLoadBalanceManager()
-                    )
-                }
+                const serviceManager = ServiceManager.get(
+                    namespace,
+                    CaptainManager.getAuthenticator(namespace),
+                    datastore,
+                    dockerApi,
+                    CaptainManager.get().getLoadBalanceManager(),
+                    CaptainManager.get().getDomainResolveChecker()
+                )
 
                 const user: UserModel.UserInjected = {
                     namespace: namespace,
                     dataStore: datastore,
-                    serviceManager: serviceMangerCache[namespace],
-                    initialized: serviceMangerCache[namespace].isInited(),
+                    serviceManager: serviceManager,
+                    initialized: serviceManager.isInited(),
                 }
 
                 res.locals.user = user

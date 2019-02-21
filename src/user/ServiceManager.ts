@@ -1,6 +1,5 @@
 import Logger = require('../utils/Logger')
 import CaptainConstants = require('../utils/CaptainConstants')
-import CaptainManager = require('./system/CaptainManager')
 import LoadBalancerManager = require('./system/LoadBalancerManager')
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import DataStore = require('../datastore/DataStore')
@@ -10,8 +9,32 @@ import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
 import DockerRegistryHelper = require('./DockerRegistryHelper')
 import ImageMaker from './ImageMaker'
+import DomainResolveChecker from './system/DomainResolveChecker'
+import Authenticator = require('./Authenticator')
+
+const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
 class ServiceManager {
+    static get(
+        namespace: string,
+        authenticator: Authenticator,
+        dataStore: DataStore,
+        dockerApi: DockerApi,
+        loadBalancerManager: LoadBalancerManager,
+        domainResolveChecker: DomainResolveChecker
+    ) {
+        if (!serviceMangerCache[namespace]) {
+            serviceMangerCache[namespace] = new ServiceManager(
+                dataStore,
+                authenticator,
+                dockerApi,
+                loadBalancerManager,
+                domainResolveChecker
+            )
+        }
+        return serviceMangerCache[namespace]
+    }
+
     private activeBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
     private isReady: boolean
@@ -20,8 +43,10 @@ class ServiceManager {
 
     constructor(
         private dataStore: DataStore,
+        private authenticator: Authenticator,
         private dockerApi: DockerApi,
-        private loadBalancerManager: LoadBalancerManager
+        private loadBalancerManager: LoadBalancerManager,
+        private domainResolveChecker: DomainResolveChecker
     ) {
         this.activeBuilds = {}
         this.buildLogs = {}
@@ -96,7 +121,7 @@ class ServiceManager {
             .then(function() {
                 Logger.d('Verifying Captain owns domain: ' + customDomain)
 
-                return CaptainManager.get().verifyCaptainOwnsDomainOrThrow(
+                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
                     customDomain,
                     undefined
                 )
@@ -109,7 +134,7 @@ class ServiceManager {
                     .verifyCustomDomainBelongsToApp(appName, customDomain)
             })
             .then(function() {
-                return CaptainManager.get().requestCertificateForDomain(
+                return self.domainResolveChecker.requestCertificateForDomain(
                     customDomain
                 )
             })
@@ -165,7 +190,7 @@ class ServiceManager {
                 }
             })
             .then(function() {
-                return CaptainManager.get().verifyDomainResolvesToDefaultServerOnHost(
+                return self.domainResolveChecker.verifyDomainResolvesToDefaultServerOnHost(
                     customDomain
                 )
             })
@@ -228,7 +253,7 @@ class ServiceManager {
                 return appName + '.' + rootDomain
             })
             .then(function(domainName) {
-                return CaptainManager.get().requestCertificateForDomain(
+                return self.domainResolveChecker.requestCertificateForDomain(
                     domainName
                 )
             })
@@ -266,7 +291,7 @@ class ServiceManager {
             .then(function(domainName) {
                 Logger.d('Verifying Captain owns domain: ' + domainName)
 
-                return CaptainManager.get().verifyCaptainOwnsDomainOrThrow(
+                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
                     domainName,
                     undefined
                 )
@@ -526,9 +551,7 @@ class ServiceManager {
                         forceSsl,
                         ports,
                         repoInfo,
-                        CaptainManager.getAuthenticator(
-                            dataStore.getNameSpace()
-                        ),
+                        self.authenticator,
                         customNginxConfig,
                         preDeployFunction
                     )

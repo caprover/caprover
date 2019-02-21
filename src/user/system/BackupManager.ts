@@ -1,20 +1,9 @@
-import uuid = require('uuid/v4')
-import Validator = require('validator')
 import SshClientImport = require('ssh2')
-import request = require('request')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import Logger = require('../../utils/Logger')
-import LoadBalancerManager = require('./LoadBalancerManager')
-import EnvVars = require('../../utils/EnvVars')
 import CertbotManager = require('./CertbotManager')
-import SelfHostedDockerRegistry = require('./SelfHostedDockerRegistry')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import DataStoreProvider = require('../../datastore/DataStoreProvider')
-import DataStore = require('../../datastore/DataStore')
 import DockerApi from '../../docker/DockerApi'
-import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
-import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
-import Authenticator = require('../Authenticator')
 import * as tar from 'tar'
 import * as fs from 'fs-extra'
 import Utils from '../../utils/Utils'
@@ -37,6 +26,8 @@ export interface IBackupCallbacks {
     getCertbotManager: () => CertbotManager
 }
 
+const BACKUP_META_DATA_ABS_PATH =
+    CaptainConstants.restoreDirectoryPath + '/meta/' + BACKUP_JSON
 export default class BackupManager {
     private longOperationInProgress: boolean
 
@@ -110,7 +101,7 @@ export default class BackupManager {
                             })
                         })
 
-                        return self.runPromises(ps)
+                        return Utils.runPromises(ps)
                     })
                     .then(function() {
                         Logger.d(
@@ -164,10 +155,7 @@ export default class BackupManager {
                         )
                     })
                     .then(function() {
-                        return fs.readJson(
-                            CaptainConstants.restoreDirectoryPath +
-                                '/meta/backup.json'
-                        )
+                        return fs.readJson(BACKUP_META_DATA_ABS_PATH)
                     })
                     .then(function(data: BackupMeta) {
                         const salt = data.salt
@@ -183,7 +171,7 @@ export default class BackupManager {
                         )
                     })
                     .then(function() {
-                        fs.move(
+                        return fs.move(
                             CaptainConstants.restoreDirectoryPath + '/data',
                             CaptainConstants.captainDataDirectory
                         )
@@ -194,12 +182,50 @@ export default class BackupManager {
             })
     }
 
-    startRestorationIfNeededPhase2() {
+    startRestorationIfNeededPhase2(
+        captainSalt: string,
+        ensureAllAppsInited: () => Promise<void>
+    ) {
         // if (/captain/restore/restore.json exists) GO TO RESTORE MODE:
         // - Double check salt against "meta/captain-salt"
         // - Iterate over all APPs and make sure they are inited properly
         // - Delete /captain/restore
         // - Wait until things settle (1 minute...)
+
+        const self = this
+
+        return Promise.resolve() //
+            .then(function() {
+                if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
+                    return
+                }
+
+                Logger.d('Running the second phase of restoration...')
+
+                return Promise.resolve() //
+                    .then(function() {
+                        return fs.readJson(BACKUP_META_DATA_ABS_PATH)
+                    })
+                    .then(function(data: BackupMeta) {
+                        const restoringSalt = data.salt
+                        if (restoringSalt !== captainSalt) {
+                            throw new Error(
+                                `Salt doe not match the restoration data: ${captainSalt} vs  ${restoringSalt}`
+                            )
+                        }
+
+                        return ensureAllAppsInited()
+                    })
+                    .then(function() {
+                        Logger.d(
+                            'waiting 20 seconds for all services to settle'
+                        )
+                        Utils.getDelayedPromise(20000)
+                    })
+                    .then(function() {
+                        return fs.remove(CaptainConstants.restoreDirectoryPath)
+                    })
+            })
     }
 
     checkAndPrepareRestoration() {
@@ -296,22 +322,7 @@ export default class BackupManager {
             }
         })
 
-        return self.runPromises(connectingFuncs)
-    }
-
-    runPromises(
-        promises: (() => Promise<void>)[],
-        curr?: number
-    ): Promise<void> {
-        let currCorrected = curr ? curr : 0
-        const self = this
-        if (promises.length > currCorrected) {
-            return promises[currCorrected]().then(function() {
-                return self.runPromises(promises, currCorrected + 1)
-            })
-        }
-
-        return Promise.resolve()
+        return Utils.runPromises(connectingFuncs)
     }
 
     checkSshRoot(
@@ -442,9 +453,7 @@ export default class BackupManager {
                     return Promise.resolve() //
                         .then(function() {
                             const metaData = fs.readJsonSync(
-                                CaptainConstants.restoreDirectoryPath +
-                                    '/meta/' +
-                                    BACKUP_JSON
+                                BACKUP_META_DATA_ABS_PATH
                             )
 
                             const configData = fs.readJsonSync(
