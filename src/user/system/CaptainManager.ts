@@ -470,10 +470,16 @@ class CaptainManager {
                                 )
                             })
                             .then(function() {
+                                Logger.d(
+                                    'Waiting 5 second for the service to settle... ' +
+                                        appName
+                                )
                                 return Utils.getDelayedPromise(5000)
                             })
                     })
                 })
+
+                return Utils.runPromises(promises)
             })
     }
 
