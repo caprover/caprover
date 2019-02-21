@@ -3,7 +3,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 
-# Build backend code
+# Build backend code. 
 
 COPY . /usr/src/app
 RUN npm install && \
@@ -13,7 +13,7 @@ RUN npm install && \
 
 
 
-# Build frontend code using a fixed hash commit
+# Build frontend code using a fixed hash commit. 
 
 ENV FRONTEND_COMMIT_HASH 9e87c84485425e535e1381bc2ece875004bb1f23
 
