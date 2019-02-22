@@ -15,6 +15,7 @@ chmod -R 777 /captain
 docker run \
    -e "CAPTAIN_IS_DEBUG=1" \
    -v /var/run/docker.sock:/var/run/docker.sock \
+   -v /captain:/captain \
    -v $(pwd):/usr/src/app captain-debug
 sleep 2s
 docker service logs captain-captain --follow

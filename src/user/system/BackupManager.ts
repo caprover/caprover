@@ -64,140 +64,125 @@ export default class BackupManager {
 
         const oldNodeIdToNewIpMap: IHashMapGeneric<string> = {}
 
+        if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
+
         return Promise.resolve()
             .then(function() {
-                if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
-
                 Logger.d('Starting restoration, PHASE 1.')
 
-                return fs
-                    .readJson(RESTORE_INSTRUCTIONS_ABS_PATH)
-                    .then(function(restoringInfo: RestoringInfo) {
-                        const ps: (() => Promise<void>)[] = []
-                        restoringInfo.nodesMapping.forEach(n => {
-                            if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
+                return fs.readJson(RESTORE_INSTRUCTIONS_ABS_PATH)
+            })
+            .then(function(restoringInfo: RestoringInfo) {
+                const ps: (() => Promise<void>)[] = []
+                restoringInfo.nodesMapping.forEach(n => {
+                    if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
 
-                            let isManager = false
+                    let isManager = false
 
-                            restoringInfo.oldNodesForReference.forEach(oldN => {
-                                if (oldN.nodeData.ip === n.oldIp) {
-                                    oldNodeIdToNewIpMap[oldN.nodeData.nodeId] =
-                                        n.newIp
-                                    if (oldN.nodeData.type === 'manager') {
-                                        isManager = true
-                                    }
-                                }
-                            })
-
-                            const NEW_IP = n.newIp
-                            const PRIVATE_KEY_PATH = n.privateKeyPath
-
-                            ps.push(function() {
-                                return Promise.resolve()
-                                    .then(function() {
-                                        Logger.d(
-                                            'Joining other node to swarm: ' +
-                                                NEW_IP
-                                        )
-                                        return DockerUtils.joinDockerNode(
-                                            DockerApi.get(),
-                                            captainIpAddress,
-                                            isManager,
-                                            NEW_IP,
-                                            fs.readFileSync(
-                                                PRIVATE_KEY_PATH,
-                                                'utf8'
-                                            )
-                                        )
-                                    })
-                                    .then(function() {
-                                        Logger.d('Joined: ' + NEW_IP)
-                                    })
-                            })
-                        })
-
-                        if (ps.length > 0)
-                            Logger.d('Joining other node to swarm started')
-                        return Utils.runPromises(ps)
-                    })
-                    .then(function() {
-                        Logger.d(
-                            'Waiting for 5 seconds for things to settle...'
-                        )
-                        return Utils.getDelayedPromise(5000)
-                    })
-                    .then(function() {
-                        Logger.d('Getting nodes info...')
-                        return DockerApi.get().getNodesInfo()
-                    })
-                    .then(function(nodesInfo) {
-                        Logger.d('Remapping nodesId in config...')
-                        function getNewNodeIdForIp(ip: string) {
-                            let nodeId = ''
-                            nodesInfo.forEach(n => {
-                                if (n.ip === ip) nodeId = n.nodeId
-                            })
-
-                            if (nodeId) return nodeId
-
-                            throw new Error('No NodeID found for ' + ip)
+                    restoringInfo.oldNodesForReference.forEach(oldN => {
+                        if (oldN.nodeData.ip === n.oldIp) {
+                            oldNodeIdToNewIpMap[oldN.nodeData.nodeId] = n.newIp
+                            if (oldN.nodeData.type === 'manager') {
+                                isManager = true
+                            }
                         }
-
-                        const configFilePathRestoring =
-                            CaptainConstants.restoreDirectoryPath +
-                            '/data/config-captain.json'
-                        const configData: {
-                            appDefinitions: IHashMapGeneric<IAppDefSaved>
-                        } = fs.readJsonSync(configFilePathRestoring)
-
-                        Object.keys(oldNodeIdToNewIpMap).forEach(oldNodeId => {
-                            const newIp = oldNodeIdToNewIpMap[oldNodeId]
-                            Object.keys(configData.appDefinitions).forEach(
-                                appName => {
-                                    if (
-                                        configData.appDefinitions[appName]
-                                            .nodeId === oldNodeId
-                                    ) {
-                                        configData.appDefinitions[
-                                            appName
-                                        ].nodeId = newIp
-                                            ? getNewNodeIdForIp(newIp)
-                                            : '' // If user removed new IP, it will mean that the user is okay with this node being automatically assigned to a node ID
-                                    }
-                                }
-                            )
-                        })
-
-                        return fs.outputJson(
-                            configFilePathRestoring,
-                            configData
-                        )
                     })
-                    .then(function() {
-                        Logger.d('Config remapping done.')
-                        return fs.readJson(BACKUP_META_DATA_ABS_PATH)
-                    })
-                    .then(function(data: BackupMeta) {
-                        const salt = data.salt
 
-                        if (!salt)
-                            throw new Error(
-                                'Something is wrong! Salt is empty in restoring meta file'
-                            )
+                    const NEW_IP = n.newIp
+                    const PRIVATE_KEY_PATH = n.privateKeyPath
 
-                        Logger.d('Setting up salt...')
+                    ps.push(function() {
+                        return Promise.resolve()
+                            .then(function() {
+                                Logger.d(
+                                    'Joining other node to swarm: ' + NEW_IP
+                                )
+                                return DockerUtils.joinDockerNode(
+                                    DockerApi.get(),
+                                    captainIpAddress,
+                                    isManager,
+                                    NEW_IP,
+                                    fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
+                                )
+                            })
+                            .then(function() {
+                                Logger.d('Joined: ' + NEW_IP)
+                            })
+                    })
+                })
 
-                        return DockerApi.get().ensureSecret(
-                            CaptainConstants.captainSaltSecretKey,
-                            salt
-                        )
+                if (ps.length > 0)
+                    Logger.d('Joining other node to swarm started')
+                return Utils.runPromises(ps)
+            })
+            .then(function() {
+                Logger.d('Waiting for 5 seconds for things to settle...')
+                return Utils.getDelayedPromise(5000)
+            })
+            .then(function() {
+                Logger.d('Getting nodes info...')
+                return DockerApi.get().getNodesInfo()
+            })
+            .then(function(nodesInfo) {
+                Logger.d('Remapping nodesId in config...')
+                function getNewNodeIdForIp(ip: string) {
+                    let nodeId = ''
+                    nodesInfo.forEach(n => {
+                        if (n.ip === ip) nodeId = n.nodeId
                     })
-                    .then(function() {
-                        return fs.move(
-                            CaptainConstants.restoreDirectoryPath + '/data',
-                            CaptainConstants.captainDataDirectory
-                        )
+
+                    if (nodeId) return nodeId
+
+                    throw new Error('No NodeID found for ' + ip)
+                }
+
+                const configFilePathRestoring =
+                    CaptainConstants.restoreDirectoryPath +
+                    '/data/config-captain.json'
+                const configData: {
+                    appDefinitions: IHashMapGeneric<IAppDefSaved>
+                } = fs.readJsonSync(configFilePathRestoring)
+
+                Object.keys(oldNodeIdToNewIpMap).forEach(oldNodeId => {
+                    const newIp = oldNodeIdToNewIpMap[oldNodeId]
+                    Object.keys(configData.appDefinitions).forEach(appName => {
+                        if (
+                            configData.appDefinitions[appName].nodeId ===
+                            oldNodeId
+                        ) {
+                            configData.appDefinitions[appName].nodeId = newIp
+                                ? getNewNodeIdForIp(newIp)
+                                : '' // If user removed new IP, it will mean that the user is okay with this node being automatically assigned to a node ID
+                        }
                     })
+                })
+
+                return fs.outputJson(configFilePathRestoring, configData)
+            })
+            .then(function() {
+                Logger.d('Config remapping done.')
+                return fs.readJson(BACKUP_META_DATA_ABS_PATH)
+            })
+            .then(function(data: BackupMeta) {
+                const salt = data.salt
+
+                if (!salt)
+                    throw new Error(
+                        'Something is wrong! Salt is empty in restoring meta file'
+                    )
+
+                Logger.d('Setting up salt...')
+
+                return DockerApi.get().ensureSecret(
+                    CaptainConstants.captainSaltSecretKey,
+                    salt
+                )
+            })
+            .then(function() {
+                return fs.move(
+                    CaptainConstants.restoreDirectoryPath + '/data',
+                    CaptainConstants.captainDataDirectory
+                )
             })
             .then(function() {
                 Logger.d('Restoration Phase#1 is completed!')
@@ -254,8 +239,10 @@ export default class BackupManager {
         const self = this
         return Promise.resolve() //
             .then(function() {
-                if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath))
+                if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath)) {
+                    Logger.d('Fresh installation!')
                     return false
+                }
 
                 Logger.d('Backup file found! Starting restoration process...')
 
