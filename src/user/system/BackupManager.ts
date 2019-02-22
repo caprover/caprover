@@ -68,11 +68,15 @@ export default class BackupManager {
             .then(function() {
                 if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
 
+                Logger.d('Starting restoration, PHASE 1.')
+
                 return fs
                     .readJson(RESTORE_INSTRUCTIONS_ABS_PATH)
                     .then(function(restoringInfo: RestoringInfo) {
                         const ps: (() => Promise<void>)[] = []
                         restoringInfo.nodesMapping.forEach(n => {
+                            if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
+
                             let isManager = false
 
                             restoringInfo.oldNodesForReference.forEach(oldN => {
@@ -85,22 +89,35 @@ export default class BackupManager {
                                 }
                             })
 
+                            const NEW_IP = n.newIp
+                            const PRIVATE_KEY_PATH = n.privateKeyPath
+
                             ps.push(function() {
-                                return Promise.resolve().then(function() {
-                                    return DockerUtils.joinDockerNode(
-                                        DockerApi.get(),
-                                        captainIpAddress,
-                                        isManager,
-                                        n.newIp,
-                                        fs.readFileSync(
-                                            n.privateKeyPath,
-                                            'utf8'
+                                return Promise.resolve()
+                                    .then(function() {
+                                        Logger.d(
+                                            'Joining other node to swarm: ' +
+                                                NEW_IP
                                         )
-                                    )
-                                })
+                                        return DockerUtils.joinDockerNode(
+                                            DockerApi.get(),
+                                            captainIpAddress,
+                                            isManager,
+                                            NEW_IP,
+                                            fs.readFileSync(
+                                                PRIVATE_KEY_PATH,
+                                                'utf8'
+                                            )
+                                        )
+                                    })
+                                    .then(function() {
+                                        Logger.d('Joined: ' + NEW_IP)
+                                    })
                             })
                         })
 
+                        if (ps.length > 0)
+                            Logger.d('Joining other node to swarm started')
                         return Utils.runPromises(ps)
                     })
                     .then(function() {
@@ -110,9 +127,11 @@ export default class BackupManager {
                         return Utils.getDelayedPromise(5000)
                     })
                     .then(function() {
+                        Logger.d('Getting nodes info...')
                         return DockerApi.get().getNodesInfo()
                     })
                     .then(function(nodesInfo) {
+                        Logger.d('Remapping nodesId in config...')
                         function getNewNodeIdForIp(ip: string) {
                             let nodeId = ''
                             nodesInfo.forEach(n => {
@@ -155,6 +174,7 @@ export default class BackupManager {
                         )
                     })
                     .then(function() {
+                        Logger.d('Config remapping done.')
                         return fs.readJson(BACKUP_META_DATA_ABS_PATH)
                     })
                     .then(function(data: BackupMeta) {
@@ -164,6 +184,8 @@ export default class BackupManager {
                             throw new Error(
                                 'Something is wrong! Salt is empty in restoring meta file'
                             )
+
+                        Logger.d('Setting up salt...')
 
                         return DockerApi.get().ensureSecret(
                             CaptainConstants.captainSaltSecretKey,
@@ -210,7 +232,7 @@ export default class BackupManager {
                         const restoringSalt = data.salt
                         if (restoringSalt !== captainSalt) {
                             throw new Error(
-                                `Salt doe not match the restoration data: ${captainSalt} vs  ${restoringSalt}`
+                                `Salt does not match the restoration data: ${captainSalt} vs  ${restoringSalt}`
                             )
                         }
 
@@ -232,26 +254,32 @@ export default class BackupManager {
         const self = this
         return Promise.resolve() //
             .then(function() {
-                return self.extractBackupContentIfExists()
-            })
-            .then(function() {
-                return self.prepareRestorationIfDirectoryExists()
-            })
-            .then(function() {
-                // At this point, either:
-                // 1) /captain/restore/restore-instructions.json exists
-                // 2) Or, /captain/restore does not exist
+                if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath))
+                    return false
 
-                if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
-                    return self.processRestoreInstructions(
-                        fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
-                    )
-                }
+                Logger.d('Backup file found! Starting restoration process...')
+
+                return self
+                    .extractBackupContent() //
+                    .then(function() {
+                        Logger.d('Restoration content are extracted.')
+                        return self.prepareRestorationIfDirectoryExists()
+                    })
+                    .then(function() {
+                        return self.processRestoreInstructions(
+                            fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
+                        )
+                    })
+                    .then(function() {
+                        return true
+                    })
             })
     }
 
     processRestoreInstructions(restoringInfo: RestoringInfo) {
         const self = this
+
+        Logger.d('Processing the restoration instructions...')
 
         if (!restoringInfo.nodesMapping.length)
             throw new Error(
@@ -297,6 +325,12 @@ export default class BackupManager {
 
             if (!!n.newIp) {
                 if (n.newIp === IP_PLACEHOLDER) {
+                    Logger.d(
+                        '***       MULTI-NODE RESTORATION DETECTED        ***'
+                    )
+                    Logger.d(
+                        '*** THIS ERROR IS EXPECTED. SEE DOCS FOR DETAILS ***'
+                    )
                     throw new Error(
                         `See backup docs! You must replace the place holder: ${IP_PLACEHOLDER} in ${RESTORE_INSTRUCTIONS_ABS_PATH}`
                     )
@@ -322,6 +356,9 @@ export default class BackupManager {
             }
         })
 
+        Logger.d('Processing restoration instructions is done')
+        if (connectingFuncs.length > 0)
+            Logger.d('Checking connectivity to other nodes...')
         return Utils.runPromises(connectingFuncs)
     }
 
@@ -347,6 +384,8 @@ export default class BackupManager {
                 return fs.readFile(privateKeyPath, 'utf8')
             })
             .then(function(privateKey) {
+                Logger.d('Testing ' + remoteNodeIpAddress)
+
                 return new Promise<string>(function(resolve, reject) {
                     const conn = new SshClient()
                     conn.on('error', function(err) {
@@ -428,6 +467,7 @@ export default class BackupManager {
                             remoteNodeIpAddress
                     )
                 }
+                Logger.d('Passed ' + remoteNodeIpAddress)
             })
     }
 
@@ -444,35 +484,38 @@ export default class BackupManager {
             .then(function() {
                 const dirPath = CaptainConstants.restoreDirectoryPath
 
-                if (!fs.pathExistsSync(dirPath)) return
-
                 if (!fs.statSync(dirPath).isDirectory())
                     throw new Error('restore directory is not a directory!!')
 
-                if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
-                    return Promise.resolve() //
-                        .then(function() {
-                            const metaData = fs.readJsonSync(
-                                BACKUP_META_DATA_ABS_PATH
-                            )
-
-                            const configData = fs.readJsonSync(
-                                CaptainConstants.restoreDirectoryPath +
-                                    '/data/config-captain.json'
-                            )
-
-                            return fs.outputJson(
-                                RESTORE_INSTRUCTIONS_ABS_PATH,
-                                self.createRestoreInstructionData(
-                                    metaData,
-                                    configData
-                                )
-                            )
-                        })
+                if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
+                    throw new Error(
+                        'Restore instruction already exists! Cleanup your /captain directory and start over.'
+                    )
                 }
 
-                if (!fs.statSync(RESTORE_INSTRUCTIONS_ABS_PATH).isFile())
-                    throw new Error('restore instructions is not a file!!')
+                return Promise.resolve() //
+                    .then(function() {
+                        Logger.d('Reading backup meta-data...')
+
+                        const metaData = fs.readJsonSync(
+                            BACKUP_META_DATA_ABS_PATH
+                        )
+
+                        const configData = fs.readJsonSync(
+                            CaptainConstants.restoreDirectoryPath +
+                                '/data/config-captain.json'
+                        )
+
+                        Logger.d('Creating the restoration instruction file...')
+
+                        return fs.outputJson(
+                            RESTORE_INSTRUCTIONS_ABS_PATH,
+                            self.createRestoreInstructionData(
+                                metaData,
+                                configData
+                            )
+                        )
+                    })
             })
     }
 
@@ -522,10 +565,7 @@ export default class BackupManager {
         return ret
     }
 
-    private extractBackupContentIfExists() {
-        if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath))
-            return Promise.resolve(false)
-
+    private extractBackupContent() {
         if (!fs.statSync(CaptainConstants.restoreTarFilePath).isFile())
             throw new Error('restore tar file is not a file!!')
 
