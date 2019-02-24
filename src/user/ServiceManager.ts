@@ -260,7 +260,7 @@ class ServiceManager {
             .then(function() {
                 return self.dataStore
                     .getAppsDataStore()
-                    .enableSslForDefaultSubDomain(appName)
+                    .setSslForDefaultSubDomain(appName, true)
             })
             .then(function() {
                 return self.reloadLoadBalancer()

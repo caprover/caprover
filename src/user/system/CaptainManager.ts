@@ -806,7 +806,7 @@ class CaptainManager {
             })
     }
 
-    changeCaptainRootDomain(requestedCustomDomain: string) {
+    changeCaptainRootDomain(requestedCustomDomain: string, force: boolean) {
         const self = this
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
@@ -827,16 +827,22 @@ class CaptainManager {
             })
             .then(function(hasRootSsl) {
                 if (
+                    !force &&
                     hasRootSsl &&
                     self.dataStore.getRootDomain() !== requestedCustomDomain
                 ) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'SSL is enabled for root. Too late to change your mind!'
+                        'SSL is enabled for root. You can still force change the root domain, but read docs for consequences!'
                     )
                 }
 
                 return self.dataStore.setCustomDomain(requestedCustomDomain)
+            })
+            .then(function() {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .ensureAllAppsSubDomainSslDisabled()
             })
             .then(function() {
                 return self.reloadLoadBalancer(self.dataStore)

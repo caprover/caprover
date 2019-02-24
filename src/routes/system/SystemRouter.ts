@@ -52,7 +52,7 @@ router.post('/changerootdomain/', function(req, res, next) {
     }
 
     CaptainManager.get()
-        .changeCaptainRootDomain(requestedCustomDomain)
+        .changeCaptainRootDomain(requestedCustomDomain, !!req.body.force)
         .then(function() {
             res.send(
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'Root domain changed.')

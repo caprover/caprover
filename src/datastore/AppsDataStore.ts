@@ -6,6 +6,7 @@ import configstore = require('configstore')
 import Authenticator = require('../user/Authenticator')
 import { CaptainEncryptor } from '../utils/Encryptor'
 import { IBuiltImage } from '../models/IBuiltImage'
+import Utils from '../utils/Utils'
 
 const isValidPath = require('is-valid-path')
 
@@ -256,12 +257,27 @@ class AppsDataStore {
         })
     }
 
-    enableSslForDefaultSubDomain(appName: string) {
+    setSslForDefaultSubDomain(appName: string, isEnabled: boolean) {
         const self = this
 
         return this.getAppDefinition(appName).then(function(app) {
-            app.hasDefaultSubDomainSsl = true
+            app.hasDefaultSubDomainSsl = !!isEnabled
             return self.saveApp(appName, app)
+        })
+    }
+
+    ensureAllAppsSubDomainSslDisabled() {
+        const self = this
+
+        return this.getAppDefinitions().then(function(appDefinitions) {
+            const promises: (() => Promise<void>)[] = []
+            Object.keys(appDefinitions).forEach(appName => {
+                const APP_NAME = appName
+                promises.push(function() {
+                    return self.setSslForDefaultSubDomain(APP_NAME, false)
+                })
+            })
+            return Utils.runPromises(promises)
         })
     }
 
