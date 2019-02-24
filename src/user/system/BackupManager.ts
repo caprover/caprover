@@ -62,9 +62,9 @@ export default class BackupManager {
         // - Copy restore files to proper places
         const self = this
 
-        const oldNodeIdToNewIpMap: IHashMapGeneric<string> = {}
-
         if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
+
+        const oldNodeIdToNewIpMap: IHashMapGeneric<string> = {}
 
         return Promise.resolve()
             .then(function() {
@@ -75,18 +75,21 @@ export default class BackupManager {
             .then(function(restoringInfo: RestoringInfo) {
                 const ps: (() => Promise<void>)[] = []
                 restoringInfo.nodesMapping.forEach(n => {
-                    if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
-
                     let isManager = false
 
                     restoringInfo.oldNodesForReference.forEach(oldN => {
                         if (oldN.nodeData.ip === n.oldIp) {
-                            oldNodeIdToNewIpMap[oldN.nodeData.nodeId] = n.newIp
+                            oldNodeIdToNewIpMap[oldN.nodeData.nodeId] =
+                                n.newIp === CURRENT_NODE_DONT_CHANGE
+                                    ? captainIpAddress
+                                    : n.newIp
                             if (oldN.nodeData.type === 'manager') {
                                 isManager = true
                             }
                         }
                     })
+
+                    if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
 
                     const NEW_IP = n.newIp
                     const PRIVATE_KEY_PATH = n.privateKeyPath
@@ -111,8 +114,12 @@ export default class BackupManager {
                     })
                 })
 
-                if (ps.length > 0)
+                if (ps.length > 0) {
                     Logger.d('Joining other node to swarm started')
+                } else {
+                    Logger.d('Single node restoration detected.')
+                }
+
                 return Utils.runPromises(ps)
             })
             .then(function() {
@@ -247,13 +254,13 @@ export default class BackupManager {
                 Logger.d('Backup file found! Starting restoration process...')
 
                 return self
-                    .extractBackupContent() //
+                    .extractBackupContentAndRemoveTar() //
                     .then(function() {
                         Logger.d('Restoration content are extracted.')
-                        return self.prepareRestorationIfDirectoryExists()
+                        return self.createRestorationInstructionFile()
                     })
                     .then(function() {
-                        return self.processRestoreInstructions(
+                        return self.checkAccessToAllNodesInInstructions(
                             fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
                         )
                     })
@@ -263,7 +270,7 @@ export default class BackupManager {
             })
     }
 
-    processRestoreInstructions(restoringInfo: RestoringInfo) {
+    checkAccessToAllNodesInInstructions(restoringInfo: RestoringInfo) {
         const self = this
 
         Logger.d('Processing the restoration instructions...')
@@ -463,9 +470,8 @@ export default class BackupManager {
      *
      * /captain/restore/restore-instructions.json
      *
-     * This method is graceful, if /captain/restore/ does not exist, it will early out gracefully
      */
-    private prepareRestorationIfDirectoryExists() {
+    private createRestorationInstructionFile() {
         const self = this
         return Promise.resolve() //
             .then(function() {
@@ -552,7 +558,7 @@ export default class BackupManager {
         return ret
     }
 
-    private extractBackupContent() {
+    private extractBackupContentAndRemoveTar() {
         if (!fs.statSync(CaptainConstants.restoreTarFilePath).isFile())
             throw new Error('restore tar file is not a file!!')
 
