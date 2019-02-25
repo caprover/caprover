@@ -150,18 +150,28 @@ export default class BackupManager {
                     appDefinitions: IHashMapGeneric<IAppDefSaved>
                 } = fs.readJsonSync(configFilePathRestoring)
 
-                Object.keys(oldNodeIdToNewIpMap).forEach(oldNodeId => {
-                    const newIp = oldNodeIdToNewIpMap[oldNodeId]
-                    Object.keys(configData.appDefinitions).forEach(appName => {
-                        if (
-                            configData.appDefinitions[appName].nodeId ===
-                            oldNodeId
-                        ) {
+                Object.keys(configData.appDefinitions).forEach(appName => {
+                    const oldNodeIdForApp =
+                        configData.appDefinitions[appName].nodeId
+
+                    if (!oldNodeIdForApp) return
+
+                    let oldNodeIdFound = false
+                    Object.keys(oldNodeIdToNewIpMap).forEach(oldNodeId => {
+                        const newIp = oldNodeIdToNewIpMap[oldNodeId]
+                        if (oldNodeIdForApp === oldNodeId) {
+                            oldNodeIdFound = true
                             configData.appDefinitions[appName].nodeId = newIp
                                 ? getNewNodeIdForIp(newIp)
                                 : '' // If user removed new IP, it will mean that the user is okay with this node being automatically assigned to a node ID
                         }
                     })
+
+                    if (!oldNodeIdFound) {
+                        throw new Error(
+                            `Old nodeId ${oldNodeIdForApp} for app ${appName} is not found in the map.`
+                        )
+                    }
                 })
 
                 return fs.outputJson(configFilePathRestoring, configData)
