@@ -837,12 +837,18 @@ class CaptainManager {
                     )
                 }
 
-                return self.dataStore.setCustomDomain(requestedCustomDomain)
+                return self.forceSsl(false)
+            })
+            .then(function() {
+                return self.dataStore.setHasRootSsl(false)
             })
             .then(function() {
                 return self.dataStore
                     .getAppsDataStore()
                     .ensureAllAppsSubDomainSslDisabled()
+            })
+            .then(function() {
+                return self.dataStore.setCustomDomain(requestedCustomDomain)
             })
             .then(function() {
                 return self.reloadLoadBalancer(self.dataStore)
