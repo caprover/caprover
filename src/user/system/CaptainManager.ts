@@ -759,7 +759,7 @@ class CaptainManager {
                 return self.dataStore.getHasRootSsl()
             })
             .then(function(hasRootSsl) {
-                if (!hasRootSsl) {
+                if (!hasRootSsl && isEnabled) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
                         'You first need to enable SSL on the root domain before forcing it.'
@@ -837,15 +837,18 @@ class CaptainManager {
                     )
                 }
 
-                return self.forceSsl(false)
-            })
-            .then(function() {
-                return self.dataStore.setHasRootSsl(false)
-            })
-            .then(function() {
-                return self.dataStore
-                    .getAppsDataStore()
-                    .ensureAllAppsSubDomainSslDisabled()
+                if (force) {
+                    return self
+                        .forceSsl(false)
+                        .then(function() {
+                            return self.dataStore.setHasRootSsl(false)
+                        })
+                        .then(function() {
+                            return self.dataStore
+                                .getAppsDataStore()
+                                .ensureAllAppsSubDomainSslDisabled()
+                        })
+                }
             })
             .then(function() {
                 return self.dataStore.setCustomDomain(requestedCustomDomain)

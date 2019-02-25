@@ -274,14 +274,19 @@ class AppsDataStore {
             Object.keys(appDefinitions).forEach(appName => {
                 const APP_NAME = appName
                 promises.push(function() {
-                    return self
-                        .setSslForDefaultSubDomain(APP_NAME, false)
+                    return Promise.resolve()
                         .then(function() {
                             return self.getAppDefinition(APP_NAME)
                         })
                         .then(function(app) {
                             app.forceSsl = false
                             return self.saveApp(APP_NAME, app)
+                        })
+                        .then(function() {
+                            return self.setSslForDefaultSubDomain(
+                                APP_NAME,
+                                false
+                            )
                         })
                 })
             })
