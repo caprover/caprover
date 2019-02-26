@@ -25,6 +25,14 @@ router.post('/createbackup/', function(req, res, next) {
         })
         .then(function(pathOfBackup) {
             res.download(pathOfBackup, function(err) {
+                if (err) {
+                    Logger.e(err)
+                }
+
+                Logger.d(
+                    `Downloading backup finished: ${pathOfBackup} Removing directory...`
+                )
+
                 backupManager.deleteBackupDirectoryIfExists()
             })
         })
