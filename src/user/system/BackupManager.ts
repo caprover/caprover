@@ -68,7 +68,7 @@ export default class BackupManager {
 
         return Promise.resolve()
             .then(function() {
-                Logger.d('Starting restoration, PHASE 1.')
+                Logger.d('Starting restoration, phase-1.')
 
                 return fs.readJson(RESTORE_INSTRUCTIONS_ABS_PATH)
             })
@@ -202,7 +202,7 @@ export default class BackupManager {
                 )
             })
             .then(function() {
-                Logger.d('Restoration Phase#1 is completed!')
+                Logger.d('Restoration Phase-1 is completed!')
             })
     }
 
@@ -224,7 +224,7 @@ export default class BackupManager {
                     return
                 }
 
-                Logger.d('Running the second phase of restoration...')
+                Logger.d('Running phase-2 of restoration...')
 
                 return Promise.resolve() //
                     .then(function() {
@@ -317,11 +317,7 @@ export default class BackupManager {
         const newIps: string[] = []
 
         restoringInfo.nodesMapping.forEach(n => {
-            if (
-                !/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-                    n.oldIp
-                )
-            ) {
+            if (!Utils.isValidIp(n.oldIp)) {
                 throw new Error(`${n.oldIp} is not a valid IP`)
             }
 
@@ -340,11 +336,7 @@ export default class BackupManager {
                     )
                 }
 
-                if (
-                    !/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-                        n.newIp
-                    )
-                ) {
+                if (!Utils.isValidIp(n.newIp)) {
                     throw new Error(`${n.newIp} is not a valid IP`)
                 }
 
@@ -625,6 +617,8 @@ export default class BackupManager {
 
                 const RAW = CaptainConstants.captainRootDirectoryBackup + '/raw'
 
+                Logger.d('Creating backup...')
+
                 return Promise.resolve() //
                     .then(function() {
                         return self.deleteBackupDirectoryIfExists()
@@ -633,6 +627,8 @@ export default class BackupManager {
                         return fs.ensureDir(RAW)
                     })
                     .then(function() {
+                        Logger.d('Copying data to ' + RAW)
+
                         return fs.copy(
                             CaptainConstants.captainDataDirectory,
                             RAW + '/data',
@@ -643,6 +639,8 @@ export default class BackupManager {
                         return iBackupCallbacks.getNodesInfo()
                     })
                     .then(function(nodes) {
+                        Logger.d('Copying meta to ' + RAW)
+
                         return self.saveMetaFile(RAW + '/meta/' + BACKUP_JSON, {
                             salt: iBackupCallbacks.getCaptainSalt(),
                             nodes: nodes,
@@ -652,6 +650,9 @@ export default class BackupManager {
                         const tarFilePath =
                             CaptainConstants.captainRootDirectoryBackup +
                             '/backup.tar'
+
+                        Logger.d('Creating tar file: ' + tarFilePath)
+
                         return tar
                             .c(
                                 {
@@ -661,6 +662,14 @@ export default class BackupManager {
                                 ['./']
                             )
                             .then(function() {
+                                let fileSizeInMb = Math.ceil(
+                                    fs.statSync(tarFilePath).size / 1000000
+                                )
+
+                                Logger.d(
+                                    `Tar file created. File Size: ${fileSizeInMb} MB`
+                                )
+
                                 return tarFilePath
                             })
                     })
