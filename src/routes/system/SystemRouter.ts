@@ -24,7 +24,7 @@ router.post('/createbackup/', function(req, res, next) {
             return backupManager.createBackup(CaptainManager.get())
         })
         .then(function(pathOfBackup) {
-            res.sendFile(pathOfBackup, {}, function(err) {
+            res.download(pathOfBackup, function(err) {
                 backupManager.deleteBackupDirectoryIfExists()
             })
         })
