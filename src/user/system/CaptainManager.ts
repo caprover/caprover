@@ -197,6 +197,9 @@ class CaptainManager {
                 return true
             })
             .then(function() {
+                return Authenticator.setMainSalt(self.getCaptainSalt())
+            })
+            .then(function() {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
             })
             .then(function() {
@@ -205,7 +208,7 @@ class CaptainManager {
             .then(function() {
                 return new MigrateCaptainDuckDuck(
                     dataStore,
-                    CaptainManager.getAuthenticator(dataStore.getNameSpace())
+                    Authenticator.getAuthenticator(dataStore.getNameSpace())
                 )
                     .migrateIfNeeded()
                     .then(function(migrationPerformed) {
@@ -453,7 +456,7 @@ class CaptainManager {
                 const promises: (() => Promise<void>)[] = []
                 const serviceManager = ServiceManager.get(
                     self.dataStore.getNameSpace(),
-                    CaptainManager.getAuthenticator(
+                    Authenticator.getAuthenticator(
                         self.dataStore.getNameSpace()
                     ),
                     self.dataStore,
@@ -882,30 +885,6 @@ class CaptainManager {
                 )
             }, 2000)
         })
-    }
-
-    static authenticatorCache: IHashMapGeneric<Authenticator> = {}
-
-    static getAuthenticator(namespace: string): Authenticator {
-        const authenticatorCache = CaptainManager.authenticatorCache
-        if (!namespace) {
-            throw ApiStatusCodes.createError(
-                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
-                'Empty namespace'
-            )
-        }
-
-        if (!authenticatorCache[namespace]) {
-            const captainSalt = CaptainManager.get().getCaptainSalt()
-            if (captainSalt) {
-                authenticatorCache[namespace] = new Authenticator(
-                    captainSalt,
-                    namespace
-                )
-            }
-        }
-
-        return authenticatorCache[namespace]
     }
 
     private static captainManagerInstance: CaptainManager | undefined

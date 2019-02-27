@@ -245,6 +245,37 @@ class Authenticator {
             )
         })
     }
+
+    static authenticatorCache: IHashMapGeneric<Authenticator> = {}
+
+    private static mainSalt: string
+
+    static setMainSalt(salt: string) {
+        if (Authenticator.mainSalt) throw new Error('Salt is already set!!')
+        Authenticator.mainSalt = salt
+    }
+
+    static getAuthenticator(namespace: string): Authenticator {
+        const authenticatorCache = Authenticator.authenticatorCache
+        if (!namespace) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                'Empty namespace'
+            )
+        }
+
+        if (!authenticatorCache[namespace]) {
+            const captainSalt = Authenticator.mainSalt
+            if (captainSalt) {
+                authenticatorCache[namespace] = new Authenticator(
+                    captainSalt,
+                    namespace
+                )
+            }
+        }
+
+        return authenticatorCache[namespace]
+    }
 }
 
 export = Authenticator

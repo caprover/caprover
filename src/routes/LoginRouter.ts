@@ -5,6 +5,7 @@ import CaptainConstants = require('../utils/CaptainConstants')
 import InjectionExtractor = require('../injection/InjectionExtractor')
 import DataStoreProvider = require('../datastore/DataStoreProvider')
 import CaptainManager = require('../user/system/CaptainManager')
+import Authenticator = require('../user/Authenticator')
 
 const router = express.Router()
 
@@ -33,14 +34,14 @@ router.post('/', function(req, res, next) {
         })
         .then(function(savedHashedPassword) {
             loadedHashedPassword = savedHashedPassword
-            return CaptainManager.getAuthenticator(namespace).getAuthToken(
+            return Authenticator.getAuthenticator(namespace).getAuthToken(
                 password,
                 loadedHashedPassword
             )
         })
         .then(function(token) {
             authToken = token
-            return CaptainManager.getAuthenticator(
+            return Authenticator.getAuthenticator(
                 namespace
             ).getAuthTokenForCookies(password, loadedHashedPassword)
         })

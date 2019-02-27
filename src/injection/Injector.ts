@@ -51,7 +51,7 @@ export function injectUser() {
 
         const namespace = res.locals.namespace
 
-        CaptainManager.getAuthenticator(namespace)
+        Authenticator.getAuthenticator(namespace)
             .decodeAuthToken(req.header(CaptainConstants.headerAuth) || '')
             .then(function(userDecoded) {
                 if (userDecoded) {
@@ -59,7 +59,7 @@ export function injectUser() {
 
                     const serviceManager = ServiceManager.get(
                         namespace,
-                        CaptainManager.getAuthenticator(namespace),
+                        Authenticator.getAuthenticator(namespace),
                         datastore,
                         dockerApi,
                         CaptainManager.get().getLoadBalanceManager(),
@@ -109,7 +109,7 @@ export function injectUserForWebhook() {
 
         let decodedInfo: UserModel.IAppWebHookToken
 
-        CaptainManager.getAuthenticator(namespace)
+        Authenticator.getAuthenticator(namespace)
             .decodeAppPushWebhookToken(token)
             .then(function(data) {
                 decodedInfo = data
@@ -132,7 +132,7 @@ export function injectUserForWebhook() {
 
                 const serviceManager = ServiceManager.get(
                     namespace,
-                    CaptainManager.getAuthenticator(namespace),
+                    Authenticator.getAuthenticator(namespace),
                     datastore,
                     dockerApi,
                     CaptainManager.get().getLoadBalanceManager(),
@@ -166,7 +166,7 @@ export function injectUserForWebhook() {
  */
 export function injectUserUsingCookieDataOnly() {
     return function(req: Request, res: Response, next: NextFunction) {
-        CaptainManager.getAuthenticator(CaptainConstants.rootNameSpace)
+        Authenticator.getAuthenticator(CaptainConstants.rootNameSpace)
             .decodeAuthTokenFromCookies(
                 req.cookies[CaptainConstants.headerCookieAuth]
             )

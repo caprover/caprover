@@ -11,6 +11,7 @@ import InjectionExtractor = require('../injection/InjectionExtractor')
 import CaptainManager = require('../user/system/CaptainManager')
 import Utils from '../utils/Utils'
 import EnvVars = require('../utils/EnvVars')
+import Authenticator = require('../user/Authenticator')
 
 const router = express.Router()
 
@@ -106,7 +107,7 @@ router.post('/changepassword/', function(req, res, next) {
             return dataStore.getHashedPassword()
         })
         .then(function(savedHashedPassword) {
-            return CaptainManager.getAuthenticator(namespace).changepass(
+            return Authenticator.getAuthenticator(namespace).changepass(
                 req.body.oldPassword,
                 req.body.newPassword,
                 savedHashedPassword
