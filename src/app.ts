@@ -14,6 +14,7 @@ import Logger = require('./utils/Logger')
 import CaptainConstants = require('./utils/CaptainConstants')
 
 import LoginRouter = require('./routes/LoginRouter')
+import DownloadRouter = require('./routes/DownloadRouter')
 import UserRouter = require('./routes/UserRouter')
 import InjectionExtractor = require('./injection/InjectionExtractor')
 import Utils from './utils/Utils'
@@ -203,6 +204,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function(req, res, next) {
 
 // unsecured end points:
 app.use(API_PREFIX + CaptainConstants.apiVersion + '/login/', LoginRouter)
+app.use(API_PREFIX + CaptainConstants.apiVersion + '/downloads/', DownloadRouter)
 
 // secured end points
 app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter)

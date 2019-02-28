@@ -22,6 +22,12 @@ class InjectionExtractor {
             app: res.locals.app as IAppDef,
         }
     }
+
+    static extractFileNameForDownload(res: Response) {
+        return {
+            downloadFileName: res.locals.downloadFileName as string,
+        }
+    }
 }
 
 export = InjectionExtractor

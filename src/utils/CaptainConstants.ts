@@ -85,6 +85,8 @@ let data = {
 
     captainRootDirectoryBackup: CAPTAIN_ROOT_DIRECTORY_TEMP + '/backup',
 
+    captainDownloadsDirectory: CAPTAIN_ROOT_DIRECTORY_TEMP + '/downloads',
+
     captainRawSourceDirectoryBase: CAPTAIN_ROOT_DIRECTORY_TEMP + '/image_raw',
 
     captainRootDirectoryGenerated: CAPTAIN_ROOT_DIRECTORY_GENERATED,

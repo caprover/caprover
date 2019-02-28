@@ -23,18 +23,13 @@ router.post('/createbackup/', function(req, res, next) {
         .then(function() {
             return backupManager.createBackup(CaptainManager.get())
         })
-        .then(function(pathOfBackup) {
-            res.download(pathOfBackup, function(err) {
-                if (err) {
-                    Logger.e(err)
-                }
-
-                Logger.d(
-                    `Downloading backup finished: ${pathOfBackup} Removing directory...`
-                )
-
-                backupManager.deleteBackupDirectoryIfExists()
-            })
+        .then(function(backupInfo) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Backup created.'
+            )
+            baseApi.data = backupInfo
+            res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })

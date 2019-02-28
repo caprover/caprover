@@ -9,6 +9,9 @@ import * as fs from 'fs-extra'
 import Utils from '../../utils/Utils'
 import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
 import DockerUtils from '../../docker/DockerUtils'
+import uuid = require('uuid')
+import Authenticator = require('../Authenticator')
+import * as path from 'path'
 const SshClient = SshClientImport.Client
 
 const CURRENT_NODE_DONT_CHANGE = 'CURRENT_NODE_DONT_CHANGE'
@@ -674,8 +677,37 @@ export default class BackupManager {
                             })
                     })
                     .then(function(tarFilePath) {
-                        self.unlock()
-                        return tarFilePath
+                        const namespace = CaptainConstants.rootNameSpace
+                        const newName =
+                            CaptainConstants.captainDownloadsDirectory +
+                            '/' +
+                            namespace +
+                            '/' +
+                            uuid.v4() +
+                            '.tar'
+                        fs.moveSync(tarFilePath, newName)
+
+                        setTimeout(() => {
+                            try {
+                                fs.removeSync(newName)
+                            } catch (err) {
+                                // nom nom
+                            }
+                        }, 1000 * 3600 * 2)
+
+                        return Authenticator.getAuthenticator(
+                            namespace
+                        ).getDownloadToken(path.basename(newName))
+                    })
+                    .then(function(token) {
+                        return self
+                            .deleteBackupDirectoryIfExists()
+                            .then(function() {
+                                self.unlock()
+                                return {
+                                    downloadToken: token,
+                                }
+                            })
                     })
                     .catch(function(err) {
                         self.unlock()

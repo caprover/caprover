@@ -1,3 +1,5 @@
+import { removeSync, remove } from 'fs-extra'
+
 export default class Utils {
     static removeHttpHttps(input: string) {
         input = input.trim()
@@ -10,6 +12,12 @@ export default class Utils {
         return /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
             ip
         )
+    }
+
+    static deleteFileQuietly(absFileOrDirPath: string) {
+        return remove(absFileOrDirPath).catch(function(error) {
+            // nom nom
+        })
     }
 
     static isNotGetRequest(req: { method: string }) {

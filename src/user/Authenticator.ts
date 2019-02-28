@@ -12,6 +12,7 @@ const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
 
 const COOKIE_AUTH_SUFFIX = 'cookie-'
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push'
+const DOWNLOAD_TOKEN = '-download-token'
 
 class Authenticator {
     private encryptionKey: string
@@ -114,7 +115,7 @@ class Authenticator {
                         data: userObj,
                     },
                     self.encryptionKey + (keySuffix ? keySuffix : ''),
-                    { expiresIn: '10000h' }
+                    { expiresIn: '480h' }
                 )
             })
     }
@@ -195,7 +196,32 @@ class Authenticator {
         return self.decodeGenericToken(token, WEBHOOK_APP_PUSH_SUFFIX)
     }
 
-    getGenericToken(obj: any, keySuffix: string) {
+    getDownloadToken(downloadFileName: string) {
+        const self = this
+
+        if (!downloadFileName) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'filename is required for download token..'
+            )
+        }
+
+        return self.getGenericToken(
+            {
+                downloadFileName: downloadFileName,
+            },
+            DOWNLOAD_TOKEN,
+            '2m'
+        )
+    }
+
+    decodeDownloadToken(token: string) {
+        const self = this
+
+        return self.decodeGenericToken(token, DOWNLOAD_TOKEN)
+    }
+
+    getGenericToken(obj: any, keySuffix: string, expiresIn?: string) {
         const self = this
         obj.namespace = self.namespace
 
@@ -204,7 +230,12 @@ class Authenticator {
                 {
                     data: obj,
                 },
-                self.encryptionKey + (keySuffix ? keySuffix : '')
+                self.encryptionKey + (keySuffix ? keySuffix : ''),
+                expiresIn
+                    ? {
+                          expiresIn: expiresIn,
+                      }
+                    : undefined
             )
         })
     }
