@@ -506,11 +506,15 @@ export default class BackupManager {
 
                         Logger.d('Creating the restoration instruction file...')
 
-                        return fs.outputJson(
+                        return fs.outputFile(
                             RESTORE_INSTRUCTIONS_ABS_PATH,
-                            self.createRestoreInstructionData(
-                                metaData,
-                                configData
+                            JSON.stringify(
+                                self.createRestoreInstructionData(
+                                    metaData,
+                                    configData
+                                ),
+                                undefined,
+                                2
                             )
                         )
                     })
