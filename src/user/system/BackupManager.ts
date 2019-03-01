@@ -112,7 +112,11 @@ export default class BackupManager {
                                 )
                             })
                             .then(function() {
-                                Logger.d('Joined: ' + NEW_IP)
+                                Logger.d('Joined swarm: ' + NEW_IP)
+                            })
+                            .then(function() {
+                                Logger.d('Waiting 5 seconds...')
+                                return Utils.getDelayedPromise(5000)
                             })
                     })
                 })
@@ -259,6 +263,11 @@ export default class BackupManager {
         const self = this
         return Promise.resolve() //
             .then(function() {
+                if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
+                    Logger.d('Resuming restoration from backup...')
+                    return true
+                }
+
                 if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath)) {
                     Logger.d('Fresh installation!')
                     return false
