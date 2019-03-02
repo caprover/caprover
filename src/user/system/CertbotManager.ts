@@ -4,6 +4,7 @@ import fs = require('fs-extra')
 import uuid = require('uuid/v4')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import DockerApi from '../../docker/DockerApi'
+import Utils from '../../utils/Utils'
 
 const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot'
 const WEBROOT_PATH_IN_CAPTAIN =
@@ -304,6 +305,8 @@ class CertbotManager {
         const self = this
 
         function createCertbotServiceOnNode(nodeId: string) {
+            Logger.d('Creating Certbot service')
+
             return dockerApi
                 .createServiceOnNodeId(
                     CaptainConstants.certbotImageName,
@@ -315,17 +318,8 @@ class CertbotManager {
                     undefined
                 )
                 .then(function() {
-                    const waitTimeInMillis = 5000
-                    Logger.d(
-                        'Waiting for ' +
-                            waitTimeInMillis / 1000 +
-                            ' seconds for Certbot to start up'
-                    )
-                    return new Promise<boolean>(function(resolve, reject) {
-                        setTimeout(function() {
-                            resolve(true)
-                        }, waitTimeInMillis)
-                    })
+                    Logger.d('Waiting for Certbot...')
+                    return Utils.getDelayedPromise(12000)
                 })
         }
 
@@ -357,11 +351,10 @@ class CertbotManager {
                         'No Captain Certbot service is running. Creating one...'
                     )
 
-                    return createCertbotServiceOnNode(myNodeId).then(
-                        function() {
+                    return createCertbotServiceOnNode(myNodeId) //
+                        .then(function() {
                             return myNodeId
-                        }
-                    )
+                        })
                 }
             })
             .then(function(nodeId) {
@@ -374,6 +367,10 @@ class CertbotManager {
                         .removeServiceByName(
                             CaptainConstants.certbotServiceName
                         )
+                        .then(function() {
+                            Logger.d('Waiting for Certbot to be removed...')
+                            return Utils.getDelayedPromise(10000)
+                        })
                         .then(function() {
                             return createCertbotServiceOnNode(myNodeId).then(
                                 function() {
