@@ -263,31 +263,30 @@ export default class BackupManager {
         const self = this
         return Promise.resolve() //
             .then(function() {
-                if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
-                    Logger.d('Resuming restoration from backup...')
-                    return true
+                let promise = Promise.resolve()
+
+                if (fs.pathExistsSync(CaptainConstants.restoreTarFilePath)) {
+                    Logger.d(
+                        'Backup file found! Starting restoration process...'
+                    )
+                    promise = self
+                        .extractBackupContentAndRemoveTar() //
+                        .then(function() {
+                            Logger.d('Restoration content are extracted.')
+                            return self.createRestorationInstructionFile()
+                        })
                 }
 
-                if (!fs.pathExistsSync(CaptainConstants.restoreTarFilePath)) {
-                    Logger.d('Fresh installation!')
-                    return false
-                }
-
-                Logger.d('Backup file found! Starting restoration process...')
-
-                return self
-                    .extractBackupContentAndRemoveTar() //
+                return promise //
                     .then(function() {
-                        Logger.d('Restoration content are extracted.')
-                        return self.createRestorationInstructionFile()
-                    })
-                    .then(function() {
-                        return self.checkAccessToAllNodesInInstructions(
-                            fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
-                        )
-                    })
-                    .then(function() {
-                        return true
+                        if (fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) {
+                            Logger.d('Resuming restoration from backup...')
+                            return self.checkAccessToAllNodesInInstructions(
+                                fs.readJsonSync(RESTORE_INSTRUCTIONS_ABS_PATH)
+                            )
+                        } else {
+                            Logger.d('Fresh installation!')
+                        }
                     })
             })
     }
@@ -343,9 +342,13 @@ export default class BackupManager {
                     Logger.d(
                         '*** THIS ERROR IS EXPECTED. SEE DOCS FOR DETAILS ***'
                     )
-                    throw new Error(
+                    Logger.d(
                         `See backup docs! You must replace the place holder: ${IP_PLACEHOLDER} in ${RESTORE_INSTRUCTIONS_ABS_PATH}`
                     )
+
+                    process.exit(1)
+
+                    throw new Error('See docs for details')
                 }
 
                 if (!Utils.isValidIp(n.newIp)) {
