@@ -209,7 +209,7 @@ export default class BackupManager {
                 )
             })
             .then(function() {
-                Logger.d('Restoration Phase-1 is completed!')
+                Logger.d('Restoration Phase-1 is completed! Starting the service...')
             })
     }
 
