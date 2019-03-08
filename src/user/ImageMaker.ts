@@ -311,12 +311,14 @@ export default class ImageMaker {
                     return GitHelper.clone(
                         srcRepo.user,
                         srcRepo.password,
+                        srcRepo.sshKey,
                         srcRepo.repo,
                         srcRepo.branch,
                         destDirectory
-                    ).then(function() {
-                        return GitHelper.getLastHash(destDirectory)
-                    })
+                    ) //
+                        .then(function() {
+                            return GitHelper.getLastHash(destDirectory)
+                        })
                 }
 
                 const captainDefinitionContentSource =

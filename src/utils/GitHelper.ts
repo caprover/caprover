@@ -1,29 +1,22 @@
 import { AnyError } from '../models/OtherTypes'
 import Utils from './Utils'
-
-const git = require('simple-git')
+import * as CaptainConstants from './CaptainConstants'
+import * as fs from 'fs-extra'
+import * as path from 'path'
+import * as git from 'simple-git/promise'
+import * as uuid from 'uuid'
 
 class GitHelper {
     static getLastHash(directory: string) {
-        return new Promise<string>(function(resolve, reject) {
-            git(directory)
-                .silent(true)
-                .raw(['rev-parse', 'HEAD'], function(
-                    err: AnyError,
-                    result: string
-                ) {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        resolve(result)
-                    }
-                })
-        })
+        return git(directory) //
+            .silent(true) //
+            .raw(['rev-parse', 'HEAD']) //
     }
 
     static clone(
         username: string,
         pass: string,
+        sshKey: string,
         repo: string,
         branch: string,
         directory: string
@@ -36,20 +29,37 @@ class GitHelper {
 
         const remote = `https://${USER}:${PASS}@${REPO}`
 
-        return new Promise<string>(function(resolve, reject) {
-            git()
-                .silent(true)
-                .raw(
-                    ['clone', '--recursive', '-b', branch, remote, directory],
-                    function(err: AnyError, result: string) {
-                        if (err) {
-                            reject(err)
-                        } else {
-                            resolve(result)
-                        }
-                    }
-                )
-        })
+        if (!!sshKey) {
+            const SSH_KEY_PATH = path.join(
+                CaptainConstants.captainRootDirectoryTemp,
+                uuid.v4()
+            )
+            return Promise.resolve() //
+                .then(function() {
+                    fs.outputFile(SSH_KEY_PATH, sshKey + '')
+                })
+                .then(function() {
+                    return git() //
+                        .silent(true) //
+                        .env('GIT_SSH_COMMAND', 'ssh -i ' + SSH_KEY_PATH) //
+                        .raw([
+                            'clone',
+                            '--recursive',
+                            '-b',
+                            branch,
+                            remote,
+                            directory,
+                        ])
+                })
+                .then(function() {
+                    return fs.remove(SSH_KEY_PATH)
+                })
+        } else {
+            return git() //
+                .silent(true) //
+                .raw(['clone', '--recursive', '-b', branch, remote, directory])
+                .then(function() {})
+        }
     }
 }
 

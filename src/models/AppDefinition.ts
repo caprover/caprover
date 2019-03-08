@@ -24,6 +24,7 @@ interface RepoInfo {
     repo: string
     branch: string
     user: string
+    sshKey: string
     password: string
 }
 
@@ -31,6 +32,7 @@ interface RepoInfoEncrypted {
     repo: string
     branch: string
     user: string
+    sshKeyEncrypted: string
     passwordEncrypted: string
 }
 

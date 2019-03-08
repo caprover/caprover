@@ -221,9 +221,12 @@ class AppsDataStore {
                         repoInfo: {
                             repo: repo.repo,
                             user: repo.user,
-                            password: self.encryptor.decrypt(
-                                repo.passwordEncrypted
-                            ),
+                            password: repo.passwordEncrypted
+                                ? self.encryptor.decrypt(repo.passwordEncrypted)
+                                : '',
+                            sshKey: repo.sshKeyEncrypted
+                                ? self.encryptor.decrypt(repo.sshKeyEncrypted)
+                                : '',
                             branch: repo.branch,
                         },
                     }
@@ -550,8 +553,7 @@ class AppsDataStore {
                     repoInfo &&
                     repoInfo.repo &&
                     repoInfo.branch &&
-                    repoInfo.user &&
-                    repoInfo.password
+                    ((repoInfo.user && repoInfo.password) || repoInfo.sshKey)
                 ) {
                     appObj.appPushWebhook = {
                         tokenVersion:
@@ -567,6 +569,7 @@ class AppsDataStore {
                             user: repoInfo.user,
                             branch: repoInfo.branch,
                             password: repoInfo.password,
+                            sshKey: repoInfo.sshKey,
                         },
                     }
 

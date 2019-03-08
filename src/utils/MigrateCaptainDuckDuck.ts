@@ -225,6 +225,7 @@ export default class MigrateCaptainDuckDuck {
                             const repoInfo = {
                                 user: '',
                                 password: '',
+                                sshKey: '',
                                 branch: '',
                                 repo: '',
                             }
