@@ -38,7 +38,7 @@ class AppsDataStore {
 
     private saveApp(appName: String, app: IAppDef) {
         const self = this
-        let passwordToBeEncrypted = ''
+
         return Promise.resolve()
             .then(function() {
                 if (!appName) {
@@ -46,22 +46,6 @@ class AppsDataStore {
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
                         'App Name should not be empty'
                     )
-                }
-
-                let pushWebhook = app.appPushWebhook
-                if (
-                    pushWebhook &&
-                    pushWebhook.pushWebhookToken &&
-                    pushWebhook.tokenVersion &&
-                    pushWebhook.repoInfo &&
-                    pushWebhook.repoInfo.repo
-                ) {
-                    // we have required info
-                    passwordToBeEncrypted = pushWebhook.repoInfo.password
-                    pushWebhook.repoInfo.password = ''
-                } else {
-                    // some required data is missing. We drop the push data
-                    pushWebhook = undefined
                 }
 
                 if (app.forceSsl) {
@@ -173,10 +157,37 @@ class AppsDataStore {
                 }
             })
             .then(function() {
+                let passwordToBeEncrypted = ''
+                let sshKeyToBeEncrypted = ''
+                let pushWebhook = app.appPushWebhook
+                if (
+                    pushWebhook &&
+                    pushWebhook.pushWebhookToken &&
+                    pushWebhook.tokenVersion &&
+                    pushWebhook.repoInfo &&
+                    pushWebhook.repoInfo.repo
+                ) {
+                    // we have required info
+                    passwordToBeEncrypted = pushWebhook.repoInfo.password
+                    sshKeyToBeEncrypted = pushWebhook.repoInfo.sshKey
+                    pushWebhook.repoInfo.password = ''
+                    pushWebhook.repoInfo.sshKey = ''
+                } else {
+                    // some required data is missing. We drop the push data
+                    pushWebhook = undefined
+                }
+
                 const appToSave: IAppDefSaved = <IAppDefSaved>app
+
                 if (passwordToBeEncrypted) {
                     appToSave.appPushWebhook!.repoInfo!.passwordEncrypted = self.encryptor.encrypt(
                         passwordToBeEncrypted
+                    )
+                }
+
+                if (sshKeyToBeEncrypted) {
+                    appToSave.appPushWebhook!.repoInfo!.sshKeyEncrypted = self.encryptor.encrypt(
+                        sshKeyToBeEncrypted
                     )
                 }
 
@@ -211,7 +222,8 @@ class AppsDataStore {
                 if (
                     appSave.appPushWebhook &&
                     appSave.appPushWebhook.repoInfo &&
-                    appSave.appPushWebhook.repoInfo.passwordEncrypted
+                    (appSave.appPushWebhook.repoInfo.passwordEncrypted ||
+                        appSave.appPushWebhook.repoInfo.sshKeyEncrypted)
                 ) {
                     const repo = appSave.appPushWebhook!.repoInfo
                     appUnencrypted.appPushWebhook = {
