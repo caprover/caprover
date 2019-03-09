@@ -815,9 +815,7 @@ class CaptainManager {
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
         const url =
-            (CaptainConstants.configs.preCheckForWildCard
-                ? uuid()
-                : CaptainConstants.captainSubDomain) +
+            uuid() +
             '.' +
             requestedCustomDomain +
             ':' +

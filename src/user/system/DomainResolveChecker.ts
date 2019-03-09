@@ -6,9 +6,13 @@ import request = require('request')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import uuid = require('uuid/v4')
 import fs = require('fs-extra')
+import Utils from '../../utils/Utils'
 
 export default class DomainResolveChecker {
-    constructor(private loadBalancerManager: LoadBalancerManager, private certbotManager: CertbotManager) {}
+    constructor(
+        private loadBalancerManager: LoadBalancerManager,
+        private certbotManager: CertbotManager
+    ) {}
 
     requestCertificateForDomain(domainName: string) {
         return this.certbotManager.enableSsl(domainName)
@@ -26,6 +30,10 @@ export default class DomainResolveChecker {
         domainName: string,
         identifierSuffix: string | undefined
     ) {
+        if (CaptainConstants.configs.skipVerifyingDomains) {
+            return Utils.getDelayedPromise(1000)
+        }
+
         const self = this
         const randomUuid = uuid()
         const captainConfirmationPath =
@@ -90,7 +98,12 @@ export default class DomainResolveChecker {
     }
 
     verifyDomainResolvesToDefaultServerOnHost(domainName: string) {
+        if (CaptainConstants.configs.skipVerifyingDomains) {
+            return Utils.getDelayedPromise(1000)
+        }
+
         const self = this
+
         return new Promise<void>(function(resolve, reject) {
             const url =
                 'http://' +

@@ -25,7 +25,7 @@ const configs = {
 
     appLogSize: 500,
 
-    preCheckForWildCard: true,
+    skipVerifyingDomains: false,
 
     registrySubDomainPort: 996,
 
