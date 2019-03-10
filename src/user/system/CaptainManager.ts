@@ -304,6 +304,17 @@ class CaptainManager {
                 callback(false)
             }, TIMEOUT_HEALTH_CHECK)
 
+            if (CaptainConstants.configs.skipVerifyingDomains) {
+                setTimeout(function() {
+                    if (callbackCalled) {
+                        return
+                    }
+                    callbackCalled = true
+                    callback(true)
+                }, 10)
+                return
+            }
+
             const url =
                 'http://' +
                 captainPublicDomain +
