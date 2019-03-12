@@ -10,10 +10,13 @@ import DataStore = require('../../datastore/DataStore')
 import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../../models/OtherTypes'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
+import * as path from 'path'
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../../template/default-page.ejs')
     .toString()
+
+const CONTAINER_PATH_OF_CONFIG = '/etc/nginx/conf.d'
 
 class LoadBalancerManager {
     private reloadInProcess: boolean
@@ -90,7 +93,7 @@ class LoadBalancerManager {
                 return fs.remove(FUTURE)
             })
             .then(function() {
-                return dataStore.getServerList()
+                return self.getServerList(dataStore)
             })
             .then(function(servers) {
                 const promises: Promise<void>[] = []
@@ -113,8 +116,23 @@ class LoadBalancerManager {
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir
 
+                        const pathOfAuthInHost =
+                            configFilePathBase + '-' + s.publicDomain + '.auth'
+
                         promises.push(
                             Promise.resolve()
+                                .then(function() {
+                                    if (s.httpBasicAuth) {
+                                        s.httpBasicAuthPath = path.join(
+                                            CONTAINER_PATH_OF_CONFIG,
+                                            path.basename(pathOfAuthInHost)
+                                        )
+                                        return fs.outputFile(
+                                            pathOfAuthInHost,
+                                            s.httpBasicAuth
+                                        )
+                                    }
+                                })
                                 .then(function() {
                                     return ejs.render(s.nginxConfigTemplate, {
                                         s: s,
@@ -159,6 +177,108 @@ class LoadBalancerManager {
                 self.reloadInProcess = false
                 q.reject(error)
                 self.consumeQueueIfAnyInNginxReloadQueue()
+            })
+    }
+
+    getServerList(dataStore: DataStore) {
+        const self = this
+
+        let hasRootSsl: boolean
+        let rootDomain: string
+
+        return Promise.resolve()
+            .then(function() {
+                return dataStore.getHasRootSsl()
+            })
+            .then(function(val: boolean) {
+                hasRootSsl = val
+
+                return dataStore.getRootDomain()
+            })
+            .then(function(val) {
+                rootDomain = val
+            })
+            .then(function() {
+                return dataStore.getDefaultAppNginxConfig()
+            })
+            .then(function(defaultAppNginxConfig) {
+                return self.getAppsServerConfig(
+                    dataStore,
+                    defaultAppNginxConfig,
+                    hasRootSsl,
+                    rootDomain
+                )
+            })
+    }
+
+    getAppsServerConfig(
+        dataStore: DataStore,
+        defaultAppNginxConfig: string,
+        hasRootSsl: boolean,
+        rootDomain: string
+    ) {
+        const self = this
+
+        const servers: IServerBlockDetails[] = []
+
+        return dataStore
+            .getAppsDataStore()
+            .getAppDefinitions()
+            .then(function(apps) {
+                Object.keys(apps).forEach(function(appName) {
+                    const webApp = apps[appName]
+                    const httpBasicAuth = webApp.httpBasicAuth || ''
+
+                    if (webApp.notExposeAsWebApp) {
+                        return
+                    }
+
+                    const localDomain = dataStore
+                        .getAppsDataStore()
+                        .getServiceName(appName)
+                    const forceSsl = !!webApp.forceSsl
+                    const nginxConfigTemplate =
+                        webApp.customNginxConfig || defaultAppNginxConfig
+
+                    const serverWithSubDomain = {} as IServerBlockDetails
+                    serverWithSubDomain.hasSsl =
+                        hasRootSsl && webApp.hasDefaultSubDomainSsl
+                    serverWithSubDomain.publicDomain =
+                        appName + '.' + rootDomain
+                    serverWithSubDomain.localDomain = localDomain
+                    serverWithSubDomain.forceSsl = forceSsl
+                    const httpPort = webApp.containerHttpPort || 80
+                    serverWithSubDomain.containerHttpPort = httpPort
+                    serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
+                    serverWithSubDomain.httpBasicAuth = httpBasicAuth
+
+                    servers.push(serverWithSubDomain)
+
+                    // adding custom domains
+                    const customDomainArray = webApp.customDomain
+                    if (customDomainArray && customDomainArray.length > 0) {
+                        for (
+                            let idx = 0;
+                            idx < customDomainArray.length;
+                            idx++
+                        ) {
+                            const d = customDomainArray[idx]
+                            servers.push({
+                                containerHttpPort: httpPort,
+                                hasSsl: d.hasSsl,
+                                forceSsl: forceSsl,
+                                publicDomain: d.publicDomain,
+                                localDomain: localDomain,
+                                nginxConfigTemplate: nginxConfigTemplate,
+                                staticWebRoot: '',
+                                customErrorPagesDirectory: '',
+                                httpBasicAuth: httpBasicAuth,
+                            })
+                        }
+                    }
+                })
+
+                return servers
             })
     }
 
@@ -512,7 +632,7 @@ class LoadBalancerManager {
                             hostPath: CaptainConstants.baseNginxConfigPath,
                         },
                         {
-                            containerPath: '/etc/nginx/conf.d',
+                            containerPath: CONTAINER_PATH_OF_CONFIG,
                             hostPath:
                                 CaptainConstants.perAppNginxConfigPathBase,
                         },

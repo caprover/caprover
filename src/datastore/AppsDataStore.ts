@@ -169,7 +169,7 @@ class AppsDataStore {
                 ) {
                     // we have required info
                     passwordToBeEncrypted = pushWebhook.repoInfo.password
-                    sshKeyToBeEncrypted = pushWebhook.repoInfo.sshKey
+                    sshKeyToBeEncrypted = pushWebhook.repoInfo.sshKey || ''
                     pushWebhook.repoInfo.password = ''
                     pushWebhook.repoInfo.sshKey = ''
                 } else {
@@ -776,62 +776,6 @@ class AppsDataStore {
         })
     }
 
-    getAppsServerConfig(
-        defaultAppNginxConfig: string,
-        hasRootSsl: boolean,
-        rootDomain: string
-    ) {
-        const self = this
-
-        const servers: IServerBlockDetails[] = []
-
-        return self.getAppDefinitions().then(function(apps) {
-            Object.keys(apps).forEach(function(appName) {
-                const webApp = apps[appName]
-
-                if (webApp.notExposeAsWebApp) {
-                    return
-                }
-
-                const localDomain = self.getServiceName(appName)
-                const forceSsl = !!webApp.forceSsl
-                const nginxConfigTemplate =
-                    webApp.customNginxConfig || defaultAppNginxConfig
-
-                const serverWithSubDomain = {} as IServerBlockDetails
-                serverWithSubDomain.hasSsl =
-                    hasRootSsl && webApp.hasDefaultSubDomainSsl
-                serverWithSubDomain.publicDomain = appName + '.' + rootDomain
-                serverWithSubDomain.localDomain = localDomain
-                serverWithSubDomain.forceSsl = forceSsl
-                const httpPort = webApp.containerHttpPort || 80
-                serverWithSubDomain.containerHttpPort = httpPort
-                serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
-
-                servers.push(serverWithSubDomain)
-
-                // adding custom domains
-                const customDomainArray = webApp.customDomain
-                if (customDomainArray && customDomainArray.length > 0) {
-                    for (let idx = 0; idx < customDomainArray.length; idx++) {
-                        const d = customDomainArray[idx]
-                        servers.push({
-                            containerHttpPort: httpPort,
-                            hasSsl: d.hasSsl,
-                            forceSsl: forceSsl,
-                            publicDomain: d.publicDomain,
-                            localDomain: localDomain,
-                            nginxConfigTemplate: nginxConfigTemplate,
-                            staticWebRoot: '',
-                            customErrorPagesDirectory: '',
-                        })
-                    }
-                }
-            })
-
-            return servers
-        })
-    }
 }
 
 export = AppsDataStore

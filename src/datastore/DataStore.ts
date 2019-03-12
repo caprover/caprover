@@ -136,38 +136,6 @@ class DataStore {
         return !!this.data.get(CUSTOM_DOMAIN)
     }
 
-    getServerList() {
-        const self = this
-
-        let hasRootSsl: boolean
-        let rootDomain: string
-
-        return Promise.resolve()
-            .then(function() {
-                return self.getHasRootSsl()
-            })
-            .then(function(val: boolean) {
-                hasRootSsl = val
-
-                return self.getRootDomain()
-            })
-            .then(function(val) {
-                rootDomain = val
-            })
-            .then(function() {
-                return self.getDefaultAppNginxConfig()
-            })
-            .then(function(defaultAppNginxConfig) {
-                return self
-                    .getAppsDataStore()
-                    .getAppsServerConfig(
-                        defaultAppNginxConfig,
-                        hasRootSsl,
-                        rootDomain
-                    )
-            })
-    }
-
     getAppsDataStore() {
         return this.appsDataStore
     }

@@ -311,7 +311,7 @@ export default class ImageMaker {
                     return GitHelper.clone(
                         srcRepo.user,
                         srcRepo.password,
-                        srcRepo.sshKey,
+                        srcRepo.sshKey || '',
                         srcRepo.repo,
                         srcRepo.branch,
                         destDirectory

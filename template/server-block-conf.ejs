@@ -60,6 +60,16 @@ if (!s.forceSsl || s.hasSsl) {
         set $upstream http://<%-s.localDomain%>:<%-s.containerHttpPort%>;
 
         location / {
+
+    <%
+    if (s.httpBasicAuthPath) {
+    %>
+            auth_basic           "Restricted Access";
+            auth_basic_user_file <%-s.httpBasicAuthPath%>; 
+    <%
+    }
+    %>
+
             proxy_pass $upstream;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;

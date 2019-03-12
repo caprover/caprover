@@ -24,7 +24,7 @@ interface RepoInfo {
     repo: string
     branch: string
     user: string
-    sshKey: string
+    sshKey?: string
     password: string
 }
 
@@ -32,7 +32,7 @@ interface RepoInfoEncrypted {
     repo: string
     branch: string
     user: string
-    sshKeyEncrypted: string
+    sshKeyEncrypted?: string
     passwordEncrypted: string
 }
 
@@ -54,6 +54,7 @@ interface IAppDefinitionBase {
     hasPersistentData: boolean
     hasDefaultSubDomainSsl: boolean
     containerHttpPort?: number
+    httpBasicAuth?: string
     captainDefinitionRelativeFilePath: string
     forceSsl: boolean
     nodeId?: string
