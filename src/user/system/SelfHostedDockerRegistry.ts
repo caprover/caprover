@@ -122,7 +122,7 @@ class SelfHostedDockerRegistry {
                 const authContent =
                     CaptainConstants.captainRegistryUsername +
                     ':' +
-                    bcrypt.hashSync(password, bcrypt.genSaltSync(5))
+                    bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 
                 return fs.outputFile(
                     CaptainConstants.registryAuthPathOnHost,
