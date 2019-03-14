@@ -227,7 +227,12 @@ class LoadBalancerManager {
             .then(function(apps) {
                 Object.keys(apps).forEach(function(appName) {
                     const webApp = apps[appName]
-                    const httpBasicAuth = webApp.httpBasicAuth || ''
+                    const httpBasicAuth =
+                        webApp.httpAuth && webApp.httpAuth.passwordHashed //
+                            ? webApp.httpAuth.user +
+                              ':' +
+                              webApp.httpAuth.passwordHashed
+                            : ''
 
                     if (webApp.notExposeAsWebApp) {
                         return

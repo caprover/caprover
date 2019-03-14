@@ -54,7 +54,6 @@ interface IAppDefinitionBase {
     hasPersistentData: boolean
     hasDefaultSubDomainSsl: boolean
     containerHttpPort?: number
-    httpBasicAuth?: string
     captainDefinitionRelativeFilePath: string
     forceSsl: boolean
     nodeId?: string
@@ -76,6 +75,11 @@ interface IAppDef extends IAppDefinitionBase {
         repoInfo: RepoInfo
         pushWebhookToken: string
     }
+    httpAuth?: {
+        user: string
+        password?: string
+        passwordHashed?: string
+    }
     appName?: string
     isAppBuilding?: boolean
 }
@@ -88,4 +92,9 @@ interface IAppDefSaved extends IAppDefinitionBase {
               pushWebhookToken: string
           }
         | undefined
+
+    httpAuth?: {
+        user: string
+        passwordHashed?: string
+    }
 }
