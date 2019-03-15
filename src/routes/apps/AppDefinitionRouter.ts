@@ -327,6 +327,7 @@ router.post('/update/', function(req, res, next) {
     let instanceCount = req.body.instanceCount || '0'
     let preDeployFunction = req.body.preDeployFunction || ''
     let containerHttpPort = Number(req.body.containerHttpPort) || 80
+    let httpAuth = req.body.httpAuth
 
     if (repoInfo.user) {
         repoInfo.user = repoInfo.user.trim()
@@ -350,6 +351,7 @@ router.post('/update/', function(req, res, next) {
             nodeId,
             notExposeAsWebApp,
             containerHttpPort,
+            httpAuth,
             forceSsl,
             ports,
             repoInfo,

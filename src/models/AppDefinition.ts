@@ -69,17 +69,19 @@ interface IAppDefinitionBase {
     versions: IAppVersion[]
 }
 
+interface IHttpAuth {
+    user: string
+    password?: string
+    passwordHashed?: string
+}
+
 interface IAppDef extends IAppDefinitionBase {
     appPushWebhook?: {
         tokenVersion: string
         repoInfo: RepoInfo
         pushWebhookToken: string
     }
-    httpAuth?: {
-        user: string
-        password?: string
-        passwordHashed?: string
-    }
+    httpAuth?: IHttpAuth
     appName?: string
     isAppBuilding?: boolean
 }
@@ -95,6 +97,6 @@ interface IAppDefSaved extends IAppDefinitionBase {
 
     httpAuth?: {
         user: string
-        passwordHashed?: string
+        passwordHashed: string
     }
 }

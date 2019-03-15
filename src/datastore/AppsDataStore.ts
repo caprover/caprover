@@ -7,6 +7,7 @@ import Authenticator = require('../user/Authenticator')
 import { CaptainEncryptor } from '../utils/Encryptor'
 import { IBuiltImage } from '../models/IBuiltImage'
 import Utils from '../utils/Utils'
+import ApacheMd5 from '../utils/ApacheMd5'
 
 const isValidPath = require('is-valid-path')
 
@@ -544,6 +545,7 @@ class AppsDataStore {
         nodeId: string,
         notExposeAsWebApp: boolean,
         containerHttpPort: number,
+        httpAuth: IHttpAuth | undefined,
         forceSsl: boolean,
         ports: IAppPort[],
         repoInfo: RepoInfo,
@@ -620,6 +622,23 @@ class AppsDataStore {
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.preDeployFunction = preDeployFunction
+
+                if (httpAuth && httpAuth.user) {
+                    const newAuth: IHttpAuth = {
+                        user: httpAuth.user + '',
+                        passwordHashed: httpAuth.passwordHashed + '',
+                    }
+
+                    if (httpAuth.password) {
+                        newAuth.passwordHashed = ApacheMd5.createApacheHash(
+                            httpAuth.password + ''
+                        )
+                    }
+
+                    appObj.httpAuth = newAuth
+                } else {
+                    appObj.httpAuth = undefined
+                }
 
                 if (ports) {
                     appObj.ports = []
@@ -775,7 +794,6 @@ class AppsDataStore {
             return self.saveApp(appName, app)
         })
     }
-
 }
 
 export = AppsDataStore

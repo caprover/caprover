@@ -328,6 +328,7 @@ export default class MigrateCaptainDuckDuck {
                                         app.nodeId || '',
                                         !!app.notExposeAsWebApp,
                                         80,
+                                        undefined,
                                         !!app.forceSsl,
                                         app.ports || [],
                                         repoInfo,
