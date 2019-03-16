@@ -1,3 +1,6 @@
+// TypeScript version of https://github.com/http-auth/apache-md5
+// Project is licensed under MIT. https://github.com/http-auth/apache-md5/blob/master/LICENSE
+
 // Crypto module import.
 const crypto = require('crypto')
 
