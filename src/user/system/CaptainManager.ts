@@ -688,6 +688,7 @@ class CaptainManager {
                         CaptainConstants.captainNetworkName,
                         envVars,
                         ['SYS_PTRACE'],
+                        ['seccomp:unconfined'],
                         undefined
                     )
                 }

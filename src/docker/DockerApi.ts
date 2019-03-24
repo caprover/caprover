@@ -462,6 +462,7 @@ class DockerApi {
         network: string,
         arrayOfEnvKeyAndValue: IAppEnvVar[],
         addedCapabilities: string[],
+        addedSecOptions: string[],
         authObj: DockerAuthObj | undefined
     ) {
         const self = this
@@ -499,6 +500,7 @@ class DockerApi {
                     HostConfig: {
                         Binds: volumesMapped,
                         CapAdd: addedCapabilities,
+                        SecurityOpt: addedSecOptions,
                         NetworkMode: network,
                         LogConfig: {
                             Type: 'json-file',
