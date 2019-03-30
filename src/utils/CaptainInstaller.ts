@@ -126,19 +126,32 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
         console.log(' ')
         console.log(' ')
         console.log(
+            'Are your trying to run CapRover on a local machine or a machine without public IP?'
+        )
+        console.log(
+            'In that case, you need to add this to your installation command:'
+        )
+        console.log("    -e MAIN_NODE_IP_ADDRESS='127.0.0.1'   ")
+        console.log(' ')
+        console.log(' ')
+        console.log(' ')
+        console.log(
+            'Otherwise, if you are running CapRover on a VPS with public IP:'
+        )
+        console.log(
             'Your firewall may have been blocking an in-use port: ' + portToTest
         )
         console.log(
-            'A simple solution on Ubuntu systems is to run "ufw disable"'
+            'A simple solution on Ubuntu systems is to run "ufw disable" (security risk)'
         )
-        console.log('Or just allowing necessary ports:')
+        console.log('Or [recommended] just allowing necessary ports:')
         console.log(CaptainConstants.disableFirewallCommand)
         console.log('     ')
         console.log('     ')
         console.log('See docs for more details on how to fix firewall issues')
         console.log(' ')
         console.log(
-            'If you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),'
+            'Finally, if you are an advanced user, and you want to bypass this check (NOT RECOMMENDED),'
         )
         console.log(
             "you can append the docker command with an addition flag: -e BY_PASS_PROXY_CHECK='TRUE'"
