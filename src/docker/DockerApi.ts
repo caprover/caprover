@@ -11,6 +11,7 @@ import {
     VolumesTypes,
 } from '../models/OtherTypes'
 import DockerService from '../models/DockerService'
+import Utils from '../utils/Utils'
 
 const Base64 = Base64Provider.Base64
 
@@ -752,6 +753,29 @@ class DockerApi {
     removeServiceByName(serviceName: string) {
         const self = this
         return self.dockerode.getService(serviceName).remove()
+    }
+
+    deleteVols(vols: string[]) {
+        const self = this
+
+        const promises: (() => Promise<void>)[] = []
+        const failedVols: string[] = []
+
+        vols.forEach(v => {
+            promises.push(function() {
+                return self.dockerode
+                    .getVolume(v) //
+                    .remove() // { force: true }
+                    .catch(err => {
+                        failedVols.push(v)
+                    })
+            })
+        })
+
+        return Utils.runPromises(promises) //
+            .then(function() {
+                return failedVols
+            })
     }
 
     isServiceRunningByName(serviceName: string) {

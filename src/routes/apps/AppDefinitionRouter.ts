@@ -291,6 +291,7 @@ router.post('/delete/', function(req, res, next) {
         .serviceManager
 
     let appName = req.body.appName
+    let volumes = req.body.volumes || []
 
     Logger.d('Deleting app started: ' + appName)
 
@@ -299,8 +300,24 @@ router.post('/delete/', function(req, res, next) {
             return serviceManager.removeApp(appName)
         })
         .then(function() {
+            return serviceManager.removeVolsSafe(volumes)
+        })
+        .then(function(failedVolsToRemoved) {
             Logger.d('AppName is deleted: ' + appName)
-            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'App is deleted'))
+
+            if (failedVolsToRemoved.length) {
+                res.send(
+                    new BaseApi(
+                        ApiStatusCodes.STATUS_OK_PARTIALLY,
+                        'App is deleted. Some volumes were not safe to delete. Delete skipped for: ' +
+                            failedVolsToRemoved.join(' , ')
+                    )
+                )
+            } else {
+                res.send(
+                    new BaseApi(ApiStatusCodes.STATUS_OK, 'App is deleted')
+                )
+            }
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })

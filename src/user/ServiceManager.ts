@@ -332,6 +332,52 @@ class ServiceManager {
             })
     }
 
+    removeVolsSafe(volumes: string[]) {
+        const self = this
+
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+
+        const volsFailedToDelete: IHashMapGeneric<boolean> = {}
+
+        return Promise.resolve()
+            .then(function() {
+                return dataStore.getAppsDataStore().getAppDefinitions()
+            })
+            .then(function(apps) {
+                // Don't even try deleting volumes which are present in other app definitions
+                Object.keys(apps).forEach(appName => {
+                    const app = apps[appName]
+                    const volsInApp = app.volumes || []
+
+                    volsInApp.forEach(v => {
+                        const volName = v.volumeName
+                        if (!volName) return
+                        if (volumes.indexOf(volName) >= 0) {
+                            volsFailedToDelete[volName] = true
+                        }
+                    })
+                })
+
+                const volumesTryToDelete: string[] = []
+
+                volumes.forEach(v => {
+                    if (!volsFailedToDelete[v]) {
+                        volumesTryToDelete.push(v)
+                    }
+                })
+
+                return dockerApi.deleteVols(volumesTryToDelete)
+            })
+            .then(function(failedVols) {
+                failedVols.forEach(v => {
+                    volsFailedToDelete[v] = true
+                })
+
+                return Object.keys(volsFailedToDelete)
+            })
+    }
+
     getUnusedImages(mostRecentLimit: number) {
         Logger.d(
             'Getting unused images, excluding most recent ones: ' +
