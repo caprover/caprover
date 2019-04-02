@@ -25,6 +25,8 @@ export default class Utils {
     }
 
     static getDelayedPromise(time: number) {
+        if (!time) return Promise.resolve()
+
         return new Promise<void>((res, rej) => {
             setTimeout(() => {
                 res()

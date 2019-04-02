@@ -767,6 +767,7 @@ class DockerApi {
                     .getVolume(v) //
                     .remove() // { force: true }
                     .catch(err => {
+                        Logger.d(err)
                         failedVols.push(v)
                     })
             })

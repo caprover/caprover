@@ -203,6 +203,10 @@ class AppsDataStore {
         return 'srv-' + this.namepace + '--' + appName
     }
 
+    getVolumeName(volumeName: string) {
+        return this.namepace + '--' + volumeName
+    }
+
     getAppDefinitions() {
         const self = this
         return new Promise<IAllAppDefinitions>(function(resolve, reject) {

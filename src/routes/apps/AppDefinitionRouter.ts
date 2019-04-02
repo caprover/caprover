@@ -6,6 +6,7 @@ import Logger = require('../../utils/Logger')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import { CaptainError } from '../../models/OtherTypes'
 import InjectionExtractor = require('../../injection/InjectionExtractor')
+import Utils from '../../utils/Utils'
 
 const router = express.Router()
 
@@ -300,19 +301,22 @@ router.post('/delete/', function(req, res, next) {
             return serviceManager.removeApp(appName)
         })
         .then(function() {
+            return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
+        })
+        .then(function() {
             return serviceManager.removeVolsSafe(volumes)
         })
         .then(function(failedVolsToRemoved) {
             Logger.d('AppName is deleted: ' + appName)
 
             if (failedVolsToRemoved.length) {
-                res.send(
-                    new BaseApi(
-                        ApiStatusCodes.STATUS_OK_PARTIALLY,
-                        'App is deleted. Some volumes were not safe to delete. Delete skipped for: ' +
-                            failedVolsToRemoved.join(' , ')
-                    )
+                const returnVal = new BaseApi(
+                    ApiStatusCodes.STATUS_OK_PARTIALLY,
+                    'App is deleted. Some volumes were not safe to delete. Delete skipped for: ' +
+                        failedVolsToRemoved.join(' , ')
                 )
+                returnVal.data = { volumesFailedToDelete: failedVolsToRemoved }
+                res.send(returnVal)
             } else {
                 res.send(
                     new BaseApi(ApiStatusCodes.STATUS_OK, 'App is deleted')

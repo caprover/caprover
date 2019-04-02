@@ -363,7 +363,9 @@ class ServiceManager {
 
                 volumes.forEach(v => {
                     if (!volsFailedToDelete[v]) {
-                        volumesTryToDelete.push(v)
+                        volumesTryToDelete.push(
+                            dataStore.getAppsDataStore().getVolumeName(v)
+                        )
                     }
                 })
 
