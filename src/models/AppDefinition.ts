@@ -49,6 +49,7 @@ interface IAppCustomDomain {
 }
 
 interface IAppDefinitionBase {
+    description: string
     deployedVersion: number
     notExposeAsWebApp: boolean
     hasPersistentData: boolean

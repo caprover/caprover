@@ -542,6 +542,7 @@ class AppsDataStore {
 
     updateAppDefinitionInDb(
         appName: string,
+        description: string,
         instanceCount: number,
         captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
@@ -626,6 +627,7 @@ class AppsDataStore {
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.preDeployFunction = preDeployFunction
+                appObj.description = description
 
                 if (httpAuth && httpAuth.user) {
                     const newAuth: IHttpAuth = {
@@ -778,6 +780,7 @@ class AppsDataStore {
 
             const defaultAppDefinition: IAppDef = {
                 hasPersistentData: !!hasPersistentData,
+                description: '',
                 instanceCount: 1,
                 captainDefinitionRelativeFilePath:
                     CaptainConstants.defaultCaptainDefinitionPath,

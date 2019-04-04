@@ -493,6 +493,7 @@ class ServiceManager {
 
     updateAppDefinition(
         appName: string,
+        description: string,
         instanceCount: number,
         captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
@@ -590,6 +591,7 @@ class ServiceManager {
                     .getAppsDataStore()
                     .updateAppDefinitionInDb(
                         appName,
+                        description,
                         instanceCount,
                         captainDefinitionRelativeFilePath,
                         envVars,

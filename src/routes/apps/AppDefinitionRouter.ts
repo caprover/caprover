@@ -349,6 +349,7 @@ router.post('/update/', function(req, res, next) {
     let preDeployFunction = req.body.preDeployFunction || ''
     let containerHttpPort = Number(req.body.containerHttpPort) || 80
     let httpAuth = req.body.httpAuth
+    let description = req.body.description || ''
 
     if (repoInfo.user) {
         repoInfo.user = repoInfo.user.trim()
@@ -365,6 +366,7 @@ router.post('/update/', function(req, res, next) {
     serviceManager
         .updateAppDefinition(
             appName,
+            description,
             Number(instanceCount),
             captainDefinitionRelativeFilePath,
             envVars,
