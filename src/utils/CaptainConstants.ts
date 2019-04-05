@@ -25,6 +25,8 @@ const configs = {
 
     appLogSize: 500,
 
+    maxVersionHistory: 50,
+
     skipVerifyingDomains: false,
 
     registrySubDomainPort: 996,

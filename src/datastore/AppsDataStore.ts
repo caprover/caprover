@@ -494,6 +494,12 @@ class AppsDataStore {
         const self = this
 
         return this.getAppDefinition(appName).then(function(app) {
+            // Drop older versions
+            app.versions = Utils.dropFirstElements(
+                app.versions,
+                CaptainConstants.configs.maxVersionHistory - 1
+            )
+
             const versions = app.versions
 
             let newVersionIndex = versions.length

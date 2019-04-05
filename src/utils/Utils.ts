@@ -40,6 +40,15 @@ export default class Utils {
         })
     }
 
+    static dropFirstElements(arr: any[], maxLength: number) {
+        arr = arr || []
+        maxLength = Number(maxLength)
+
+        if (arr.length <= maxLength) return arr
+
+        return arr.slice(arr.length - maxLength)
+    }
+
     static runPromises(
         promises: (() => Promise<void>)[],
         curr?: number
