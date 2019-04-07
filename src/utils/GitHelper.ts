@@ -50,7 +50,7 @@ class GitHelper {
 
             return Promise.resolve() //
                 .then(function() {
-                    fs.outputFile(SSH_KEY_PATH, sshKey + '')
+                    return fs.outputFile(SSH_KEY_PATH, sshKey + '')
                 })
                 .then(function() {
                     return exec(
