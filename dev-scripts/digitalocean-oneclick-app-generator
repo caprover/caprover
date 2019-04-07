@@ -1,0 +1,123 @@
+# Copy and paste the script below to build a One-Click App in DO
+# https://github.com/digitalocean/marketplace-partners/blob/master/marketplace_docs/build-an-image.md#cleaning-up-your-build-droplet
+
+
+apt -y update
+apt -y upgrade
+
+
+
+############################ WAIT
+
+
+docker pull  caprover/caprover:1.4.0
+
+
+cd /var/lib/cloud/scripts/per-instance
+
+touch z_01_caprover_installation.sh
+rm -f z_01_caprover_installation.sh
+touch z_01_caprover_installation.sh
+
+cat <<EOT >> z_01_caprover_installation.sh
+#!/bin/sh
+
+ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp;
+
+docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover:1.4.0
+
+
+EOT
+
+
+chmod +x z_01_caprover_installation.sh
+
+
+cd /etc/update-motd.d/
+rm -f 99*
+touch 99-caprover-readme
+
+
+cat <<EOT >> 99-caprover-readme
+#!/bin/sh
+#
+# Configured as part of the DigitalOcean 1-Click Image build process
+
+cat <<EOF
+********************************************************************************
+
+Welcome to CapRover, Open Source PaaS for developers!
+
+
+
+You can access the dashboard from http://<IP-ADDRESS>:3000
+
+The default password is captain42
+
+
+
+
+Please make sure to read the documentation https://CapRover.com
+
+
+********************************************************************************
+
+EOF
+
+
+EOT
+
+
+
+
+############################ WAIT
+
+
+
+
+apt -y update
+apt -y upgrade
+rm -rf /tmp/* /var/tmp/*
+history -c
+cat /dev/null > /root/.bash_history
+unset HISTFILE
+apt -y autoremove
+apt -y autoclean
+find /var/log -mtime -1 -type f -exec truncate -s 0 {} \;
+rm -rf /var/log/*.gz /var/log/*.[0-9] /var/log/*-????????
+rm -rf /var/lib/cloud/instances/*
+rm -f /root/.ssh/authorized_keys /etc/ssh/*key*
+dd if=/dev/zero of=/zerofile; sync; rm /zerofile; sync
+cat /dev/null > /var/log/lastlog; cat /dev/null > /var/log/wtmp
+find /var/log -mtime -1 -type f -exec truncate -s 0 {} \;
+
+
+
+
+
+############################ WAIT
+
+
+
+
+
+cd /etc
+wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/marketplace_validation/img_check.sh
+
+chmod +x img_check.sh
+./img_check.sh
+
+
+
+
+
+cat /var/lib/cloud/scripts/per-instance/z_01_caprover_installation.sh
+cat /etc/update-motd.d/99-caprover-readme
+history -c
+cat /dev/null > /root/.bash_history
+
+
+
+
+
+
