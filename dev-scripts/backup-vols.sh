@@ -1,6 +1,28 @@
 #!/bin/bash
 
+####################################################################
+##### For creating backup, simply run this:
+##### It will create a backup at /backup-vols/2019-11-11 (date)
+####################################################################
+
 # curl -sSL https://raw.githubusercontent.com/caprover/caprover/master/dev-scripts/backup-vols.sh | bash -s -- backup
+
+
+
+####################################################################
+####### For restoring, rename the desired snapshot to /restore-vols
+####################################################################
+
+# mv /backup-vols/2019-11-11 /restore-vols
+# curl -sSL https://raw.githubusercontent.com/caprover/caprover/master/dev-scripts/backup-vols.sh | bash -s -- restore
+
+
+
+####################################################################
+####################################################################
+
+
+
 
 usage() {
   >&2 echo "Usage: backup-vols.sh <backup|restore>"
