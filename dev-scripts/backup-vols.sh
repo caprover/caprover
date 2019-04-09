@@ -36,7 +36,7 @@ restore() {
     do
       echo "Volume: $VOL_NAME_TO_BACKUP"
       docker run --rm -v $VOL_NAME_TO_BACKUP:/volume -v $restore_dir:/backup alpine \
-          sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xf /backup/$VOL_NAME_TO_BACKUP.tar.gz"
+          sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xf /backup/$VOL_NAME_TO_BACKUP.tar"
     done
 }
 
