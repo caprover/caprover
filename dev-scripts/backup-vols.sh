@@ -40,7 +40,7 @@ backup() {
     do
       echo "Volume: $VOL_NAME_TO_BACKUP"
       docker run --rm -v $VOL_NAME_TO_BACKUP:/volume -v $backup_directory:/backup alpine \
-        tar -cf /backup/$VOL_NAME_TO_BACKUP.tar -C /volume ./
+        tar -czf /backup/$VOL_NAME_TO_BACKUP.tar.gz -C /volume ./
     done
 }
 
@@ -58,7 +58,7 @@ restore() {
     do
       echo "Volume: $VOL_NAME_TO_BACKUP"
       docker run --rm -v $VOL_NAME_TO_BACKUP:/volume -v $restore_dir:/backup alpine \
-          sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xf /backup/$VOL_NAME_TO_BACKUP.tar"
+          sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xzf /backup/$VOL_NAME_TO_BACKUP.tar.gz"
     done
 }
 
