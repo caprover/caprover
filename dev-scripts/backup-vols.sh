@@ -55,7 +55,7 @@ set -x
 
 ### STEP 1: turning off all services to avoid data corruption
 
-all_services=$(docker volume ls --quiet)
+all_services=$(docker service ls --format {{.Name}})
 for srv in $all_services
 do
   echo "Service: $srv"
