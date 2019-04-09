@@ -17,7 +17,7 @@ backup() {
     for VOL_NAME_TO_BACKUP in $vols
     do
       echo "Volume: $VOL_NAME_TO_BACKUP"
-      docker run -it --rm -v $VOL_NAME_TO_BACKUP:/volume -v $backup_directory:/backup alpine \
+      docker run --rm -v $VOL_NAME_TO_BACKUP:/volume -v $backup_directory:/backup alpine \
         tar -cf /backup/$VOL_NAME_TO_BACKUP.tar -C /volume ./
       echo ================================
     done
@@ -36,7 +36,7 @@ restore() {
     for VOL_NAME_TO_BACKUP in $vols
     do
       echo "Volume: $VOL_NAME_TO_BACKUP"
-      docker run -it --rm -v $VOL_NAME_TO_BACKUP:/volume -v $restore_dir:/backup alpine \
+      docker run --rm -v $VOL_NAME_TO_BACKUP:/volume -v $restore_dir:/backup alpine \
           sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xf /backup/$VOL_NAME_TO_BACKUP.tar.gz"
       echo ================================
     done
