@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# curl -sSL https://raw.githubusercontent.com/caprover/caprover/master/dev-scripts/backup-vols.sh | sudo bash
+
+
 # https://stackoverflow.com/questions/36273665/what-does-set-x-do
 set -x
 
