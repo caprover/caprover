@@ -12,6 +12,8 @@ import DockerUtils from '../../docker/DockerUtils'
 import uuid = require('uuid')
 import Authenticator = require('../Authenticator')
 import * as path from 'path'
+import { exec } from 'child_process'
+import * as moment from 'moment'
 const SshClient = SshClientImport.Client
 
 const CURRENT_NODE_DONT_CHANGE = 'CURRENT_NODE_DONT_CHANGE'
@@ -209,7 +211,9 @@ export default class BackupManager {
                 )
             })
             .then(function() {
-                Logger.d('Restoration Phase-1 is completed! Starting the service...')
+                Logger.d(
+                    'Restoration Phase-1 is completed! Starting the service...'
+                )
             })
     }
 
@@ -624,6 +628,7 @@ export default class BackupManager {
 
     private createBackupInternal(iBackupCallbacks: IBackupCallbacks) {
         const self = this
+        let nodeInfo: ServerDockerInfo[]
         return Promise.resolve() //
             .then(function() {
                 self.lock()
@@ -648,17 +653,27 @@ export default class BackupManager {
                     .then(function() {
                         Logger.d('Copying data to ' + RAW)
 
-                        return fs.copy(
-                            CaptainConstants.captainDataDirectory,
-                            RAW + '/data',
-                            { preserveTimestamps: true }
-                        )
+                        const dest = RAW + '/data'
+
+                        // We cannot use fs.copy as it doesn't properly copy the broken SymLink which might exist in LetsEncrypt
+                        // https://github.com/jprichardson/node-fs-extra/issues/638
+                        return new Promise(function(resolve, reject) {
+                            const child = exec(
+                                `mkdir -p {dest} && cp -rp  ${
+                                    CaptainConstants.captainDataDirectory
+                                } ${dest}`
+                            )
+                            child.addListener('error', reject)
+                            child.addListener('exit', resolve)
+                        })
                     })
                     .then(function() {
                         return iBackupCallbacks.getNodesInfo()
                     })
                     .then(function(nodes) {
                         Logger.d('Copying meta to ' + RAW)
+
+                        nodeInfo = nodes
 
                         return self.saveMetaFile(RAW + '/meta/' + BACKUP_JSON, {
                             salt: iBackupCallbacks.getCaptainSalt(),
@@ -694,13 +709,23 @@ export default class BackupManager {
                     })
                     .then(function(tarFilePath) {
                         const namespace = CaptainConstants.rootNameSpace
+                        let mainIP = ''
+
+                        nodeInfo.forEach(n => {
+                            if (n.isLeader)
+                                mainIP = (n.ip || '').split('.').join('_')
+                        })
+
+                        const now = moment()
                         const newName =
                             CaptainConstants.captainDownloadsDirectory +
                             '/' +
                             namespace +
-                            '/' +
-                            uuid.v4() +
-                            '.tar'
+                            '/caprover-backup-' +
+                            (now.format('YYYY_MM_DD-HH_mm_ss') +
+                                '-' +
+                                now.valueOf()) +
+                            `-ip-${mainIP}.tar`
                         fs.moveSync(tarFilePath, newName)
 
                         setTimeout(() => {
