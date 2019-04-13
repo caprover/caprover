@@ -1,3 +1,7 @@
+## [UNRELEASED]
+Bug fixes:
+- Backup creation was fixed for instances that were migrated from CaptainDuckDuck 
+
 ## [1.4.0] - 2019-04-07
 New Features:
 
@@ -12,6 +16,7 @@ New Features:
 
 Bug fixes:
 - Auto redirect after Force SSL was broken on frontend (https://github.com/caprover/caprover/issues/399)
+
 ## [1.3.0] - 2019-03-04
 Added:
 - Backup capability added (for configs and SSL certs). See docs for more details.
@@ -24,10 +29,12 @@ Fixed:
 - Web UI now waits for logs to get retrieved before sending another refresh. This fixes the rare case where the entire UI hangs because of Docker being unresponsive.
 - Fixed non English characters in the logs
 - Logs are now correctly sorted on the front-end
+
 ## [1.2.1] - 2019-02-11
 Fixed
 
 - Pulling images from third party remote private repositories (https://github.com/caprover/caprover/issues/370)
+
 ## [1.2.0] - 2019-02-05
 Awesome news for legacy CaptainDuckDuck users! You can now migrate to CapRover! See this:
 https://caprover.com/docs/cdd-migration.html
