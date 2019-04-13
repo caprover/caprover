@@ -1,4 +1,4 @@
-## [UNRELEASED]
+## [Next Version]
 Bug fixes:
 - Backup creation was fixed for instances that were migrated from CaptainDuckDuck 
 
