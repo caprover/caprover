@@ -24,12 +24,12 @@ class TemplateHelper {
             {
                 templateName: 'python-django',
                 dockerHubImageName: 'library/python',
-                tagSuffix: '-alpine3.6',
+                tagSuffix: '-alpine',
             },
             {
                 templateName: 'ruby-rack',
                 dockerHubImageName: 'library/ruby',
-                tagSuffix: '-alpine3.7',
+                tagSuffix: '-alpine',
             },
         ]
 
