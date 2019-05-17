@@ -68,7 +68,7 @@ EOF
 EOT
 
 
-
+chmod +x 99-caprover-readme
 
 ############################ WAIT
 
