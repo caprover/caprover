@@ -1,6 +1,6 @@
-import WebhooksRouter = require('./WebhooksRouter')
-import AppDefinitionRouter = require('./AppDefinitionRouter')
-import AppDataRouter = require('./AppDataRouter')
+import WebhooksRouter = require('./webhooks/WebhooksRouter')
+import AppDefinitionRouter = require('./appdefinition/AppDefinitionRouter')
+import AppDataRouter = require('./appdata/AppDataRouter')
 
 import express = require('express')
 

@@ -1,17 +1,17 @@
 import express = require('express')
-import BaseApi = require('../api/BaseApi')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import Injector = require('../injection/Injector')
+import BaseApi = require('../../api/BaseApi')
+import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import Injector = require('../../injection/Injector')
 import SystemRouter = require('./system/SystemRouter')
 import AppsRouter = require('./apps/AppsRouter')
-import Logger = require('../utils/Logger')
-import RegistriesRouter = require('./RegistriesRouter')
+import Logger = require('../../utils/Logger')
+import RegistriesRouter = require('./registeries/RegistriesRouter')
 import onFinished = require('on-finished')
-import InjectionExtractor = require('../injection/InjectionExtractor')
-import CaptainManager = require('../user/system/CaptainManager')
-import Utils from '../utils/Utils'
-import EnvVars = require('../utils/EnvVars')
-import Authenticator = require('../user/Authenticator')
+import InjectionExtractor = require('../../injection/InjectionExtractor')
+import CaptainManager = require('../../user/system/CaptainManager')
+import Utils from '../../utils/Utils'
+import EnvVars = require('../../utils/EnvVars')
+import Authenticator = require('../../user/Authenticator')
 
 const router = express.Router()
 

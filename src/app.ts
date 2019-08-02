@@ -13,9 +13,9 @@ import Injector = require('./injection/Injector')
 import Logger = require('./utils/Logger')
 import CaptainConstants = require('./utils/CaptainConstants')
 
-import LoginRouter = require('./routes/LoginRouter')
-import DownloadRouter = require('./routes/DownloadRouter')
-import UserRouter = require('./routes/UserRouter')
+import LoginRouter = require('./routes/login/LoginRouter')
+import DownloadRouter = require('./routes/download/DownloadRouter')
+import UserRouter = require('./routes/user/UserRouter')
 import InjectionExtractor = require('./injection/InjectionExtractor')
 import Utils from './utils/Utils'
 // import { NextFunction, Request, Response } from 'express'

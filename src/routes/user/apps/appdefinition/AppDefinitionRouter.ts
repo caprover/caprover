@@ -1,12 +1,12 @@
 import express = require('express')
 import fs = require('fs')
-import BaseApi = require('../../api/BaseApi')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import Logger = require('../../utils/Logger')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import { CaptainError } from '../../models/OtherTypes'
-import InjectionExtractor = require('../../injection/InjectionExtractor')
-import Utils from '../../utils/Utils'
+import BaseApi = require('../../../../api/BaseApi')
+import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
+import Logger = require('../../../../utils/Logger')
+import CaptainConstants = require('../../../../utils/CaptainConstants')
+import { CaptainError } from '../../../../models/OtherTypes'
+import InjectionExtractor = require('../../../../injection/InjectionExtractor')
+import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
 
