@@ -2,6 +2,7 @@
 Bug fixes:
 - Backup creation was fixed for instances that were migrated from CaptainDuckDuck 
 - Python and Ruby templates were patched to allow using latest version of Linux automatically
+- updated npm packages to address potential vulnerabilities
 
 ## [1.4.0] - 2019-04-07
 New Features:
