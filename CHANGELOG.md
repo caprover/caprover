@@ -6,7 +6,7 @@ Bug fixes:
 
 BREAKING CHANGES:
 - Double hyphen is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact.
-- 
+- Builds are now being queued instead of dropping the build if another one is in progress. See (https://github.com/caprover/caprover/issues/266)
 
 ## [1.4.0] - 2019-04-07
 New Features:
