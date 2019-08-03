@@ -4,6 +4,10 @@ Bug fixes:
 - Python and Ruby templates were patched to allow using latest version of Linux automatically
 - updated npm packages to address potential vulnerabilities
 
+BREAKING CHANGES:
+- Double hyphen is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact.
+- 
+
 ## [1.4.0] - 2019-04-07
 New Features:
 
