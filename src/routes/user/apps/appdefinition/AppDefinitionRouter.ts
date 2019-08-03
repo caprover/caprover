@@ -251,7 +251,7 @@ router.post('/register/', function(req, res, next) {
             appCreated = true
         })
         .then(function() {
-            return serviceManager.deployNewVersion(appName, {
+            return serviceManager.scheduleDeployNewVersion(appName, {
                 captainDefinitionContentSource: {
                     captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
                     gitHash: '',

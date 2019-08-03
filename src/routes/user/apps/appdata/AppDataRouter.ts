@@ -98,7 +98,7 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     }
 
     Promise.resolve().then(function() {
-        const promiseToDeployNewVer = serviceManager.deployNewVersion(appName, {
+        const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(appName, {
             uploadedTarPathSource: !!tarballSourceFilePath
                 ? {
                       uploadedTarPath: tarballSourceFilePath,

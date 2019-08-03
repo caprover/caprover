@@ -57,8 +57,7 @@ export default class ImageMaker {
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
         private namespace: string,
-        private buildLogs: IHashMapGeneric<BuildLog>,
-        private activeBuilds: IHashMapGeneric<boolean>
+        private buildLogs: IHashMapGeneric<BuildLog>
     ) {
         //
     }
@@ -84,7 +83,6 @@ export default class ImageMaker {
     ): Promise<IBuiltImage> {
         const self = this
 
-        this.activeBuilds[appName] = true
         this.buildLogs[appName] =
             this.buildLogs[appName] ||
             new BuildLog(CaptainConstants.configs.buildLogSize)
@@ -207,7 +205,6 @@ export default class ImageMaker {
                 return Promise.reject(err)
             })
             .then(function() {
-                self.activeBuilds[appName] = false
                 self.buildLogs[appName].log(`Build has finished successfully!`)
                 return {
                     imageName: fullImageName,
@@ -215,7 +212,6 @@ export default class ImageMaker {
                 }
             })
             .catch(function(error) {
-                self.activeBuilds[appName] = false
                 self.buildLogs[appName].log(`Build has failed!`)
                 return Promise.reject(error)
             })

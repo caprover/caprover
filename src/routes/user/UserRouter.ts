@@ -68,21 +68,9 @@ router.use(function(req, res, next) {
         }
 
         if (threadLockNamespace[namespace]) {
-            let response = new BaseApi(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'Another operation still in progress... please wait...'
-            )
-            res.send(response)
-            return
-        }
-
-        let activeBuildAppName = serviceManager.isAnyBuildRunning()
-        if (activeBuildAppName) {
-            let response = new BaseApi(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                `An active build (${activeBuildAppName}) is in progress... please wait...`
-            )
-            res.send(response)
+            // Changed to HTTP status code so that the webhook and 3rd party services can understand this.
+            res.status(429)
+            res.send('Another operation still in progress... please wait...')
             return
         }
 

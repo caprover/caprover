@@ -14,6 +14,18 @@ import Authenticator = require('./Authenticator')
 
 const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
+interface QueuedPromise {
+    resolve: undefined | ((reason?: unknown) => void)
+    reject: undefined | ((reason?: any) => void)
+    promise: undefined | (Promise<unknown>)
+}
+
+interface QueuedBuild {
+    appName: string
+    source: IImageSource
+    promiseToSave: QueuedPromise
+}
+
 class ServiceManager {
     static get(
         namespace: string,
@@ -37,6 +49,7 @@ class ServiceManager {
 
     private activeBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
+    private queuedBuilds: QueuedBuild[]
     private isReady: boolean
     private imageMaker: ImageMaker
     private dockerRegistryHelper: DockerRegistryHelper
@@ -49,6 +62,7 @@ class ServiceManager {
         private domainResolveChecker: DomainResolveChecker
     ) {
         this.activeBuilds = {}
+        this.queuedBuilds = []
         this.buildLogs = {}
         this.isReady = true
         this.dockerRegistryHelper = new DockerRegistryHelper(
@@ -59,8 +73,7 @@ class ServiceManager {
             this.dockerRegistryHelper,
             this.dockerApi,
             this.dataStore.getNameSpace(),
-            this.buildLogs,
-            this.activeBuilds
+            this.buildLogs
         )
     }
 
@@ -72,10 +85,72 @@ class ServiceManager {
         return this.isReady
     }
 
-    deployNewVersion(appName: string, source: IImageSource) {
+    scheduleDeployNewVersion(appName: string, source: IImageSource) {
+        const self = this
+
+        let activeBuildAppName = self.isAnyBuildRunning()
+
+        if (activeBuildAppName) {
+            self.buildLogs[appName] =
+                self.buildLogs[appName] ||
+                new BuildLog(CaptainConstants.configs.buildLogSize)
+            this.activeBuilds[appName] = true
+
+            const existingBuildForTheSameApp = self.queuedBuilds.find(
+                v => v.appName === appName
+            )
+
+            if (existingBuildForTheSameApp) {
+                self.buildLogs[appName].log(
+                    `A build for ${appName} was queued, it's now being replaced with a new build...`
+                )
+
+                // replacing the new source!
+                existingBuildForTheSameApp.source = source
+
+                const existingPromise =
+                    existingBuildForTheSameApp.promiseToSave.promise
+
+                if (!existingPromise)
+                    throw new Error(
+                        'Existing promise for the queued app is NULL!!'
+                    )
+
+                return existingPromise
+            }
+
+            self.buildLogs[appName].log(
+                `An active build (${activeBuildAppName}) is in progress. This build is queued...`
+            )
+
+            let promiseToSave: QueuedPromise = {
+                resolve: undefined,
+                reject: undefined,
+                promise: undefined,
+            }
+
+            let promise = new Promise(function(resolve, reject) {
+                promiseToSave.resolve = resolve
+                promiseToSave.reject = reject
+            })
+
+            promiseToSave.promise = promise
+
+            self.queuedBuilds.push({ appName, source, promiseToSave })
+
+            // This should only return when the build is finished,
+            // somehow we need save the promise in queue - for "attached builds"
+            return promise
+        }
+
+        return this.startDeployingNewVersion(appName, source)
+    }
+
+    startDeployingNewVersion(appName: string, source: IImageSource) {
         const self = this
         const dataStore = this.dataStore
         let deployedVersion: number
+
         return Promise.resolve() //
             .then(function() {
                 return dataStore.getAppsDataStore().createNewVersion(appName)
@@ -104,14 +179,27 @@ class ServiceManager {
                     )
             })
             .then(function() {
+                self.onBuildFinished(appName)
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function(error) {
+                self.onBuildFinished(appName)
                 return new Promise<void>(function(resolve, reject) {
                     self.logBuildFailed(appName, error)
                     reject(error)
                 })
             })
+    }
+
+    onBuildFinished(appName: string) {
+        const self = this
+        self.activeBuilds[appName] = false
+
+        Promise.resolve().then(function() {
+            let newBuild = self.queuedBuilds.shift()
+            if (newBuild)
+                self.startDeployingNewVersion(newBuild.appName, newBuild.source)
+        })
     }
 
     enableCustomDomainSsl(appName: string, customDomain: string) {

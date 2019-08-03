@@ -40,6 +40,12 @@ export default class Utils {
         })
     }
 
+    static filterInPlace<T>(arr: T[], condition: (value: T) => boolean) {
+        let newArray = arr.filter(condition)
+        arr.splice(0, arr.length)
+        newArray.forEach(value => arr.push(value))
+    }
+
     static dropFirstElements(arr: any[], maxLength: number) {
         arr = arr || []
         maxLength = Number(maxLength)
