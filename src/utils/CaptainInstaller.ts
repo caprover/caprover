@@ -265,9 +265,6 @@ export function install() {
             return checkPortOrThrow(myIp4, 3000)
         })
         .then(function() {
-            return backupManger.checkAndPrepareRestoration()
-        })
-        .then(function() {
             const imageName = CaptainConstants.configs.nginxImageName
             console.log('Pulling: ' + imageName)
             return DockerApi.get().pullImage(imageName, undefined)
@@ -276,6 +273,9 @@ export function install() {
             const imageName = CaptainConstants.certbotImageName
             console.log('Pulling: ' + imageName)
             return DockerApi.get().pullImage(imageName, undefined)
+        })
+        .then(function() {
+            return backupManger.checkAndPrepareRestoration()
         })
         .then(function() {
             return DockerApi.get().initSwarm(myIp4)
