@@ -398,6 +398,9 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function() {
+                return self.ensureNotBuilding(appName)
+            })
+            .then(function() {
                 Logger.d('Check if service is running: ' + serviceName)
                 return dockerApi.isServiceRunningByName(serviceName)
             })
@@ -579,6 +582,14 @@ class ServiceManager {
         return requireFromString(preDeployFunction)
     }
 
+    ensureNotBuilding(appName: string) {
+        if (this.activeBuilds[appName])
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                `Build in-progress for ${appName}. Please wait`
+            )
+    }
+
     updateAppDefinition(
         appName: string,
         description: string,
@@ -619,6 +630,9 @@ class ServiceManager {
         }
 
         return Promise.resolve()
+            .then(function() {
+                return self.ensureNotBuilding(appName)
+            })
             .then(function() {
                 return dataStore.getAppsDataStore().getAppDefinition(appName)
             })
