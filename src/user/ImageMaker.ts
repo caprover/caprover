@@ -98,7 +98,7 @@ export default class ImageMaker {
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
         const baseImageNameWithoutVerAndReg =
-            'img-' + this.namespace + '--' + appName // img-captain--myapp
+            'img-' + this.namespace + '-' + appName // img-captain-myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
         return Promise.resolve() //
