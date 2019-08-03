@@ -502,10 +502,10 @@ class ServiceManager {
                 }
 
                 for (let i = 0; i < allImages.length; i++) {
-                    const img = allImages[i]
+                    const currentImage = allImages[i]
                     let imageInUse = false
 
-                    const repoTags = img.RepoTags || []
+                    const repoTags = currentImage.RepoTags || []
 
                     Object.keys(apps).forEach(function(key, index) {
                         const app = apps[key]
@@ -533,7 +533,7 @@ class ServiceManager {
 
                     if (!imageInUse) {
                         unusedImages.push({
-                            id: img.Id,
+                            id: currentImage.Id,
                             tags: repoTags,
                         })
                     }
