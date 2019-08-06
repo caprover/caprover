@@ -27,8 +27,7 @@ const HOST_PATH_OF_FAKE_CERTS =
 
 if (!fs.existsSync(CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS))
     throw new Error('CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS  is empty')
-if (!defaultPageTemplate)
-    throw new Error('defaultPageTemplate  is empty')
+if (!defaultPageTemplate) throw new Error('defaultPageTemplate  is empty')
 
 class LoadBalancerManager {
     private reloadInProcess: boolean
@@ -406,8 +405,14 @@ class LoadBalancerManager {
             .then(function(hasRegistrySsl) {
                 return ejs.render(rootNginxTemplate!, {
                     fake: {
-                        crtPath: self.getSslCertPath(captainDomain), // ---
-                        keyPath: self.getSslKeyPath(captainDomain),
+                        crtPath: path.join(
+                            NGINX_CONTAINER_PATH_OF_FAKE_CERTS,
+                            'nginx.crt'
+                        ),
+                        keyPath: path.join(
+                            NGINX_CONTAINER_PATH_OF_FAKE_CERTS,
+                            'nginx.key'
+                        ),
                     },
                     captain: {
                         crtPath: self.getSslCertPath(captainDomain),
