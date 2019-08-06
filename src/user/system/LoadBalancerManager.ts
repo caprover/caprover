@@ -18,6 +18,18 @@ const defaultPageTemplate = fs
 
 const CONTAINER_PATH_OF_CONFIG = '/etc/nginx/conf.d'
 
+const NGINX_CONTAINER_PATH_OF_FAKE_CERTS = '/etc/nginx/fake-certs'
+const CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS =
+    __dirname + '/../../../template/fake-certs-src'
+const HOST_PATH_OF_FAKE_CERTS =
+    CaptainConstants.captainRootDirectoryGenerated +
+    '/nginx/fake-certs-self-signed'
+
+if (!fs.existsSync(CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS))
+    throw new Error('CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS  is empty')
+if (!defaultPageTemplate)
+    throw new Error('defaultPageTemplate  is empty')
+
 class LoadBalancerManager {
     private reloadInProcess: boolean
     private requestedReloadPromises: {
@@ -393,6 +405,10 @@ class LoadBalancerManager {
             })
             .then(function(hasRegistrySsl) {
                 return ejs.render(rootNginxTemplate!, {
+                    fake: {
+                        crtPath: self.getSslCertPath(captainDomain), // ---
+                        keyPath: self.getSslKeyPath(captainDomain),
+                    },
                     captain: {
                         crtPath: self.getSslCertPath(captainDomain),
                         keyPath: self.getSslKeyPath(captainDomain),
@@ -570,6 +586,14 @@ class LoadBalancerManager {
                 )
             })
             .then(function() {
+                Logger.d('Copying fake certificates...')
+
+                return fs.copy(
+                    CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS,
+                    HOST_PATH_OF_FAKE_CERTS
+                )
+            })
+            .then(function() {
                 Logger.d('Setting up NGINX conf file...')
 
                 return self.ensureBaseNginxConf()
@@ -631,6 +655,10 @@ class LoadBalancerManager {
                         {
                             containerPath: CaptainConstants.nginxStaticRootDir,
                             hostPath: CaptainConstants.captainStaticFilesDir,
+                        },
+                        {
+                            containerPath: NGINX_CONTAINER_PATH_OF_FAKE_CERTS,
+                            hostPath: HOST_PATH_OF_FAKE_CERTS,
                         },
                         {
                             containerPath: '/etc/nginx/nginx.conf',

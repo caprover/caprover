@@ -6,15 +6,9 @@
         listen       80;
 
         # Catch all HTTPS
-        <%
-            if (captain.hasRootSsl) {
-        %>
-            listen              443 ssl;
-            ssl_certificate     <%-captain.crtPath%>;
-            ssl_certificate_key <%-captain.keyPath%>;
-        <%
-            }
-        %>
+        listen              443 ssl;
+        ssl_certificate     <%-fake.crtPath%>;
+        ssl_certificate_key <%-fake.keyPath%>;
 
         server_name  _;
 
