@@ -339,6 +339,7 @@ router.post('/update/', function(req, res, next) {
     let notExposeAsWebApp = req.body.notExposeAsWebApp
     let customNginxConfig = req.body.customNginxConfig
     let forceSsl = !!req.body.forceSsl
+    let websocketSupport = !!req.body.websocketSupport
     let repoInfo = !!req.body.appPushWebhook
         ? req.body.appPushWebhook.repoInfo || {}
         : {}
@@ -379,7 +380,8 @@ router.post('/update/', function(req, res, next) {
             ports,
             repoInfo,
             customNginxConfig,
-            preDeployFunction
+            preDeployFunction,
+            websocketSupport
         )
         .then(function() {
             Logger.d('AppName is updated: ' + appName)

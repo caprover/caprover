@@ -562,7 +562,8 @@ class AppsDataStore {
         repoInfo: RepoInfo,
         authenticator: Authenticator,
         customNginxConfig: string,
-        preDeployFunction: string
+        preDeployFunction: string,
+        websocketSupport: boolean
     ) {
         const self = this
         let appObj: IAppDef
@@ -630,6 +631,7 @@ class AppsDataStore {
                 appObj.notExposeAsWebApp = !!notExposeAsWebApp
                 appObj.containerHttpPort = containerHttpPort
                 appObj.forceSsl = !!forceSsl
+                appObj.websocketSupport = !!websocketSupport
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.preDeployFunction = preDeployFunction
@@ -800,6 +802,7 @@ class AppsDataStore {
                 customDomain: [],
                 hasDefaultSubDomainSsl: false,
                 forceSsl: false,
+                websocketSupport: false
             }
 
             resolve(defaultAppDefinition)
