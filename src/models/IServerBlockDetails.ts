@@ -1,6 +1,7 @@
 interface IServerBlockDetails {
     hasSsl: boolean
     forceSsl: boolean
+    websocketSupport: boolean
     publicDomain: string
     localDomain: string
     nginxConfigTemplate: string

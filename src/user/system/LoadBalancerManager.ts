@@ -253,6 +253,7 @@ class LoadBalancerManager {
                         .getAppsDataStore()
                         .getServiceName(appName)
                     const forceSsl = !!webApp.forceSsl
+                    const websocketSupport = !!webApp.websocketSupport
                     const nginxConfigTemplate =
                         webApp.customNginxConfig || defaultAppNginxConfig
 
@@ -263,6 +264,7 @@ class LoadBalancerManager {
                         appName + '.' + rootDomain
                     serverWithSubDomain.localDomain = localDomain
                     serverWithSubDomain.forceSsl = forceSsl
+                    serverWithSubDomain.websocketSupport = websocketSupport
                     const httpPort = webApp.containerHttpPort || 80
                     serverWithSubDomain.containerHttpPort = httpPort
                     serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
@@ -283,6 +285,7 @@ class LoadBalancerManager {
                                 containerHttpPort: httpPort,
                                 hasSsl: d.hasSsl,
                                 forceSsl: forceSsl,
+                                websocketSupport: websocketSupport,
                                 publicDomain: d.publicDomain,
                                 localDomain: localDomain,
                                 nginxConfigTemplate: nginxConfigTemplate,

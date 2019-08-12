@@ -605,7 +605,8 @@ class ServiceManager {
         ports: IAppPort[],
         repoInfo: RepoInfo,
         customNginxConfig: string,
-        preDeployFunction: string
+        preDeployFunction: string,
+        websocketSupport: boolean
     ) {
         const self = this
         const dataStore = this.dataStore
@@ -707,7 +708,8 @@ class ServiceManager {
                         repoInfo,
                         self.authenticator,
                         customNginxConfig,
-                        preDeployFunction
+                        preDeployFunction,
+                        websocketSupport
                     )
             })
             .then(function() {
