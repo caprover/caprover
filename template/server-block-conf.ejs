@@ -80,7 +80,8 @@ if (!s.forceSsl || s.hasSsl) {
     if (s.websocketSupport) {
     %>
             proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "Upgrade";
+            proxy_set_header Connection "upgrade";
+            proxy_http_version 1.1;
     <%
     }
     %>
