@@ -326,6 +326,30 @@ router.post('/delete/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+router.post('/rename/', function(req, res, next) {
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
+    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
+        .serviceManager
+
+    let oldAppName = req.body.oldAppName + ''
+    let newAppName = req.body.newAppName + ''
+
+    Logger.d(`Renaming app started: From ${oldAppName} To ${newAppName} `)
+
+    Promise.resolve()
+        .then(function() {
+            return serviceManager.renameApp(oldAppName, newAppName)
+        })
+        .then(function() {
+            Logger.d('AppName is renamed')
+            res.send(
+                new BaseApi(ApiStatusCodes.STATUS_OK, 'AppName is renamed')
+            )
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
 router.post('/update/', function(req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore

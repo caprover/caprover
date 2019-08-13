@@ -386,6 +386,55 @@ class ServiceManager {
             })
     }
 
+    renameApp(oldAppName: string, newAppName: string) {
+        Logger.d('Renaming app: ' + oldAppName)
+        const self = this
+
+        const oldServiceName = this.dataStore
+            .getAppsDataStore()
+            .getServiceName(oldAppName)
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+
+        let defaultSslOn = false
+
+        return Promise.resolve()
+            .then(function() {
+                return dataStore.getAppsDataStore().getAppDefinition(oldAppName)
+            })
+            .then(function(appDef) {
+                defaultSslOn = !!appDef.hasDefaultSubDomainSsl
+
+                dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
+
+                return self.ensureNotBuilding(oldAppName)
+            })
+            .then(function() {
+                Logger.d('Check if service is running: ' + oldServiceName)
+                return dockerApi.isServiceRunningByName(oldServiceName)
+            })
+            .then(function(isRunning) {
+                if (!isRunning) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'Service is not running!'
+                    )
+                }
+                return dockerApi.removeServiceByName(oldServiceName)
+            })
+            .then(function() {
+                return dataStore
+                    .getAppsDataStore()
+                    .renameApp(oldAppName, newAppName)
+            })
+            .then(function() {
+                return self.ensureServiceInitedAndUpdated(newAppName)
+            })
+            .then(function() {
+                if (defaultSslOn) return self.enableSslForApp(newAppName)
+            })
+    }
+
     removeApp(appName: string) {
         Logger.d('Removing service for: ' + appName)
         const self = this

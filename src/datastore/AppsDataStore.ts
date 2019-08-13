@@ -199,6 +199,34 @@ class AppsDataStore {
             })
     }
 
+    nameAllowedOrThrow(appName: string) {
+        if (!isNameAllowed(appName)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_BAD_NAME,
+                'App Name is not allow. Only lowercase letters and single hyphen is allow'
+            )
+        }
+    }
+
+    renameApp(oldAppName: string, newAppName: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function() {
+                self.nameAllowedOrThrow(newAppName)
+                return self.getAppDefinition(oldAppName)
+            })
+            .then(function(appData) {
+                if (appData.appName) appData.appName = newAppName
+                appData.hasDefaultSubDomainSsl = false
+                self.data.delete(APP_DEFINITIONS + '.' + oldAppName)
+                self.saveApp(newAppName, appData)
+            })
+            .then(function() {
+                Utils.getDelayedPromise(2000)
+            })
+    }
+
     getServiceName(appName: string) {
         return 'srv-' + this.namepace + '--' + appName
     }
@@ -249,7 +277,7 @@ class AppsDataStore {
                     }
                 }
             })
-            resolve(allAppsUnencrypted)
+            resolve(JSON.parse(JSON.stringify(allAppsUnencrypted)))
         })
     }
 
@@ -752,6 +780,8 @@ class AppsDataStore {
 
             self.data.delete(APP_DEFINITIONS + '.' + appName)
             resolve()
+        }).then(function() {
+            Utils.getDelayedPromise(2000)
         })
     }
 
@@ -802,7 +832,7 @@ class AppsDataStore {
                 customDomain: [],
                 hasDefaultSubDomainSsl: false,
                 forceSsl: false,
-                websocketSupport: false
+                websocketSupport: false,
             }
 
             resolve(defaultAppDefinition)
