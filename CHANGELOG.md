@@ -1,18 +1,18 @@
 ## [Next Version - available as `edge`]
 
 New features & Improvements:
+- Ablity to use websockets without manually editing nginx config (https://github.com/caprover/caprover/issues/439)
+- Make root domain available as a variable in one-click apps. See https://github.com/caprover/caprover/issues/435
+- Double hyphen is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact.
+- Builds are now being queued instead of dropping the build if another one is in progress. See (https://github.com/caprover/caprover/issues/266)
 - Switched to fake certs for https catch all to avoid disclosing dashboard address.
 - Pulling nginx and certbot images to ensure smooth install even on buggy docker installations. See this: https://github.com/caprover/caprover/issues/450
-- Ablity to use websockets without manually editing nginx config (https://github.com/caprover/caprover/issues/439)
 
 Bug fixes:
 - Backup creation was fixed for instances that were migrated from CaptainDuckDuck 
 - Python and Ruby templates were patched to allow using latest version of Linux automatically
 - updated npm packages to address potential vulnerabilities
 
-BREAKING CHANGES:
-- Double hyphen is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact.
-- Builds are now being queued instead of dropping the build if another one is in progress. See (https://github.com/caprover/caprover/issues/266)
 
 
 ## [1.4.0] - 2019-04-07
