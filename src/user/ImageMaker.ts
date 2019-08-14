@@ -54,6 +54,11 @@ const DOCKER_FILE = 'Dockerfile'
 
 export class BuildLogsManager {
     private buildLogs: IHashMapGeneric<BuildLog>
+
+    constructor() {
+        this.buildLogs = {}
+    }
+
     getAppBuildLogs(appName: string) {
         const self = this
 
