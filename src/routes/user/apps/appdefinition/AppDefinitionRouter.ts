@@ -251,12 +251,16 @@ router.post('/register/', function(req, res, next) {
             appCreated = true
         })
         .then(function() {
-            return serviceManager.scheduleDeployNewVersion(appName, {
-                captainDefinitionContentSource: {
-                    captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
-                    gitHash: '',
-                },
-            })
+            /* No "return" needed (no need to wait for deployment!) */
+            const promiseToIgnore = serviceManager.scheduleDeployNewVersion(
+                appName,
+                {
+                    captainDefinitionContentSource: {
+                        captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
+                        gitHash: '',
+                    },
+                }
+            )
         })
         .then(function() {
             Logger.d('AppName is saved: ' + appName)
