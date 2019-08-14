@@ -372,6 +372,12 @@ export function install() {
                 }
             )
         })
+        .then(function() {
+            console.log('*** CapRover is initializing ***')
+            console.log(
+                'Please wait at least 60 seconds before trying to access CapRover.'
+            )
+        })
         .catch(function(error) {
             console.log('Installation failed.')
             console.error(error)
