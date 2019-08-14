@@ -4,6 +4,8 @@ New features & Improvements:
 - Ablity to use websockets without having to manually edit nginx config (https://github.com/caprover/caprover/issues/439)
 - Double hyphen in "image name" is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact. Also keep in mind that service names and volume names remain the same with double hyphens for now.
 - Builds are now being queued instead of dropping the build if another one is in progress. See (https://github.com/caprover/caprover/issues/266)
+- Ability to rename apps (https://github.com/caprover/caprover/issues/402)
+- Limiting login failures to avoid brute-forcing the password (https://github.com/caprover/caprover/issues/419)
 - Switched to fake certs for https catch all to avoid disclosing dashboard address.
 - Pulling nginx and certbot images to ensure smooth install even on buggy docker installations. See this: https://github.com/caprover/caprover/issues/450
 - Make the root domain available as a variable in one-click apps. See https://github.com/caprover/caprover/issues/435
