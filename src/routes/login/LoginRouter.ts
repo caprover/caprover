@@ -6,8 +6,11 @@ import InjectionExtractor = require('../../injection/InjectionExtractor')
 import DataStoreProvider = require('../../datastore/DataStoreProvider')
 import CaptainManager = require('../../user/system/CaptainManager')
 import Authenticator = require('../../user/Authenticator')
+import CircularQueue from '../../utils/CircularQueue'
 
 const router = express.Router()
+
+const failedLoginCircularTimestamps = new CircularQueue<number>(5)
 
 router.post('/', function(req, res, next) {
     let password = req.body.password || ''
@@ -30,6 +33,16 @@ router.post('/', function(req, res, next) {
 
     Promise.resolve() //
         .then(function() {
+            const oldestKnownFailedLogin = failedLoginCircularTimestamps.peek()
+            if (
+                oldestKnownFailedLogin &&
+                new Date().getTime() - oldestKnownFailedLogin < 30000
+            )
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_PASSWORD_BACK_OFF,
+                    'Too many wrong passwords... Wait for 30 seconds and retry.'
+                )
+
             return DataStoreProvider.getDataStore(namespace).getHashedPassword()
         })
         .then(function(savedHashedPassword) {
@@ -53,6 +66,19 @@ router.post('/', function(req, res, next) {
             )
             baseApi.data = { token: authToken }
             res.send(baseApi)
+        })
+        .catch(function(err) {
+            return new Promise(function(resolve, reject) {
+                if (
+                    err &&
+                    err.captainErrorType &&
+                    err.captainErrorType ===
+                        ApiStatusCodes.STATUS_WRONG_PASSWORD
+                ) {
+                    failedLoginCircularTimestamps.push(new Date().getTime())
+                }
+                reject(err)
+            })
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
