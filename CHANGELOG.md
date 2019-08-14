@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+- TBD
+
+## [1.5.0] - 2019-08-14
+
 New features & Improvements:
 - Ablity to use websockets without having to manually edit nginx config (https://github.com/caprover/caprover/issues/439)
 - Double hyphen in "image name" is now changed to single hyphen, `img-captain--myapp` is now changed to `img-captain-myapp`. This is to address the problem with 3rd party docker registries. See (https://github.com/caprover/caprover/issues/454). Note that this is only applied to the newly built images. All existing images will stay intact. Also keep in mind that service names and volume names remain the same with double hyphens for now.
