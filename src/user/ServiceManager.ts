@@ -8,7 +8,7 @@ import requireFromString = require('require-from-string')
 import BuildLog = require('./BuildLog')
 import { ImageInfo } from 'dockerode'
 import DockerRegistryHelper = require('./DockerRegistryHelper')
-import ImageMaker from './ImageMaker'
+import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
 import Authenticator = require('./Authenticator')
 
@@ -48,7 +48,7 @@ class ServiceManager {
     }
 
     private activeOrScheduledBuilds: IHashMapGeneric<boolean>
-    private buildLogs: IHashMapGeneric<BuildLog>
+    private buildLogsManager: BuildLogsManager
     private queuedBuilds: QueuedBuild[]
     private isReady: boolean
     private imageMaker: ImageMaker
@@ -63,7 +63,7 @@ class ServiceManager {
     ) {
         this.activeOrScheduledBuilds = {}
         this.queuedBuilds = []
-        this.buildLogs = {}
+        this.buildLogsManager = new BuildLogsManager()
         this.isReady = true
         this.dockerRegistryHelper = new DockerRegistryHelper(
             this.dataStore,
@@ -73,7 +73,7 @@ class ServiceManager {
             this.dockerRegistryHelper,
             this.dockerApi,
             this.dataStore.getNameSpace(),
-            this.buildLogs
+            this.buildLogsManager
         )
     }
 
@@ -91,19 +91,19 @@ class ServiceManager {
         let activeBuildAppName = self.isAnyBuildRunning()
         this.activeOrScheduledBuilds[appName] = true
 
-        if (activeBuildAppName) {
-            self.buildLogs[appName] =
-                self.buildLogs[appName] ||
-                new BuildLog(CaptainConstants.configs.buildLogSize)
+        self.buildLogsManager.getAppBuildLogs(appName).clear()
 
+        if (activeBuildAppName) {
             const existingBuildForTheSameApp = self.queuedBuilds.find(
                 v => v.appName === appName
             )
 
             if (existingBuildForTheSameApp) {
-                self.buildLogs[appName].log(
-                    `A build for ${appName} was queued, it's now being replaced with a new build...`
-                )
+                self.buildLogsManager
+                    .getAppBuildLogs(appName)
+                    .log(
+                        `A build for ${appName} was queued, it's now being replaced with a new build...`
+                    )
 
                 // replacing the new source!
                 existingBuildForTheSameApp.source = source
@@ -119,9 +119,11 @@ class ServiceManager {
                 return existingPromise
             }
 
-            self.buildLogs[appName].log(
-                `An active build (${activeBuildAppName}) is in progress. This build is queued...`
-            )
+            self.buildLogsManager
+                .getAppBuildLogs(appName)
+                .log(
+                    `An active build (${activeBuildAppName}) is in progress. This build is queued...`
+                )
 
             let promiseToSave: QueuedPromise = {
                 resolve: undefined,
@@ -791,23 +793,18 @@ class ServiceManager {
 
     getBuildStatus(appName: string) {
         const self = this
-        this.buildLogs[appName] =
-            this.buildLogs[appName] ||
-            new BuildLog(CaptainConstants.configs.buildLogSize)
 
         return {
             isAppBuilding: self.isAppBuilding(appName),
-            logs: self.buildLogs[appName].getLogs(),
-            isBuildFailed: self.buildLogs[appName].isBuildFailed,
+            logs: self.buildLogsManager.getAppBuildLogs(appName).getLogs(),
+            isBuildFailed: self.buildLogsManager.getAppBuildLogs(appName)
+                .isBuildFailed,
         }
     }
 
     logBuildFailed(appName: string, error: string) {
         error = (error || '') + ''
-        this.buildLogs[appName] =
-            this.buildLogs[appName] ||
-            new BuildLog(CaptainConstants.configs.buildLogSize)
-        this.buildLogs[appName].onBuildFailed(error)
+        this.buildLogsManager.getAppBuildLogs(appName).onBuildFailed(error)
     }
 
     getAppLogs(appName: string, encoding: string) {
