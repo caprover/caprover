@@ -4,6 +4,7 @@ New features & Improvements:
 - Switched to fake certs for https catch all to avoid disclosing dashboard address.
 - Pulling nginx and certbot images to ensure smooth install even on buggy docker installations. See this: https://github.com/caprover/caprover/issues/450
 - Ablity to use websockets without manually editing nginx config (https://github.com/caprover/caprover/issues/439)
+- Make root domain available as a variable in one-click apps. See https://github.com/caprover/caprover/issues/435
 
 Bug fixes:
 - Backup creation was fixed for instances that were migrated from CaptainDuckDuck 
