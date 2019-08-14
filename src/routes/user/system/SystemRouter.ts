@@ -91,6 +91,7 @@ router.post('/enablessl/', function(req, res, next) {
         .then(function() {
             // This is necessary as the CLI immediately tries to connect to https://captain.root.com
             // Without this delay it'll fail to connect
+            Logger.d('Waiting for 5 seconds...')
             return Utils.getDelayedPromise(5000)
         })
         .then(function() {
