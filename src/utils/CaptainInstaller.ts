@@ -18,7 +18,7 @@ function checkSystemReq() {
             console.log(' ')
             console.log(' ')
             console.log(' ')
-            console.log(' >>>> Checking System Compatibility <<<<')
+            console.log(' >>> Checking System Compatibility <<<')
 
             let ver = output.Version.split('.')
             let maj = Number(ver[0])
