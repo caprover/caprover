@@ -47,7 +47,7 @@ class ServiceManager {
         return serviceMangerCache[namespace]
     }
 
-    private activeBuilds: IHashMapGeneric<boolean>
+    private activeOrScheduledBuilds: IHashMapGeneric<boolean>
     private buildLogs: IHashMapGeneric<BuildLog>
     private queuedBuilds: QueuedBuild[]
     private isReady: boolean
@@ -61,7 +61,7 @@ class ServiceManager {
         private loadBalancerManager: LoadBalancerManager,
         private domainResolveChecker: DomainResolveChecker
     ) {
-        this.activeBuilds = {}
+        this.activeOrScheduledBuilds = {}
         this.queuedBuilds = []
         this.buildLogs = {}
         this.isReady = true
@@ -89,12 +89,12 @@ class ServiceManager {
         const self = this
 
         let activeBuildAppName = self.isAnyBuildRunning()
+        this.activeOrScheduledBuilds[appName] = true
 
         if (activeBuildAppName) {
             self.buildLogs[appName] =
                 self.buildLogs[appName] ||
                 new BuildLog(CaptainConstants.configs.buildLogSize)
-            this.activeBuilds[appName] = true
 
             const existingBuildForTheSameApp = self.queuedBuilds.find(
                 v => v.appName === appName
@@ -193,7 +193,7 @@ class ServiceManager {
 
     onBuildFinished(appName: string) {
         const self = this
-        self.activeBuilds[appName] = false
+        self.activeOrScheduledBuilds[appName] = false
 
         Promise.resolve().then(function() {
             let newBuild = self.queuedBuilds.shift()
@@ -632,10 +632,10 @@ class ServiceManager {
     }
 
     ensureNotBuilding(appName: string) {
-        if (this.activeBuilds[appName])
+        if (this.activeOrScheduledBuilds[appName])
             throw ApiStatusCodes.createError(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                `Build in-progress for ${appName}. Please wait`
+                ApiStatusCodes.ILLEGAL_OPERATION,
+                `Build in-progress for ${appName}. Please wait...`
             )
     }
 
@@ -770,7 +770,7 @@ class ServiceManager {
     }
 
     isAppBuilding(appName: string) {
-        return !!this.activeBuilds[appName]
+        return !!this.activeOrScheduledBuilds[appName]
     }
 
     /**
@@ -778,7 +778,7 @@ class ServiceManager {
      * @returns the active build that it finds
      */
     isAnyBuildRunning() {
-        const activeBuilds = this.activeBuilds
+        const activeBuilds = this.activeOrScheduledBuilds
 
         for (const appName in activeBuilds) {
             if (!!activeBuilds[appName]) {
