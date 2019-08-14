@@ -303,11 +303,9 @@ class LoadBalancerManager {
     }
 
     sendReloadSignal() {
-        return this.dockerApi
-            .sendSingleContainerKillHUP(CaptainConstants.nginxServiceName)
-            .then(function(data) {
-                Utils.getDelayedPromise(2000)
-            })
+        return this.dockerApi.sendSingleContainerKillHUP(
+            CaptainConstants.nginxServiceName
+        )
     }
 
     getCaptainPublicRandomKey() {
