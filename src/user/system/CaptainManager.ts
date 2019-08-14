@@ -758,12 +758,7 @@ class CaptainManager {
                 return self.dataStore.setHasRootSsl(true)
             })
             .then(function() {
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
-            })
-            .then(function() {
-                return self.loadBalancerManager.sendReloadSignal()
+                return self.reloadLoadBalancer(self.dataStore)
             })
     }
 

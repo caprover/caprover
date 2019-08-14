@@ -11,6 +11,7 @@ import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../../models/OtherTypes'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import * as path from 'path'
+import Utils from '../../utils/Utils'
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../../template/default-page.ejs')
@@ -302,9 +303,11 @@ class LoadBalancerManager {
     }
 
     sendReloadSignal() {
-        return this.dockerApi.sendSingleContainerKillHUP(
-            CaptainConstants.nginxServiceName
-        )
+        return this.dockerApi
+            .sendSingleContainerKillHUP(CaptainConstants.nginxServiceName)
+            .then(function(data) {
+                Utils.getDelayedPromise(2000)
+            })
     }
 
     getCaptainPublicRandomKey() {
