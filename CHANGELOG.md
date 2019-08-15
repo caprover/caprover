@@ -2,7 +2,11 @@
 
 - TBD
 
-## [1.5.0] - 2019-08-14
+## [1.5.2] - 2019-08-15
+
+- Fixed a problem with one-click app deployment on new installations. https://github.com/caprover/caprover/issues/481
+
+## [1.5.1] - 2019-08-14
 
 New features & Improvements:
 - Ablity to use websockets without having to manually edit nginx config (https://github.com/caprover/caprover/issues/439)
