@@ -237,8 +237,9 @@ router.post('/register/', function(req, res, next) {
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
-    let appName = req.body.appName as string
-    let hasPersistentData = !!req.body.hasPersistentData
+    const appName = req.body.appName as string
+    const hasPersistentData = !!req.body.hasPersistentData
+    const isDetachedBuild = !!req.query.detached
 
     let appCreated = false
 
@@ -251,7 +252,6 @@ router.post('/register/', function(req, res, next) {
             appCreated = true
         })
         .then(function() {
-            /* No "return" needed (no need to wait for deployment!) */
             const promiseToIgnore = serviceManager.scheduleDeployNewVersion(
                 appName,
                 {
@@ -261,6 +261,8 @@ router.post('/register/', function(req, res, next) {
                     },
                 }
             )
+
+            if (!isDetachedBuild) return promiseToIgnore
         })
         .then(function() {
             Logger.d('AppName is saved: ' + appName)
