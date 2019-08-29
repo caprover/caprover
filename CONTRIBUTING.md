@@ -16,9 +16,10 @@ Please note we have a code of conduct, please follow it in all your interactions
    variables, exposed ports, useful file locations and container parameters.
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
-4. To keep the process simple with just a few contributors, development happens directly on the master branch
+4. Please avoid making opinion-based changes if it's just a code-style change - this includes, but not limited to, changes to how we work with promises, class inheritence and etc.
+5. To keep the process simple with just a few contributors, development happens directly on the master branch
    and releases will be deployed on the same branch.
-5. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
+6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
    
 ## Running dev environment
 
