@@ -208,13 +208,32 @@ class AppsDataStore {
         }
     }
 
-    renameApp(oldAppName: string, newAppName: string) {
+    renameApp(
+        authenticator: Authenticator,
+        oldAppName: string,
+        newAppName: string
+    ) {
         const self = this
 
         return Promise.resolve()
             .then(function() {
                 self.nameAllowedOrThrow(newAppName)
                 return self.getAppDefinition(oldAppName)
+            })
+            .then(function(appData) {
+                if (appData.appPushWebhook && appData.appPushWebhook.pushWebhookToken) {
+                    const tokenVersion = uuid()
+                    return authenticator.getAppPushWebhookToken(
+                        newAppName,
+                        tokenVersion
+                    ).then((val) => {
+                        appData.appPushWebhook!.pushWebhookToken = val
+                        appData.appPushWebhook!.tokenVersion = tokenVersion
+                        return appData
+                    })
+                }
+
+                return appData
             })
             .then(function(appData) {
                 if (appData.appName) appData.appName = newAppName

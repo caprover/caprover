@@ -46,27 +46,32 @@ function getPushedBranches(req: express.Request) {
 }
 
 router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
+    const extracted = InjectionExtractor.extractAppAndUserForWebhook(
+        res
+    )
+    const { serviceManager, namespace } = extracted.user
+    const { appName, app } = extracted
+
+    if (!app || !serviceManager || !namespace || !appName) {
+        Logger.e(new Error(
+            'Something went wrong during trigger build. Cannot extract app information from the payload.'
+        ))
+        res.send(
+            new BaseApi(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'Error triggering a build'
+            )
+        )
+        return
+    }
+
     // From this point on, we don't want to error out. Just do the build process in the background
     res.send(
         new BaseApi(ApiStatusCodes.STATUS_OK, 'Build webhook has triggered')
     )
 
     Promise.resolve()
-        .then(function() {
-            const extracted = InjectionExtractor.extractAppAndUserForWebhook(
-                res
-            )
-            let serviceManager = extracted.user.serviceManager
-            let namespace = extracted.user.namespace
-            let appName = extracted.appName
-            let app = extracted.app
-
-            if (!app || !serviceManager || !namespace || !appName) {
-                throw new Error(
-                    'Something went wrong during trigger build. Cannot extract app information from the payload.'
-                )
-            }
-
+        .then(function() {            
             const repoInfo = app.appPushWebhook!.repoInfo
             // if we didn't detect branches, the POST might have come from another source that we don't
             // explicitly support. Therefore, we just let it go through and triggers a build regardless.
