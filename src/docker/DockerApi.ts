@@ -5,13 +5,10 @@ import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
 import EnvVars = require('../utils/EnvVars')
 import BuildLog = require('../user/BuildLog')
-import {
-    IDockerApiPort,
-    IDockerContainerResource,
-    VolumesTypes,
-} from '../models/OtherTypes'
 import DockerService from '../models/DockerService'
+import { IDockerApiPort, IDockerContainerResource, VolumesTypes } from '../models/OtherTypes'
 import Utils from '../utils/Utils'
+const dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 
@@ -301,15 +298,14 @@ class DockerApi {
     ) {
         const self = this
 
-        const nameAndTag = imageNameIncludingTag.split(':')
-
-        const tag = nameAndTag[1] || 'latest'
-        const imageName = nameAndTag[0]
+        const { repository, tag } = dockerodeUtils.parseRepositoryTag(
+            imageNameIncludingTag
+        )
 
         return Promise.resolve()
             .then(function() {
                 return self.dockerode.createImage({
-                    fromImage: imageName,
+                    fromImage: repository,
                     tag: tag,
                     authconfig: authObj,
                 })
