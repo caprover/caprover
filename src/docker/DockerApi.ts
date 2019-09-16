@@ -306,7 +306,7 @@ class DockerApi {
             .then(function() {
                 return self.dockerode.createImage({
                     fromImage: repository,
-                    tag: tag,
+                    tag: tag || 'latest',
                     authconfig: authObj,
                 })
             })
