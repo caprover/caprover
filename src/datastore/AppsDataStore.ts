@@ -203,7 +203,14 @@ class AppsDataStore {
         if (!isNameAllowed(appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                'App Name is not allow. Only lowercase letters and single hyphen is allow'
+                'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+            )
+        }
+
+        if (!!this.data.get(APP_DEFINITIONS + '.' + appName)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,
+                'App Name already exists. Please use a different name'
             )
         }
     }
@@ -762,7 +769,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allow. Only lowercase letters and single hyphen is allow'
+                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
                     )
                 )
                 return
@@ -800,7 +807,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allow. Only lowercase letters and single hyphen is allow'
+                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
                     )
                 )
                 return
