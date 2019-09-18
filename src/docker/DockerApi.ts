@@ -6,7 +6,11 @@ import Logger = require('../utils/Logger')
 import EnvVars = require('../utils/EnvVars')
 import BuildLog = require('../user/BuildLog')
 import DockerService from '../models/DockerService'
-import { IDockerApiPort, IDockerContainerResource, VolumesTypes } from '../models/OtherTypes'
+import {
+    IDockerApiPort,
+    IDockerContainerResource,
+    VolumesTypes,
+} from '../models/OtherTypes'
 import Utils from '../utils/Utils'
 const dockerodeUtils = require('dockerode/lib/util')
 
@@ -298,15 +302,17 @@ class DockerApi {
     ) {
         const self = this
 
-        const { repository, tag } = dockerodeUtils.parseRepositoryTag(
+        const parsedTag = dockerodeUtils.parseRepositoryTag(
             imageNameIncludingTag
         )
+        const repository = parsedTag.repository
+        const tag = parsedTag.tag || 'latest'
 
         return Promise.resolve()
             .then(function() {
                 return self.dockerode.createImage({
                     fromImage: repository,
-                    tag: tag || 'latest',
+                    tag: tag,
                     authconfig: authObj,
                 })
             })
