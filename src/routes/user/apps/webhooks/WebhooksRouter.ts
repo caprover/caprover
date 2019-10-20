@@ -1,11 +1,8 @@
 import express = require('express')
 import bodyParser = require('body-parser')
 import BaseApi = require('../../../../api/BaseApi')
-import Authenticator = require('../../../../user/Authenticator')
 import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
 import Logger = require('../../../../utils/Logger')
-import CaptainConstants = require('../../../../utils/CaptainConstants')
-import ServiceManager = require('../../../../user/ServiceManager')
 import InjectionExtractor = require('../../../../injection/InjectionExtractor')
 
 const router = express.Router()
@@ -46,24 +43,29 @@ function getPushedBranches(req: express.Request) {
 }
 
 router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
-    const extracted = InjectionExtractor.extractAppAndUserForWebhook(
-        res
-    )
-    const { serviceManager, namespace } = extracted.user
-    const { appName, app } = extracted
-
     return Promise.resolve()
         .then(function() {
+            const extracted = InjectionExtractor.extractAppAndUserForWebhook(
+                res
+            )
+            const { serviceManager, namespace } = extracted.user
+            const { appName, app } = extracted
+
             if (!app || !serviceManager || !namespace || !appName) {
-                Logger.e(new Error(
-                    'Something went wrong during trigger build. Cannot extract app information from the payload.'
-                ))
-                throw new Error('Error triggering a build');
+                Logger.e(
+                    new Error(
+                        'Something went wrong during trigger build. Cannot extract app information from the payload.'
+                    )
+                )
+                throw new Error('Error triggering a build')
             }
 
             // From this point on, we don't want to error out. Just do the build process in the background
             res.send(
-                new BaseApi(ApiStatusCodes.STATUS_OK, 'Build webhook has triggered')
+                new BaseApi(
+                    ApiStatusCodes.STATUS_OK,
+                    'Build webhook has triggered'
+                )
             )
 
             Promise.resolve()
@@ -105,7 +107,6 @@ router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
                 )
             )
         })
-
 })
 
 export = router
