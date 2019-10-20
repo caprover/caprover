@@ -1,6 +1,9 @@
 ## [Next Version - available as `edge`]
 
-- Improving renaming process. We now automatically generate new webhook when the app is renamed.
+- Improved renaming process. We now automatically generate new webhook when the app is renamed. (https://github.com/caprover/caprover/pull/499)
+- Improved renaming process - now checking for name clash before renaming. (https://github.com/caprover/caprover/pull/498)
+- Improved validation logic for the webhook build trigger. (https://github.com/caprover/caprover/pull/496)
+- Fixed bug with pulling from private registries running on custom ports, (https://github.com/caprover/caprover/pull/500)
 
 ## [1.5.2] - 2019-08-15
 
