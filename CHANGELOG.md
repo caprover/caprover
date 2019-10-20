@@ -4,6 +4,9 @@
 - Improved renaming process - now checking for name clash before renaming. (https://github.com/caprover/caprover/pull/498)
 - Improved validation logic for the webhook build trigger. (https://github.com/caprover/caprover/pull/496)
 - Fixed bug with pulling from private registries running on custom ports, (https://github.com/caprover/caprover/pull/500)
+- Automatically focusing on password field upong admin page load.
+- Fixing Progressive Web App prsentation of the admin page (https://github.com/caprover/caprover-frontend/pull/24)
+- Keeping tabs on Apps Details page when the page reloads.
 
 ## [1.5.2] - 2019-08-15
 
