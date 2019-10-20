@@ -427,7 +427,7 @@ class ServiceManager {
             .then(function() {
                 return dataStore
                     .getAppsDataStore()
-                    .renameApp(oldAppName, newAppName)
+                    .renameApp(self.authenticator, oldAppName, newAppName)
             })
             .then(function() {
                 return self.ensureServiceInitedAndUpdated(newAppName)
