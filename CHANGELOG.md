@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
-- TBD
+- Improving renaming process. We now automatically generate new webhook when the app is renamed.
 
 ## [1.5.2] - 2019-08-15
 
