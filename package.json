@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && sudo ./dev-scripts/dev-reset-service.sh",
-    "clean": "sudo ./dev-scripts/dev-clean-run-as-dev.sh",
+    "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
+    "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "build": "rm -rf ./built && npx tsc",
-    "test": "rm -rf ./built && npx tsc && jest"
+    "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc",
+    "test": "npm run build && jest"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",

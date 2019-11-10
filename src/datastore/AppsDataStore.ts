@@ -228,16 +228,18 @@ class AppsDataStore {
                 return self.getAppDefinition(oldAppName)
             })
             .then(function(appData) {
-                if (appData.appPushWebhook && appData.appPushWebhook.pushWebhookToken) {
+                if (
+                    appData.appPushWebhook &&
+                    appData.appPushWebhook.pushWebhookToken
+                ) {
                     const tokenVersion = uuid()
-                    return authenticator.getAppPushWebhookToken(
-                        newAppName,
-                        tokenVersion
-                    ).then((val) => {
-                        appData.appPushWebhook!.pushWebhookToken = val
-                        appData.appPushWebhook!.tokenVersion = tokenVersion
-                        return appData
-                    })
+                    return authenticator
+                        .getAppPushWebhookToken(newAppName, tokenVersion)
+                        .then(val => {
+                            appData.appPushWebhook!.pushWebhookToken = val
+                            appData.appPushWebhook!.tokenVersion = tokenVersion
+                            return appData
+                        })
                 }
 
                 return appData
