@@ -1,10 +1,13 @@
-# Contributing
+# Before Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or any other method with the owners of this repository before making a change. The best way is our Slack channel (link at the footer of CapRover.com)
 
-
 Please note we have a code of conduct, please follow it in all your interactions with the project.
+
+## IMPORTANT: CapRover Goals & Scope
+
+Since the birth of CapRover, there has been many contributions and suggestions that shaped CapRover as we know it today. One of the very important factor in the contribution you make is to stick with CapRover design philosophy.- CapRover is not an enterprise grade application like Kubernetes. *Do not* patch it with half-done features that make it look like one - it will eventually fail as we don't have resources to support such features.- CapRover scope is a helper around Docker, nginx and Let's Encrypt. If a new feature is doable via the existing features, or a basic tool, do not add it to CapRover. We do not want to bloat this application. One example is: "Add a flag to customize the placement constraints of containers". This is definitely doable in Docker, but we don't want to mirror every single functionality of Docker to CapRover. If we do that, CapRover becomes a very hard to maintain project. Instead we should add customization hooks for these advanced and rare use cases. For example, instead of mirroring every single nginx config, we added the ability of customizing the nginx config for advanced users.- Last but not least AVOID LARGE PULL REQUESTS at all cost as they won't get reviewed unless they are discussed in the Slack channel beforehand.
 
 ## Pull Request Process
 
