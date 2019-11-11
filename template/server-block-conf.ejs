@@ -21,11 +21,7 @@ if (s.forceSsl) {
 %>
 
 
-<%
-if (!s.forceSsl || s.hasSsl) {
-%>
-
-    server {
+server {
 
     <%
     if (!s.forceSsl) {
@@ -96,8 +92,4 @@ if (!s.forceSsl || s.hasSsl) {
                 root <%-s.customErrorPagesDirectory%>;
                 internal;
         }
-    }
-
-<%
 }
-%>
