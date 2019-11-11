@@ -7,6 +7,8 @@
 - Automatically focusing on password field upong admin page load.
 - Fixing Progressive Web App prsentation of the admin page (https://github.com/caprover/caprover-frontend/pull/24)
 - Keeping tabs on Apps Details page when the page reloads.
+- Allowing user to remove the github hook info
+
 
 ## [1.5.2] - 2019-08-15
 
