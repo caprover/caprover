@@ -16,7 +16,13 @@
             stub_status on;
 
             access_log off;
-            allow 10.0.0.0/24; # This can be improved by adding authentication as well.
+
+            # This can be improved by adding authentication as well.
+            # CIDR Range IPs:
+            allow 172.16.0.0/12;
+            allow 10.0.0.0/8;
+            allow 192.168.0.0/16;
+            
             deny all;
         }
 
