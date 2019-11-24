@@ -39,12 +39,12 @@ import fs = require('fs-extra')
 import tar = require('tar')
 import path = require('path')
 import DockerApi from '../docker/DockerApi'
+import GitHelper from '../utils/GitHelper'
 import CaptainConstants = require('../utils/CaptainConstants')
 import TemplateHelper = require('./TemplateHelper')
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import { AnyError } from '../models/OtherTypes'
 import { IBuiltImage } from '../models/IBuiltImage'
-import GitHelper = require('../utils/GitHelper')
 import BuildLog = require('./BuildLog')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
 

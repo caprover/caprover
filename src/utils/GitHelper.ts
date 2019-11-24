@@ -10,7 +10,7 @@ import * as util from 'util'
 import * as childPross from 'child_process'
 const exec = util.promisify(childPross.exec)
 
-class GitHelper {
+export default class GitHelper {
     static getLastHash(directory: string) {
         return git(directory) //
             .silent(true) //
@@ -28,34 +28,25 @@ class GitHelper {
         const USER = encodeURIComponent(username)
         const PASS = encodeURIComponent(pass)
 
-        // Some people put https when they are entering their git information
-        const REPO = Utils.removeHttpHttps(repo)
-
         if (!!sshKey) {
             const SSH_KEY_PATH = path.join(
                 CaptainConstants.captainRootDirectoryTemp,
                 uuid.v4()
             )
 
-            const indexOfSlash = REPO.indexOf('/')
-            const DOMAIN = REPO.substring(0, indexOfSlash)
-            const REPO_WITHOUT_DOMAIN = REPO.substring(
-                indexOfSlash + 1,
-                REPO.length
-            ).replace(/\/$/, '')
+            const REPO_GIT_PATH = GitHelper.sanitizeRepoPathSsh(repo)
+            const DOMAIN = GitHelper.getDomainFromSanitizedSshRepoPath(
+                REPO_GIT_PATH
+            )
 
-            const remote = `git@${DOMAIN}:${REPO_WITHOUT_DOMAIN}.git`
-
-            Logger.dev('Cloning SSH ' + remote)
+            Logger.d('Cloning SSH ' + REPO_GIT_PATH)
 
             return Promise.resolve() //
                 .then(function() {
                     return fs.outputFile(SSH_KEY_PATH, sshKey + '')
                 })
                 .then(function() {
-                    return exec(
-                        `chmod 600 ${SSH_KEY_PATH}`
-                    )
+                    return exec(`chmod 600 ${SSH_KEY_PATH}`)
                 })
                 .then(function() {
                     return fs.ensureDir('/root/.ssh')
@@ -74,7 +65,7 @@ class GitHelper {
                             '--recursive',
                             '-b',
                             branch,
-                            remote,
+                            REPO_GIT_PATH,
                             directory,
                         ])
                 })
@@ -82,7 +73,10 @@ class GitHelper {
                     return fs.remove(SSH_KEY_PATH)
                 })
         } else {
-            const remote = `https://${USER}:${PASS}@${REPO}`
+            // Some people put https when they are entering their git information
+            const REPO_PATH = GitHelper.sanitizeRepoPathHttps(repo)
+
+            const remote = `https://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev('Cloning HTTPS ' + remote)
             return git() //
                 .silent(true) //
@@ -90,6 +84,34 @@ class GitHelper {
                 .then(function() {})
         }
     }
-}
 
-export = GitHelper
+    // input is like this: git@github.com:caprover/caprover-cli.git
+    static getDomainFromSanitizedSshRepoPath(input: string) {
+        return input.substring(4, input.indexOf(':'))
+    }
+
+    // It returns a string like this "github.com/username/repository.git"
+    static sanitizeRepoPathHttps(input: string) {
+        input = Utils.removeHttpHttps(input)
+
+        if (input.toLowerCase().startsWith('git@')) {
+            // at this point, input is like git@github.com:caprover/caprover-cli.git
+            input = input.substring(4)
+            input = input.replace(':', '/')
+        }
+
+        return input.replace(/\/$/, '')
+    }
+
+    // It returns a string like this "git@github.com:caprover/caprover-cli.git"
+    static sanitizeRepoPathSsh(input: string) {
+        input = Utils.removeHttpHttps(input)
+        if (!input.startsWith('git@')) {
+            // If we get here, we have something like github.com/username/repository.git
+            input = input.replace('/', ':')
+            input = 'git@' + input
+        }
+
+        return input.replace(/\/$/, '')
+    }
+}
