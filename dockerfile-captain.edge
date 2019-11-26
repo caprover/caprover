@@ -17,8 +17,10 @@ RUN npm install --production && \
 
 # Build frontend code
 
-# This quick hack invalidates the cache
-ADD .cachebust /.cachebust
+# This quick hack invalidates the cache for everything below
+# by specifying it as a build arg to `docker build`
+# https://github.com/moby/moby/issues/22832
+ARG CACHE_DATE=whatever
 
 RUN mkdir -p /usr/src/app-frontend && cd /usr/src/app-frontend && \
     git clone https://github.com/githubsaturn/caprover-frontend.git && \
