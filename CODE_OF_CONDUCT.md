@@ -19,8 +19,11 @@ Examples of unacceptable behavior by participants include:
 * The use of sexualized language or imagery and unwelcome sexual attention or advances
 * Trolling, insulting/derogatory comments, and personal or political attacks
 * Public or private harassment
+* spreading rumors and wrongs information
 * Publishing others' private information, such as a physical or electronic address, without explicit permission
 * Other conduct which could reasonably be considered inappropriate in a professional setting
+
+These behaviors are not tolerated at all. The person who does not obey our standards may be banned.
 
 ## Our Responsibilities
 
