@@ -47,6 +47,7 @@ import { AnyError } from '../models/OtherTypes'
 import { IBuiltImage } from '../models/IBuiltImage'
 import BuildLog = require('./BuildLog')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
+import DataStore = require('../datastore/DataStore')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -74,7 +75,7 @@ export default class ImageMaker {
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
-        private namespace: string,
+        private dataStore: DataStore,
         private buildLogsManager: BuildLogsManager
     ) {
         //
@@ -114,10 +115,19 @@ export default class ImageMaker {
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
         const baseImageNameWithoutVerAndReg =
-            'img-' + this.namespace + '-' + appName // img-captain-myapp
+            'img-' + this.dataStore.getNameSpace() + '-' + appName // img-captain-myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
-        return Promise.resolve() //
+        let appDefinition: IAppDef
+        return Promise.resolve()
+            .then(function() {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .getAppDefinition(appName)
+            })
+            .then(appDef => {
+                appDefinition = appDef
+            })
             .then(function() {
                 return self.extractContentIntoDestDirectory(
                     imageSource,
@@ -141,15 +151,11 @@ export default class ImageMaker {
                     .then(function(captainDefinition) {
                         if (captainDefinition.imageName) {
                             logs.log(
-                                `An explicit image name was provided (${
-                                    captainDefinition.imageName
-                                }). Therefore, no build process is needed.`
+                                `An explicit image name was provided (${captainDefinition.imageName}). Therefore, no build process is needed.`
                             )
 
                             logs.log(
-                                `Pulling this image: ${
-                                    captainDefinition.imageName
-                                } This process might take a few minutes.`
+                                `Pulling this image: ${captainDefinition.imageName} This process might take a few minutes.`
                             )
 
                             const providedImageName =
@@ -178,7 +184,8 @@ export default class ImageMaker {
                             tarFilePath,
                             baseImageNameWithoutVerAndReg,
                             appName,
-                            appVersion
+                            appVersion,
+                            appDefinition
                         )
                     })
             })
@@ -239,7 +246,8 @@ export default class ImageMaker {
         tarFilePath: string,
         baseImageNameWithoutVersionAndReg: string,
         appName: string,
-        appVersion: number
+        appVersion: number,
+        appDefinition: IAppDef
     ) {
         const self = this
         return Promise.resolve() //
@@ -261,7 +269,8 @@ export default class ImageMaker {
                                 baseImageNameWithoutVersionAndReg,
                                 appVersion,
                                 tarFilePath,
-                                self.buildLogsManager.getAppBuildLogs(appName)
+                                self.buildLogsManager.getAppBuildLogs(appName),
+                                appDefinition.envVars
                             )
                             .catch(function(error: AnyError) {
                                 throw ApiStatusCodes.createError(
