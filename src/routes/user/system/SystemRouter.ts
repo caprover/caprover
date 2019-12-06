@@ -11,6 +11,7 @@ import Utils from '../../../utils/Utils'
 import * as path from 'path'
 import DockerUtils from '../../../docker/DockerUtils'
 import DockerApi from '../../../docker/DockerApi'
+import VersionManager from '../../../user/system/VersionManager'
 
 const router = express.Router()
 
@@ -166,7 +167,7 @@ router.get('/loadbalancerinfo/', function(req, res, next) {
 router.get('/versionInfo/', function(req, res, next) {
     return Promise.resolve()
         .then(function() {
-            return CaptainManager.get().getCaptainImageTags()
+            return VersionManager.get().getCaptainImageTags()
         })
         .then(function(data) {
             let baseApi = new BaseApi(
@@ -184,7 +185,7 @@ router.post('/versionInfo/', function(req, res, next) {
 
     return Promise.resolve()
         .then(function() {
-            return CaptainManager.get().updateCaptain(latestVersion)
+            return VersionManager.get().updateCaptain(latestVersion)
         })
         .then(function() {
             let baseApi = new BaseApi(
