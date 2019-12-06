@@ -169,10 +169,6 @@ router.get('/versionInfo/', function(req, res, next) {
             return CaptainManager.get().getCaptainImageTags()
         })
         .then(function(tagList) {
-            let baseApi = new BaseApi(
-                ApiStatusCodes.STATUS_OK,
-                'Version Info Retrieved'
-            )
             let currentVersion = CaptainConstants.configs.version.split('.')
             let latestVersion = CaptainConstants.configs.version.split('.')
 
@@ -207,12 +203,18 @@ router.get('/versionInfo/', function(req, res, next) {
                 }
             }
 
-            baseApi.data = {
+            return {
                 currentVersion: currentVersion.join('.'),
                 latestVersion: latestVersion.join('.'),
                 canUpdate: canUpdate,
             }
-
+        })
+        .then(function(data) {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Version Info Retrieved'
+            )
+            baseApi.data = data
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
