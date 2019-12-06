@@ -48,6 +48,7 @@ import { IBuiltImage } from '../models/IBuiltImage'
 import BuildLog = require('./BuildLog')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
 import DataStore = require('../datastore/DataStore')
+import EnvVars = require('../utils/EnvVars')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -75,7 +76,7 @@ export default class ImageMaker {
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
-        private dataStore: DataStore,
+        private namespace: String,
         private buildLogsManager: BuildLogsManager
     ) {
         //
@@ -98,7 +99,8 @@ export default class ImageMaker {
         imageSource: IImageSource,
         appName: string,
         captainDefinitionRelativeFilePath: string,
-        appVersion: number
+        appVersion: number,
+        envVars: IAppEnvVar[]
     ): Promise<IBuiltImage> {
         const self = this
 
@@ -115,19 +117,10 @@ export default class ImageMaker {
         const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
 
         const baseImageNameWithoutVerAndReg =
-            'img-' + this.dataStore.getNameSpace() + '-' + appName // img-captain-myapp
+            'img-' + this.namespace + '-' + appName // img-captain-myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
-        let appDefinition: IAppDef
         return Promise.resolve()
-            .then(function() {
-                return self.dataStore
-                    .getAppsDataStore()
-                    .getAppDefinition(appName)
-            })
-            .then(appDef => {
-                appDefinition = appDef
-            })
             .then(function() {
                 return self.extractContentIntoDestDirectory(
                     imageSource,
@@ -185,7 +178,7 @@ export default class ImageMaker {
                             baseImageNameWithoutVerAndReg,
                             appName,
                             appVersion,
-                            appDefinition
+                            envVars
                         )
                     })
             })
@@ -247,7 +240,7 @@ export default class ImageMaker {
         baseImageNameWithoutVersionAndReg: string,
         appName: string,
         appVersion: number,
-        appDefinition: IAppDef
+        envVars: IAppEnvVar[]
     ) {
         const self = this
         return Promise.resolve() //
@@ -270,7 +263,7 @@ export default class ImageMaker {
                                 appVersion,
                                 tarFilePath,
                                 self.buildLogsManager.getAppBuildLogs(appName),
-                                appDefinition.envVars
+                                envVars
                             )
                             .catch(function(error: AnyError) {
                                 throw ApiStatusCodes.createError(

@@ -228,7 +228,7 @@ class DockerApi {
         newVersionNumber: number,
         tarballFilePath: string,
         buildLogs: BuildLog,
-        buildargs: Object = {}
+        buildargs: IAppEnvVar[]
     ) {
         const self = this
 
