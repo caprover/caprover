@@ -168,47 +168,6 @@ router.get('/versionInfo/', function(req, res, next) {
         .then(function() {
             return CaptainManager.get().getCaptainImageTags()
         })
-        .then(function(tagList) {
-            let currentVersion = CaptainConstants.configs.version.split('.')
-            let latestVersion = CaptainConstants.configs.version.split('.')
-
-            let canUpdate = false
-
-            for (let i = 0; i < tagList.length; i++) {
-                let tag = tagList[i].split('.')
-
-                if (tag.length !== 3) {
-                    continue
-                }
-
-                if (Number(tag[0]) > Number(currentVersion[0])) {
-                    canUpdate = true
-                    latestVersion = tag
-                    break
-                } else if (
-                    Number(tag[0]) === Number(currentVersion[0]) &&
-                    Number(tag[1]) > Number(currentVersion[1])
-                ) {
-                    canUpdate = true
-                    latestVersion = tag
-                    break
-                } else if (
-                    Number(tag[0]) === Number(currentVersion[0]) &&
-                    Number(tag[1]) === Number(currentVersion[1]) &&
-                    Number(tag[2]) > Number(currentVersion[2])
-                ) {
-                    canUpdate = true
-                    latestVersion = tag
-                    break
-                }
-            }
-
-            return {
-                currentVersion: currentVersion.join('.'),
-                latestVersion: latestVersion.join('.'),
-                canUpdate: canUpdate,
-            }
-        })
         .then(function(data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
