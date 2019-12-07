@@ -227,7 +227,8 @@ class DockerApi {
         imageName: string,
         newVersionNumber: number,
         tarballFilePath: string,
-        buildLogs: BuildLog
+        buildLogs: BuildLog,
+        buildargs: IAppEnvVar[]
     ) {
         const self = this
 
@@ -238,6 +239,7 @@ class DockerApi {
         return self.dockerode
             .buildImage(tarballFilePath, {
                 t: imageName,
+                buildargs: buildargs,
             })
             .then(function(stream) {
                 return new Promise<void>(function(resolve, reject) {

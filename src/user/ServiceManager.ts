@@ -17,7 +17,7 @@ const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 interface QueuedPromise {
     resolve: undefined | ((reason?: unknown) => void)
     reject: undefined | ((reason?: any) => void)
-    promise: undefined | (Promise<unknown>)
+    promise: undefined | Promise<unknown>
 }
 
 interface QueuedBuild {
@@ -167,7 +167,8 @@ class ServiceManager {
                             source,
                             appName,
                             app.captainDefinitionRelativeFilePath,
-                            appVersion
+                            appVersion,
+                            app.envVars
                         )
                     })
             })
