@@ -47,8 +47,6 @@ import { AnyError } from '../models/OtherTypes'
 import { IBuiltImage } from '../models/IBuiltImage'
 import BuildLog = require('./BuildLog')
 import DockerRegistryHelper = require('./DockerRegistryHelper')
-import DataStore = require('../datastore/DataStore')
-import EnvVars = require('../utils/EnvVars')
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -76,7 +74,7 @@ export default class ImageMaker {
     constructor(
         private dockerRegistryHelper: DockerRegistryHelper,
         private dockerApi: DockerApi,
-        private namespace: String,
+        private namespace: string,
         private buildLogsManager: BuildLogsManager
     ) {
         //
@@ -120,7 +118,7 @@ export default class ImageMaker {
             'img-' + this.namespace + '-' + appName // img-captain-myapp
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
-        return Promise.resolve()
+        return Promise.resolve() //
             .then(function() {
                 return self.extractContentIntoDestDirectory(
                     imageSource,
