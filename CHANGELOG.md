@@ -10,6 +10,7 @@
 - Allowing user to remove the webhook git repo info.
 - Blocking navigation when one-click app build is in progress.
 - Fixed new bug for monitoring on new installations (https://github.com/caprover/caprover/issues/550)
+- Envrionmental variables are now available during build time (https://github.com/caprover/caprover/pull/561)
 
 
 ## [1.5.2] - 2019-08-15
