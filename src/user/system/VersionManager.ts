@@ -1,6 +1,8 @@
 import request = require('request')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import DockerApi from '../../docker/DockerApi'
+import axios from 'axios'
+import Logger = require('../../utils/Logger')
 
 class VersionManager {
     private dockerApi: DockerApi
@@ -9,8 +11,56 @@ class VersionManager {
         const dockerApi = DockerApi.get()
         this.dockerApi = dockerApi
     }
+    private getCaptainImageTagsFromOfficialApi(currentVersion: string) {
+        const self = this
+
+        // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
+        // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
+
+        return Promise.resolve() //
+            .then(function() {
+                return axios.get('https://api.v2.caprover.com/v2/versionInfo', {
+                    params: {
+                        currentVersion: currentVersion,
+                    },
+                })
+            })
+            .then(function(responseObj) {
+                const resp = responseObj.data
+
+                if (resp.status !== 100) {
+                    throw new Error(
+                        'Bad response from the upstream version info: ' +
+                            resp.status
+                    )
+                }
+
+                const data = resp.data
+
+                return {
+                    currentVersion: data.currentVersion + '',
+                    latestVersion: data.latestVersion + '',
+                    changeLogMessage: data.changeLogMessage + '',
+                    canUpdate: !!data.canUpdate,
+                }
+            })
+    }
 
     getCaptainImageTags() {
+        if (
+            'caprover/caprover' ===
+            CaptainConstants.configs.publishedNameOnDockerHub
+        ) {
+            // For the official image use our official API.
+            return this.getCaptainImageTagsFromOfficialApi(
+                CaptainConstants.configs.version
+            )
+        }
+
+        // Fallback for unofficial images to DockerHub, knowing that:
+        // - The API contract is not guaranteed to always be the same, it might break in the future
+        // - This method does not return the changeLogMessage
+
         const url =
             'https://hub.docker.com/v2/repositories/' +
             CaptainConstants.configs.publishedNameOnDockerHub +
@@ -83,6 +133,7 @@ class VersionManager {
                 currentVersion: currentVersion.join('.'),
                 latestVersion: latestVersion.join('.'),
                 canUpdate: canUpdate,
+                changeLogMessage: '',
             }
         })
     }

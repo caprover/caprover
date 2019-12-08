@@ -3,15 +3,14 @@ import BaseApi = require('../../../api/BaseApi')
 import ApiStatusCodes = require('../../../api/ApiStatusCodes')
 import Logger = require('../../../utils/Logger')
 import CaptainManager = require('../../../user/system/CaptainManager')
-import Validator = require('validator')
 import SystemRouteSelfHostRegistry = require('./selfhostregistry/SystemRouteSelfHostRegistry')
 import CaptainConstants = require('../../../utils/CaptainConstants')
 import InjectionExtractor = require('../../../injection/InjectionExtractor')
 import Utils from '../../../utils/Utils'
-import * as path from 'path'
 import DockerUtils from '../../../docker/DockerUtils'
 import DockerApi from '../../../docker/DockerApi'
 import VersionManager from '../../../user/system/VersionManager'
+import validator from 'validator'
 
 const router = express.Router()
 
@@ -76,7 +75,7 @@ router.post('/enablessl/', function(req, res, next) {
         emailAddress.indexOf('%') >= 0 ||
         emailAddress.indexOf(' ') >= 0 ||
         emailAddress.indexOf('\\') >= 0 ||
-        !Validator.isEmail(emailAddress)
+        !validator.isEmail(emailAddress)
     ) {
         res.send(
             new BaseApi(
