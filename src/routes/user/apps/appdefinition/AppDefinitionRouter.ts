@@ -405,7 +405,7 @@ router.post('/update/', function(req, res, next) {
         )
         return
     }
-    
+
     Logger.d('Updating app started: ' + appName)
 
     serviceManager
