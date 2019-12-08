@@ -228,7 +228,7 @@ class DockerApi {
         newVersionNumber: number,
         tarballFilePath: string,
         buildLogs: BuildLog,
-        buildargs: IAppEnvVar[]
+        envVars: IAppEnvVar[]
     ) {
         const self = this
 
@@ -236,10 +236,18 @@ class DockerApi {
 
         Logger.d('Building docker image. This might take a few minutes...')
 
-        return self.dockerode
-            .buildImage(tarballFilePath, {
-                t: imageName,
-                buildargs: buildargs,
+        return Promise.resolve()
+            .then(function() {
+                const buildargs: IHashMapGeneric<string> = {}
+
+                envVars.forEach(env => {
+                    buildargs[env.key] = env.value
+                })
+
+                return self.dockerode.buildImage(tarballFilePath, {
+                    t: imageName,
+                    buildargs: buildargs,
+                })
             })
             .then(function(stream) {
                 return new Promise<void>(function(resolve, reject) {
