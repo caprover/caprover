@@ -8,7 +8,12 @@ if (s.forceSsl) {
         server_name  <%-s.publicDomain%>;
 
         # Used by Lets Encrypt
-        location /.well-known/ {
+        location /.well-known/acme-challenge/ {
+            root <%-s.staticWebRoot%>;
+        }
+
+        # Used by CapRover for health check
+        location /.well-known/captain-identifier {
             root <%-s.staticWebRoot%>;
         }
 
@@ -88,7 +93,13 @@ server {
     %>
         }
 
-        location /.well-known/ {
+        # Used by Lets Encrypt
+        location /.well-known/acme-challenge/ {
+            root <%-s.staticWebRoot%>;
+        }
+        
+        # Used by CapRover for health check
+        location /.well-known/captain-identifier {
             root <%-s.staticWebRoot%>;
         }
 
