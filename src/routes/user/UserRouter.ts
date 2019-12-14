@@ -53,18 +53,26 @@ router.use(function(req, res, next) {
         return
     }
 
-    const serviceManager = user.serviceManager
-
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
     if (Utils.isNotGetRequest(req)) {
-        if (EnvVars.IS_DEMO_MODE) {
-            let response = new BaseApi(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'Demo mode is only for viewing purposes.'
-            )
-            res.send(response)
-            return
+        if (!!EnvVars.DEMO_MODE_ADMIN_IP) {
+            const realIp = `${req.headers['x-real-ip']}`
+            const forwardedIp = `${req.headers['x-forwarded-for']}`
+            if (
+                !realIp ||
+                !Utils.isValidIp(realIp) ||
+                realIp !== forwardedIp ||
+                EnvVars.DEMO_MODE_ADMIN_IP !== realIp
+            ) {
+                let response = new BaseApi(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'Demo mode is only for viewing purposes.'
+                )
+                res.send(response)
+
+                return
+            }
         }
 
         if (threadLockNamespace[namespace]) {
