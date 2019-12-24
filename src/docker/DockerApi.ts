@@ -16,12 +16,36 @@ const dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 
-function safeParseChunk(chunk: string) {
+function safeParseChunk(
+    chunk: string
+): {
+    stream?: string
+    error?: any
+    errorDetail?: any
+}[] {
     try {
-        return JSON.parse(chunk)
+        return [JSON.parse(chunk)]
     } catch (ignore) {
-        return {
-            stream: 'Cannot parse ' + chunk,
+        try {
+            // See https://github.com/caprover/caprover/issues/570
+            // This appears to be bug either in Docker or dockerone:
+            // Sometimes chunk appears as two JSON objects, like
+            // ```
+            // {"stream":"something......"}
+            // {"stream":"another line of things"}
+            // ```
+            const chunks = chunk.split('\n')
+            const returnVal = [] as any[]
+            chunks.forEach(chk => {
+                returnVal.push(JSON.parse(chunk))
+            })
+            return returnVal
+        } catch (ignore) {
+            return [
+                {
+                    stream: 'Cannot parse ' + chunk,
+                },
+            ]
         }
     }
 }
@@ -256,29 +280,29 @@ class DockerApi {
                     stream.setEncoding('utf8')
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on('data', function(chunk) {
-                        Logger.dev('stream data ' + chunk)
-                        chunk = safeParseChunk(chunk)
+                    stream.on('data', function(chunkRaw) {
+                        Logger.dev('stream data ' + chunkRaw)
+                        safeParseChunk(chunkRaw).forEach(chunk => {
+                            const chuckStream = chunk.stream
+                            if (chuckStream) {
+                                // Logger.dev('stream data ' + chuckStream);
+                                buildLogs.log(chuckStream)
+                            }
 
-                        const chuckStream = chunk.stream
-                        if (chuckStream) {
-                            // Logger.dev('stream data ' + chuckStream);
-                            buildLogs.log(chuckStream)
-                        }
-
-                        if (chunk.error) {
-                            Logger.e(chunk.error)
-                            const errorDetails = JSON.stringify(
-                                chunk.errorDetail
-                            )
-                            Logger.e(errorDetails)
-                            buildLogs.log(errorDetails)
-                            buildLogs.log(chunk.error)
-                            errorMessage += '\n'
-                            errorMessage += errorDetails
-                            errorMessage += '\n'
-                            errorMessage += chunk.error
-                        }
+                            if (chunk.error) {
+                                Logger.e(chunk.error)
+                                const errorDetails = JSON.stringify(
+                                    chunk.errorDetail
+                                )
+                                Logger.e(errorDetails)
+                                buildLogs.log(errorDetails)
+                                buildLogs.log(chunk.error)
+                                errorMessage += '\n'
+                                errorMessage += errorDetails
+                                errorMessage += '\n'
+                                errorMessage += chunk.error
+                            }
+                        })
                     })
 
                     // stream.pipe(process.stdout, {end: true});
@@ -337,25 +361,25 @@ class DockerApi {
                     stream.setEncoding('utf8')
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on('data', function(chunk) {
-                        Logger.dev('stream data ' + chunk)
-                        chunk = safeParseChunk(chunk)
+                    stream.on('data', function(chunkRaw) {
+                        Logger.dev('stream data ' + chunkRaw)
+                        safeParseChunk(chunkRaw).forEach(chunk => {
+                            const chuckStream = chunk.stream
+                            if (chuckStream) {
+                                // Logger.dev('stream data ' + chuckStream);
+                                logsBeforeError.shift()
+                                logsBeforeError.push(chuckStream)
+                            }
 
-                        const chuckStream = chunk.stream
-                        if (chuckStream) {
-                            // Logger.dev('stream data ' + chuckStream);
-                            logsBeforeError.shift()
-                            logsBeforeError.push(chuckStream)
-                        }
-
-                        if (chunk.error) {
-                            Logger.e(chunk.error)
-                            Logger.e(JSON.stringify(chunk.errorDetail))
-                            errorMessage += '\n [truncated] \n'
-                            errorMessage += logsBeforeError.join('')
-                            errorMessage += '\n'
-                            errorMessage += chunk.error
-                        }
+                            if (chunk.error) {
+                                Logger.e(chunk.error)
+                                Logger.e(JSON.stringify(chunk.errorDetail))
+                                errorMessage += '\n [truncated] \n'
+                                errorMessage += logsBeforeError.join('')
+                                errorMessage += '\n'
+                                errorMessage += chunk.error
+                            }
+                        })
                     })
 
                     // stream.pipe(process.stdout, {end: true});
@@ -586,28 +610,28 @@ class DockerApi {
                     stream.setEncoding('utf8')
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on('data', function(chunk) {
-                        Logger.dev('stream data ' + chunk)
-                        chunk = safeParseChunk(chunk)
+                    stream.on('data', function(chunkRaw) {
+                        Logger.dev('stream data ' + chunkRaw)
+                        safeParseChunk(chunkRaw).forEach(chunk => {
+                            const chuckStream = chunk.stream
+                            if (chuckStream) {
+                                // Logger.dev('stream data ' + chuckStream);
+                                buildLogs.log(chuckStream)
+                            }
 
-                        const chuckStream = chunk.stream
-                        if (chuckStream) {
-                            // Logger.dev('stream data ' + chuckStream);
-                            buildLogs.log(chuckStream)
-                        }
-
-                        if (chunk.error) {
-                            Logger.e(chunk.error)
-                            const errorDetails = JSON.stringify(
-                                chunk.errorDetail
-                            )
-                            Logger.e(errorDetails)
-                            buildLogs.log(errorDetails)
-                            buildLogs.log(chunk.error)
-                            errorMessage += '\n'
-                            errorMessage += errorDetails
-                            errorMessage += chunk.error
-                        }
+                            if (chunk.error) {
+                                Logger.e(chunk.error)
+                                const errorDetails = JSON.stringify(
+                                    chunk.errorDetail
+                                )
+                                Logger.e(errorDetails)
+                                buildLogs.log(errorDetails)
+                                buildLogs.log(chunk.error)
+                                errorMessage += '\n'
+                                errorMessage += errorDetails
+                                errorMessage += chunk.error
+                            }
+                        })
                     })
 
                     // stream.pipe(process.stdout, {end: true});
