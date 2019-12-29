@@ -676,7 +676,7 @@ class ServiceManager {
 
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'Node ID you requested in not part of the swarm ' +
+                    'Node ID you requested is not part of the swarm cluster: ' +
                         nodeIdToCheck
                 )
             })
