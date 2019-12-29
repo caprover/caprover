@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
-- n/a
+- Fixed dockerfile parsing warning: https://github.com/caprover/caprover/issues/570
 
 ## [1.6.0] - 2019-12-16
 
