@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Run the following line on a PlayWithDocker instance
+# curl https://raw.githubusercontent.com/caprover/caprover/master/dev-scripts/play_with_caprover.sh | bash
+
 sleepWithTimer(){
     secs=${1}
     while [ $secs -gt 0 ]; do
