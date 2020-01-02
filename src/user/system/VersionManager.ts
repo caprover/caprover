@@ -11,7 +11,14 @@ class VersionManager {
         const dockerApi = DockerApi.get()
         this.dockerApi = dockerApi
     }
-    private getCaptainImageTagsFromOfficialApi(currentVersion: string) {
+    private getCaptainImageTagsFromOfficialApi(
+        currentVersion: string
+    ): Promise<{
+        currentVersion: string
+        latestVersion: string
+        changeLogMessage: string
+        canUpdate: boolean
+    }> {
         const self = this
 
         // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
@@ -43,6 +50,15 @@ class VersionManager {
                     changeLogMessage: data.changeLogMessage + '',
                     canUpdate: !!data.canUpdate,
                 }
+            })
+            .catch(function(error) {
+                Logger.e(error)
+                return Promise.resolve({
+                    currentVersion: currentVersion + '',
+                    latestVersion: currentVersion + '',
+                    changeLogMessage: '',
+                    canUpdate: false,
+                })
             })
     }
 
