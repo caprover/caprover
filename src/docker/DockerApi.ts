@@ -37,7 +37,7 @@ function safeParseChunk(
             const chunks = chunk.split('\n')
             const returnVal = [] as any[]
             chunks.forEach(chk => {
-                returnVal.push(JSON.parse(chunk))
+                returnVal.push(JSON.parse(chk))
             })
             return returnVal
         } catch (ignore) {
