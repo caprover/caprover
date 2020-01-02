@@ -69,7 +69,7 @@ exec('npm run build')
     })
     .then(function (data) {
         var l1 = 'On branch master'
-        var l2 = "Your branch is up-to-date with 'origin/master'"
+        var l2 = "Your branch is up to date with 'origin/master'"
         var l3 = 'nothing to commit, working tree clean'
 
         if (
