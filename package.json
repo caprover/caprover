@@ -7,7 +7,7 @@
     "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
     "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc",
+    "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && echo 'Build successful'",
     "test": "npm run build && jest"
   },
   "dependencies": {

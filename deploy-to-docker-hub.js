@@ -54,7 +54,7 @@ exec('npm run build')
         console.log('----------')
         if (
             !data.startsWith('> caprover@0.0.0') ||
-            !data.endsWith('rm -rf ./built && npx tsc')
+            !data.endsWith('Build successful')
         ) {
             console.log('Unexpected output:')
             throw new Error(data)
