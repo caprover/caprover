@@ -1,4 +1,6 @@
 ### CapRover (formerly CaptainDuckDuck)
+[![](https://images.microbadger.com/badges/image/caprover/caprover.svg)](https://microbadger.com/images/caprover/caprover) [![Docker Pulls](https://img.shields.io/docker/pulls/caprover/caprover.svg)](https://hub.docker.com/r/caprover/caprover/)
+
 #### Easiest app/database deployment platform and webserver package for your NodeJS, Python, PHP, Ruby, Go applications. No Docker, nginx knowledge required! &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcaprover%2Fcaprover&via=cap_rover&text=I%20found%20the%20easiest%20webserver%20package%20for%20NodeJS%2C%20PHP%2C%20MySQL%2C%20WordPress%20and%20everything%21&hashtags=CapRover%2Cnodejs%2Cdocker%2Cnginx%2Cwebdev)
 
 [![YouTube](https://raw.githubusercontent.com/caprover/caprover-website/master/graphics/screenshots-video-small.gif)](https://www.youtube.com/watch?v=XDrTmGSDW3s)
