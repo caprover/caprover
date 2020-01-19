@@ -90,12 +90,12 @@ interface IAppDef extends IAppDefinitionBase {
 
 interface IAppDefSaved extends IAppDefinitionBase {
     appPushWebhook:
-    | {
-        tokenVersion: string
-        repoInfo: RepoInfoEncrypted
-        pushWebhookToken: string
-    }
-    | undefined
+        | {
+              tokenVersion: string
+              repoInfo: RepoInfoEncrypted
+              pushWebhookToken: string
+          }
+        | undefined
 
     httpAuth?: {
         user: string

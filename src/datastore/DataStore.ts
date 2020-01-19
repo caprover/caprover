@@ -44,9 +44,7 @@ class DataStore {
             `captain-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath: `${
-                    CaptainConstants.captainDataDirectory
-                }/config-${namespace}.json`,
+                configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
             }
         )
 

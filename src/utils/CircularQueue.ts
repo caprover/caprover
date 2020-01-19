@@ -1,4 +1,3 @@
-
 export default class CircularQueue<T> {
     private values: (T | undefined)[] = []
     private currSize = 0

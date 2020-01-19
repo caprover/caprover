@@ -7,6 +7,8 @@
     "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
     "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "formatter": "prettier --check ./src/**/*.ts",
+    "formatter-write": "prettier --write ./src/**/*.ts",
     "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && echo 'Build successful'",
     "test": "npm run build && jest"
   },
@@ -51,6 +53,7 @@
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
     "on-finished": "^2.3.0",
+    "prettier": "^1.19.1",
     "public-ip": "^4.0.0",
     "recursive-readdir": "^2.2.2",
     "request": "^2.88.0",
