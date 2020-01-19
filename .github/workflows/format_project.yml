@@ -1,4 +1,4 @@
-name: Run lint
+name: Run formatter
 
 on:
   push:
