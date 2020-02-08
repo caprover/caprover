@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
-- N/A
+- Improved TLS security settings for the built-in docker registry (https://github.com/caprover/caprover/pull/595)
 
 ## [1.6.1] - 2020-01-02
 
