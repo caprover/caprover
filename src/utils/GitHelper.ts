@@ -103,7 +103,7 @@ export default class GitHelper {
         return input.replace(/\/$/, '')
     }
 
-    // It returns a string like this "git@github.com:caprover/caprover-cli.git"
+    // It returns a string like this "ssh://git@github.com:caprover/caprover-cli.git"
     static sanitizeRepoPathSsh(input: string) {
         input = Utils.removeHttpHttps(input)
         if (!input.startsWith('git@')) {
@@ -112,6 +112,6 @@ export default class GitHelper {
             input = 'git@' + input
         }
 
-        return input.replace(/\/$/, '')
+        return 'ssh://' + input.replace(/\/$/, '')
     }
 }
