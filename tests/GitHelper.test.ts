@@ -20,22 +20,38 @@ test('Testing  - sanitizeRepoPathSsh', () => {
     expect(
         GitHelper.sanitizeRepoPathSsh(
             ' git@github.com:username/repository.git/  '
-        )
-    ).toBe('git@github.com:username/repository.git')
+        ).repoPath
+    ).toBe('ssh://git@github.com:22/username/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - port', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            ' git@github.com:username/repository.git/  '
+        ).port
+    ).toBe('22')
+})
+
+test('Testing  - sanitizeRepoPathSsh - custom port', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            ' git@github.com:1234/username/repository.git/  '
+        ).port
+    ).toBe('1234')
 })
 
 test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
     expect(
         GitHelper.sanitizeRepoPathSsh(
             '  https://github.com/username/repository.git/ '
-        )
-    ).toBe('git@github.com:username/repository.git')
+        ).repoPath
+    ).toBe('ssh://git@github.com:22/username/repository.git')
 })
 
 test('Testing  - getDomainFromSanitizedSshRepoPath - pure', () => {
     expect(
         GitHelper.getDomainFromSanitizedSshRepoPath(
-            'git@github.com:username/repository.git'
+            'ssh://git@github.com:132/username/repository.git'
         )
     ).toBe('github.com')
 })
@@ -45,7 +61,7 @@ test('Testing  - getDomainFromSanitizedSshRepoPath', () => {
         GitHelper.getDomainFromSanitizedSshRepoPath(
             GitHelper.sanitizeRepoPathSsh(
                 ' git@github.com:username/repository.git/  '
-            )
+            ).repoPath
         )
     ).toBe('github.com')
 })
@@ -55,7 +71,7 @@ test('Testing  - getDomainFromSanitizedSshRepoPath from HTTPS', () => {
         GitHelper.getDomainFromSanitizedSshRepoPath(
             GitHelper.sanitizeRepoPathSsh(
                 '  https://github.com/username/repository.git/ '
-            )
+            ).repoPath
         )
     ).toBe('github.com')
 })

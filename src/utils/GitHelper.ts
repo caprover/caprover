@@ -34,7 +34,10 @@ export default class GitHelper {
                 uuid.v4()
             )
 
-            const REPO_GIT_PATH = GitHelper.sanitizeRepoPathSsh(repo)
+            const sanitized = GitHelper.sanitizeRepoPathSsh(repo)
+            const REPO_GIT_PATH = sanitized.repoPath
+            const SSH_PORT = sanitized.port
+
             const DOMAIN = GitHelper.getDomainFromSanitizedSshRepoPath(
                 REPO_GIT_PATH
             )
@@ -53,7 +56,7 @@ export default class GitHelper {
                 })
                 .then(function() {
                     return exec(
-                        `ssh-keyscan -H ${DOMAIN} >> /root/.ssh/known_hosts`
+                        `ssh-keyscan -p ${SSH_PORT} -H ${DOMAIN} >> /root/.ssh/known_hosts`
                     )
                 })
                 .then(function() {
@@ -85,9 +88,10 @@ export default class GitHelper {
         }
     }
 
-    // input is like this: git@github.com:caprover/caprover-cli.git
+    // input is like this: ssh://git@github.com:22/caprover/caprover-cli.git
     static getDomainFromSanitizedSshRepoPath(input: string) {
-        return input.substring(4, input.indexOf(':'))
+        input = input.substring(10)
+        return input.substring(0, input.indexOf(':'))
     }
 
     // It returns a string like this "github.com/username/repository.git"
@@ -103,7 +107,7 @@ export default class GitHelper {
         return input.replace(/\/$/, '')
     }
 
-    // It returns a string like this "git@github.com:caprover/caprover-cli.git"
+    // It returns a string like this "ssh://git@github.com:22/caprover/caprover-cli.git"
     static sanitizeRepoPathSsh(input: string) {
         input = Utils.removeHttpHttps(input)
         if (!input.startsWith('git@')) {
@@ -112,6 +116,31 @@ export default class GitHelper {
             input = 'git@' + input
         }
 
-        return input.replace(/\/$/, '')
+        // At this point we have one of the following:
+        // git@github.com:22/caprover/caprover
+        // git@github.com:caprover/caprover
+
+        let port = '22'
+        const split = input.split(':')
+        if (split.length == 2) {
+            const secondSplit = split[1].split('/')
+            if (`${Number(secondSplit[0])}` === secondSplit[0]) {
+                // input is already in this format: git@github.com:22/caprover/caprover
+                port = `${Number(secondSplit[0])}`
+            } else {
+                input = split[0] + ':22/' + split[1]
+            }
+        } else {
+            throw new Error('Marformatted SSH path: ' + input)
+        }
+
+        if (!input.toLowerCase().startsWith('ssh://')) {
+            input = 'ssh://' + input
+        }
+
+        return {
+            repoPath: input.replace(/\/$/, ''),
+            port: port,
+        }
     }
 }
