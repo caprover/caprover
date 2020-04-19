@@ -204,7 +204,10 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function(req, res, next) {
 
 // unsecured end points:
 app.use(API_PREFIX + CaptainConstants.apiVersion + '/login/', LoginRouter)
-app.use(API_PREFIX + CaptainConstants.apiVersion + '/downloads/', DownloadRouter)
+app.use(
+    API_PREFIX + CaptainConstants.apiVersion + '/downloads/',
+    DownloadRouter
+)
 
 // secured end points
 app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter)

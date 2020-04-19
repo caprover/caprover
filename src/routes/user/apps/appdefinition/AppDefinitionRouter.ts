@@ -392,11 +392,18 @@ router.post('/update/', function(req, res, next) {
         repoInfo.branch = repoInfo.branch.trim()
     }
 
-    if ((repoInfo.branch || repoInfo.user || repoInfo.repo || repoInfo.password || repoInfo.sshKey) && (
-        (!repoInfo.branch || !repoInfo.repo) ||
-        (!repoInfo.sshKey && !repoInfo.user && !repoInfo.password) ||
-        (repoInfo.password && !repoInfo.user) ||
-        (repoInfo.user && !repoInfo.password))) {
+    if (
+        (repoInfo.branch ||
+            repoInfo.user ||
+            repoInfo.repo ||
+            repoInfo.password ||
+            repoInfo.sshKey) &&
+        (!repoInfo.branch ||
+            !repoInfo.repo ||
+            (!repoInfo.sshKey && !repoInfo.user && !repoInfo.password) ||
+            (repoInfo.password && !repoInfo.user) ||
+            (repoInfo.user && !repoInfo.password))
+    ) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,

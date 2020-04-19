@@ -94,20 +94,23 @@ router.post('/:appName/', upload.single('sourceFile'), function(
     }
 
     Promise.resolve().then(function() {
-        const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(appName, {
-            uploadedTarPathSource: !!tarballSourceFilePath
-                ? {
-                      uploadedTarPath: tarballSourceFilePath,
-                      gitHash,
-                  }
-                : undefined,
-            captainDefinitionContentSource: !!captainDefinitionContent
-                ? {
-                      captainDefinitionContent,
-                      gitHash,
-                  }
-                : undefined,
-        })
+        const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
+            appName,
+            {
+                uploadedTarPathSource: !!tarballSourceFilePath
+                    ? {
+                          uploadedTarPath: tarballSourceFilePath,
+                          gitHash,
+                      }
+                    : undefined,
+                captainDefinitionContentSource: !!captainDefinitionContent
+                    ? {
+                          captainDefinitionContent,
+                          gitHash,
+                      }
+                    : undefined,
+            }
+        )
 
         if (isDetachedBuild) {
             res.send(
