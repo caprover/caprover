@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build:
+  check-code-formatting:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
