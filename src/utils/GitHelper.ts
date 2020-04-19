@@ -68,7 +68,7 @@ export default class GitHelper {
                             '--recursive',
                             '-b',
                             branch,
-                            `ssh://${REPO_GIT_PATH}`,
+                            REPO_GIT_PATH,
                             directory,
                         ])
                 })
