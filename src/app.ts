@@ -109,7 +109,7 @@ app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
         0
     ) {
         let newUrl =
-            'https://' +
+            'http://' +
             req.get('host') +
             CaptainConstants.netDataRelativePath +
             '/'
