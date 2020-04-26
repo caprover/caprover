@@ -14,6 +14,7 @@ rm -rf /captain && mkdir /captain
 chmod -R 777 /captain
 docker run \
    -e "CAPTAIN_IS_DEBUG=1" \
+   -e "MAIN_NODE_IP_ADDRESS=127.0.0.1" \
    -v /var/run/docker.sock:/var/run/docker.sock \
    -v /captain:/captain \
    -v $(pwd):/usr/src/app captain-debug
