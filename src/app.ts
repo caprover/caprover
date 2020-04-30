@@ -108,8 +108,10 @@ app.use(CaptainConstants.netDataRelativePath, function(req, res, next) {
         req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !==
         0
     ) {
+        let isRequestSsl = req.secure || req.get('X-Forwarded-Proto') === 'https'
+
         let newUrl =
-            'https://' +
+            (isRequestSsl? 'https://' : 'http://') +
             req.get('host') +
             CaptainConstants.netDataRelativePath +
             '/'
