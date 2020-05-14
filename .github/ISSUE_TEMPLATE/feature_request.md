@@ -7,6 +7,10 @@ assignees: ''
 
 ---
 
+Please read [CapRover goals and scope[(https://github.com/caprover/caprover/blob/master/CONTRIBUTING.md#important-caprover-goals--scope
+) before posting a new feature request.
+
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
