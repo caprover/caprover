@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-Please read [CapRover goals and scope[(https://github.com/caprover/caprover/blob/master/CONTRIBUTING.md#important-caprover-goals--scope
+Please read [CapRover goals and scope](https://github.com/caprover/caprover/blob/master/CONTRIBUTING.md#important-caprover-goals--scope
 ) before posting a new feature request.
 
 
