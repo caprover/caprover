@@ -38,6 +38,9 @@ http {
 
     server_names_hash_bucket_size 128;
 
+    # Don't emit NGINX version on error pages and in the “Server” response header field.
+    server_tokens off;
+
     #gzip  on;
 
     include /etc/nginx/conf.d/*.conf;
