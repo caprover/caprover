@@ -3,6 +3,7 @@
 - Improved TLS security settings for the built-in docker registry (https://github.com/caprover/caprover/pull/595)
 - Allowing custom ports for git remote repositories. (https://github.com/caprover/caprover/issues/606)
 - Default to http2 (https://github.com/caprover/caprover/pull/667)
+- Disallowing all contents on dashboard for robots (https://github.com/caprover/caprover-frontend/pull/38)
 
 ## [1.6.1] - 2020-01-02
 
