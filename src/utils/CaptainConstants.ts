@@ -31,6 +31,8 @@ const configs = {
 
     registrySubDomainPort: 996,
 
+    dockerApiVersion: 'v1.30',
+
     netDataImageName: 'titpetric/netdata:1.8',
 
     registryImageName: 'registry:2',

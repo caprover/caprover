@@ -1683,7 +1683,7 @@ const connectionParams: Docker.DockerOptions =
               port: Number(dockerApiAddressSplited[2]),
           }
 
-connectionParams.version = 'v1.30'
+connectionParams.version = CaptainConstants.configs.dockerApiVersion
 
 const dockerApiInstance = new DockerApi(connectionParams)
 
