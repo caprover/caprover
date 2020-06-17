@@ -9,11 +9,6 @@
         listen              443 ssl;
         ssl_certificate     <%-fake.crtPath%>;
         ssl_certificate_key <%-fake.keyPath%>;
-        
-        # Mozilla Intermediate configuration. tweak to your needs.
-        ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-        ssl_prefer_server_ciphers off;
 
         server_name  _;
 
@@ -54,15 +49,6 @@
         ssl_certificate     <%-captain.crtPath%>;
         ssl_certificate_key <%-captain.keyPath%>;
 
-        ssl_session_cache   shared:SSL:20m;
-        ssl_session_timeout 1d;
-        ssl_session_tickets off;
-
-
-        # Mozilla Intermediate configuration. tweak to your needs.
-        ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-        ssl_prefer_server_ciphers off;
     <%
         }
     %>
@@ -122,11 +108,6 @@
         listen              443 ssl;
         ssl_certificate     <%-registry.crtPath%>;
         ssl_certificate_key <%-registry.keyPath%>;
-        
-        # Mozilla Intermediate configuration. tweak to your needs.
-        ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-        ssl_prefer_server_ciphers off;
     <%
         }
     %>
