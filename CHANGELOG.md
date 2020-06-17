@@ -5,6 +5,7 @@
 - Default to http2 (https://github.com/caprover/caprover/pull/667)
 - Disallowing all contents on dashboard for robots (https://github.com/caprover/caprover-frontend/pull/38)
 - Moved SSL configs to `http` context in nginx to avoid duplicating the snippet (https://github.com/caprover/caprover/commit/f896eef1cf64cd8433e1262e9d64f592b5b0caac). If you have customized nginx configs for your root, make sure to update it.
+- Added a step to create dhparams during installation to improve security.
 
 
 ## [1.6.1] - 2020-01-02
