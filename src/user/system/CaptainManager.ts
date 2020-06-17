@@ -663,16 +663,6 @@ class CaptainManager {
         return this.loadBalancerManager
     }
 
-    reloadLoadBalancer(datastore: DataStore) {
-        const self = this
-        return self.loadBalancerManager
-            .rePopulateNginxConfigFile(datastore)
-            .then(function() {
-                Logger.d('sendReloadSignal...')
-                return self.loadBalancerManager.sendReloadSignal()
-            })
-    }
-
     getDockerRegistry() {
         return this.dockerRegistry
     }
@@ -697,7 +687,7 @@ class CaptainManager {
                 return self.dataStore.setHasRootSsl(true)
             })
             .then(function() {
-                return self.reloadLoadBalancer(self.dataStore)
+                return self.loadBalancerManager.rePopulateNginxConfigFile(self.dataStore)
             })
     }
 
@@ -801,7 +791,7 @@ class CaptainManager {
                 return self.dataStore.setCustomDomain(requestedCustomDomain)
             })
             .then(function() {
-                return self.reloadLoadBalancer(self.dataStore)
+                return self.loadBalancerManager.rePopulateNginxConfigFile(self.dataStore)
             })
     }
 

@@ -50,9 +50,6 @@ class SelfHostedDockerRegistry {
                     self.dataStore
                 )
             })
-            .then(function() {
-                return self.loadBalancerManager.sendReloadSignal()
-            })
     }
 
     getLocalRegistryDomainAndPort() {

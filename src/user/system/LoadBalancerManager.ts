@@ -11,7 +11,10 @@ import CertbotManager = require('./CertbotManager')
 import { AnyError } from '../../models/OtherTypes'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import * as path from 'path'
+import * as util from 'util'
+import * as chileProcess from 'child_process'
 import Utils from '../../utils/Utils'
+const exec = util.promisify(chileProcess.exec)
 
 const defaultPageTemplate = fs
     .readFileSync(__dirname + '/../../../template/default-page.ejs')
@@ -29,6 +32,16 @@ const HOST_PATH_OF_FAKE_CERTS =
 if (!fs.existsSync(CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS))
     throw new Error('CAPROVER_CONTAINER_PATH_OF_FAKE_CERTS  is empty')
 if (!defaultPageTemplate) throw new Error('defaultPageTemplate  is empty')
+
+const DH_PARAMS_FILE_PATH_ON_HOST = path.join(
+    CaptainConstants.nginxSharedPathOnHost,
+    CaptainConstants.nginxDhParamFileName
+)
+
+const DH_PARAMS_FILE_PATH_ON_NGINX = path.join(
+    CaptainConstants.nginxSharedPathOnNginx,
+    CaptainConstants.nginxDhParamFileName
+)
 
 class LoadBalancerManager {
     private reloadInProcess: boolean
@@ -55,7 +68,7 @@ class LoadBalancerManager {
      * @param dataStoreToQueue
      * @returns {Promise.<>}
      */
-    rePopulateNginxConfigFile(dataStoreToQueue: DataStore) {
+    rePopulateNginxConfigFile(dataStoreToQueue: DataStore, noReload?: boolean) {
         const self = this
 
         return new Promise<void>(function(res, rej) {
@@ -65,6 +78,12 @@ class LoadBalancerManager {
                 reject: rej,
             })
             self.consumeQueueIfAnyInNginxReloadQueue()
+        }).then(function() {
+            if (!!noReload) return
+            Logger.d('sendReloadSignal...')
+            return self.dockerApi.sendSingleContainerKillHUP(
+                CaptainConstants.nginxServiceName
+            )
         })
     }
 
@@ -173,6 +192,9 @@ class LoadBalancerManager {
             })
             .then(function() {
                 return fs.renameSync(FUTURE, CONFIG) // sync method. It's really fast.
+            })
+            .then(function() {
+                return self.ensureBaseNginxConf()
             })
             .then(function() {
                 return self.createRootConfFile(dataStore)
@@ -300,12 +322,6 @@ class LoadBalancerManager {
 
                 return servers
             })
-    }
-
-    sendReloadSignal() {
-        return this.dockerApi.sendSingleContainerKillHUP(
-            CaptainConstants.nginxServiceName
-        )
     }
 
     getCaptainPublicRandomKey() {
@@ -476,7 +492,15 @@ class LoadBalancerManager {
                     captainConfig.baseConfig.customValue ||
                     captainConfig.baseConfig.byDefault
 
-                return ejs.render(baseConfigTemplate, {})
+                return ejs.render(baseConfigTemplate, {
+                    base: {
+                        dhparamsFilePath: fs.existsSync(
+                            DH_PARAMS_FILE_PATH_ON_HOST
+                        )
+                            ? DH_PARAMS_FILE_PATH_ON_NGINX
+                            : '',
+                    },
+                })
             })
             .then(function(baseNginxConfFileContent) {
                 return fs.outputFile(
@@ -484,6 +508,29 @@ class LoadBalancerManager {
                     baseNginxConfFileContent
                 )
             })
+    }
+
+    ensureDhParamFileExistsAfterDelay(dataStore: DataStore) {
+        const self = this
+        fs.pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
+            .then(function(dhParamExists) {
+                if (dhParamExists) {
+                    return
+                }
+                return Utils.getDelayedPromise(60 * 1000)
+                    .then(function() {
+                        Logger.d(
+                            'Creating dhparams for the first time - high CPU load is expected.'
+                        )
+                        return exec(
+                            `openssl dhparam -out ${DH_PARAMS_FILE_PATH_ON_HOST} 2048`
+                        )
+                    })
+                    .then(function() {
+                        return self.rePopulateNginxConfigFile(dataStore)
+                    })
+            })
+            .catch(err => Logger.e(err))
     }
 
     init(myNodeId: string, dataStore: DataStore) {
@@ -604,11 +651,7 @@ class LoadBalancerManager {
             })
             .then(function() {
                 Logger.d('Setting up NGINX conf file...')
-
-                return self.ensureBaseNginxConf()
-            })
-            .then(function() {
-                return self.rePopulateNginxConfigFile(dataStore)
+                return self.rePopulateNginxConfigFile(dataStore, true)
             })
             .then(function() {
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
@@ -703,6 +746,8 @@ class LoadBalancerManager {
                 )
             })
             .then(function() {
+                self.ensureDhParamFileExistsAfterDelay(dataStore)
+
                 const waitTimeInMillis = 5000
                 Logger.d(
                     'Waiting for ' +

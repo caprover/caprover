@@ -69,6 +69,8 @@ let data = {
 
     nginxSharedPathOnNginx: '/nginx-shared',
 
+    nginxDhParamFileName: 'dhparam.pem',
+
     nginxDefaultHtmlDir: '/default',
 
     letsEncryptEtcPathOnNginx: '/letencrypt/etc',
