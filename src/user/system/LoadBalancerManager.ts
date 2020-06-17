@@ -761,6 +761,33 @@ class LoadBalancerManager {
                     }, waitTimeInMillis)
                 })
             })
+            .then(function() {
+                return self.certbotManager.init(myNodeId)
+            })
+            .then(function() {
+                // schedule the first attempt to renew certs in 1 minute
+                setTimeout(function() {
+                    self.renewAllCertsAndReload(dataStore)
+                }, 1000 * 60)
+            })
+    }
+
+    renewAllCertsAndReload(dataStore: DataStore) {
+        const self = this
+
+        // before doing renewal, let's schedule the next one in 20.3 hours!
+        // this random schedule helps to avoid retrying at the same time of
+        // the day in case if that's our super high traffic time
+
+        setTimeout(function() {
+            self.renewAllCertsAndReload(dataStore)
+        }, 1000 * 3600 * 20.3)
+
+        return self.certbotManager
+            .renewAllCerts() //
+            .then(function() {
+                return self.rePopulateNginxConfigFile(dataStore)
+            })
     }
 }
 

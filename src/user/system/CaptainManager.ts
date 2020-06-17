@@ -203,9 +203,6 @@ class CaptainManager {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
             })
             .then(function() {
-                return loadBalancerManager.init(myNodeId, dataStore)
-            })
-            .then(function() {
                 return new MigrateCaptainDuckDuck(
                     dataStore,
                     Authenticator.getAuthenticator(dataStore.getNameSpace())
@@ -218,7 +215,7 @@ class CaptainManager {
                     })
             })
             .then(function() {
-                return certbotManager.init(myNodeId)
+                return loadBalancerManager.init(myNodeId, dataStore)
             })
             .then(function() {
                 return dataStore.getRegistriesDataStore().getAllRegistries()
