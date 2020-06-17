@@ -935,8 +935,9 @@ class ServiceManager {
     reloadLoadBalancer() {
         Logger.d('Updating Load Balancer')
         const self = this
-        return self.loadBalancerManager
-            .rePopulateNginxConfigFile(self.dataStore);
+        return self.loadBalancerManager.rePopulateNginxConfigFile(
+            self.dataStore
+        )
     }
 }
 
