@@ -787,6 +787,30 @@ class CaptainManager {
                 }
             })
             .then(function() {
+                return self.dataStore
+                    .getRegistriesDataStore()
+                    .getAllRegistries()
+            })
+            .then(function(registries) {
+                let localRegistry: IRegistryInfo | undefined = undefined
+
+                for (let idx = 0; idx < registries.length; idx++) {
+                    const element = registries[idx]
+                    if (element.registryType === IRegistryTypes.LOCAL_REG) {
+                        localRegistry = element
+                    }
+                }
+
+                if (!!localRegistry) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Delete your self-hosted Docker registry before changing the domain.'
+                    )
+                }
+
+                return Promise.resolve(true)
+            })
+            .then(function() {
                 return self.dataStore.setCustomDomain(requestedCustomDomain)
             })
             .then(function() {
