@@ -24,7 +24,7 @@ class RegistriesDataStore {
     getDefaultPushRegistryId(): Promise<string | undefined> {
         const self = this
 
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             return self.data.get(DEFAULT_DOCKER_REGISTRY_ID)
         })
     }
@@ -33,10 +33,10 @@ class RegistriesDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 let found = false
 
                 for (let i = 0; i < registries.length; i++) {
@@ -62,12 +62,12 @@ class RegistriesDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (!registryId) throw new Error('Empty registry id!')
 
                 return self.getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 for (let i = 0; i < registries.length; i++) {
                     const registry = registries[i]
                     if (registry.id === registryId) {
@@ -86,12 +86,12 @@ class RegistriesDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (!registryId) throw new Error('Empty registry id to delete!')
 
                 return self.getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 const newReg = []
                 for (let i = 0; i < registries.length; i++) {
                     const registry = registries[i]
@@ -115,10 +115,10 @@ class RegistriesDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.data.get(DOCKER_REGISTRIES) || []
             })
-            .then(function(registries: IRegistryInfoEncrypted[]) {
+            .then(function (registries: IRegistryInfoEncrypted[]) {
                 const unencryptedList: IRegistryInfo[] = []
                 for (let i = 0; i < registries.length; i++) {
                     const element = registries[i]
@@ -147,7 +147,7 @@ class RegistriesDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (
                     !id ||
                     !registryUser ||
@@ -162,7 +162,7 @@ class RegistriesDataStore {
 
                 return self.getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 let found = false
                 for (let idx = 0; idx < registries.length; idx++) {
                     const element = registries[idx]
@@ -204,7 +204,7 @@ class RegistriesDataStore {
         let savedId: string | undefined = undefined
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (
                     !registryUser ||
                     !registryPassword ||
@@ -219,7 +219,7 @@ class RegistriesDataStore {
 
                 return self.getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 let id: string = uuid()
                 let isAlreadyTaken = true
 
@@ -246,7 +246,7 @@ class RegistriesDataStore {
 
                 return self.saveAllRegistries(registries)
             })
-            .then(function() {
+            .then(function () {
                 if (!savedId)
                     throw new Error(
                         'Saved registry, but ID is null. This should never happen'
@@ -258,7 +258,7 @@ class RegistriesDataStore {
     private saveAllRegistries(registries: IRegistryInfo[]) {
         const self = this
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 const encryptedList: IRegistryInfoEncrypted[] = []
                 for (let i = 0; i < registries.length; i++) {
                     const element = registries[i]

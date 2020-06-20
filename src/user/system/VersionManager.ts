@@ -25,14 +25,14 @@ class VersionManager {
         // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
 
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return axios.get('https://api.v2.caprover.com/v2/versionInfo', {
                     params: {
                         currentVersion: currentVersion,
                     },
                 })
             })
-            .then(function(responseObj) {
+            .then(function (responseObj) {
                 const resp = responseObj.data
 
                 if (resp.status !== 100) {
@@ -51,7 +51,7 @@ class VersionManager {
                     canUpdate: !!data.canUpdate,
                 }
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 Logger.e(error)
                 return Promise.resolve({
                     currentVersion: currentVersion + '',
@@ -82,11 +82,11 @@ class VersionManager {
             CaptainConstants.configs.publishedNameOnDockerHub +
             '/tags'
 
-        return new Promise<string[]>(function(resolve, reject) {
+        return new Promise<string[]>(function (resolve, reject) {
             request(
                 url,
 
-                function(error, response, body) {
+                function (error, response, body) {
                     if (CaptainConstants.isDebug) {
                         resolve(['v0.0.1'])
                         return
@@ -110,7 +110,7 @@ class VersionManager {
                     }
                 }
             )
-        }).then(function(tagList) {
+        }).then(function (tagList) {
             let currentVersion = CaptainConstants.configs.version.split('.')
             let latestVersion = CaptainConstants.configs.version.split('.')
 
@@ -156,7 +156,7 @@ class VersionManager {
 
     updateCaptain(versionTag: string) {
         const self = this
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             return self.dockerApi.updateService(
                 CaptainConstants.captainServiceName,
                 CaptainConstants.configs.publishedNameOnDockerHub +

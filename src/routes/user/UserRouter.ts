@@ -22,7 +22,7 @@ router.use('/apps/webhooks/', Injector.injectUserForWebhook())
 
 router.use(Injector.injectUser())
 
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
     const user = InjectionExtractor.extractUserFromInjected(res).user
 
     if (!user) {
@@ -85,7 +85,7 @@ router.use(function(req, res, next) {
 
         // we don't want the same space to go under two simultaneous changes
         threadLockNamespace[namespace] = true
-        onFinished(res, function() {
+        onFinished(res, function () {
             threadLockNamespace[namespace] = false
         })
     }
@@ -93,27 +93,27 @@ router.use(function(req, res, next) {
     next()
 })
 
-router.post('/changepassword/', function(req, res, next) {
+router.post('/changepassword/', function (req, res, next) {
     const namespace = InjectionExtractor.extractUserFromInjected(res).user
         .namespace
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
     Promise.resolve() //
-        .then(function(data) {
+        .then(function (data) {
             return dataStore.getHashedPassword()
         })
-        .then(function(savedHashedPassword) {
+        .then(function (savedHashedPassword) {
             return Authenticator.getAuthenticator(namespace).changepass(
                 req.body.oldPassword,
                 req.body.newPassword,
                 savedHashedPassword
             )
         })
-        .then(function(hashedPassword) {
+        .then(function (hashedPassword) {
             return dataStore.setHashedPassword(hashedPassword)
         })
-        .then(function() {
+        .then(function () {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Password changed.'))
         })
         .catch(ApiStatusCodes.createCatcher(res))

@@ -11,10 +11,10 @@ import BackupManager from '../user/system/BackupManager'
 
 function checkSystemReq() {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return DockerApi.get().getDockerVersion()
         })
-        .then(function(output) {
+        .then(function (output) {
             console.log(' ')
             console.log(' ')
             console.log(' ')
@@ -42,7 +42,7 @@ function checkSystemReq() {
 
             return DockerApi.get().getDockerInfo()
         })
-        .then(function(output) {
+        .then(function (output) {
             if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
                 console.log(
                     '******* Warning *******    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.'
@@ -69,7 +69,7 @@ function checkSystemReq() {
                 console.log('   Total RAM ' + totalMemInMb + ' MB')
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log(' ')
             console.log(' ')
             console.log(
@@ -84,8 +84,8 @@ function checkSystemReq() {
 const FIREWALL_PASSED = 'firewall-passed'
 
 function startServerOnPort_80_443_3000() {
-    return Promise.resolve().then(function() {
-        http.createServer(function(req, res) {
+    return Promise.resolve().then(function () {
+        http.createServer(function (req, res) {
             res.writeHead(200, {
                 'Content-Type': 'text/plain',
             })
@@ -93,7 +93,7 @@ function startServerOnPort_80_443_3000() {
             res.end()
         }).listen(80)
 
-        http.createServer(function(req, res) {
+        http.createServer(function (req, res) {
             res.writeHead(200, {
                 'Content-Type': 'text/plain',
             })
@@ -101,7 +101,7 @@ function startServerOnPort_80_443_3000() {
             res.end()
         }).listen(443)
 
-        http.createServer(function(req, res) {
+        http.createServer(function (req, res) {
             res.writeHead(200, {
                 'Content-Type': 'text/plain',
             })
@@ -109,8 +109,8 @@ function startServerOnPort_80_443_3000() {
             res.end()
         }).listen(3000)
 
-        return new Promise<void>(function(resolve) {
-            setTimeout(function() {
+        return new Promise<void>(function (resolve) {
+            setTimeout(function () {
                 resolve()
             }, 4000)
         })
@@ -160,10 +160,10 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
         console.log(' ')
     }
 
-    return new Promise<void>(function(resolve, reject) {
+    return new Promise<void>(function (resolve, reject) {
         let finished = false
 
-        setTimeout(function() {
+        setTimeout(function () {
             if (finished) {
                 return
             }
@@ -174,7 +174,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             reject(new Error('Port timed out: ' + portToTest))
         }, 5000)
 
-        request('http://' + ipAddr + ':' + portToTest, function(
+        request('http://' + ipAddr + ':' + portToTest, function (
             error,
             response,
             body
@@ -211,20 +211,20 @@ export function install() {
     const backupManger = new BackupManager()
 
     Promise.resolve()
-        .then(function() {
+        .then(function () {
             printTroubleShootingUrl()
         })
-        .then(function() {
+        .then(function () {
             return checkSystemReq()
         })
-        .then(function() {
+        .then(function () {
             if (EnvVar.MAIN_NODE_IP_ADDRESS) {
                 return EnvVar.MAIN_NODE_IP_ADDRESS
             }
 
             return externalIp.v4()
         })
-        .then(function(ip4) {
+        .then(function (ip4) {
             if (!ip4) {
                 throw new Error(
                     'Something went wrong. No IP address was retrieved.'
@@ -232,13 +232,13 @@ export function install() {
             }
 
             if (CaptainConstants.isDebug) {
-                return new Promise<string>(function(resolve, reject) {
+                return new Promise<string>(function (resolve, reject) {
                     DockerApi.get()
                         .swarmLeave(true)
-                        .then(function(ignore) {
+                        .then(function (ignore) {
                             resolve(ip4)
                         })
-                        .catch(function(error) {
+                        .catch(function (error) {
                             if (error && error.statusCode === 503) {
                                 resolve(ip4)
                             } else {
@@ -250,49 +250,49 @@ export function install() {
                 return ip4
             }
         })
-        .then(function(ip4) {
+        .then(function (ip4) {
             myIp4 = '' + ip4
 
             return startServerOnPort_80_443_3000()
         })
-        .then(function() {
+        .then(function () {
             return checkPortOrThrow(myIp4, 80)
         })
-        .then(function() {
+        .then(function () {
             return checkPortOrThrow(myIp4, 443)
         })
-        .then(function() {
+        .then(function () {
             return checkPortOrThrow(myIp4, 3000)
         })
-        .then(function() {
+        .then(function () {
             const imageName = CaptainConstants.configs.nginxImageName
             console.log('Pulling: ' + imageName)
             return DockerApi.get().pullImage(imageName, undefined)
         })
-        .then(function() {
+        .then(function () {
             const imageName = CaptainConstants.configs.appPlaceholderImageName
             console.log('Pulling: ' + imageName)
             return DockerApi.get().pullImage(imageName, undefined)
         })
-        .then(function() {
+        .then(function () {
             const imageName = CaptainConstants.certbotImageName
             console.log('Pulling: ' + imageName)
             return DockerApi.get().pullImage(imageName, undefined)
         })
-        .then(function() {
+        .then(function () {
             return backupManger.checkAndPrepareRestoration()
         })
-        .then(function() {
+        .then(function () {
             return DockerApi.get().initSwarm(myIp4)
         })
-        .then(function(swarmId: string) {
+        .then(function (swarmId: string) {
             console.log('Swarm started: ' + swarmId)
             return backupManger.startRestorationIfNeededPhase1(myIp4)
         })
-        .then(function() {
+        .then(function () {
             return DockerApi.get().getLeaderNodeId()
         })
-        .then(function(nodeId: string) {
+        .then(function (nodeId: string) {
             let volumeToMount = [
                 {
                     hostPath: CaptainConstants.captainBaseDirectory,
@@ -372,17 +372,17 @@ export function install() {
                 }
             )
         })
-        .then(function() {
+        .then(function () {
             console.log('*** CapRover is initializing ***')
             console.log(
                 'Please wait at least 60 seconds before trying to access CapRover.'
             )
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log('Installation failed.')
             console.error(error)
         })
-        .then(function() {
+        .then(function () {
             process.exit()
         })
 }

@@ -10,19 +10,20 @@ const upload = multer({
     dest: TEMP_UPLOAD,
 })
 
-router.get('/:appName/logs', function(req, res, next) {
+router.get('/:appName/logs', function (req, res, next) {
     let appName = req.params.appName
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
     return Promise.resolve()
-        .then(function() {
-            const encoding  = req.query.encoding as string
+        .then(function () {
+            const encoding = req.query.encoding as string
             return serviceManager.getAppLogs(
-                appName, encoding ? encoding : 'ascii'
+                appName,
+                encoding ? encoding : 'ascii'
             )
         })
-        .then(function(logs) {
+        .then(function (logs) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App runtime logs are retrieved'
@@ -33,16 +34,16 @@ router.get('/:appName/logs', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/:appName/', function(req, res, next) {
+router.get('/:appName/', function (req, res, next) {
     let appName = req.params.appName
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return serviceManager.getBuildStatus(appName)
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App build status retrieved'
@@ -53,7 +54,7 @@ router.get('/:appName/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/:appName/', function(req, res, next) {
+router.post('/:appName/', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
     let appName = req.params.appName
@@ -61,14 +62,14 @@ router.post('/:appName/', function(req, res, next) {
     dataStore
         .getAppsDataStore()
         .getAppDefinition(appName)
-        .then(function(app) {
+        .then(function (app) {
             // nothing to do with app, just to make sure that it exists!
             next()
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/:appName/', upload.single('sourceFile'), function(
+router.post('/:appName/', upload.single('sourceFile'), function (
     req,
     res,
     next
@@ -93,7 +94,7 @@ router.post('/:appName/', upload.single('sourceFile'), function(
         return
     }
 
-    Promise.resolve().then(function() {
+    Promise.resolve().then(function () {
         const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
             appName,
             {
@@ -121,7 +122,7 @@ router.post('/:appName/', upload.single('sourceFile'), function(
             )
         } else {
             promiseToDeployNewVer
-                .then(function() {
+                .then(function () {
                     res.send(
                         new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done')
                     )

@@ -15,11 +15,11 @@ function getTagsForImage(
             'https://hub.docker.com/v2/repositories/' + imageBaseName + '/tags'
     }
 
-    return new Promise<string[]>(function(resolve, reject) {
+    return new Promise<string[]>(function (resolve, reject) {
         request(
             url!,
 
-            function(error, response, body) {
+            function (error, response, body) {
                 if (error || !body) {
                     Logger.e(error)
                     reject(error)
@@ -124,7 +124,7 @@ class TemplateHelperVersionPrinter {
             const currentImageName = templates[i].dockerHubImageName
 
             getTagsForImage(currentImageName, undefined, undefined)
-                .then(function(tags) {
+                .then(function (tags) {
                     tempCache[currentImageName] = tags
 
                     let isAllDone = true
@@ -160,7 +160,7 @@ class TemplateHelperVersionPrinter {
                         }
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     Logger.e(error)
                 })
         }

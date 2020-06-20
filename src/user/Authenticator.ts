@@ -32,7 +32,7 @@ class Authenticator {
         newPass = newPass || ''
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (!oldPass || !newPass || newPass.length < 8) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -42,7 +42,7 @@ class Authenticator {
 
                 return self.isPasswordCorrect(oldPass, savedHashedPassword)
             })
-            .then(function(isPasswordCorrect) {
+            .then(function (isPasswordCorrect) {
                 if (!isPasswordCorrect) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_WRONG_PASSWORD,
@@ -64,7 +64,7 @@ class Authenticator {
     isPasswordCorrect(password: string, savedHashedPassword: string) {
         const self = this
 
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             password = password || ''
 
             if (!savedHashedPassword) {
@@ -94,10 +94,10 @@ class Authenticator {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.isPasswordCorrect(password, savedHashedPassword)
             })
-            .then(function(isPasswordCorrect) {
+            .then(function (isPasswordCorrect) {
                 if (!isPasswordCorrect) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_WRONG_PASSWORD,
@@ -127,11 +127,11 @@ class Authenticator {
     decodeAuthToken(token: string, keySuffix?: string) {
         const self = this
 
-        return new Promise<UserJwt>(function(resolve, reject) {
+        return new Promise<UserJwt>(function (resolve, reject) {
             jwt.verify(
                 token,
                 self.encryptionKey + (keySuffix ? keySuffix : ''),
-                function(err, rawDecoded: { data: UserJwt }) {
+                function (err, rawDecoded: { data: UserJwt }) {
                     if (err) {
                         Logger.e(err)
                         reject(
@@ -225,7 +225,7 @@ class Authenticator {
         const self = this
         obj.namespace = self.namespace
 
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             return jwt.sign(
                 {
                     data: obj,
@@ -243,11 +243,11 @@ class Authenticator {
     decodeGenericToken(token: string, keySuffix: string) {
         const self = this
 
-        return new Promise<any>(function(resolve, reject) {
+        return new Promise<any>(function (resolve, reject) {
             jwt.verify(
                 token,
                 self.encryptionKey + (keySuffix ? keySuffix : ''),
-                function(err, rawDecoded: { data: any }) {
+                function (err, rawDecoded: { data: any }) {
                     if (err) {
                         Logger.e(err)
                         reject(

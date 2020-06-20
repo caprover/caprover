@@ -42,9 +42,9 @@ function getPushedBranches(req: express.Request) {
     return pushedBranches
 }
 
-router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
+router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             const extracted = InjectionExtractor.extractAppAndUserForWebhook(
                 res
             )
@@ -69,7 +69,7 @@ router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
             )
 
             Promise.resolve()
-                .then(function() {
+                .then(function () {
                     const repoInfo = app.appPushWebhook!.repoInfo
                     // if we didn't detect branches, the POST might have come from another source that we don't
                     // explicitly support. Therefore, we just let it go through and triggers a build regardless.
@@ -95,11 +95,11 @@ router.post('/triggerbuild', urlencodedParser, function(req, res, next) {
                         repoInfoSource: repoInfo,
                     })
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     Logger.e(error)
                 })
         })
-        .catch(function(error) {
+        .catch(function (error) {
             res.send(
                 new BaseApi(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,

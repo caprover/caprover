@@ -90,7 +90,7 @@ class TemplateHelper {
 const templateHelperInstance = new TemplateHelper()
 
 export = {
-    get: function() {
+    get: function () {
         return templateHelperInstance
     },
 }

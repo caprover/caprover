@@ -16,13 +16,13 @@ export default class DockerUtils {
         const remoteUserName = 'root' // Docker requires root access. It has to be root.
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return dockerApi.getJoinToken(isManager)
             })
-            .then(function(token) {
-                return new Promise<void>(function(resolve, reject) {
+            .then(function (token) {
+                return new Promise<void>(function (resolve, reject) {
                     const conn = new SshClient()
-                    conn.on('error', function(err) {
+                    conn.on('error', function (err) {
                         Logger.e(err)
                         reject(
                             ApiStatusCodes.createError(
@@ -31,7 +31,7 @@ export default class DockerUtils {
                             )
                         )
                     })
-                        .on('ready', function() {
+                        .on('ready', function () {
                             Logger.d('SSH Client :: ready')
                             conn.exec(
                                 CaptainConstants.disableFirewallCommand +
@@ -40,7 +40,7 @@ export default class DockerUtils {
                                         captainIpAddress,
                                         token
                                     ),
-                                function(err, stream) {
+                                function (err, stream) {
                                     if (err) {
                                         Logger.e(err)
                                         reject(
@@ -55,7 +55,7 @@ export default class DockerUtils {
                                     let hasExisted = false
 
                                     stream
-                                        .on('close', function(
+                                        .on('close', function (
                                             code: string,
                                             signal: string
                                         ) {
@@ -72,10 +72,10 @@ export default class DockerUtils {
                                             hasExisted = true
                                             resolve()
                                         })
-                                        .on('data', function(data: string) {
+                                        .on('data', function (data: string) {
                                             Logger.d('STDOUT: ' + data)
                                         })
-                                        .stderr.on('data', function(data) {
+                                        .stderr.on('data', function (data) {
                                             Logger.e('STDERR: ' + data)
                                             if (hasExisted) {
                                                 return

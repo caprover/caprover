@@ -7,7 +7,7 @@ import DataStore = require('./DataStore')
 const dataStoreCache: IHashMapGeneric<DataStore> = {}
 
 export = {
-    getDataStore: function(namespace: string) {
+    getDataStore: function (namespace: string) {
         if (!namespace) {
             throw new Error('NameSpace is empty')
         }

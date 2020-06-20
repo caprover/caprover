@@ -71,14 +71,14 @@ class LoadBalancerManager {
     rePopulateNginxConfigFile(dataStoreToQueue: DataStore, noReload?: boolean) {
         const self = this
 
-        return new Promise<void>(function(res, rej) {
+        return new Promise<void>(function (res, rej) {
             self.requestedReloadPromises.push({
                 dataStore: dataStoreToQueue,
                 resolve: res,
                 reject: rej,
             })
             self.consumeQueueIfAnyInNginxReloadQueue()
-        }).then(function() {
+        }).then(function () {
             if (!!noReload) return
             Logger.d('sendReloadSignal...')
             return self.dockerApi.sendSingleContainerKillHUP(
@@ -120,13 +120,13 @@ class LoadBalancerManager {
         let nginxConfigContent = ''
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return fs.remove(FUTURE)
             })
-            .then(function() {
+            .then(function () {
                 return self.getServerList(dataStore)
             })
-            .then(function(servers) {
+            .then(function (servers) {
                 const promises: Promise<void>[] = []
 
                 if (servers && !!servers.length) {
@@ -152,7 +152,7 @@ class LoadBalancerManager {
 
                         promises.push(
                             Promise.resolve()
-                                .then(function() {
+                                .then(function () {
                                     if (s.httpBasicAuth) {
                                         s.httpBasicAuthPath = path.join(
                                             CONTAINER_PATH_OF_CONFIG,
@@ -164,12 +164,12 @@ class LoadBalancerManager {
                                         )
                                     }
                                 })
-                                .then(function() {
+                                .then(function () {
                                     return ejs.render(s.nginxConfigTemplate, {
                                         s: s,
                                     })
                                 })
-                                .then(function(rendered) {
+                                .then(function (rendered) {
                                     nginxConfigContent += rendered
                                 })
                         )
@@ -178,34 +178,34 @@ class LoadBalancerManager {
 
                 return Promise.all(promises)
             })
-            .then(function() {
+            .then(function () {
                 return fs.outputFile(FUTURE, nginxConfigContent)
             })
-            .then(function() {
+            .then(function () {
                 return fs.remove(BACKUP)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureFile(CONFIG)
             })
-            .then(function() {
+            .then(function () {
                 return fs.renameSync(CONFIG, BACKUP) // sync method. It's really fast.
             })
-            .then(function() {
+            .then(function () {
                 return fs.renameSync(FUTURE, CONFIG) // sync method. It's really fast.
             })
-            .then(function() {
+            .then(function () {
                 return self.ensureBaseNginxConf()
             })
-            .then(function() {
+            .then(function () {
                 return self.createRootConfFile(dataStore)
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('SUCCESS: UNLocking NGINX configuration reloading...')
                 self.reloadInProcess = false
                 q.resolve()
                 self.consumeQueueIfAnyInNginxReloadQueue()
             })
-            .catch(function(error: AnyError) {
+            .catch(function (error: AnyError) {
                 Logger.e(error)
                 Logger.d('Error: UNLocking NGINX configuration reloading...')
                 self.reloadInProcess = false
@@ -221,21 +221,21 @@ class LoadBalancerManager {
         let rootDomain: string
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return dataStore.getHasRootSsl()
             })
-            .then(function(val: boolean) {
+            .then(function (val: boolean) {
                 hasRootSsl = val
 
                 return dataStore.getRootDomain()
             })
-            .then(function(val) {
+            .then(function (val) {
                 rootDomain = val
             })
-            .then(function() {
+            .then(function () {
                 return dataStore.getDefaultAppNginxConfig()
             })
-            .then(function(defaultAppNginxConfig) {
+            .then(function (defaultAppNginxConfig) {
                 return self.getAppsServerConfig(
                     dataStore,
                     defaultAppNginxConfig,
@@ -258,8 +258,8 @@ class LoadBalancerManager {
         return dataStore
             .getAppsDataStore()
             .getAppDefinitions()
-            .then(function(apps) {
-                Object.keys(apps).forEach(function(appName) {
+            .then(function (apps) {
+                Object.keys(apps).forEach(function (appName) {
                     const webApp = apps[appName]
                     const httpBasicAuth =
                         webApp.httpAuth && webApp.httpAuth.passwordHashed //
@@ -345,11 +345,11 @@ class LoadBalancerManager {
     }
 
     getInfo() {
-        return new Promise<LoadBalancerInfo>(function(resolve, reject) {
+        return new Promise<LoadBalancerInfo>(function (resolve, reject) {
             const url =
                 'http://' + CaptainConstants.nginxServiceName + '/nginx_status'
 
-            request(url, function(error, response, body) {
+            request(url, function (error, response, body) {
                 if (error || !body) {
                     Logger.e('Error        ' + error)
                     reject(
@@ -408,21 +408,21 @@ class LoadBalancerManager {
         let rootNginxTemplate: string | undefined = undefined
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return dataStore.getNginxConfig()
             })
-            .then(function(nginxConfig) {
+            .then(function (nginxConfig) {
                 rootNginxTemplate =
                     nginxConfig.captainConfig.customValue ||
                     nginxConfig.captainConfig.byDefault
 
                 return dataStore.getHasRootSsl()
             })
-            .then(function(hasSsl) {
+            .then(function (hasSsl) {
                 hasRootSsl = hasSsl
                 return dataStore.getHasRegistrySsl()
             })
-            .then(function(hasRegistrySsl) {
+            .then(function (hasRegistrySsl) {
                 return ejs.render(rootNginxTemplate!, {
                     fake: {
                         crtPath: path.join(
@@ -464,19 +464,19 @@ class LoadBalancerManager {
                     },
                 })
             })
-            .then(function(rootNginxConfContent) {
+            .then(function (rootNginxConfContent) {
                 return fs.outputFile(FUTURE, rootNginxConfContent)
             })
-            .then(function() {
+            .then(function () {
                 return fs.remove(BACKUP)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureFile(CONFIG)
             })
-            .then(function() {
+            .then(function () {
                 return fs.renameSync(CONFIG, BACKUP) // sync method. It's really fast.
             })
-            .then(function() {
+            .then(function () {
                 return fs.renameSync(FUTURE, CONFIG) // sync method. It's really fast.
             })
     }
@@ -484,10 +484,10 @@ class LoadBalancerManager {
     ensureBaseNginxConf() {
         const self = this
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getNginxConfig()
             })
-            .then(function(captainConfig) {
+            .then(function (captainConfig) {
                 const baseConfigTemplate =
                     captainConfig.baseConfig.customValue ||
                     captainConfig.baseConfig.byDefault
@@ -502,7 +502,7 @@ class LoadBalancerManager {
                     },
                 })
             })
-            .then(function(baseNginxConfFileContent) {
+            .then(function (baseNginxConfFileContent) {
                 return fs.outputFile(
                     CaptainConstants.baseNginxConfigPath,
                     baseNginxConfFileContent
@@ -513,12 +513,12 @@ class LoadBalancerManager {
     ensureDhParamFileExistsAfterDelay(dataStore: DataStore) {
         const self = this
         fs.pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
-            .then(function(dhParamExists) {
+            .then(function (dhParamExists) {
                 if (dhParamExists) {
                     return
                 }
                 return Utils.getDelayedPromise(60 * 1000)
-                    .then(function() {
+                    .then(function () {
                         Logger.d(
                             'Creating dhparams for the first time - high CPU load is expected.'
                         )
@@ -526,11 +526,11 @@ class LoadBalancerManager {
                             `openssl dhparam -out ${DH_PARAMS_FILE_PATH_ON_HOST} 2048`
                         )
                     })
-                    .then(function() {
+                    .then(function () {
                         return self.rePopulateNginxConfigFile(dataStore)
                     })
             })
-            .catch(err => Logger.e(err))
+            .catch((err) => Logger.e(err))
     }
 
     init(myNodeId: string, dataStore: DataStore) {
@@ -569,15 +569,15 @@ class LoadBalancerManager {
                         },
                     }
                 )
-                .then(function() {
+                .then(function () {
                     const waitTimeInMillis = 5000
                     Logger.d(
                         'Waiting for ' +
                             waitTimeInMillis / 1000 +
                             ' seconds for nginx to start up'
                     )
-                    return new Promise<boolean>(function(resolve, reject) {
-                        setTimeout(function() {
+                    return new Promise<boolean>(function (resolve, reject) {
+                        setTimeout(function () {
                             resolve(true)
                         }, waitTimeInMillis)
                     })
@@ -591,7 +591,7 @@ class LoadBalancerManager {
                     CaptainConstants.captainConfirmationPath,
                 self.getCaptainPublicRandomKey()
             )
-            .then(function() {
+            .then(function () {
                 return ejs.render(defaultPageTemplate, {
                     message_title: 'Nothing here yet :/',
                     message_body: '',
@@ -599,7 +599,7 @@ class LoadBalancerManager {
                     message_link_title: 'Read Docs',
                 })
             })
-            .then(function(staticPageContent) {
+            .then(function (staticPageContent) {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                         CaptainConstants.nginxDefaultHtmlDir +
@@ -607,7 +607,7 @@ class LoadBalancerManager {
                     staticPageContent
                 )
             })
-            .then(function() {
+            .then(function () {
                 return ejs.render(defaultPageTemplate, {
                     message_title: 'An Error Occurred :/',
                     message_body: '',
@@ -615,7 +615,7 @@ class LoadBalancerManager {
                     message_link_title: 'Read Docs',
                 })
             })
-            .then(function(errorGenericPageContent) {
+            .then(function (errorGenericPageContent) {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                         CaptainConstants.nginxDefaultHtmlDir +
@@ -623,7 +623,7 @@ class LoadBalancerManager {
                     errorGenericPageContent
                 )
             })
-            .then(function() {
+            .then(function () {
                 return ejs.render(defaultPageTemplate, {
                     message_title: 'NGINX 502 Error :/',
                     message_body:
@@ -633,7 +633,7 @@ class LoadBalancerManager {
                     message_link_title: 'Docs - 502 Troubleshooting',
                 })
             })
-            .then(function(error502PageContent) {
+            .then(function (error502PageContent) {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                         CaptainConstants.nginxDefaultHtmlDir +
@@ -641,7 +641,7 @@ class LoadBalancerManager {
                     error502PageContent
                 )
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Copying fake certificates...')
 
                 return fs.copy(
@@ -649,22 +649,22 @@ class LoadBalancerManager {
                     HOST_PATH_OF_FAKE_CERTS
                 )
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Setting up NGINX conf file...')
                 return self.rePopulateNginxConfigFile(dataStore, true)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost)
             })
-            .then(function() {
+            .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.nginxServiceName
                 )
             })
-            .then(function(isRunning) {
+            .then(function (isRunning) {
                 if (isRunning) {
                     Logger.d('Captain Nginx is already running.. ')
 
@@ -673,12 +673,12 @@ class LoadBalancerManager {
                         0
                     )
                 } else {
-                    return createNginxServiceOnNode(myNodeId).then(function() {
+                    return createNginxServiceOnNode(myNodeId).then(function () {
                         return myNodeId
                     })
                 }
             })
-            .then(function(nodeId) {
+            .then(function (nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
                         'Captain Nginx is running on a different node. Removing...'
@@ -686,9 +686,9 @@ class LoadBalancerManager {
 
                     return dockerApi
                         .removeServiceByName(CaptainConstants.nginxServiceName)
-                        .then(function() {
+                        .then(function () {
                             return createNginxServiceOnNode(myNodeId).then(
-                                function() {
+                                function () {
                                     return true
                                 }
                             )
@@ -697,7 +697,7 @@ class LoadBalancerManager {
                     return true
                 }
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Updating NGINX service...')
 
                 return dockerApi.updateService(
@@ -745,7 +745,7 @@ class LoadBalancerManager {
                     undefined
                 )
             })
-            .then(function() {
+            .then(function () {
                 self.ensureDhParamFileExistsAfterDelay(dataStore)
 
                 const waitTimeInMillis = 5000
@@ -754,19 +754,19 @@ class LoadBalancerManager {
                         waitTimeInMillis / 1000 +
                         ' seconds for nginx reload to take into effect'
                 )
-                return new Promise<boolean>(function(resolve, reject) {
-                    setTimeout(function() {
+                return new Promise<boolean>(function (resolve, reject) {
+                    setTimeout(function () {
                         Logger.d('NGINX is fully set up and working...')
                         resolve(true)
                     }, waitTimeInMillis)
                 })
             })
-            .then(function() {
+            .then(function () {
                 return self.certbotManager.init(myNodeId)
             })
-            .then(function() {
+            .then(function () {
                 // schedule the first attempt to renew certs in 1 minute
-                setTimeout(function() {
+                setTimeout(function () {
                     self.renewAllCertsAndReload(dataStore)
                 }, 1000 * 60)
             })
@@ -779,13 +779,13 @@ class LoadBalancerManager {
         // this random schedule helps to avoid retrying at the same time of
         // the day in case if that's our super high traffic time
 
-        setTimeout(function() {
+        setTimeout(function () {
             self.renewAllCertsAndReload(dataStore)
         }, 1000 * 3600 * 20.3)
 
         return self.certbotManager
             .renewAllCerts() //
-            .then(function() {
+            .then(function () {
                 return self.rePopulateNginxConfigFile(dataStore)
             })
     }

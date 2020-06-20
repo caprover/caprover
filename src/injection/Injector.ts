@@ -18,7 +18,7 @@ const dockerApi = DockerApiProvider.get()
  * Global dependency injection module
  */
 export function injectGlobal() {
-    return function(req: Request, res: Response, next: NextFunction) {
+    return function (req: Request, res: Response, next: NextFunction) {
         const locals = res.locals
 
         locals.initialized = CaptainManager.get().isInitialized()
@@ -43,7 +43,7 @@ export function injectGlobal() {
  * User dependency injection module
  */
 export function injectUser() {
-    return function(req: Request, res: Response, next: NextFunction) {
+    return function (req: Request, res: Response, next: NextFunction) {
         if (InjectionExtractor.extractUserFromInjected(res).user) {
             next()
             return // user is already injected by another layer
@@ -53,7 +53,7 @@ export function injectUser() {
 
         Authenticator.getAuthenticator(namespace)
             .decodeAuthToken(req.header(CaptainConstants.headerAuth) || '')
-            .then(function(userDecoded) {
+            .then(function (userDecoded) {
                 if (userDecoded) {
                     const datastore = DataStoreProvider.getDataStore(namespace)
 
@@ -76,7 +76,7 @@ export function injectUser() {
 
                 next()
             })
-            .catch(function(error: CaptainError) {
+            .catch(function (error: CaptainError) {
                 if (error && error.captainErrorType) {
                     res.send(
                         new BaseApi(error.captainErrorType, error.apiMessage)
@@ -94,7 +94,7 @@ export function injectUser() {
  * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
  */
 export function injectUserForWebhook() {
-    return function(req: Request, res: Response, next: NextFunction) {
+    return function (req: Request, res: Response, next: NextFunction) {
         const token = req.query.token as string
         const namespace = req.query.namespace as string
         let app = undefined
@@ -111,14 +111,14 @@ export function injectUserForWebhook() {
 
         Authenticator.getAuthenticator(namespace)
             .decodeAppPushWebhookToken(token)
-            .then(function(data) {
+            .then(function (data) {
                 decodedInfo = data
 
                 return dataStore
                     .getAppsDataStore()
                     .getAppDefinition(decodedInfo.appName)
             })
-            .then(function(appFound) {
+            .then(function (appFound) {
                 app = appFound
 
                 if (
@@ -152,7 +152,7 @@ export function injectUserForWebhook() {
 
                 next()
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 Logger.e(error)
                 res.locals.app = undefined
                 next()
@@ -165,17 +165,17 @@ export function injectUserForWebhook() {
  * this is the only way that we can secure the call
  */
 export function injectUserUsingCookieDataOnly() {
-    return function(req: Request, res: Response, next: NextFunction) {
+    return function (req: Request, res: Response, next: NextFunction) {
         Authenticator.getAuthenticator(CaptainConstants.rootNameSpace)
             .decodeAuthTokenFromCookies(
                 req.cookies[CaptainConstants.headerCookieAuth]
             )
-            .then(function(user) {
+            .then(function (user) {
                 res.locals.user = user
 
                 next()
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 if (error && error.captainErrorType) {
                     res.send(
                         new BaseApi(error.captainErrorType, error.apiMessage)

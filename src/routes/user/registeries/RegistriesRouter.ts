@@ -7,21 +7,21 @@ import { IRegistryInfo, IRegistryTypes } from '../../../models/IRegistryInfo'
 
 const router = express.Router()
 
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     const registryHelper = InjectionExtractor.extractUserFromInjected(
         res
     ).user.serviceManager.getRegistryHelper()
     let registries: IRegistryInfo[] = []
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.getAllRegistries()
         })
-        .then(function(registriesAll) {
+        .then(function (registriesAll) {
             registries = registriesAll
             return registryHelper.getDefaultPushRegistryId()
         })
-        .then(function(defaultPush) {
+        .then(function (defaultPush) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'All registries retrieved'
@@ -34,7 +34,7 @@ router.get('/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/insert/', function(req, res, next) {
+router.post('/insert/', function (req, res, next) {
     let registryUser = req.body.registryUser + ''
     let registryPassword = req.body.registryPassword + ''
     let registryDomain = req.body.registryDomain + ''
@@ -45,7 +45,7 @@ router.post('/insert/', function(req, res, next) {
     ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.addRegistry(
                 registryUser,
                 registryPassword,
@@ -54,7 +54,7 @@ router.post('/insert/', function(req, res, next) {
                 IRegistryTypes.REMOTE_REG
             )
         })
-        .then(function() {
+        .then(function () {
             let msg = 'Registry is added.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
@@ -63,7 +63,7 @@ router.post('/insert/', function(req, res, next) {
 })
 
 // ERRORS if it's local
-router.post('/update/', function(req, res, next) {
+router.post('/update/', function (req, res, next) {
     let registryId = req.body.id + ''
     let registryUser = req.body.registryUser + ''
     let registryPassword = req.body.registryPassword + ''
@@ -75,7 +75,7 @@ router.post('/update/', function(req, res, next) {
     ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.updateRegistry(
                 registryId,
                 registryUser,
@@ -84,7 +84,7 @@ router.post('/update/', function(req, res, next) {
                 registryImagePrefix
             )
         })
-        .then(function() {
+        .then(function () {
             let msg = 'Registry is updated.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
@@ -93,17 +93,17 @@ router.post('/update/', function(req, res, next) {
 })
 
 // ERRORS if default push is this OR if it's local
-router.post('/delete/', function(req, res, next) {
+router.post('/delete/', function (req, res, next) {
     let registryId = req.body.registryId + ''
     const registryHelper = InjectionExtractor.extractUserFromInjected(
         res
     ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.deleteRegistry(registryId, false)
         })
-        .then(function() {
+        .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Registry deleted'
@@ -113,17 +113,17 @@ router.post('/delete/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/setpush/', function(req, res, next) {
+router.post('/setpush/', function (req, res, next) {
     let registryId = req.body.registryId + ''
     const registryHelper = InjectionExtractor.extractUserFromInjected(
         res
     ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.setDefaultPushRegistry(registryId)
         })
-        .then(function() {
+        .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Push Registry changed'

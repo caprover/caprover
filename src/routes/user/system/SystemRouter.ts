@@ -16,14 +16,14 @@ const router = express.Router()
 
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
 
-router.post('/createbackup/', function(req, res, next) {
+router.post('/createbackup/', function (req, res, next) {
     const backupManager = CaptainManager.get().getBackupManager()
 
     Promise.resolve()
-        .then(function() {
+        .then(function () {
             return backupManager.createBackup(CaptainManager.get())
         })
-        .then(function(backupInfo) {
+        .then(function (backupInfo) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Backup created.'
@@ -34,7 +34,7 @@ router.post('/createbackup/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/changerootdomain/', function(req, res, next) {
+router.post('/changerootdomain/', function (req, res, next) {
     let requestedCustomDomain = Utils.removeHttpHttps(
         (req.body.rootDomain || '').toLowerCase()
     )
@@ -56,7 +56,7 @@ router.post('/changerootdomain/', function(req, res, next) {
 
     CaptainManager.get()
         .changeCaptainRootDomain(requestedCustomDomain, !!req.body.force)
-        .then(function() {
+        .then(function () {
             res.send(
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'Root domain changed.')
             )
@@ -64,7 +64,7 @@ router.post('/changerootdomain/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/enablessl/', function(req, res, next) {
+router.post('/enablessl/', function (req, res, next) {
     const emailAddress = req.body.emailAddress || ''
 
     if (
@@ -88,24 +88,24 @@ router.post('/enablessl/', function(req, res, next) {
 
     CaptainManager.get()
         .enableSsl(emailAddress)
-        .then(function() {
+        .then(function () {
             // This is necessary as the CLI immediately tries to connect to https://captain.root.com
             // Without this delay it'll fail to connect
             Logger.d('Waiting for 7 seconds...')
             return Utils.getDelayedPromise(7000)
         })
-        .then(function() {
+        .then(function () {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Root SSL Enabled.'))
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/forcessl/', function(req, res, next) {
+router.post('/forcessl/', function (req, res, next) {
     let isEnabled = !!req.body.isEnabled
 
     CaptainManager.get()
         .forceSsl(isEnabled)
-        .then(function() {
+        .then(function () {
             res.send(
                 new BaseApi(
                     ApiStatusCodes.STATUS_OK,
@@ -117,15 +117,15 @@ router.post('/forcessl/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/info/', function(req, res, next) {
+router.get('/info/', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return dataStore.getHasRootSsl()
         })
-        .then(function(hasRootSsl) {
+        .then(function (hasRootSsl) {
             return {
                 hasRootSsl: hasRootSsl,
                 forceSsl: CaptainManager.get().getForceSslValue(),
@@ -134,7 +134,7 @@ router.get('/info/', function(req, res, next) {
                     : '',
             }
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Captain info retrieved'
@@ -145,14 +145,12 @@ router.get('/info/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/loadbalancerinfo/', function(req, res, next) {
+router.get('/loadbalancerinfo/', function (req, res, next) {
     return Promise.resolve()
-        .then(function() {
-            return CaptainManager.get()
-                .getLoadBalanceManager()
-                .getInfo()
+        .then(function () {
+            return CaptainManager.get().getLoadBalanceManager().getInfo()
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Load Balancer info retrieved'
@@ -163,12 +161,12 @@ router.get('/loadbalancerinfo/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/versionInfo/', function(req, res, next) {
+router.get('/versionInfo/', function (req, res, next) {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return VersionManager.get().getCaptainImageTags()
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Version Info Retrieved'
@@ -179,14 +177,14 @@ router.get('/versionInfo/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/versionInfo/', function(req, res, next) {
+router.post('/versionInfo/', function (req, res, next) {
     let latestVersion = req.body.latestVersion
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return VersionManager.get().updateCaptain(latestVersion)
         })
-        .then(function() {
+        .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Captain update process has started...'
@@ -196,15 +194,15 @@ router.post('/versionInfo/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/netdata/', function(req, res, next) {
+router.get('/netdata/', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return dataStore.getNetDataInfo()
         })
-        .then(function(data) {
+        .then(function (data) {
             data.netDataUrl =
                 CaptainConstants.captainSubDomain +
                 '.' +
@@ -220,16 +218,16 @@ router.get('/netdata/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/netdata/', function(req, res, next) {
+router.post('/netdata/', function (req, res, next) {
     let netDataInfo = req.body.netDataInfo
     netDataInfo.netDataUrl = undefined // Frontend app returns this value, but we really don't wanna save this.
     // root address is subject to change.
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return CaptainManager.get().updateNetDataInfo(netDataInfo)
         })
-        .then(function() {
+        .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Netdata info is updated'
@@ -239,12 +237,12 @@ router.post('/netdata/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/nginxconfig/', function(req, res, next) {
+router.get('/nginxconfig/', function (req, res, next) {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return CaptainManager.get().getNginxConfig()
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Nginx config retrieved'
@@ -255,18 +253,18 @@ router.get('/nginxconfig/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/nginxconfig/', function(req, res, next) {
+router.post('/nginxconfig/', function (req, res, next) {
     let baseConfigCustomValue = req.body.baseConfig.customValue
     let captainConfigCustomValue = req.body.captainConfig.customValue
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return CaptainManager.get().setNginxConfig(
                 baseConfigCustomValue,
                 captainConfigCustomValue
             )
         })
-        .then(function() {
+        .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Nginx config is updated'
@@ -276,12 +274,12 @@ router.post('/nginxconfig/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/nodes/', function(req, res, next) {
+router.get('/nodes/', function (req, res, next) {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return CaptainManager.get().getNodesInfo()
         })
-        .then(function(data) {
+        .then(function (data) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Node info retrieved'
@@ -292,7 +290,7 @@ router.get('/nodes/', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/nodes/', function(req, res, next) {
+router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager'
     const WORKER = 'worker'
     const registryHelper = InjectionExtractor.extractUserFromInjected(
@@ -330,10 +328,10 @@ router.post('/nodes/', function(req, res, next) {
     }
 
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return registryHelper.getDefaultPushRegistryId()
         })
-        .then(function(defaultRegistry) {
+        .then(function (defaultRegistry) {
             if (!defaultRegistry) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -341,7 +339,7 @@ router.post('/nodes/', function(req, res, next) {
                 )
             }
         })
-        .then(function() {
+        .then(function () {
             return DockerUtils.joinDockerNode(
                 DockerApi.get(),
                 captainIpAddress,
@@ -350,7 +348,7 @@ router.post('/nodes/', function(req, res, next) {
                 privateKey
             )
         })
-        .then(function() {
+        .then(function () {
             let msg = 'Docker node is successfully joined.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))

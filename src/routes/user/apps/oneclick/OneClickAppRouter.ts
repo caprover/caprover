@@ -18,25 +18,25 @@ interface IOneClickAppIdentifier {
     logoUrl: string
 }
 
-router.get('/list', function(req, res, next) {
+router.get('/list', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
     return Promise.resolve() //
-        .then(function() {
+        .then(function () {
             return dataStore.getAllOneClickBaseUrls()
         })
-        .then(function(urls) {
+        .then(function (urls) {
             const promises = [] as Promise<IOneClickAppIdentifier[]>[]
 
-            urls.forEach(apiBaseUrl => {
+            urls.forEach((apiBaseUrl) => {
                 const p = axios
                     .get(apiBaseUrl + `/v2/list`) //
-                    .then(function(axiosResponse) {
+                    .then(function (axiosResponse) {
                         return axiosResponse.data.oneClickApps as any[]
                     })
-                    .then(function(apps: any[]) {
-                        return apps.map(element => {
+                    .then(function (apps: any[]) {
+                        return apps.map((element) => {
                             const ret: IOneClickAppIdentifier = {
                                 baseUrl: apiBaseUrl,
                                 name: element.name,
@@ -47,7 +47,7 @@ router.get('/list', function(req, res, next) {
                             return ret
                         })
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         Logger.e(err)
                         return [] as IOneClickAppIdentifier[]
                     })
@@ -57,14 +57,14 @@ router.get('/list', function(req, res, next) {
 
             return Promise.all(promises)
         })
-        .then(function(arrayOfArrays) {
+        .then(function (arrayOfArrays) {
             const allApps = [] as IOneClickAppIdentifier[]
-            arrayOfArrays.map(appsFromBase => {
+            arrayOfArrays.map((appsFromBase) => {
                 return allApps.push(...appsFromBase)
             })
             return allApps
         })
-        .then(function(allApps) {
+        .then(function (allApps) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'All one click apps are retrieved'
@@ -76,17 +76,17 @@ router.get('/list', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/app', function(req, res, next) {
+router.get('/app', function (req, res, next) {
     const baseDomain = req.query.baseDomain as string
     const appName = req.query.appName as string
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
     return Promise.resolve() //
-        .then(function() {
+        .then(function () {
             return dataStore.getAllOneClickBaseUrls()
         })
-        .then(function(urls) {
+        .then(function (urls) {
             if (urls.indexOf(baseDomain) < 0)
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_PARAMETER,
@@ -96,11 +96,11 @@ router.get('/app', function(req, res, next) {
             const appUrl = `${baseDomain}/v2/apps/${appName}.json`
             Logger.d('retrieving app at: ' + appUrl)
 
-            return axios.get(appUrl).then(function(responseObject) {
+            return axios.get(appUrl).then(function (responseObject) {
                 return responseObject.data
             })
         })
-        .then(function(appTemplate) {
+        .then(function (appTemplate) {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App template is retrieved'

@@ -15,7 +15,7 @@ export default class Utils {
     }
 
     static deleteFileQuietly(absFileOrDirPath: string) {
-        return remove(absFileOrDirPath).catch(function(error) {
+        return remove(absFileOrDirPath).catch(function (error) {
             // nom nom
         })
     }
@@ -43,7 +43,7 @@ export default class Utils {
     static filterInPlace<T>(arr: T[], condition: (value: T) => boolean) {
         let newArray = arr.filter(condition)
         arr.splice(0, arr.length)
-        newArray.forEach(value => arr.push(value))
+        newArray.forEach((value) => arr.push(value))
     }
 
     static dropFirstElements(arr: any[], maxLength: number) {
@@ -61,7 +61,7 @@ export default class Utils {
     ): Promise<void> {
         let currCorrected = curr ? curr : 0
         if (promises.length > currCorrected) {
-            return promises[currCorrected]().then(function() {
+            return promises[currCorrected]().then(function () {
                 return Utils.runPromises(promises, currCorrected + 1)
             })
         }

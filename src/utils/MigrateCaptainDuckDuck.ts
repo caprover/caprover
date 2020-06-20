@@ -39,7 +39,7 @@ export default class MigrateCaptainDuckDuck {
             return Promise.resolve(false)
         }
 
-        return this.performMigration().then(function() {
+        return this.performMigration().then(function () {
             return true
         })
     }
@@ -53,7 +53,7 @@ export default class MigrateCaptainDuckDuck {
         const dataStore = this.dataStore
 
         return Promise.resolve()
-            .then(function(data) {
+            .then(function (data) {
                 return fs.readJson(
                     path.join(
                         CaptainConstants.captainDataDirectory,
@@ -61,10 +61,10 @@ export default class MigrateCaptainDuckDuck {
                     )
                 )
             })
-            .then(function(dataRetrieved) {
+            .then(function (dataRetrieved) {
                 self.oldData = dataRetrieved
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Migrating basic configs...')
                 const oldData = self.oldData
 
@@ -117,7 +117,7 @@ export default class MigrateCaptainDuckDuck {
 
                 return Promise.all(promises)
             })
-            .then(function() {
+            .then(function () {
                 const oldData = self.oldData
                 if (!oldData.captainRegistryAuthSecretVer) {
                     return Promise.resolve()
@@ -151,7 +151,7 @@ export default class MigrateCaptainDuckDuck {
                             authObj.username,
                             IRegistryTypes.LOCAL_REG
                         )
-                        .then(function(idOfNewReg) {
+                        .then(function (idOfNewReg) {
                             return registriesDataStore.setDefaultPushRegistryId(
                                 idOfNewReg
                             )
@@ -166,17 +166,17 @@ export default class MigrateCaptainDuckDuck {
                             authObj.username,
                             IRegistryTypes.REMOTE_REG
                         )
-                        .then(function(idOfNewReg) {
+                        .then(function (idOfNewReg) {
                             return registriesDataStore.setDefaultPushRegistryId(
                                 idOfNewReg
                             )
                         })
                 }
             })
-            .then(function() {
+            .then(function () {
                 return DockerApi.get().getAllServices()
             })
-            .then(function(dockerServices) {
+            .then(function (dockerServices) {
                 const oldAppDefinitions = self.oldData.appDefinitions
                 if (!oldAppDefinitions) return Promise.resolve()
 
@@ -198,7 +198,7 @@ export default class MigrateCaptainDuckDuck {
 
                 const promises: Promise<void>[] = []
 
-                Object.keys(oldAppDefinitions).forEach(appName => {
+                Object.keys(oldAppDefinitions).forEach((appName) => {
                     const app = JSON.parse(
                         JSON.stringify(oldAppDefinitions[appName])
                     )
@@ -206,13 +206,13 @@ export default class MigrateCaptainDuckDuck {
                     const appStore = dataStore.getAppsDataStore()
 
                     const p = Promise.resolve() //
-                        .then(function() {
+                        .then(function () {
                             return appStore.registerAppDefinition(
                                 appName,
                                 !!app.hasPersistentData
                             )
                         })
-                        .then(function() {
+                        .then(function () {
                             for (
                                 let index = 0;
                                 index < app.volumes.length;
@@ -250,7 +250,7 @@ export default class MigrateCaptainDuckDuck {
                             }
 
                             return Promise.resolve()
-                                .then(function() {
+                                .then(function () {
                                     const customDomains = app.customDomain || []
                                     const hasDefaultSubDomainSsl = !!app.hasDefaultSubDomainSsl
                                     return appStore.addCustomDomainForAppForMigration(
@@ -259,7 +259,7 @@ export default class MigrateCaptainDuckDuck {
                                         customDomains
                                     )
                                 })
-                                .then(function() {
+                                .then(function () {
                                     const oldVers: any[] = app.versions || []
                                     const newVers: IAppVersion[] = []
                                     const newVersOnlyDeployVersion: IAppVersion[] = []
@@ -267,7 +267,7 @@ export default class MigrateCaptainDuckDuck {
                                         app.deployedVersion
                                     )
 
-                                    oldVers.forEach(element => {
+                                    oldVers.forEach((element) => {
                                         let thisVersion = Number(
                                             element.version
                                         )
@@ -318,7 +318,7 @@ export default class MigrateCaptainDuckDuck {
                                         deployedVersion
                                     )
                                 })
-                                .then(function() {
+                                .then(function () {
                                     return appStore.updateAppDefinitionInDb(
                                         appName,
                                         '',
@@ -343,15 +343,15 @@ export default class MigrateCaptainDuckDuck {
                     promises.push(p)
                 })
 
-                return Promise.all(promises).then(function() {})
+                return Promise.all(promises).then(function () {})
             })
-            .then(function() {
+            .then(function () {
                 Logger.d(
                     'Old data migrated to new format, deleting the old format...'
                 )
                 fs.remove(oldFilePath)
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Migration successfully done!')
                 return Promise.resolve()
             })

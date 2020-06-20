@@ -83,13 +83,13 @@ class CaptainManager {
         let myNodeId: string
 
         self.refreshForceSslState()
-            .then(function() {
+            .then(function () {
                 return dockerApi.getNodeIdByServiceName(
                     CaptainConstants.captainServiceName,
                     0
                 )
             })
-            .then(function(nodeId) {
+            .then(function (nodeId) {
                 myNodeId = nodeId
                 self.myNodeId = myNodeId
                 self.dockerRegistry = new SelfHostedDockerRegistry(
@@ -101,47 +101,47 @@ class CaptainManager {
                 )
                 return dockerApi.isNodeManager(myNodeId)
             })
-            .then(function(isManager) {
+            .then(function (isManager) {
                 if (!isManager) {
                     throw new Error('Captain should only run on a manager node')
                 }
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Emptying generated and temp folders.')
 
                 return fs.emptyDir(CaptainConstants.captainRootDirectoryTemp)
             })
-            .then(function() {
+            .then(function () {
                 return fs.emptyDir(
                     CaptainConstants.captainRootDirectoryGenerated
                 )
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Ensuring directories are available on host. Started.')
 
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.letsEncryptLibPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.captainStaticFilesDir)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.perAppNginxConfigPathBase)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureFile(CaptainConstants.baseNginxConfigPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.registryPathOnHost)
             })
-            .then(function() {
+            .then(function () {
                 return dockerApi.ensureOverlayNetwork(
                     CaptainConstants.captainNetworkName
                 )
             })
-            .then(function() {
+            .then(function () {
                 Logger.d(
                     'Ensuring directories are available on host. Finished.'
                 )
@@ -151,7 +151,7 @@ class CaptainManager {
                     CaptainConstants.captainNetworkName
                 )
             })
-            .then(function() {
+            .then(function () {
                 const valueIfNotExist = CaptainConstants.isDebug
                     ? DEBUG_SALT
                     : uuid()
@@ -160,22 +160,22 @@ class CaptainManager {
                     valueIfNotExist
                 )
             })
-            .then(function() {
+            .then(function () {
                 return dockerApi.ensureSecretOnService(
                     CaptainConstants.captainServiceName,
                     CaptainConstants.captainSaltSecretKey
                 )
             })
-            .then(function(secretHadExistedBefore) {
+            .then(function (secretHadExistedBefore) {
                 if (!secretHadExistedBefore) {
-                    return new Promise<void>(function() {
+                    return new Promise<void>(function () {
                         Logger.d(
                             'I am halting here. I expect to get restarted in a few seconds due to a secret (captain salt) being updated.'
                         )
                     })
                 }
             })
-            .then(function() {
+            .then(function () {
                 const secretFileName =
                     '/run/secrets/' + CaptainConstants.captainSaltSecretKey
 
@@ -196,31 +196,31 @@ class CaptainManager {
 
                 return true
             })
-            .then(function() {
+            .then(function () {
                 return Authenticator.setMainSalt(self.getCaptainSalt())
             })
-            .then(function() {
+            .then(function () {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
             })
-            .then(function() {
+            .then(function () {
                 return new MigrateCaptainDuckDuck(
                     dataStore,
                     Authenticator.getAuthenticator(dataStore.getNameSpace())
                 )
                     .migrateIfNeeded()
-                    .then(function(migrationPerformed) {
+                    .then(function (migrationPerformed) {
                         if (!!migrationPerformed) {
                             return self.resetSelf()
                         }
                     })
             })
-            .then(function() {
+            .then(function () {
                 return loadBalancerManager.init(myNodeId, dataStore)
             })
-            .then(function() {
+            .then(function () {
                 return dataStore.getRegistriesDataStore().getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 let localRegistry: IRegistryInfo | undefined = undefined
 
                 for (let idx = 0; idx < registries.length; idx++) {
@@ -239,7 +239,7 @@ class CaptainManager {
 
                 return Promise.resolve(true)
             })
-            .then(function() {
+            .then(function () {
                 return self.backupManager.startRestorationIfNeededPhase2(
                     self.getCaptainSalt(),
                     () => {
@@ -247,7 +247,7 @@ class CaptainManager {
                     }
                 )
             })
-            .then(function() {
+            .then(function () {
                 self.inited = true
 
                 self.performHealthCheck()
@@ -256,10 +256,10 @@ class CaptainManager {
                     '**** Captain is initialized and ready to serve you! ****'
                 )
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 Logger.e(error)
 
-                setTimeout(function() {
+                setTimeout(function () {
                     process.exit(0)
                 }, 5000)
             })
@@ -278,7 +278,7 @@ class CaptainManager {
 
         function scheduleNextHealthCheck() {
             self.healthCheckUuid = uuid()
-            setTimeout(function() {
+            setTimeout(function () {
                 self.performHealthCheck()
             }, HEALTH_CHECK_INTERVAL)
         }
@@ -292,7 +292,7 @@ class CaptainManager {
         function checkCaptainHealth(callback: ISuccessCallback) {
             let callbackCalled = false
 
-            setTimeout(function() {
+            setTimeout(function () {
                 if (callbackCalled) {
                     return
                 }
@@ -302,7 +302,7 @@ class CaptainManager {
             }, TIMEOUT_HEALTH_CHECK)
 
             if (CaptainConstants.configs.skipVerifyingDomains) {
-                setTimeout(function() {
+                setTimeout(function () {
                     if (callbackCalled) {
                         return
                     }
@@ -320,7 +320,7 @@ class CaptainManager {
             request(
                 url,
 
-                function(error, response, body) {
+                function (error, response, body) {
                     if (callbackCalled) {
                         return
                     }
@@ -338,7 +338,7 @@ class CaptainManager {
         function checkNginxHealth(callback: ISuccessCallback) {
             let callbackCalled = false
 
-            setTimeout(function() {
+            setTimeout(function () {
                 if (callbackCalled) {
                     return
                 }
@@ -352,7 +352,7 @@ class CaptainManager {
                     captainPublicDomain,
                     '-healthcheck'
                 )
-                .then(function() {
+                .then(function () {
                     if (callbackCalled) {
                         return
                     }
@@ -360,7 +360,7 @@ class CaptainManager {
 
                     callback(true)
                 })
-                .catch(function() {
+                .catch(function () {
                     if (callbackCalled) {
                         return
                     }
@@ -419,14 +419,14 @@ class CaptainManager {
             }
         }
 
-        checkCaptainHealth(function(success) {
+        checkCaptainHealth(function (success) {
             checksPerformed.captainHealth = {
                 value: success,
             }
             scheduleIfNecessary()
         })
 
-        checkNginxHealth(function(success) {
+        checkNginxHealth(function (success) {
             checksPerformed.nginxHealth = {
                 value: success,
             }
@@ -457,10 +457,10 @@ class CaptainManager {
     ensureAllAppsInited() {
         const self = this
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getAppsDataStore().getAppDefinitions()
             })
-            .then(function(apps) {
+            .then(function (apps) {
                 const promises: (() => Promise<void>)[] = []
                 const serviceManager = ServiceManager.get(
                     self.dataStore.getNameSpace(),
@@ -472,15 +472,15 @@ class CaptainManager {
                     CaptainManager.get().getLoadBalanceManager(),
                     CaptainManager.get().getDomainResolveChecker()
                 )
-                Object.keys(apps).forEach(appName => {
-                    promises.push(function() {
+                Object.keys(apps).forEach((appName) => {
+                    promises.push(function () {
                         return Promise.resolve() //
-                            .then(function() {
+                            .then(function () {
                                 return serviceManager.ensureServiceInitedAndUpdated(
                                     appName
                                 )
                             })
-                            .then(function() {
+                            .then(function () {
                                 Logger.d(
                                     'Waiting 5 second for the service to settle... ' +
                                         appName
@@ -519,13 +519,13 @@ class CaptainManager {
         const dockerApi = this.dockerApi
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return dockerApi.ensureContainerStoppedAndRemoved(
                     CaptainConstants.netDataContainerName,
                     CaptainConstants.captainNetworkName
                 )
             })
-            .then(function() {
+            .then(function () {
                 if (netDataInfo.isEnabled) {
                     const vols = [
                         {
@@ -632,7 +632,7 @@ class CaptainManager {
                 // Just removing the old container. No need to create a new one.
                 return true
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setNetDataInfo(netDataInfo)
             })
     }
@@ -641,10 +641,10 @@ class CaptainManager {
         const dockerApi = this.dockerApi
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return dockerApi.getNodesInfo()
             })
-            .then(function(data) {
+            .then(function (data) {
                 if (!data || !data.length) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -667,23 +667,23 @@ class CaptainManager {
     enableSsl(emailAddress: string) {
         const self = this
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.certbotManager.ensureRegistered(emailAddress)
             })
-            .then(function() {
+            .then(function () {
                 return self.certbotManager.enableSsl(
                     CaptainConstants.captainSubDomain +
                         '.' +
                         self.dataStore.getRootDomain()
                 )
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setUserEmailAddress(emailAddress)
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setHasRootSsl(true)
             })
-            .then(function() {
+            .then(function () {
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
@@ -693,10 +693,10 @@ class CaptainManager {
     forceSsl(isEnabled: boolean) {
         const self = this
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getHasRootSsl()
             })
-            .then(function(hasRootSsl) {
+            .then(function (hasRootSsl) {
                 if (!hasRootSsl && isEnabled) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -706,7 +706,7 @@ class CaptainManager {
 
                 return self.dataStore.setForceSsl(isEnabled)
             })
-            .then(function() {
+            .then(function () {
                 return self.refreshForceSslState()
             })
     }
@@ -714,10 +714,10 @@ class CaptainManager {
     refreshForceSslState() {
         const self = this
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getForceSsl()
             })
-            .then(function(hasForceSsl) {
+            .then(function (hasForceSsl) {
                 self.hasForceSsl = hasForceSsl
             })
     }
@@ -728,7 +728,7 @@ class CaptainManager {
 
     getNginxConfig() {
         const self = this
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             return self.dataStore.getNginxConfig()
         })
     }
@@ -736,10 +736,10 @@ class CaptainManager {
     setNginxConfig(baseConfig: string, captainConfig: string) {
         const self = this
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setNginxConfig(baseConfig, captainConfig)
             })
-            .then(function() {
+            .then(function () {
                 self.resetSelf()
             })
     }
@@ -758,10 +758,10 @@ class CaptainManager {
 
         return self.domainResolveChecker
             .verifyDomainResolvesToDefaultServerOnHost(url)
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getHasRootSsl()
             })
-            .then(function(hasRootSsl) {
+            .then(function (hasRootSsl) {
                 if (
                     !force &&
                     hasRootSsl &&
@@ -776,22 +776,22 @@ class CaptainManager {
                 if (force) {
                     return self
                         .forceSsl(false)
-                        .then(function() {
+                        .then(function () {
                             return self.dataStore.setHasRootSsl(false)
                         })
-                        .then(function() {
+                        .then(function () {
                             return self.dataStore
                                 .getAppsDataStore()
                                 .ensureAllAppsSubDomainSslDisabled()
                         })
                 }
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore
                     .getRegistriesDataStore()
                     .getAllRegistries()
             })
-            .then(function(registries) {
+            .then(function (registries) {
                 let localRegistry: IRegistryInfo | undefined = undefined
 
                 for (let idx = 0; idx < registries.length; idx++) {
@@ -810,10 +810,10 @@ class CaptainManager {
 
                 return Promise.resolve(true)
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setCustomDomain(requestedCustomDomain)
             })
-            .then(function() {
+            .then(function () {
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
@@ -824,8 +824,8 @@ class CaptainManager {
         const self = this
         Logger.d('Captain is resetting itself!')
         self.waitUntilRestarted = true
-        return new Promise<void>(function(resolve, reject) {
-            setTimeout(function() {
+        return new Promise<void>(function (resolve, reject) {
+            setTimeout(function () {
                 const promiseToIgnore = self.dockerApi.updateService(
                     CaptainConstants.captainServiceName,
                     undefined,

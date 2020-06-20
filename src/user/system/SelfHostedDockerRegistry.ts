@@ -25,10 +25,10 @@ class SelfHostedDockerRegistry {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.dataStore.getHasRootSsl()
             })
-            .then(function(rootHasSsl) {
+            .then(function (rootHasSsl) {
                 if (!rootHasSsl) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
@@ -42,10 +42,10 @@ class SelfHostedDockerRegistry {
                         self.dataStore.getRootDomain()
                 )
             })
-            .then(function() {
+            .then(function () {
                 return self.dataStore.setHasRegistrySsl(true)
             })
-            .then(function() {
+            .then(function () {
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
@@ -68,12 +68,12 @@ class SelfHostedDockerRegistry {
         const dockerApi = this.dockerApi
 
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.registryServiceName
                 )
             })
-            .then(function(isRunning) {
+            .then(function (isRunning) {
                 if (!isRunning) return
 
                 return dockerApi.removeServiceByName(
@@ -97,15 +97,15 @@ class SelfHostedDockerRegistry {
                     undefined,
                     undefined
                 )
-                .then(function() {
+                .then(function () {
                     const waitTimeInMillis = 5000
                     Logger.d(
                         'Waiting for ' +
                             waitTimeInMillis / 1000 +
                             ' seconds for Registry to start up'
                     )
-                    return new Promise<boolean>(function(resolve, reject) {
-                        setTimeout(function() {
+                    return new Promise<boolean>(function (resolve, reject) {
+                        setTimeout(function () {
                             resolve(true)
                         }, waitTimeInMillis)
                     })
@@ -115,7 +115,7 @@ class SelfHostedDockerRegistry {
         const myNodeId = this.myNodeId
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 const authContent =
                     CaptainConstants.captainRegistryUsername +
                     ':' +
@@ -126,12 +126,12 @@ class SelfHostedDockerRegistry {
                     authContent
                 )
             })
-            .then(function() {
+            .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.registryServiceName
                 )
             })
-            .then(function(isRunning) {
+            .then(function (isRunning) {
                 if (isRunning) {
                     Logger.d('Captain Registry is already running.. ')
 
@@ -145,13 +145,13 @@ class SelfHostedDockerRegistry {
                     )
 
                     return createRegistryServiceOnNode(myNodeId).then(
-                        function() {
+                        function () {
                             return myNodeId
                         }
                     )
                 }
             })
-            .then(function(nodeId) {
+            .then(function (nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
                         'Captain Registry is running on a different node. Removing...'
@@ -161,11 +161,11 @@ class SelfHostedDockerRegistry {
                         .removeServiceByName(
                             CaptainConstants.registryServiceName
                         )
-                        .then(function() {
+                        .then(function () {
                             Logger.d('Creating Registry on this node...')
 
                             return createRegistryServiceOnNode(myNodeId).then(
-                                function() {
+                                function () {
                                     return true
                                 }
                             )
@@ -174,7 +174,7 @@ class SelfHostedDockerRegistry {
                     return true
                 }
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Updating Certbot service...')
 
                 return dockerApi.updateService(

@@ -45,21 +45,21 @@ export default class GitHelper {
             Logger.d('Cloning SSH ' + REPO_GIT_PATH)
 
             return Promise.resolve() //
-                .then(function() {
+                .then(function () {
                     return fs.outputFile(SSH_KEY_PATH, sshKey + '')
                 })
-                .then(function() {
+                .then(function () {
                     return exec(`chmod 600 ${SSH_KEY_PATH}`)
                 })
-                .then(function() {
+                .then(function () {
                     return fs.ensureDir('/root/.ssh')
                 })
-                .then(function() {
+                .then(function () {
                     return exec(
                         `ssh-keyscan -p ${SSH_PORT} -H ${DOMAIN} >> /root/.ssh/known_hosts`
                     )
                 })
-                .then(function() {
+                .then(function () {
                     return git() //
                         .silent(true) //
                         .env('GIT_SSH_COMMAND', 'ssh -i ' + SSH_KEY_PATH) //
@@ -72,7 +72,7 @@ export default class GitHelper {
                             directory,
                         ])
                 })
-                .then(function() {
+                .then(function () {
                     return fs.remove(SSH_KEY_PATH)
                 })
         } else {
@@ -84,7 +84,7 @@ export default class GitHelper {
             return git() //
                 .silent(true) //
                 .raw(['clone', '--recursive', '-b', branch, remote, directory])
-                .then(function() {})
+                .then(function () {})
         }
     }
 

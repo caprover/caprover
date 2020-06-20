@@ -9,7 +9,7 @@ class ApiStatusCodes {
     }
 
     static createCatcher(res: Response) {
-        return function(error: CaptainError | any) {
+        return function (error: CaptainError | any) {
             if (!error || error.errorStatus !== 404) {
                 Logger.e(error)
             }

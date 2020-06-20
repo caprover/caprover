@@ -55,11 +55,11 @@ class CertbotManager {
         Logger.d('Enabling SSL for ' + domainName)
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 self.domainValidOrThrow(domainName)
                 return self.ensureDomainHasDirectory(domainName)
             })
-            .then(function() {
+            .then(function () {
                 const cmd = [
                     'certbot',
                     'certonly',
@@ -74,7 +74,7 @@ class CertbotManager {
                     cmd.push('--staging')
                 }
 
-                return self.runCommand(cmd).then(function(output) {
+                return self.runCommand(cmd).then(function (output) {
                     Logger.d(output)
 
                     if (
@@ -109,7 +109,7 @@ class CertbotManager {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 // Creds used to be saved at
                 // /etc/letencrypt/accounts/acme-v01.api.letsencrypt.org/directory/9fc95dbca2f0b877
                 // After moving to 0.29.1, Certbot started using v2 API. and this path is no longer valid.
@@ -129,7 +129,7 @@ class CertbotManager {
 
                 return self.runCommand(cmd)
             })
-            .then(function(registerOutput) {
+            .then(function (registerOutput) {
                 if (
                     registerOutput.indexOf(
                         'Your account credentials have been saved in your Certbot'
@@ -182,13 +182,13 @@ class CertbotManager {
     ensureAllCurrentlyRegisteredDomainsHaveDirs() {
         const self = this
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return self
                     .runCommand(['certbot', 'certificates'])
-                    .then(function(output) {
+                    .then(function (output) {
                         const lines = output.split('\n')
                         const domains: string[] = []
-                        lines.forEach(l => {
+                        lines.forEach((l) => {
                             if (l.indexOf('Certificate Name:') >= 0) {
                                 domains.push(
                                     l.replace('Certificate Name:', '').trim()
@@ -199,10 +199,10 @@ class CertbotManager {
                         return domains
                     })
             })
-            .then(function(allDomains) {
+            .then(function (allDomains) {
                 const p = Promise.resolve()
-                allDomains.forEach(d => {
-                    p.then(function() {
+                allDomains.forEach((d) => {
+                    p.then(function () {
                         return self.ensureDomainHasDirectory(d)
                     })
                 })
@@ -230,7 +230,7 @@ class CertbotManager {
         const dockerApi = this.dockerApi
         const self = this
 
-        return Promise.resolve().then(function() {
+        return Promise.resolve().then(function () {
             self.lock()
 
             const nonInterActiveCommand = [...cmd, '--non-interactive']
@@ -239,11 +239,11 @@ class CertbotManager {
                     CaptainConstants.certbotServiceName,
                     nonInterActiveCommand
                 )
-                .then(function(data) {
+                .then(function (data) {
                     self.unlock()
                     return data
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     self.unlock()
                     throw error
                 })
@@ -252,7 +252,7 @@ class CertbotManager {
 
     ensureDomainHasDirectory(domainName: string) {
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN + '/' + domainName)
             })
     }
@@ -278,16 +278,16 @@ class CertbotManager {
         }
 
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return self.ensureAllCurrentlyRegisteredDomainsHaveDirs()
             })
-            .then(function() {
+            .then(function () {
                 return self.runCommand(cmd)
             })
-            .then(function(output) {
+            .then(function (output) {
                 // Ignore output :)
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 Logger.e(err)
             })
     }
@@ -309,28 +309,28 @@ class CertbotManager {
                     undefined,
                     undefined
                 )
-                .then(function() {
+                .then(function () {
                     Logger.d('Waiting for Certbot...')
                     return Utils.getDelayedPromise(12000)
                 })
         }
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.letsEncryptLibPath)
             })
-            .then(function() {
+            .then(function () {
                 return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN)
             })
-            .then(function() {
+            .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.certbotServiceName
                 )
             })
-            .then(function(isRunning) {
+            .then(function (isRunning) {
                 if (isRunning) {
                     Logger.d('Captain Certbot is already running.. ')
 
@@ -344,12 +344,12 @@ class CertbotManager {
                     )
 
                     return createCertbotServiceOnNode(myNodeId) //
-                        .then(function() {
+                        .then(function () {
                             return myNodeId
                         })
                 }
             })
-            .then(function(nodeId) {
+            .then(function (nodeId) {
                 if (nodeId !== myNodeId) {
                     Logger.d(
                         'Captain Certbot is running on a different node. Removing...'
@@ -359,13 +359,13 @@ class CertbotManager {
                         .removeServiceByName(
                             CaptainConstants.certbotServiceName
                         )
-                        .then(function() {
+                        .then(function () {
                             Logger.d('Waiting for Certbot to be removed...')
                             return Utils.getDelayedPromise(10000)
                         })
-                        .then(function() {
+                        .then(function () {
                             return createCertbotServiceOnNode(myNodeId).then(
-                                function() {
+                                function () {
                                     return true
                                 }
                             )
@@ -374,7 +374,7 @@ class CertbotManager {
                     return true
                 }
             })
-            .then(function() {
+            .then(function () {
                 Logger.d('Updating Certbot service...')
 
                 return dockerApi.updateService(
@@ -408,7 +408,7 @@ class CertbotManager {
                     undefined
                 )
             })
-            .then(function() {
+            .then(function () {
                 return self.ensureAllCurrentlyRegisteredDomainsHaveDirs()
             })
     }

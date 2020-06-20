@@ -41,10 +41,10 @@ export default class DomainResolveChecker {
             (identifierSuffix ? identifierSuffix : '')
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.certbotManager.domainValidOrThrow(domainName)
             })
-            .then(function() {
+            .then(function () {
                 return fs.outputFile(
                     CaptainConstants.captainStaticFilesDir +
                         CaptainConstants.nginxDomainSpecificHtmlDir +
@@ -54,15 +54,15 @@ export default class DomainResolveChecker {
                     randomUuid
                 )
             })
-            .then(function() {
-                return new Promise<void>(function(resolve) {
-                    setTimeout(function() {
+            .then(function () {
+                return new Promise<void>(function (resolve) {
+                    setTimeout(function () {
                         resolve()
                     }, 1000)
                 })
             })
-            .then(function() {
-                return new Promise<void>(function(resolve, reject) {
+            .then(function () {
+                return new Promise<void>(function (resolve, reject) {
                     const url =
                         'http://' +
                         domainName +
@@ -73,7 +73,7 @@ export default class DomainResolveChecker {
                     request(
                         url,
 
-                        function(error, response, body) {
+                        function (error, response, body) {
                             if (error || !body || body !== randomUuid) {
                                 Logger.e(
                                     'Verification Failed for ' + domainName
@@ -104,7 +104,7 @@ export default class DomainResolveChecker {
 
         const self = this
 
-        return new Promise<void>(function(resolve, reject) {
+        return new Promise<void>(function (resolve, reject) {
             const url =
                 'http://' +
                 domainName +
@@ -112,7 +112,7 @@ export default class DomainResolveChecker {
 
             Logger.d('Sending request to ' + url)
 
-            request(url, function(error, response, body) {
+            request(url, function (error, response, body) {
                 if (
                     error ||
                     !body ||
