@@ -4,6 +4,7 @@ import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import Injector = require('../../injection/Injector')
 import SystemRouter = require('./system/SystemRouter')
 import AppsRouter = require('./apps/AppsRouter')
+import OneClickAppRouter = require('./apps/oneclick/OneClickAppRouter')
 import Logger = require('../../utils/Logger')
 import RegistriesRouter = require('./registeries/RegistriesRouter')
 import onFinished = require('on-finished')
@@ -119,6 +120,8 @@ router.post('/changepassword/', function(req, res, next) {
 })
 
 router.use('/apps/', AppsRouter)
+
+router.use('/oneclick/', OneClickAppRouter)
 
 router.use('/registries/', RegistriesRouter)
 

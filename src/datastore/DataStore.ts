@@ -19,8 +19,10 @@ const EMAIL_ADDRESS = 'emailAddress'
 const NET_DATA_INFO = 'netDataInfo'
 const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
+const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
+const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
@@ -250,6 +252,19 @@ class DataStore {
         return new Promise<void>(function(resolve, reject) {
             self.data.set(CUSTOM_DOMAIN, customDomain)
             resolve()
+        })
+    }
+
+    getAllOneClickBaseUrls() {
+        const self = this
+
+        return new Promise<string>(function(resolve, reject) {
+            resolve(self.data.get(CUSTOM_ONE_CLICK_APP_URLS))
+        }).then(function(dataString) {
+            const parsedArray = JSON.parse(dataString || '[]') as string[]
+            parsedArray.push(DEFAULT_ONE_CLICK_BASE_URL)
+
+            return parsedArray
         })
     }
 }

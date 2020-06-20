@@ -17,34 +17,7 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
     ],
 })
 
-// Get a list of oneclickspps
-router.get('/oneclickapps', function(req, res, next) {
-    fs.readdir(__dirname + '/../../dist/oneclick-apps', function(err, files) {
-        if (err) {
-            Logger.e(err)
-            res.sendStatus(500)
-            return
-        }
-
-        let ret = []
-
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].endsWith('.js')) {
-                ret.push(files[i].substring(0, files[i].length - 3))
-            }
-        }
-
-        let baseApi = new BaseApi(
-            ApiStatusCodes.STATUS_OK,
-            'One click app list is fetched.'
-        )
-        baseApi.data = ret
-
-        res.send(baseApi)
-    })
-})
-
-// unused iamges
+// unused images
 router.get('/unusedImages', function(req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
@@ -69,7 +42,7 @@ router.get('/unusedImages', function(req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-// unused iamges
+// delete images
 router.post('/deleteImages', function(req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
