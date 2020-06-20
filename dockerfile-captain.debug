@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:14
 RUN apt-get update
 RUN apt-get -y install netcat socat
 RUN mkdir -p /usr/src/app
