@@ -1,30 +1,22 @@
-import BackupManager from '../src/user/system/BackupManager'
-import * as CaptainConstants from '../src/utils/CaptainConstants'
-import {
-    fstat,
-    copy,
-    ensureFile,
-    removeSync,
-    ensureDir,
-    readJson,
-} from 'fs-extra'
-import Utils from '../src/utils/Utils'
-import { RestoringInfo } from '../src/models/BackupMeta'
+import { copy, ensureDir, ensureFile, readJson, removeSync } from 'fs-extra'
 import { isDeepStrictEqual } from 'util'
+import { RestoringInfo } from '../src/models/BackupMeta'
+import BackupManager from '../src/user/system/BackupManager'
+import CaptainConstants from '../src/utils/CaptainConstants'
 const BACKUP_FILE_PATH_ABSOLUTE = '/captain/backup.tar'
 
 function cleanup() {
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return ensureFile(BACKUP_FILE_PATH_ABSOLUTE)
         })
-        .then(function() {
+        .then(function () {
             return removeSync(BACKUP_FILE_PATH_ABSOLUTE)
         })
-        .then(function() {
+        .then(function () {
             return ensureDir(CaptainConstants.restoreDirectoryPath)
         })
-        .then(function() {
+        .then(function () {
             return removeSync(CaptainConstants.restoreDirectoryPath)
         })
 }
@@ -40,10 +32,10 @@ afterEach(() => {
 test('No backup file', () => {
     const bk = new BackupManager()
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return bk.checkAndPrepareRestoration()
         })
-        .then(function(data) {
+        .then(function (data) {
             expect(data).toBeFalsy()
         })
 })
@@ -51,19 +43,19 @@ test('No backup file', () => {
 test('Test backup file', () => {
     const bk = new BackupManager()
     return Promise.resolve()
-        .then(function() {
+        .then(function () {
             return copy(`${__dirname}/backup.tar`, BACKUP_FILE_PATH_ABSOLUTE)
         })
-        .then(function() {
+        .then(function () {
             return bk.checkAndPrepareRestoration()
         })
-        .then(function() {
+        .then(function () {
             return readJson(
                 CaptainConstants.restoreDirectoryPath +
                     '/restore-instructions.json'
             )
         })
-        .then(function(ret: RestoringInfo) {
+        .then(function (ret: RestoringInfo) {
             const expectedValue = {
                 nodesMapping: [
                     {
