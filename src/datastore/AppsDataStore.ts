@@ -1,13 +1,12 @@
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import CaptainConstants from '../utils/CaptainConstants'
-import Logger from '../utils/Logger'
-import configstore = require('configstore')
-import Authenticator from '../user/Authenticator'
-import CaptainEncryptor from '../utils/Encryptor'
 import { IBuiltImage } from '../models/IBuiltImage'
-import Utils from '../utils/Utils'
+import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
+import CaptainConstants from '../utils/CaptainConstants'
+import CaptainEncryptor from '../utils/Encryptor'
+import Utils from '../utils/Utils'
+import configstore = require('configstore')
 
 const isValidPath = require('is-valid-path')
 
@@ -310,8 +309,6 @@ class AppsDataStore {
     }
 
     getAppDefinition(appName: string) {
-        const self = this
-
         return this.getAppDefinitions().then(function (allApps) {
             if (!appName) {
                 throw ApiStatusCodes.createError(

@@ -2,7 +2,11 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import RegistriesDataStore from '../datastore/RegistriesDataStore'
 import DockerApi from '../docker/DockerApi'
-import { IRegistryInfo, IRegistryType, IRegistryTypes } from '../models/IRegistryInfo'
+import {
+    IRegistryInfo,
+    IRegistryType,
+    IRegistryTypes,
+} from '../models/IRegistryInfo'
 import { AnyError } from '../models/OtherTypes'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'

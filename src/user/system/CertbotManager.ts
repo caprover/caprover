@@ -1,10 +1,9 @@
-import CaptainConstants from '../../utils/CaptainConstants'
-import Logger from '../../utils/Logger'
-import fs = require('fs-extra')
-import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
+import fs = require('fs-extra')
 
 const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot'
 const WEBROOT_PATH_IN_CAPTAIN =
@@ -49,7 +48,6 @@ class CertbotManager {
     }
 
     enableSsl(domainName: string) {
-        const dockerApi = this.dockerApi
         const self = this
 
         Logger.d('Enabling SSL for ' + domainName)
@@ -105,7 +103,6 @@ class CertbotManager {
     }
 
     ensureRegistered(emailAddress: string) {
-        const dockerApi = this.dockerApi
         const self = this
 
         return Promise.resolve()

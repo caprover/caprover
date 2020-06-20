@@ -1,16 +1,16 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
 import { v4 as uuid } from 'uuid'
-import CaptainConstants from '../utils/CaptainConstants'
-import Logger from '../utils/Logger'
-import EnvVars from '../utils/EnvVars'
-import BuildLog from '../user/BuildLog'
 import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,
     IDockerContainerResource,
     VolumesTypes,
 } from '../models/OtherTypes'
+import BuildLog from '../user/BuildLog'
+import CaptainConstants from '../utils/CaptainConstants'
+import EnvVars from '../utils/EnvVars'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 const dockerodeUtils = require('dockerode/lib/util')
 
@@ -1441,7 +1441,9 @@ class DockerApi {
                         default:
                             let neverHappens: never = updateOrder
                             throw new Error(
-                                'Unknown update order! ' + updateOrder
+                                'Unknown update order! ' +
+                                    updateOrder +
+                                    neverHappens
                             )
                     }
                 }

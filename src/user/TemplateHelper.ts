@@ -1,8 +1,5 @@
-import request = require('request')
 import fs = require('fs-extra')
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import Logger from '../utils/Logger'
-import CaptainConstants from '../utils/CaptainConstants'
 import { ITemplate } from '../models/OtherTypes'
 import TemplateHelperVersionPrinter from '../utils/TemplateHelperVersionPrinter'
 

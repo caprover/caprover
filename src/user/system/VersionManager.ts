@@ -1,7 +1,7 @@
 import request = require('request')
-import CaptainConstants from '../../utils/CaptainConstants'
-import DockerApi from '../../docker/DockerApi'
 import axios from 'axios'
+import DockerApi from '../../docker/DockerApi'
+import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
 
 class VersionManager {
@@ -19,8 +19,6 @@ class VersionManager {
         changeLogMessage: string
         canUpdate: boolean
     }> {
-        const self = this
-
         // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
         // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
 

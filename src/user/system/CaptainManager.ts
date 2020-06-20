@@ -1,23 +1,22 @@
 import { v4 as uuid } from 'uuid'
-import request = require('request')
-import fs = require('fs-extra')
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import DataStore from '../../datastore/DataStore'
+import DataStoreProvider from '../../datastore/DataStoreProvider'
+import DockerApi from '../../docker/DockerApi'
+import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import LoadBalancerManager from './LoadBalancerManager'
-import EnvVars from '../../utils/EnvVars'
-import CertbotManager from './CertbotManager'
-import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
-import ApiStatusCodes from '../../api/ApiStatusCodes'
-import DataStoreProvider from '../../datastore/DataStoreProvider'
-import DataStore from '../../datastore/DataStore'
-import DockerApi from '../../docker/DockerApi'
-import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
-import Authenticator from '../Authenticator'
-import BackupManager from './BackupManager'
-import ServiceManager from '../ServiceManager'
 import Utils from '../../utils/Utils'
+import Authenticator from '../Authenticator'
+import ServiceManager from '../ServiceManager'
+import BackupManager from './BackupManager'
+import CertbotManager from './CertbotManager'
 import DomainResolveChecker from './DomainResolveChecker'
+import LoadBalancerManager from './LoadBalancerManager'
+import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
+import request = require('request')
+import fs = require('fs-extra')
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 
@@ -79,7 +78,6 @@ class CaptainManager {
         const dataStore = this.dataStore
         const dockerApi = this.dockerApi
         const loadBalancerManager = this.loadBalancerManager
-        const certbotManager = this.certbotManager
         let myNodeId: string
 
         self.refreshForceSslState()
@@ -826,7 +824,7 @@ class CaptainManager {
         self.waitUntilRestarted = true
         return new Promise<void>(function (resolve, reject) {
             setTimeout(function () {
-                const promiseToIgnore = self.dockerApi.updateService(
+                return self.dockerApi.updateService(
                     CaptainConstants.captainServiceName,
                     undefined,
                     undefined,

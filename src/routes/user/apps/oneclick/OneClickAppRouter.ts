@@ -1,13 +1,9 @@
 import express = require('express')
-import fs = require('fs')
-import BaseApi from '../../../../api/BaseApi'
-import ApiStatusCodes from '../../../../api/ApiStatusCodes'
-import Logger from '../../../../utils/Logger'
-import CaptainConstants from '../../../../utils/CaptainConstants'
-import { CaptainError } from '../../../../models/OtherTypes'
-import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import Utils from '../../../../utils/Utils'
 import axios from 'axios'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
+import BaseApi from '../../../../api/BaseApi'
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
+import Logger from '../../../../utils/Logger'
 
 const router = express.Router()
 interface IOneClickAppIdentifier {

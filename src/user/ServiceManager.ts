@@ -1,16 +1,15 @@
-import Logger from '../utils/Logger'
-import CaptainConstants from '../utils/CaptainConstants'
-import LoadBalancerManager from './system/LoadBalancerManager'
-import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
-import DataStore from '../datastore/DataStore'
-import ApiStatusCodes from '../api/ApiStatusCodes'
-import requireFromString = require('require-from-string')
-import BuildLog from './BuildLog'
 import { ImageInfo } from 'dockerode'
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import DataStore from '../datastore/DataStore'
+import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
+import CaptainConstants from '../utils/CaptainConstants'
+import Logger from '../utils/Logger'
+import Authenticator from './Authenticator'
 import DockerRegistryHelper from './DockerRegistryHelper'
 import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
-import Authenticator from './Authenticator'
+import LoadBalancerManager from './system/LoadBalancerManager'
+import requireFromString = require('require-from-string')
 
 const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
@@ -476,8 +475,6 @@ class ServiceManager {
     }
 
     removeVolsSafe(volumes: string[]) {
-        const self = this
-
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
@@ -528,7 +525,6 @@ class ServiceManager {
             'Getting unused images, excluding most recent ones: ' +
                 mostRecentLimit
         )
-        const self = this
 
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
@@ -559,9 +555,8 @@ class ServiceManager {
 
                     const repoTags = currentImage.RepoTags || []
 
-                    Object.keys(apps).forEach(function (key, index) {
-                        const app = apps[key]
-                        const appName = key
+                    Object.keys(apps).forEach(function (appName) {
+                        const app = apps[appName]
                         for (let k = 0; k < mostRecentLimit + 1; k++) {
                             const versionToCheck =
                                 Number(app.deployedVersion) - k
@@ -597,7 +592,6 @@ class ServiceManager {
 
     deleteImages(imageIds: string[]) {
         Logger.d('Deleting images...')
-        const self = this
 
         const dockerApi = this.dockerApi
 
@@ -808,8 +802,6 @@ class ServiceManager {
     }
 
     getAppLogs(appName: string, encoding: string) {
-        const self = this
-
         const serviceName = this.dataStore
             .getAppsDataStore()
             .getServiceName(appName)

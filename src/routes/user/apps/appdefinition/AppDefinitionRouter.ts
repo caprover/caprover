@@ -1,11 +1,10 @@
 import express = require('express')
-import fs = require('fs')
-import BaseApi from '../../../../api/BaseApi'
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
-import Logger from '../../../../utils/Logger'
-import CaptainConstants from '../../../../utils/CaptainConstants'
-import { CaptainError } from '../../../../models/OtherTypes'
+import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
+import { CaptainError } from '../../../../models/OtherTypes'
+import CaptainConstants from '../../../../utils/CaptainConstants'
+import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
@@ -19,8 +18,6 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -44,8 +41,6 @@ router.get('/unusedImages', function (req, res, next) {
 
 // delete images
 router.post('/deleteImages', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
     let imageIds = req.body.imageIds || []
@@ -108,8 +103,6 @@ router.get('/', function (req, res, next) {
 })
 
 router.post('/enablebasedomainssl/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -128,8 +121,6 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
 })
 
 router.post('/customdomain/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -156,8 +147,6 @@ router.post('/customdomain/', function (req, res, next) {
 })
 
 router.post('/removecustomdomain/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -181,8 +170,6 @@ router.post('/removecustomdomain/', function (req, res, next) {
 })
 
 router.post('/enablecustomdomainssl/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -265,8 +252,6 @@ router.post('/register/', function (req, res, next) {
 })
 
 router.post('/delete/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -306,8 +291,6 @@ router.post('/delete/', function (req, res, next) {
 })
 
 router.post('/rename/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 
@@ -330,8 +313,6 @@ router.post('/rename/', function (req, res, next) {
 })
 
 router.post('/update/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
     const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
         .serviceManager
 

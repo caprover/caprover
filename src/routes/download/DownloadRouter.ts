@@ -1,11 +1,7 @@
 import express = require('express')
-import BaseApi from '../../api/BaseApi'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
-import CaptainConstants from '../../utils/CaptainConstants'
-import InjectionExtractor from '../../injection/InjectionExtractor'
-import DataStoreProvider from '../../datastore/DataStoreProvider'
-import CaptainManager from '../../user/system/CaptainManager'
 import Authenticator from '../../user/Authenticator'
+import CaptainConstants from '../../utils/CaptainConstants'
 import Utils from '../../utils/Utils'
 
 const router = express.Router()

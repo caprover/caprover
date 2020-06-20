@@ -197,8 +197,6 @@ class DataStore {
     }
 
     getDefaultAppNginxConfig() {
-        const self = this
-
         return Promise.resolve().then(function () {
             return DEFAULT_NGINX_CONFIG_FOR_APP
         })

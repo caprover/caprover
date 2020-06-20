@@ -1,19 +1,19 @@
 import ejs = require('ejs')
-import CaptainConstants from '../../utils/CaptainConstants'
-import Logger from '../../utils/Logger'
-import fs = require('fs-extra')
-import { v4 as uuid } from 'uuid'
-import request = require('request')
-import ApiStatusCodes from '../../api/ApiStatusCodes'
-import DockerApi from '../../docker/DockerApi'
-import DataStore from '../../datastore/DataStore'
-import CertbotManager from './CertbotManager'
-import { AnyError } from '../../models/OtherTypes'
-import LoadBalancerInfo from '../../models/LoadBalancerInfo'
+import * as chileProcess from 'child_process'
 import * as path from 'path'
 import * as util from 'util'
-import * as chileProcess from 'child_process'
+import { v4 as uuid } from 'uuid'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import DataStore from '../../datastore/DataStore'
+import DockerApi from '../../docker/DockerApi'
+import LoadBalancerInfo from '../../models/LoadBalancerInfo'
+import { AnyError } from '../../models/OtherTypes'
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
+import CertbotManager from './CertbotManager'
+import fs = require('fs-extra')
+import request = require('request')
 const exec = util.promisify(chileProcess.exec)
 
 const defaultPageTemplate = fs
@@ -251,8 +251,6 @@ class LoadBalancerManager {
         hasRootSsl: boolean,
         rootDomain: string
     ) {
-        const self = this
-
         const servers: IServerBlockDetails[] = []
 
         return dataStore

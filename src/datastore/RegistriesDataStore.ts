@@ -1,13 +1,13 @@
-import CaptainEncryptor from '../utils/Encryptor'
-import configstore = require('configstore')
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import {
     IRegistryInfo,
     IRegistryInfoEncrypted,
-    IRegistryTypes,
     IRegistryType,
+    IRegistryTypes,
 } from '../models/IRegistryInfo'
+import CaptainEncryptor from '../utils/Encryptor'
+import configstore = require('configstore')
 
 const DOCKER_REGISTRIES = 'dockerRegistries'
 const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
@@ -15,7 +15,7 @@ const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
 class RegistriesDataStore {
     private encryptor: CaptainEncryptor
 
-    constructor(private data: configstore, private namepace: string) {}
+    constructor(private data: configstore, public namepace: string) {}
 
     setEncryptor(encryptor: CaptainEncryptor) {
         this.encryptor = encryptor

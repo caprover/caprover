@@ -1,4 +1,4 @@
-import { removeSync, remove } from 'fs-extra'
+import { remove } from 'fs-extra'
 
 export default class Utils {
     static removeHttpHttps(input: string) {

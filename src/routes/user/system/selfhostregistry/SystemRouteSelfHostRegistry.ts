@@ -1,13 +1,12 @@
 import express = require('express')
-import BaseApi from '../../../../api/BaseApi'
-import ApiStatusCodes from '../../../../api/ApiStatusCodes'
-import Logger from '../../../../utils/Logger'
-import CaptainManager from '../../../../user/system/CaptainManager'
-import Validator = require('validator')
-import CaptainConstants from '../../../../utils/CaptainConstants'
-import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { v4 as uuid } from 'uuid'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
+import BaseApi from '../../../../api/BaseApi'
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { IRegistryTypes } from '../../../../models/IRegistryInfo'
+import CaptainManager from '../../../../user/system/CaptainManager'
+import CaptainConstants from '../../../../utils/CaptainConstants'
+import Logger from '../../../../utils/Logger'
 
 const router = express.Router()
 

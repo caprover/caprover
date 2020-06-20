@@ -64,7 +64,6 @@ export default class BackupManager {
         // - Replace the nodeId in apps with the new nodeId based on restore-instructions.json
         // - Create a captain-salt secret using the data in restore
         // - Copy restore files to proper places
-        const self = this
 
         if (!fs.pathExistsSync(RESTORE_INSTRUCTIONS_ABS_PATH)) return
 
@@ -225,8 +224,6 @@ export default class BackupManager {
         // - Iterate over all APPs and make sure they are inited properly
         // - Delete /captain/restore
         // - Wait until things settle (1 minute...)
-
-        const self = this
 
         return Promise.resolve() //
             .then(function () {

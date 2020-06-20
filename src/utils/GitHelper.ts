@@ -1,13 +1,12 @@
-import { AnyError } from '../models/OtherTypes'
-import Utils from './Utils'
-import CaptainConstants from './CaptainConstants'
+import * as childPross from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as git from 'simple-git/promise'
-import * as uuid from 'uuid'
-import Logger from './Logger'
 import * as util from 'util'
-import * as childPross from 'child_process'
+import * as uuid from 'uuid'
+import CaptainConstants from './CaptainConstants'
+import Logger from './Logger'
+import Utils from './Utils'
 const exec = util.promisify(childPross.exec)
 
 export default class GitHelper {

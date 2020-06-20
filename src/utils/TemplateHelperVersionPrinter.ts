@@ -1,9 +1,7 @@
 import request = require('request')
-import fs = require('fs-extra')
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import Logger from './Logger'
-import CaptainConstants from './CaptainConstants'
 import { ITemplate } from '../models/OtherTypes'
+import Logger from './Logger'
 
 function getTagsForImage(
     imageBaseName: string,

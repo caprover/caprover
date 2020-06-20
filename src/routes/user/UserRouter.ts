@@ -1,18 +1,16 @@
 import express = require('express')
-import BaseApi from '../../api/BaseApi'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
+import BaseApi from '../../api/BaseApi'
+import InjectionExtractor from '../../injection/InjectionExtractor'
 import * as Injector from '../../injection/Injector'
-import SystemRouter from './system/SystemRouter'
+import Authenticator from '../../user/Authenticator'
+import EnvVars from '../../utils/EnvVars'
+import Utils from '../../utils/Utils'
 import AppsRouter from './apps/AppsRouter'
 import OneClickAppRouter from './apps/oneclick/OneClickAppRouter'
-import Logger from '../../utils/Logger'
 import RegistriesRouter from './registeries/RegistriesRouter'
+import SystemRouter from './system/SystemRouter'
 import onFinished = require('on-finished')
-import InjectionExtractor from '../../injection/InjectionExtractor'
-import CaptainManager from '../../user/system/CaptainManager'
-import Utils from '../../utils/Utils'
-import EnvVars from '../../utils/EnvVars'
-import Authenticator from '../../user/Authenticator'
 
 const router = express.Router()
 

@@ -1,7 +1,7 @@
 class BaseApi {
     public data: any
 
-    constructor(private status: number, private description: string) {
+    constructor(public status: number, public description: string) {
         this.data = {}
     }
 }

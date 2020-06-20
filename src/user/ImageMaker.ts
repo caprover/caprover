@@ -38,15 +38,15 @@
 import fs = require('fs-extra')
 import tar = require('tar')
 import path = require('path')
-import DockerApi from '../docker/DockerApi'
-import GitHelper from '../utils/GitHelper'
-import CaptainConstants from '../utils/CaptainConstants'
-import TemplateHelper from './TemplateHelper'
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import { AnyError } from '../models/OtherTypes'
+import DockerApi from '../docker/DockerApi'
 import { IBuiltImage } from '../models/IBuiltImage'
+import { AnyError } from '../models/OtherTypes'
+import CaptainConstants from '../utils/CaptainConstants'
+import GitHelper from '../utils/GitHelper'
 import BuildLog from './BuildLog'
 import DockerRegistryHelper from './DockerRegistryHelper'
+import TemplateHelper from './TemplateHelper'
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
@@ -419,7 +419,6 @@ export default class ImageMaker {
         captainDefinition: ICaptainDefinition,
         directoryWithCaptainDefinition: string
     ) {
-        const self = this
         return Promise.resolve() //
             .then(function () {
                 let data = captainDefinition

@@ -1,14 +1,12 @@
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import DataStore from '../../datastore/DataStore'
+import DockerApi from '../../docker/DockerApi'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import EnvVars from '../../utils/EnvVars'
-import fs = require('fs-extra')
-import { v4 as uuid } from 'uuid'
-import ApiStatusCodes from '../../api/ApiStatusCodes'
-import bcrypt = require('bcryptjs')
-import DockerApi from '../../docker/DockerApi'
-import DataStore from '../../datastore/DataStore'
 import CertbotManager from './CertbotManager'
 import LoadBalancerManager from './LoadBalancerManager'
+import fs = require('fs-extra')
+import bcrypt = require('bcryptjs')
 
 class SelfHostedDockerRegistry {
     constructor(
