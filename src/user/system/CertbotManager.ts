@@ -238,6 +238,7 @@ class CertbotManager {
                 )
                 .then(function (data) {
                     self.unlock()
+                    Logger.dev(data)
                     return data
                 })
                 .catch(function (error) {

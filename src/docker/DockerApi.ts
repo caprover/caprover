@@ -913,15 +913,10 @@ class DockerApi {
                             Tty: true,
                         })
                     })
-                    .then(function (data) {
-                        const output = data.output // output from the exec command
-
+                    .then(function (output) {
                         if (!output) {
                             throw new Error(
-                                'No output from service: ' +
-                                    serviceName +
-                                    ' running ' +
-                                    cmd
+                                `No output from service: ${serviceName} running ${cmd}`
                             )
                         }
 
@@ -929,7 +924,7 @@ class DockerApi {
                             let finished = false
                             let outputBody = ''
 
-                            // output in IncomingMessage a readable stream
+                            // output is a readable stream
                             // https://nodejs.org/api/stream.html#stream_event_end
 
                             output.setEncoding('utf8')
