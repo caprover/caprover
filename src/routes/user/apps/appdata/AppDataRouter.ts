@@ -17,9 +17,9 @@ router.get('/:appName/logs', function(req, res, next) {
 
     return Promise.resolve()
         .then(function() {
+            const encoding  = req.query.encoding as string
             return serviceManager.getAppLogs(
-                appName,
-                req.query.encoding ? req.query.encoding : 'ascii'
+                appName, encoding ? encoding : 'ascii'
             )
         })
         .then(function(logs) {

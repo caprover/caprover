@@ -1,4 +1,4 @@
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import request = require('request')
 import fs = require('fs-extra')
 import CaptainConstants = require('../../utils/CaptainConstants')

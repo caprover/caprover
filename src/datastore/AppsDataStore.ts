@@ -1,4 +1,4 @@
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
@@ -41,7 +41,7 @@ class AppsDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 if (!appName) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -157,7 +157,7 @@ class AppsDataStore {
                     }
                 }
             })
-            .then(function() {
+            .then(function () {
                 let passwordToBeEncrypted = ''
                 let sshKeyToBeEncrypted = ''
                 let pushWebhook = app.appPushWebhook
@@ -194,7 +194,7 @@ class AppsDataStore {
 
                 return appToSave
             })
-            .then(function(appToSave: IAppDefSaved) {
+            .then(function (appToSave: IAppDefSaved) {
                 self.data.set(APP_DEFINITIONS + '.' + appName, appToSave)
             })
     }
@@ -223,11 +223,11 @@ class AppsDataStore {
         const self = this
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 self.nameAllowedOrThrow(newAppName)
                 return self.getAppDefinition(oldAppName)
             })
-            .then(function(appData) {
+            .then(function (appData) {
                 if (
                     appData.appPushWebhook &&
                     appData.appPushWebhook.pushWebhookToken
@@ -235,7 +235,7 @@ class AppsDataStore {
                     const tokenVersion = uuid()
                     return authenticator
                         .getAppPushWebhookToken(newAppName, tokenVersion)
-                        .then(val => {
+                        .then((val) => {
                             appData.appPushWebhook!.pushWebhookToken = val
                             appData.appPushWebhook!.tokenVersion = tokenVersion
                             return appData
@@ -244,13 +244,13 @@ class AppsDataStore {
 
                 return appData
             })
-            .then(function(appData) {
+            .then(function (appData) {
                 if (appData.appName) appData.appName = newAppName
                 appData.hasDefaultSubDomainSsl = false
                 self.data.delete(APP_DEFINITIONS + '.' + oldAppName)
                 self.saveApp(newAppName, appData)
             })
-            .then(function() {
+            .then(function () {
                 Utils.getDelayedPromise(2000)
             })
     }
@@ -265,11 +265,11 @@ class AppsDataStore {
 
     getAppDefinitions() {
         const self = this
-        return new Promise<IAllAppDefinitions>(function(resolve, reject) {
+        return new Promise<IAllAppDefinitions>(function (resolve, reject) {
             let allApps = self.data.get(APP_DEFINITIONS) || {}
             let allAppsUnencrypted: IAllAppDefinitions = {}
 
-            Object.keys(allApps).forEach(function(appName) {
+            Object.keys(allApps).forEach(function (appName) {
                 allAppsUnencrypted[appName] = allApps[appName]
                 const appUnencrypted = allAppsUnencrypted[appName]
 
@@ -312,7 +312,7 @@ class AppsDataStore {
     getAppDefinition(appName: string) {
         const self = this
 
-        return this.getAppDefinitions().then(function(allApps) {
+        return this.getAppDefinitions().then(function (allApps) {
             if (!appName) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -336,7 +336,7 @@ class AppsDataStore {
     setSslForDefaultSubDomain(appName: string, isEnabled: boolean) {
         const self = this
 
-        return this.getAppDefinition(appName).then(function(app) {
+        return this.getAppDefinition(appName).then(function (app) {
             app.hasDefaultSubDomainSsl = !!isEnabled
             return self.saveApp(appName, app)
         })
@@ -345,20 +345,20 @@ class AppsDataStore {
     ensureAllAppsSubDomainSslDisabled() {
         const self = this
 
-        return this.getAppDefinitions().then(function(appDefinitions) {
+        return this.getAppDefinitions().then(function (appDefinitions) {
             const promises: (() => Promise<void>)[] = []
-            Object.keys(appDefinitions).forEach(appName => {
+            Object.keys(appDefinitions).forEach((appName) => {
                 const APP_NAME = appName
-                promises.push(function() {
+                promises.push(function () {
                     return Promise.resolve()
-                        .then(function() {
+                        .then(function () {
                             return self.getAppDefinition(APP_NAME)
                         })
-                        .then(function(app) {
+                        .then(function (app) {
                             app.forceSsl = false
                             return self.saveApp(APP_NAME, app)
                         })
-                        .then(function() {
+                        .then(function () {
                             return self.setSslForDefaultSubDomain(
                                 APP_NAME,
                                 false
@@ -373,7 +373,7 @@ class AppsDataStore {
     enableCustomDomainSsl(appName: string, customDomain: string) {
         const self = this
 
-        return self.getAppDefinition(appName).then(function(app) {
+        return self.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || []
 
             if (app.customDomain.length > 0) {
@@ -394,7 +394,7 @@ class AppsDataStore {
     removeCustomDomainForApp(appName: string, customDomain: string) {
         const self = this
 
-        return this.getAppDefinition(appName).then(function(app) {
+        return this.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || []
 
             const newDomains = []
@@ -422,7 +422,7 @@ class AppsDataStore {
     addCustomDomainForApp(appName: string, customDomain: string) {
         const self = this
 
-        return this.getAppDefinition(appName).then(function(app) {
+        return this.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || []
 
             if (app.customDomain.length > 0) {
@@ -453,7 +453,7 @@ class AppsDataStore {
         const self = this
 
         return this.getAppDefinition(appName) //
-            .then(function(app) {
+            .then(function (app) {
                 app.customDomain = app.customDomain || []
 
                 for (let idx = 0; idx < customDomains.length; idx++) {
@@ -472,7 +472,7 @@ class AppsDataStore {
     verifyCustomDomainBelongsToApp(appName: string, customDomain: string) {
         const self = this
 
-        return self.getAppDefinition(appName).then(function(app) {
+        return self.getAppDefinition(appName).then(function (app) {
             app.customDomain = app.customDomain || []
 
             if (app.customDomain.length > 0) {
@@ -512,7 +512,7 @@ class AppsDataStore {
         const self = this
 
         return this.getAppDefinition(appName) //
-            .then(function(app) {
+            .then(function (app) {
                 const versions = app.versions
 
                 let found = false
@@ -549,7 +549,7 @@ class AppsDataStore {
         }
         const self = this
 
-        return this.getAppDefinition(appName).then(function(app) {
+        return this.getAppDefinition(appName).then(function (app) {
             // Drop older versions
             app.versions = Utils.dropFirstElements(
                 app.versions,
@@ -579,7 +579,7 @@ class AppsDataStore {
                 timeStamp: new Date().toISOString(),
             })
 
-            return self.saveApp(appName, app).then(function() {
+            return self.saveApp(appName, app).then(function () {
                 return newVersionIndex
             })
         })
@@ -592,10 +592,10 @@ class AppsDataStore {
     ) {
         const self = this
         return Promise.resolve() //
-            .then(function() {
+            .then(function () {
                 return self.getAppDefinition(appName)
             })
-            .then(function(appLoaded) {
+            .then(function (appLoaded) {
                 appLoaded.deployedVersion = deployedVersion
                 appLoaded.versions = vers
                 return self.saveApp(appName, appLoaded)
@@ -625,10 +625,10 @@ class AppsDataStore {
         let appObj: IAppDef
 
         return Promise.resolve()
-            .then(function() {
+            .then(function () {
                 return self.getAppDefinition(appName)
             })
-            .then(function(appLoaded) {
+            .then(function (appLoaded) {
                 appObj = appLoaded
 
                 if (
@@ -664,7 +664,7 @@ class AppsDataStore {
                             appName,
                             appObj.appPushWebhook.tokenVersion
                         )
-                        .then(function(val) {
+                        .then(function (val) {
                             appObj.appPushWebhook!.pushWebhookToken = val
                         })
                 } else {
@@ -672,7 +672,7 @@ class AppsDataStore {
                     return Promise.resolve(undefined)
                 }
             })
-            .then(function() {
+            .then(function () {
                 instanceCount = Number(instanceCount)
 
                 if (instanceCount >= 0) {
@@ -777,7 +777,7 @@ class AppsDataStore {
                     }
                 }
             })
-            .then(function() {
+            .then(function () {
                 return self.saveApp(appName, appObj)
             })
     }
@@ -785,7 +785,7 @@ class AppsDataStore {
     deleteAppDefinition(appName: string) {
         const self = this
 
-        return new Promise<void>(function(resolve, reject) {
+        return new Promise<void>(function (resolve, reject) {
             if (!isNameAllowed(appName)) {
                 reject(
                     ApiStatusCodes.createError(
@@ -808,7 +808,7 @@ class AppsDataStore {
 
             self.data.delete(APP_DEFINITIONS + '.' + appName)
             resolve()
-        }).then(function() {
+        }).then(function () {
             Utils.getDelayedPromise(2000)
         })
     }
@@ -823,7 +823,7 @@ class AppsDataStore {
     registerAppDefinition(appName: string, hasPersistentData: boolean) {
         const self = this
 
-        return new Promise<IAppDef>(function(resolve, reject) {
+        return new Promise<IAppDef>(function (resolve, reject) {
             if (!isNameAllowed(appName)) {
                 reject(
                     ApiStatusCodes.createError(
@@ -864,7 +864,7 @@ class AppsDataStore {
             }
 
             resolve(defaultAppDefinition)
-        }).then(function(app) {
+        }).then(function (app) {
             return self.saveApp(appName, app)
         })
     }

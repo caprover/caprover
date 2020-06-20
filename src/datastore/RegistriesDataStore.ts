@@ -1,6 +1,6 @@
 import { CaptainEncryptor } from '../utils/Encryptor'
 import configstore = require('configstore')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import ApiStatusCodes = require('../api/ApiStatusCodes')
 import {
     IRegistryInfo,

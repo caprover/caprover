@@ -77,8 +77,8 @@ router.get('/list', function(req, res, next) {
 })
 
 router.get('/app', function(req, res, next) {
-    const baseDomain = req.query.baseDomain
-    const appName = req.query.appName
+    const baseDomain = req.query.baseDomain as string
+    const appName = req.query.appName as string
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 

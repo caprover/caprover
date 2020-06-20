@@ -95,8 +95,8 @@ export function injectUser() {
  */
 export function injectUserForWebhook() {
     return function(req: Request, res: Response, next: NextFunction) {
-        const token = req.query.token
-        const namespace = req.query.namespace
+        const token = req.query.token as string
+        const namespace = req.query.namespace as string
         let app = undefined
 
         if (!token || !namespace) {

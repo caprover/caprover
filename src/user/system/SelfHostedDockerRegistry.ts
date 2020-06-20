@@ -2,7 +2,7 @@ import CaptainConstants = require('../../utils/CaptainConstants')
 import Logger = require('../../utils/Logger')
 import EnvVars = require('../../utils/EnvVars')
 import fs = require('fs-extra')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import bcrypt = require('bcryptjs')
 import DockerApi from '../../docker/DockerApi'

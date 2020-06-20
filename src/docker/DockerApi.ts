@@ -1,6 +1,6 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import CaptainConstants = require('../utils/CaptainConstants')
 import Logger = require('../utils/Logger')
 import EnvVars = require('../utils/EnvVars')
@@ -1197,7 +1197,7 @@ class DockerApi {
                     })
                 }
 
-                return new Promise<void>(function(resolve, reject) {
+                return new Promise<any>(function(resolve, reject) {
                     reject(error)
                 })
             })
@@ -1559,7 +1559,7 @@ class DockerApi {
             })
             .then(function(data) {
                 if (Buffer.isBuffer(data)) {
-                    return data.toString(encoding)
+                    return data.toString(encoding as any)
                 }
 
                 throw new Error(

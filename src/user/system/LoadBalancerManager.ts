@@ -2,7 +2,7 @@ import ejs = require('ejs')
 import CaptainConstants = require('../../utils/CaptainConstants')
 import Logger = require('../../utils/Logger')
 import fs = require('fs-extra')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import request = require('request')
 import ApiStatusCodes = require('../../api/ApiStatusCodes')
 import DockerApi from '../../docker/DockerApi'

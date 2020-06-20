@@ -11,8 +11,8 @@ import Utils from '../../utils/Utils'
 const router = express.Router()
 
 router.get('/', function(req, res, next) {
-    let downloadToken = req.query.downloadToken
-    let namespace = req.query.namespace
+    let downloadToken = req.query.downloadToken as string
+    let namespace = req.query.namespace as string
 
     Promise.resolve() //
         .then(function() {

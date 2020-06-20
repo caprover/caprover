@@ -616,8 +616,7 @@ class ServiceManager {
         /*
         ////////////////////////////////// Expected content of the file //////////////////////////
 
-            const uuid = require('uuid/v4');
-            console.log('-------------------------------'+uuid());
+            console.log('-------------------------------'+new Date());
 
             preDeployFunction = function (captainAppObj, dockerUpdateObject) {
                 return Promise.resolve()

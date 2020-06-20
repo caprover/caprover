@@ -1,5 +1,5 @@
 import jwt = require('jsonwebtoken')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import bcrypt = require('bcryptjs')
 
 import ApiStatusCodes = require('../api/ApiStatusCodes')

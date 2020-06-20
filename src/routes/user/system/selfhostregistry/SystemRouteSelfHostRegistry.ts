@@ -6,7 +6,7 @@ import CaptainManager = require('../../../../user/system/CaptainManager')
 import Validator = require('validator')
 import CaptainConstants = require('../../../../utils/CaptainConstants')
 import InjectionExtractor = require('../../../../injection/InjectionExtractor')
-import uuid = require('uuid/v4')
+import { v4 as uuid } from 'uuid'
 import { IRegistryTypes } from '../../../../models/IRegistryInfo'
 
 const router = express.Router()
