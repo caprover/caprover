@@ -913,8 +913,8 @@ class DockerApi {
                             Tty: true,
                         })
                     })
-                    .then(function (output) {
-                        if (!output) {
+                    .then(function (execStream) {
+                        if (!execStream) {
                             throw new Error(
                                 `No output from service: ${serviceName} running ${cmd}`
                             )
@@ -927,13 +927,13 @@ class DockerApi {
                             // output is a readable stream
                             // https://nodejs.org/api/stream.html#stream_event_end
 
-                            output.setEncoding('utf8')
+                            execStream.setEncoding('utf8')
 
-                            output.on('data', function (chunk: string) {
+                            execStream.on('data', function (chunk: string) {
                                 outputBody += chunk
                             })
 
-                            output.on('end', function () {
+                            execStream.on('end', function () {
                                 if (finished) {
                                     return
                                 }
@@ -942,7 +942,7 @@ class DockerApi {
                                 resolve(outputBody)
                             })
 
-                            output.on('close', function () {
+                            execStream.on('close', function () {
                                 if (finished) {
                                     return
                                 }
@@ -1135,10 +1135,7 @@ class DockerApi {
                     allNetworks.push(availableNetworks[i].Target)
                     if (availableNetworks[i].Target === networkId) {
                         Logger.d(
-                            'Network ' +
-                                networkName +
-                                ' is already attached to service: ' +
-                                serviceName
+                            `Network ${networkName} is already attached to service: ${serviceName}`
                         )
                         return
                     }
