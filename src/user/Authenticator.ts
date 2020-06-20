@@ -1,12 +1,11 @@
 import jwt = require('jsonwebtoken')
 import { v4 as uuid } from 'uuid'
-import bcrypt = require('bcryptjs')
-
 import ApiStatusCodes from '../api/ApiStatusCodes'
-import EnvVar from '../utils/EnvVars'
-import CaptainConstants from '../utils/CaptainConstants'
-import Logger from '../utils/Logger'
 import { UserJwt } from '../models/UserJwt'
+import CaptainConstants from '../utils/CaptainConstants'
+import EnvVar from '../utils/EnvVars'
+import Logger from '../utils/Logger'
+import bcrypt = require('bcryptjs')
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
 

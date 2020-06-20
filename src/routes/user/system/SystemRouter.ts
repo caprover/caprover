@@ -1,16 +1,16 @@
 import express = require('express')
-import BaseApi from '../../../api/BaseApi'
-import ApiStatusCodes from '../../../api/ApiStatusCodes'
-import Logger from '../../../utils/Logger'
-import CaptainManager from '../../../user/system/CaptainManager'
-import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
-import CaptainConstants from '../../../utils/CaptainConstants'
-import InjectionExtractor from '../../../injection/InjectionExtractor'
-import Utils from '../../../utils/Utils'
-import DockerUtils from '../../../docker/DockerUtils'
-import DockerApi from '../../../docker/DockerApi'
-import VersionManager from '../../../user/system/VersionManager'
 import validator from 'validator'
+import ApiStatusCodes from '../../../api/ApiStatusCodes'
+import BaseApi from '../../../api/BaseApi'
+import DockerApi from '../../../docker/DockerApi'
+import DockerUtils from '../../../docker/DockerUtils'
+import InjectionExtractor from '../../../injection/InjectionExtractor'
+import CaptainManager from '../../../user/system/CaptainManager'
+import VersionManager from '../../../user/system/VersionManager'
+import CaptainConstants from '../../../utils/CaptainConstants'
+import Logger from '../../../utils/Logger'
+import Utils from '../../../utils/Utils'
+import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
 
 const router = express.Router()
 

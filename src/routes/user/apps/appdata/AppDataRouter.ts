@@ -1,8 +1,8 @@
 import express = require('express')
-import BaseApi from '../../../../api/BaseApi'
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
-import multer = require('multer')
+import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
+import multer = require('multer')
 
 const TEMP_UPLOAD = 'temp_upload/'
 const router = express.Router()

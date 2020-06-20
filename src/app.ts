@@ -6,18 +6,18 @@ import cookieParser = require('cookie-parser')
 import bodyParser = require('body-parser')
 import httpProxyImport = require('http-proxy')
 
-import CaptainManager from './user/system/CaptainManager'
-import BaseApi from './api/BaseApi'
 import ApiStatusCodes from './api/ApiStatusCodes'
-import * as Injector from './injection/Injector'
-import Logger from './utils/Logger'
-import CaptainConstants from './utils/CaptainConstants'
-
-import LoginRouter from './routes/login/LoginRouter'
-import DownloadRouter from './routes/download/DownloadRouter'
-import UserRouter from './routes/user/UserRouter'
+import BaseApi from './api/BaseApi'
 import InjectionExtractor from './injection/InjectionExtractor'
+import * as Injector from './injection/Injector'
+import DownloadRouter from './routes/download/DownloadRouter'
+import LoginRouter from './routes/login/LoginRouter'
+import UserRouter from './routes/user/UserRouter'
+import CaptainManager from './user/system/CaptainManager'
+import CaptainConstants from './utils/CaptainConstants'
+import Logger from './utils/Logger'
 import Utils from './utils/Utils'
+
 // import { NextFunction, Request, Response } from 'express'
 
 const httpProxy = httpProxyImport.createProxyServer({})

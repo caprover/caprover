@@ -1,8 +1,8 @@
-import DockerApi from './DockerApi'
-import SshClientImport = require('ssh2')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
+import DockerApi from './DockerApi'
+import SshClientImport = require('ssh2')
 const SshClient = SshClientImport.Client
 
 export default class DockerUtils {

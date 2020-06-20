@@ -1,11 +1,11 @@
-import DataStore from '../datastore/DataStore'
 import * as fs from 'fs-extra'
-import CaptainConstants from './CaptainConstants'
 import * as path from 'path'
-import Logger from './Logger'
-import Authenticator from '../user/Authenticator'
-import { IRegistryTypes } from '../models/IRegistryInfo'
+import DataStore from '../datastore/DataStore'
 import DockerApi from '../docker/DockerApi'
+import { IRegistryTypes } from '../models/IRegistryInfo'
+import Authenticator from '../user/Authenticator'
+import CaptainConstants from './CaptainConstants'
+import Logger from './Logger'
 
 export default class MigrateCaptainDuckDuck {
     private oldFilePath: string

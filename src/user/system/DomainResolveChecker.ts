@@ -1,12 +1,12 @@
-import LoadBalancerManager from './LoadBalancerManager'
-import CertbotManager from './CertbotManager'
+import { v4 as uuid } from 'uuid'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import request = require('request')
-import ApiStatusCodes from '../../api/ApiStatusCodes'
-import { v4 as uuid } from 'uuid'
-import fs = require('fs-extra')
 import Utils from '../../utils/Utils'
+import CertbotManager from './CertbotManager'
+import LoadBalancerManager from './LoadBalancerManager'
+import request = require('request')
+import fs = require('fs-extra')
 
 export default class DomainResolveChecker {
     constructor(

@@ -1,9 +1,9 @@
 import express = require('express')
-import BaseApi from '../../../api/BaseApi'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
-import Logger from '../../../utils/Logger'
+import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
 import { IRegistryInfo, IRegistryTypes } from '../../../models/IRegistryInfo'
+import Logger from '../../../utils/Logger'
 
 const router = express.Router()
 

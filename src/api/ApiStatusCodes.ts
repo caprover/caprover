@@ -1,7 +1,7 @@
-import { CaptainError } from './CaptainError'
 import { Response } from 'express'
-import BaseApi from './BaseApi'
 import Logger from '../utils/Logger'
+import BaseApi from './BaseApi'
+import { CaptainError } from './CaptainError'
 
 class ApiStatusCodes {
     static createError(code: number, message: string) {

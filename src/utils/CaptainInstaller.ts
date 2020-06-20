@@ -1,10 +1,10 @@
 import externalIp = require('public-ip')
 import DockerApi from '../docker/DockerApi'
+import BackupManager from '../user/system/BackupManager'
 import CaptainConstants from './CaptainConstants'
 import EnvVar from './EnvVars'
 import http = require('http')
 import request = require('request')
-import BackupManager from '../user/system/BackupManager'
 
 // internal IP returns Public IP if the machine is not behind a NAT
 // No need to directly use Public IP.
