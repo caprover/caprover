@@ -1,8 +1,8 @@
 import express = require('express')
-import BaseApi = require('../../../api/BaseApi')
-import ApiStatusCodes = require('../../../api/ApiStatusCodes')
-import Logger = require('../../../utils/Logger')
-import InjectionExtractor = require('../../../injection/InjectionExtractor')
+import BaseApi from '../../../api/BaseApi'
+import ApiStatusCodes from '../../../api/ApiStatusCodes'
+import Logger from '../../../utils/Logger'
+import InjectionExtractor from '../../../injection/InjectionExtractor'
 import { IRegistryInfo, IRegistryTypes } from '../../../models/IRegistryInfo'
 
 const router = express.Router()
@@ -133,4 +133,4 @@ router.post('/setpush/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-export = router
+export default router

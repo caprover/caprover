@@ -1,11 +1,11 @@
 import express = require('express')
-import BaseApi = require('../../../api/BaseApi')
-import ApiStatusCodes = require('../../../api/ApiStatusCodes')
-import Logger = require('../../../utils/Logger')
-import CaptainManager = require('../../../user/system/CaptainManager')
-import SystemRouteSelfHostRegistry = require('./selfhostregistry/SystemRouteSelfHostRegistry')
-import CaptainConstants = require('../../../utils/CaptainConstants')
-import InjectionExtractor = require('../../../injection/InjectionExtractor')
+import BaseApi from '../../../api/BaseApi'
+import ApiStatusCodes from '../../../api/ApiStatusCodes'
+import Logger from '../../../utils/Logger'
+import CaptainManager from '../../../user/system/CaptainManager'
+import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
+import CaptainConstants from '../../../utils/CaptainConstants'
+import InjectionExtractor from '../../../injection/InjectionExtractor'
 import Utils from '../../../utils/Utils'
 import DockerUtils from '../../../docker/DockerUtils'
 import DockerApi from '../../../docker/DockerApi'
@@ -356,4 +356,4 @@ router.post('/nodes/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-export = router
+export default router

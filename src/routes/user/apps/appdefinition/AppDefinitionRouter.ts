@@ -1,11 +1,11 @@
 import express = require('express')
 import fs = require('fs')
-import BaseApi = require('../../../../api/BaseApi')
-import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
-import Logger = require('../../../../utils/Logger')
-import CaptainConstants = require('../../../../utils/CaptainConstants')
+import BaseApi from '../../../../api/BaseApi'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
+import Logger from '../../../../utils/Logger'
+import CaptainConstants from '../../../../utils/CaptainConstants'
 import { CaptainError } from '../../../../models/OtherTypes'
-import InjectionExtractor = require('../../../../injection/InjectionExtractor')
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
@@ -419,4 +419,4 @@ router.post('/update/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-export = router
+export default router

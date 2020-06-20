@@ -1,9 +1,9 @@
-import LoadBalancerManager = require('./LoadBalancerManager')
-import CertbotManager = require('./CertbotManager')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import Logger = require('../../utils/Logger')
+import LoadBalancerManager from './LoadBalancerManager'
+import CertbotManager from './CertbotManager'
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
 import request = require('request')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import { v4 as uuid } from 'uuid'
 import fs = require('fs-extra')
 import Utils from '../../utils/Utils'

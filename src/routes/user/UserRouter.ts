@@ -1,18 +1,18 @@
 import express = require('express')
-import BaseApi = require('../../api/BaseApi')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import Injector = require('../../injection/Injector')
-import SystemRouter = require('./system/SystemRouter')
-import AppsRouter = require('./apps/AppsRouter')
-import OneClickAppRouter = require('./apps/oneclick/OneClickAppRouter')
-import Logger = require('../../utils/Logger')
-import RegistriesRouter = require('./registeries/RegistriesRouter')
+import BaseApi from '../../api/BaseApi'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import * as Injector from '../../injection/Injector'
+import SystemRouter from './system/SystemRouter'
+import AppsRouter from './apps/AppsRouter'
+import OneClickAppRouter from './apps/oneclick/OneClickAppRouter'
+import Logger from '../../utils/Logger'
+import RegistriesRouter from './registeries/RegistriesRouter'
 import onFinished = require('on-finished')
-import InjectionExtractor = require('../../injection/InjectionExtractor')
-import CaptainManager = require('../../user/system/CaptainManager')
+import InjectionExtractor from '../../injection/InjectionExtractor'
+import CaptainManager from '../../user/system/CaptainManager'
 import Utils from '../../utils/Utils'
-import EnvVars = require('../../utils/EnvVars')
-import Authenticator = require('../../user/Authenticator')
+import EnvVars from '../../utils/EnvVars'
+import Authenticator from '../../user/Authenticator'
 
 const router = express.Router()
 
@@ -127,4 +127,4 @@ router.use('/registries/', RegistriesRouter)
 
 router.use('/system/', SystemRouter)
 
-export = router
+export default router

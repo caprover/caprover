@@ -1,6 +1,6 @@
 import fs = require('fs-extra')
 import path = require('path')
-import EnvVars = require('./EnvVars')
+import EnvVars from './EnvVars'
 
 const CAPTAIN_BASE_DIRECTORY = '/captain'
 const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
@@ -202,4 +202,4 @@ if (data.isDebug) {
     data.nginxPortNumber = 80
 }
 
-export = data
+export default data

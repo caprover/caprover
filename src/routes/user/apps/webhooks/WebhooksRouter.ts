@@ -1,9 +1,9 @@
 import express = require('express')
 import bodyParser = require('body-parser')
-import BaseApi = require('../../../../api/BaseApi')
-import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
-import Logger = require('../../../../utils/Logger')
-import InjectionExtractor = require('../../../../injection/InjectionExtractor')
+import BaseApi from '../../../../api/BaseApi'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
+import Logger from '../../../../utils/Logger'
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
 
 const router = express.Router()
 
@@ -109,4 +109,4 @@ router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
         })
 })
 
-export = router
+export default router

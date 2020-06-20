@@ -1,4 +1,4 @@
-import Logger = require('../utils/Logger')
+import Logger from '../utils/Logger'
 
 class BuildLog {
     public isBuildFailed: boolean
@@ -45,4 +45,4 @@ class BuildLog {
     }
 }
 
-export = BuildLog
+export default BuildLog

@@ -1,10 +1,10 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
 import { v4 as uuid } from 'uuid'
-import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
-import EnvVars = require('../utils/EnvVars')
-import BuildLog = require('../user/BuildLog')
+import CaptainConstants from '../utils/CaptainConstants'
+import Logger from '../utils/Logger'
+import EnvVars from '../utils/EnvVars'
+import BuildLog from '../user/BuildLog'
 import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,

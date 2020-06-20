@@ -1,11 +1,11 @@
 import { AnyError } from '../models/OtherTypes'
 import Utils from './Utils'
-import * as CaptainConstants from './CaptainConstants'
+import CaptainConstants from './CaptainConstants'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as git from 'simple-git/promise'
 import * as uuid from 'uuid'
-import Logger = require('./Logger')
+import Logger from './Logger'
 import * as util from 'util'
 import * as childPross from 'child_process'
 const exec = util.promisify(childPross.exec)

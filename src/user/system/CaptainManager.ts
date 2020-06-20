@@ -1,21 +1,21 @@
 import { v4 as uuid } from 'uuid'
 import request = require('request')
 import fs = require('fs-extra')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import Logger = require('../../utils/Logger')
-import LoadBalancerManager = require('./LoadBalancerManager')
-import EnvVars = require('../../utils/EnvVars')
-import CertbotManager = require('./CertbotManager')
-import SelfHostedDockerRegistry = require('./SelfHostedDockerRegistry')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import DataStoreProvider = require('../../datastore/DataStoreProvider')
-import DataStore = require('../../datastore/DataStore')
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
+import LoadBalancerManager from './LoadBalancerManager'
+import EnvVars from '../../utils/EnvVars'
+import CertbotManager from './CertbotManager'
+import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import DataStoreProvider from '../../datastore/DataStoreProvider'
+import DataStore from '../../datastore/DataStore'
 import DockerApi from '../../docker/DockerApi'
 import { IRegistryTypes, IRegistryInfo } from '../../models/IRegistryInfo'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
-import Authenticator = require('../Authenticator')
+import Authenticator from '../Authenticator'
 import BackupManager from './BackupManager'
-import ServiceManager = require('../ServiceManager')
+import ServiceManager from '../ServiceManager'
 import Utils from '../../utils/Utils'
 import DomainResolveChecker from './DomainResolveChecker'
 
@@ -856,4 +856,4 @@ class CaptainManager {
     }
 }
 
-export = CaptainManager
+export default CaptainManager

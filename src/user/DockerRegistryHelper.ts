@@ -1,17 +1,12 @@
-import DataStore = require('../datastore/DataStore')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import Logger = require('../utils/Logger')
-import CaptainConstants = require('../utils/CaptainConstants')
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import DataStore from '../datastore/DataStore'
+import RegistriesDataStore from '../datastore/RegistriesDataStore'
 import DockerApi from '../docker/DockerApi'
-import BuildLog = require('./BuildLog')
+import { IRegistryInfo, IRegistryType, IRegistryTypes } from '../models/IRegistryInfo'
 import { AnyError } from '../models/OtherTypes'
-import RegistriesDataStore = require('../datastore/RegistriesDataStore')
-import {
-    IRegistryTypes,
-    IRegistryType,
-    IRegistryInfo,
-} from '../models/IRegistryInfo'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
+import BuildLog from './BuildLog'
 
 class DockerRegistryHelper {
     private registriesDataStore: RegistriesDataStore
@@ -276,4 +271,4 @@ class DockerRegistryHelper {
     }
 }
 
-export = DockerRegistryHelper
+export default DockerRegistryHelper

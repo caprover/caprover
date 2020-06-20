@@ -3,10 +3,10 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
-import CaptainConstants = require('../utils/CaptainConstants')
-import Encryptor = require('../utils/Encryptor')
-import AppsDataStore = require('./AppsDataStore')
-import RegistriesDataStore = require('./RegistriesDataStore')
+import CaptainConstants from '../utils/CaptainConstants'
+import CaptainEncryptor from '../utils/Encryptor'
+import AppsDataStore from './AppsDataStore'
+import RegistriesDataStore from './RegistriesDataStore'
 
 // keys:
 const NAMESPACE = 'namespace'
@@ -35,7 +35,7 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .toString()
 
 class DataStore {
-    private encryptor: Encryptor.CaptainEncryptor
+    private encryptor: CaptainEncryptor
     private namespace: string
     private data: Configstore
     private appsDataStore: AppsDataStore
@@ -58,7 +58,7 @@ class DataStore {
     }
 
     setEncryptionSalt(salt: string) {
-        this.encryptor = new Encryptor.CaptainEncryptor(this.namespace + salt)
+        this.encryptor = new CaptainEncryptor(this.namespace + salt)
         this.appsDataStore.setEncryptor(this.encryptor)
         this.registriesDataStore.setEncryptor(this.encryptor)
     }
@@ -269,4 +269,4 @@ class DataStore {
     }
 }
 
-export = DataStore
+export default DataStore

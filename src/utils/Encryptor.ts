@@ -1,12 +1,13 @@
+import crypto = require('crypto')
+
 /**
  * Content of this file is mostly taken from https://gist.github.com/vlucas/2bd40f62d20c1d49237a109d491974eb
  */
-import crypto = require('crypto')
 
 const algorithm = 'aes-256-ctr'
 const IV_LENGTH = 16 // For AES, this is always 16
 
-export class CaptainEncryptor {
+export default class CaptainEncryptor {
     private encryptionKey: string
 
     constructor(encryptionKey: string) {

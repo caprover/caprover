@@ -1,8 +1,8 @@
 import express = require('express')
-import BaseApi = require('../../../../api/BaseApi')
-import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
+import BaseApi from '../../../../api/BaseApi'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import multer = require('multer')
-import InjectionExtractor = require('../../../../injection/InjectionExtractor')
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
 
 const TEMP_UPLOAD = 'temp_upload/'
 const router = express.Router()
@@ -132,4 +132,4 @@ router.post('/:appName/', upload.single('sourceFile'), function (
     })
 })
 
-export = router
+export default router

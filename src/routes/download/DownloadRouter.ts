@@ -1,11 +1,11 @@
 import express = require('express')
-import BaseApi = require('../../api/BaseApi')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import InjectionExtractor = require('../../injection/InjectionExtractor')
-import DataStoreProvider = require('../../datastore/DataStoreProvider')
-import CaptainManager = require('../../user/system/CaptainManager')
-import Authenticator = require('../../user/Authenticator')
+import BaseApi from '../../api/BaseApi'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import CaptainConstants from '../../utils/CaptainConstants'
+import InjectionExtractor from '../../injection/InjectionExtractor'
+import DataStoreProvider from '../../datastore/DataStoreProvider'
+import CaptainManager from '../../user/system/CaptainManager'
+import Authenticator from '../../user/Authenticator'
 import Utils from '../../utils/Utils'
 
 const router = express.Router()
@@ -34,4 +34,4 @@ router.get('/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-export = router
+export default router

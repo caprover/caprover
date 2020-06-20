@@ -1,10 +1,10 @@
 import { v4 as uuid } from 'uuid'
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import CaptainConstants = require('../utils/CaptainConstants')
-import Logger = require('../utils/Logger')
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import CaptainConstants from '../utils/CaptainConstants'
+import Logger from '../utils/Logger'
 import configstore = require('configstore')
-import Authenticator = require('../user/Authenticator')
-import { CaptainEncryptor } from '../utils/Encryptor'
+import Authenticator from '../user/Authenticator'
+import CaptainEncryptor from '../utils/Encryptor'
 import { IBuiltImage } from '../models/IBuiltImage'
 import Utils from '../utils/Utils'
 import ApacheMd5 from '../utils/ApacheMd5'
@@ -870,4 +870,4 @@ class AppsDataStore {
     }
 }
 
-export = AppsDataStore
+export default AppsDataStore

@@ -1,7 +1,7 @@
-import { CaptainEncryptor } from '../utils/Encryptor'
+import CaptainEncryptor from '../utils/Encryptor'
 import configstore = require('configstore')
 import { v4 as uuid } from 'uuid'
-import ApiStatusCodes = require('../api/ApiStatusCodes')
+import ApiStatusCodes from '../api/ApiStatusCodes'
 import {
     IRegistryInfo,
     IRegistryInfoEncrypted,
@@ -278,4 +278,4 @@ class RegistriesDataStore {
     }
 }
 
-export = RegistriesDataStore
+export default RegistriesDataStore

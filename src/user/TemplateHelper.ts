@@ -1,10 +1,10 @@
 import request = require('request')
 import fs = require('fs-extra')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import Logger = require('../utils/Logger')
-import CaptainConstants = require('../utils/CaptainConstants')
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import Logger from '../utils/Logger'
+import CaptainConstants from '../utils/CaptainConstants'
 import { ITemplate } from '../models/OtherTypes'
-import TemplateHelperVersionPrinter = require('../utils/TemplateHelperVersionPrinter')
+import TemplateHelperVersionPrinter from '../utils/TemplateHelperVersionPrinter'
 
 class TemplateHelper {
     private templates: ITemplate[]
@@ -89,7 +89,7 @@ class TemplateHelper {
 
 const templateHelperInstance = new TemplateHelper()
 
-export = {
+export default {
     get: function () {
         return templateHelperInstance
     },

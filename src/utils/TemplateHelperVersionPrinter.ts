@@ -1,8 +1,8 @@
 import request = require('request')
 import fs = require('fs-extra')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
-import Logger = require('./Logger')
-import CaptainConstants = require('./CaptainConstants')
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import Logger from './Logger'
+import CaptainConstants from './CaptainConstants'
 import { ITemplate } from '../models/OtherTypes'
 
 function getTagsForImage(
@@ -167,4 +167,4 @@ class TemplateHelperVersionPrinter {
     }
 }
 
-export = TemplateHelperVersionPrinter
+export default TemplateHelperVersionPrinter

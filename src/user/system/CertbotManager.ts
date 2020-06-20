@@ -1,8 +1,8 @@
-import CaptainConstants = require('../../utils/CaptainConstants')
-import Logger = require('../../utils/Logger')
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
 import fs = require('fs-extra')
 import { v4 as uuid } from 'uuid'
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import Utils from '../../utils/Utils'
 
@@ -414,4 +414,4 @@ class CertbotManager {
     }
 }
 
-export = CertbotManager
+export default CertbotManager

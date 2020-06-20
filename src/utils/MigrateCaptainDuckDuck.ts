@@ -1,9 +1,9 @@
-import DataStore = require('../datastore/DataStore')
+import DataStore from '../datastore/DataStore'
 import * as fs from 'fs-extra'
-import * as CaptainConstants from './CaptainConstants'
+import CaptainConstants from './CaptainConstants'
 import * as path from 'path'
-import Logger = require('./Logger')
-import Authenticator = require('../user/Authenticator')
+import Logger from './Logger'
+import Authenticator from '../user/Authenticator'
 import { IRegistryTypes } from '../models/IRegistryInfo'
 import DockerApi from '../docker/DockerApi'
 

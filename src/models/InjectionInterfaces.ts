@@ -1,5 +1,5 @@
-import DataStore = require('../datastore/DataStore')
-import ServiceManager = require('../user/ServiceManager')
+import DataStore from '../datastore/DataStore'
+import ServiceManager from '../user/ServiceManager'
 
 export interface UserInjected {
     namespace: string

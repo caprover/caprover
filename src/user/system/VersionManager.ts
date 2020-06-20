@@ -1,8 +1,8 @@
 import request = require('request')
-import CaptainConstants = require('../../utils/CaptainConstants')
+import CaptainConstants from '../../utils/CaptainConstants'
 import DockerApi from '../../docker/DockerApi'
 import axios from 'axios'
-import Logger = require('../../utils/Logger')
+import Logger from '../../utils/Logger'
 
 class VersionManager {
     private dockerApi: DockerApi

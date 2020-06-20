@@ -1,13 +1,13 @@
 import ejs = require('ejs')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import Logger = require('../../utils/Logger')
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
 import fs = require('fs-extra')
 import { v4 as uuid } from 'uuid'
 import request = require('request')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
-import DataStore = require('../../datastore/DataStore')
-import CertbotManager = require('./CertbotManager')
+import DataStore from '../../datastore/DataStore'
+import CertbotManager from './CertbotManager'
 import { AnyError } from '../../models/OtherTypes'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import * as path from 'path'
@@ -791,4 +791,4 @@ class LoadBalancerManager {
     }
 }
 
-export = LoadBalancerManager
+export default LoadBalancerManager

@@ -1,9 +1,5 @@
 import { AnyError } from '../models/OtherTypes'
-
-/**
- * Created by kasra on 27/06/17.
- */
-const CaptainConstants = require('./CaptainConstants')
+import CaptainConstants from './CaptainConstants'
 const moment = require('moment')
 
 function errorize(error: AnyError) {
@@ -42,4 +38,4 @@ class Logger {
         console.error(getTime() + err + '\n' + err.stack)
     }
 }
-export = Logger
+export default Logger

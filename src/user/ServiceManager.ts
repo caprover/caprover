@@ -1,16 +1,16 @@
-import Logger = require('../utils/Logger')
-import CaptainConstants = require('../utils/CaptainConstants')
-import LoadBalancerManager = require('./system/LoadBalancerManager')
+import Logger from '../utils/Logger'
+import CaptainConstants from '../utils/CaptainConstants'
+import LoadBalancerManager from './system/LoadBalancerManager'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
-import DataStore = require('../datastore/DataStore')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
+import DataStore from '../datastore/DataStore'
+import ApiStatusCodes from '../api/ApiStatusCodes'
 import requireFromString = require('require-from-string')
-import BuildLog = require('./BuildLog')
+import BuildLog from './BuildLog'
 import { ImageInfo } from 'dockerode'
-import DockerRegistryHelper = require('./DockerRegistryHelper')
+import DockerRegistryHelper from './DockerRegistryHelper'
 import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
-import Authenticator = require('./Authenticator')
+import Authenticator from './Authenticator'
 
 const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
@@ -940,4 +940,4 @@ class ServiceManager {
     }
 }
 
-export = ServiceManager
+export default ServiceManager

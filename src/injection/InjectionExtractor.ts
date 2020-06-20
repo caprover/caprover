@@ -30,4 +30,4 @@ class InjectionExtractor {
     }
 }
 
-export = InjectionExtractor
+export default InjectionExtractor

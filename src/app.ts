@@ -6,17 +6,17 @@ import cookieParser = require('cookie-parser')
 import bodyParser = require('body-parser')
 import httpProxyImport = require('http-proxy')
 
-import CaptainManager = require('./user/system/CaptainManager')
-import BaseApi = require('./api/BaseApi')
-import ApiStatusCodes = require('./api/ApiStatusCodes')
-import Injector = require('./injection/Injector')
-import Logger = require('./utils/Logger')
-import CaptainConstants = require('./utils/CaptainConstants')
+import CaptainManager from './user/system/CaptainManager'
+import BaseApi from './api/BaseApi'
+import ApiStatusCodes from './api/ApiStatusCodes'
+import * as Injector from './injection/Injector'
+import Logger from './utils/Logger'
+import CaptainConstants from './utils/CaptainConstants'
 
-import LoginRouter = require('./routes/login/LoginRouter')
-import DownloadRouter = require('./routes/download/DownloadRouter')
-import UserRouter = require('./routes/user/UserRouter')
-import InjectionExtractor = require('./injection/InjectionExtractor')
+import LoginRouter from './routes/login/LoginRouter'
+import DownloadRouter from './routes/download/DownloadRouter'
+import UserRouter from './routes/user/UserRouter'
+import InjectionExtractor from './injection/InjectionExtractor'
 import Utils from './utils/Utils'
 // import { NextFunction, Request, Response } from 'express'
 
@@ -235,4 +235,4 @@ setTimeout(function () {
     CaptainManager.get().initialize()
 }, 1500)
 
-export = app
+export default app

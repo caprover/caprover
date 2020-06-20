@@ -1,11 +1,11 @@
 import express = require('express')
-import BaseApi = require('../../../../api/BaseApi')
-import ApiStatusCodes = require('../../../../api/ApiStatusCodes')
-import Logger = require('../../../../utils/Logger')
-import CaptainManager = require('../../../../user/system/CaptainManager')
+import BaseApi from '../../../../api/BaseApi'
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
+import Logger from '../../../../utils/Logger'
+import CaptainManager from '../../../../user/system/CaptainManager'
 import Validator = require('validator')
-import CaptainConstants = require('../../../../utils/CaptainConstants')
-import InjectionExtractor = require('../../../../injection/InjectionExtractor')
+import CaptainConstants from '../../../../utils/CaptainConstants'
+import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { v4 as uuid } from 'uuid'
 import { IRegistryTypes } from '../../../../models/IRegistryInfo'
 
@@ -95,4 +95,4 @@ router.post('/disableregistry/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-export = router
+export default router

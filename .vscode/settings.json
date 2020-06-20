@@ -6,6 +6,10 @@
         "**/dist": true,
         "**/coverge": true
     },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
     "typescript.referencesCodeLens.enabled": true,
     "tslint.ignoreDefinitionFiles": false,
     "tslint.autoFixOnSave": true,

@@ -1,16 +1,16 @@
-import DataStoreProvider = require('../datastore/DataStoreProvider')
-import Authenticator = require('../user/Authenticator')
-import CaptainConstants = require('../utils/CaptainConstants')
-import CaptainManager = require('../user/system/CaptainManager')
-import ServiceManager = require('../user/ServiceManager')
+import DataStoreProvider from '../datastore/DataStoreProvider'
+import Authenticator from '../user/Authenticator'
+import CaptainConstants from '../utils/CaptainConstants'
+import CaptainManager from '../user/system/CaptainManager'
+import ServiceManager from '../user/ServiceManager'
 import DockerApiProvider from '../docker/DockerApi'
-import BaseApi = require('../api/BaseApi')
-import UserModel = require('../models/InjectionInterfaces')
-import Logger = require('../utils/Logger')
+import BaseApi from '../api/BaseApi'
+import * as UserModel from '../models/InjectionInterfaces'
+import Logger from '../utils/Logger'
 import { Response, Request, NextFunction } from 'express'
 import { CaptainError } from '../models/OtherTypes'
-import InjectionExtractor = require('./InjectionExtractor')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
+import InjectionExtractor from './InjectionExtractor'
+import ApiStatusCodes from '../api/ApiStatusCodes'
 
 const dockerApi = DockerApiProvider.get()
 

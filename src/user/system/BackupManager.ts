@@ -1,19 +1,18 @@
 import SshClientImport = require('ssh2')
-import CaptainConstants = require('../../utils/CaptainConstants')
-import Logger = require('../../utils/Logger')
-import CertbotManager = require('./CertbotManager')
-import ApiStatusCodes = require('../../api/ApiStatusCodes')
-import DockerApi from '../../docker/DockerApi'
-import * as tar from 'tar'
-import * as fs from 'fs-extra'
-import Utils from '../../utils/Utils'
-import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
-import DockerUtils from '../../docker/DockerUtils'
-import uuid = require('uuid')
-import Authenticator = require('../Authenticator')
-import * as path from 'path'
 import { exec } from 'child_process'
+import * as fs from 'fs-extra'
 import * as moment from 'moment'
+import * as path from 'path'
+import * as tar from 'tar'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
+import DockerApi from '../../docker/DockerApi'
+import DockerUtils from '../../docker/DockerUtils'
+import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
+import CaptainConstants from '../../utils/CaptainConstants'
+import Logger from '../../utils/Logger'
+import Utils from '../../utils/Utils'
+import Authenticator from '../Authenticator'
+import CertbotManager from './CertbotManager'
 const SshClient = SshClientImport.Client
 
 const CURRENT_NODE_DONT_CHANGE = 'CURRENT_NODE_DONT_CHANGE'

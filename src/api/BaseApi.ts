@@ -6,4 +6,4 @@ class BaseApi {
     }
 }
 
-export = BaseApi
+export default BaseApi

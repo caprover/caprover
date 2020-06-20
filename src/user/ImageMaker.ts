@@ -40,13 +40,13 @@ import tar = require('tar')
 import path = require('path')
 import DockerApi from '../docker/DockerApi'
 import GitHelper from '../utils/GitHelper'
-import CaptainConstants = require('../utils/CaptainConstants')
-import TemplateHelper = require('./TemplateHelper')
-import ApiStatusCodes = require('../api/ApiStatusCodes')
+import CaptainConstants from '../utils/CaptainConstants'
+import TemplateHelper from './TemplateHelper'
+import ApiStatusCodes from '../api/ApiStatusCodes'
 import { AnyError } from '../models/OtherTypes'
 import { IBuiltImage } from '../models/IBuiltImage'
-import BuildLog = require('./BuildLog')
-import DockerRegistryHelper = require('./DockerRegistryHelper')
+import BuildLog from './BuildLog'
+import DockerRegistryHelper from './DockerRegistryHelper'
 
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
