@@ -229,10 +229,12 @@ app.use(function (err, req, res, next) {
     Promise.reject(err).catch(ApiStatusCodes.createCatcher(res))
 } as express.ErrorRequestHandler)
 
-// Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
-// if this was done without a delay
-setTimeout(function () {
-    CaptainManager.get().initialize()
-}, 1500)
-
 export default app
+
+export function initializeCaptainWithDelay() {
+    // Initializing with delay helps with debugging. Usually, docker didn't see the CAPTAIN service
+    // if this was done without a delay
+    setTimeout(function () {
+        CaptainManager.get().initialize()
+    }, 1500)
+}
