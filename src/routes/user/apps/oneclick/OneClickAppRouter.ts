@@ -6,6 +6,8 @@ import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import Logger from '../../../../utils/Logger'
 
 const router = express.Router()
+const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
+
 interface IOneClickAppIdentifier {
     baseUrl: string
     name: string
@@ -14,7 +16,90 @@ interface IOneClickAppIdentifier {
     logoUrl: string
 }
 
-router.get('/list', function (req, res, next) {
+router.post('/repositories/insert', function (req, res, next) {
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
+    let apiBaseUrl = `${req.body.repositoryUrl || ''}`
+    if (apiBaseUrl.endsWith('/')) {
+        apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
+    }
+
+    return Promise.resolve() //
+        .then(function () {
+            return dataStore.getAllOneClickBaseUrls()
+        })
+        .then(function (urls) {
+            if (urls.indexOf(apiBaseUrl) >= 0)
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Repository URL already exists: ' + apiBaseUrl
+                )
+
+            return axios
+                .get(apiBaseUrl + `/v2/list`)
+                .then(function (axiosResponse) {
+                    return axiosResponse.data.oneClickApps as any[]
+                })
+                .then(function (apps: any[]) {
+                    if (!apps || !apps.length)
+                        throw new Error(
+                            'No apps were retrieved from ' + apiBaseUrl
+                        )
+                })
+                .catch((err) => {
+                    Logger.e(err)
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'Could not fetch app lists from ' + apiBaseUrl
+                    )
+                })
+        })
+        .then(function () {
+            return dataStore.insertOneClickBaseUrl(apiBaseUrl)
+        })
+        .then(function () {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'One Click apps repository URL is saved: ' + apiBaseUrl
+            )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.post('/repositories/delete', function (req, res, next) {
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
+    let apiBaseUrl = `${req.body.repositoryUrl || ''}`
+    if (apiBaseUrl.endsWith('/')) {
+        apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
+    }
+
+    return Promise.resolve() //
+        .then(function () {
+            return dataStore.getAllOneClickBaseUrls()
+        })
+        .then(function (urls) {
+            if (urls.indexOf(apiBaseUrl) < 0)
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Repository URL does not exist ' + apiBaseUrl
+                )
+        })
+        .then(function () {
+            return dataStore.deleteOneClickBaseUrl(apiBaseUrl)
+        })
+        .then(function () {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'One Click apps repository URL is deleted ' + apiBaseUrl
+            )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/repositories/', function (req, res, next) {
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
         .dataStore
 
@@ -23,6 +108,27 @@ router.get('/list', function (req, res, next) {
             return dataStore.getAllOneClickBaseUrls()
         })
         .then(function (urls) {
+            let baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'One click repositories are retrieved '
+            )
+            baseApi.data = {}
+            baseApi.data.urls = urls
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/template/list', function (req, res, next) {
+    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
+        .dataStore
+
+    return Promise.resolve() //
+        .then(function () {
+            return dataStore.getAllOneClickBaseUrls()
+        })
+        .then(function (urls) {
+            urls.push(DEFAULT_ONE_CLICK_BASE_URL)
             const promises = [] as Promise<IOneClickAppIdentifier[]>[]
 
             urls.forEach((apiBaseUrl) => {
@@ -72,7 +178,7 @@ router.get('/list', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/app', function (req, res, next) {
+router.get('/template/app', function (req, res, next) {
     const baseDomain = req.query.baseDomain as string
     const appName = req.query.appName as string
     const dataStore = InjectionExtractor.extractUserFromInjected(res).user
@@ -83,6 +189,7 @@ router.get('/app', function (req, res, next) {
             return dataStore.getAllOneClickBaseUrls()
         })
         .then(function (urls) {
+            urls.push(DEFAULT_ONE_CLICK_BASE_URL)
             if (urls.indexOf(baseDomain) < 0)
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_PARAMETER,
