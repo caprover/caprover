@@ -7,7 +7,7 @@ import Authenticator from '../../user/Authenticator'
 import EnvVars from '../../utils/EnvVars'
 import Utils from '../../utils/Utils'
 import AppsRouter from './apps/AppsRouter'
-import OneClickAppRouter from './apps/oneclick/OneClickAppRouter'
+import OneClickAppRouter from './oneclick/OneClickAppRouter'
 import RegistriesRouter from './registeries/RegistriesRouter'
 import SystemRouter from './system/SystemRouter'
 import onFinished = require('on-finished')

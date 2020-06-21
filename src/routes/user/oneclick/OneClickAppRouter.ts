@@ -1,9 +1,9 @@
 import express = require('express')
 import axios from 'axios'
-import ApiStatusCodes from '../../../../api/ApiStatusCodes'
-import BaseApi from '../../../../api/BaseApi'
-import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import Logger from '../../../../utils/Logger'
+import ApiStatusCodes from '../../../api/ApiStatusCodes'
+import BaseApi from '../../../api/BaseApi'
+import InjectionExtractor from '../../../injection/InjectionExtractor'
+import Logger from '../../../utils/Logger'
 
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
@@ -144,7 +144,12 @@ router.get('/template/list', function (req, res, next) {
                                 name: element.name,
                                 displayName: `${element.displayName}`,
                                 description: `${element.description}`,
-                                logoUrl: `${element.logoUrl}`,
+                                logoUrl:
+                                    element.logoUrl &&
+                                    (element.logoUrl.startsWith('http://') ||
+                                        element.logoUrl.startsWith('https://'))
+                                        ? element.logoUrl
+                                        : `${apiBaseUrl}/v2/logos/${element.logoUrl}`,
                             }
                             return ret
                         })
