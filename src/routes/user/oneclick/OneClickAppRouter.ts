@@ -8,6 +8,8 @@ import Logger from '../../../utils/Logger'
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
+const VERSION = `v3`
+
 interface IOneClickAppIdentifier {
     baseUrl: string
     name: string
@@ -36,7 +38,7 @@ router.post('/repositories/insert', function (req, res, next) {
                 )
 
             return axios
-                .get(apiBaseUrl + `/v2/list`)
+                .get(apiBaseUrl + `/${VERSION}/list`)
                 .then(function (axiosResponse) {
                     return axiosResponse.data.oneClickApps as any[]
                 })
@@ -133,7 +135,7 @@ router.get('/template/list', function (req, res, next) {
 
             urls.forEach((apiBaseUrl) => {
                 const p = axios
-                    .get(apiBaseUrl + `/v2/list`) //
+                    .get(apiBaseUrl + `/${VERSION}/list`) //
                     .then(function (axiosResponse) {
                         return axiosResponse.data.oneClickApps as any[]
                     })
@@ -149,7 +151,7 @@ router.get('/template/list', function (req, res, next) {
                                     (element.logoUrl.startsWith('http://') ||
                                         element.logoUrl.startsWith('https://'))
                                         ? element.logoUrl
-                                        : `${apiBaseUrl}/v2/logos/${element.logoUrl}`,
+                                        : `${apiBaseUrl}/${VERSION}/logos/${element.logoUrl}`,
                             }
                             return ret
                         })
@@ -201,7 +203,7 @@ router.get('/template/app', function (req, res, next) {
                     'Unknown base URL '
                 )
 
-            const appUrl = `${baseDomain}/v2/apps/${appName}.json`
+            const appUrl = `${baseDomain}/${VERSION}/apps/${appName}`
             Logger.d('retrieving app at: ' + appUrl)
 
             return axios.get(appUrl).then(function (responseObject) {
