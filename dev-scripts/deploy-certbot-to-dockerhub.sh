@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CERTBOT_VERSION_DOCKERFILE="v0.29.1"
+CERTBOT_VERSION_DOCKERFILE="v1.5.0"
 
 
 SLEEPING_CERT_BOT_IMAGE_NAME="caprover/certbot-sleeping"
