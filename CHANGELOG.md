@@ -13,6 +13,7 @@
 -   New: Added image name deploy to web UI panel
 -   Security: Updated Node version to 14
 -   Security: Updated Node dependencies
+-   Security: Updated Certbot to 1.5.0
 
 ## [1.6.1] - 2020-01-02
 
