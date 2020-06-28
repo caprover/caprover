@@ -4,19 +4,22 @@
 -   New: Allowing custom ports for git remote repositories. (https://github.com/caprover/caprover/issues/606)
 -   New: Default to http2 (https://github.com/caprover/caprover/pull/667)
 -   New: Disallowing all contents on dashboard for robots (https://github.com/caprover/caprover-frontend/pull/38)
--   Refactoring: Moved SSL configs to `http` context in nginx to avoid duplicating the snippet (https://github.com/caprover/caprover/commit/f896eef1cf64cd8433e1262e9d64f592b5b0caac). If you have customized nginx configs for your root, make sure to update it.
+-   New: Added random hex generator for one click apps (https://github.com/caprover/caprover/issues/637)
+-   New: Added ability to customize port and user when attaching a new node (https://github.com/caprover/caprover/issues/574)
 -   New: Added a step to create dhparams during installation to improve security.
--   Bugfix: Fixed Certbot certs issues on servers without any active deploys in 30 days (https://github.com/caprover/caprover/issues/700)
 -   New: Added docker API version to the config params so that it can be changed by the users (https://github.com/caprover/caprover/issues/620)
 -   New: Added ability to add 3rd party one-click app repositories (https://github.com/caprover/caprover/issues/691)
+-   New: Added image name deploy to web UI panel
+
 -   Bugfix: Root domain change prevented nginx from booting up if a local registry was enabled (https://github.com/caprover/caprover/issues/686)
 -   Bugfix: Refreshing the webhook URL to appear right after Save & Update (https://github.com/caprover/caprover-frontend/issues/41)
--   New: Added image name deploy to web UI panel
+-   Bugfix: Fixed Certbot certs issues on servers without any active deploys in 30 days (https://github.com/caprover/caprover/issues/700)
+
 -   Security: Updated Node version to 14
 -   Security: Updated Node dependencies
 -   Security: Updated Certbot to 1.5.0
--   New: Added random hex generator for one click apps (https://github.com/caprover/caprover/issues/637)
--   New: Added ability to customize port and user when attaching a new node (https://github.com/caprover/caprover/issues/574)
+
+-   Refactoring: Moved SSL configs to `http` context in nginx to avoid duplicating the snippet (https://github.com/caprover/caprover/commit/f896eef1cf64cd8433e1262e9d64f592b5b0caac). If you have customized nginx configs for your root, make sure to update it.
 
 ## [1.6.1] - 2020-01-02
 
