@@ -316,6 +316,8 @@ router.post('/nodes/', function (req, res, next) {
     let privateKey = req.body.privateKey
     let remoteNodeIpAddress = req.body.remoteNodeIpAddress
     let captainIpAddress = req.body.captainIpAddress
+    let sshPort = parseInt(req.body.sshPort) || 22
+    let sshUser = (req.body.sshUser || 'root').trim()
 
     if (!captainIpAddress || !remoteNodeIpAddress || !privateKey) {
         res.send(
@@ -342,6 +344,8 @@ router.post('/nodes/', function (req, res, next) {
         .then(function () {
             return DockerUtils.joinDockerNode(
                 DockerApi.get(),
+                sshUser,
+                sshPort,
                 captainIpAddress,
                 isManager,
                 remoteNodeIpAddress,

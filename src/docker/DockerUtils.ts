@@ -8,12 +8,14 @@ const SshClient = SshClientImport.Client
 export default class DockerUtils {
     static joinDockerNode(
         dockerApi: DockerApi,
+        sshUser: string,
+        sshPort: number,
         captainIpAddress: string,
         isManager: boolean,
         remoteNodeIpAddress: string,
         privateKey: string
     ) {
-        const remoteUserName = 'root' // Docker requires root access. It has to be root.
+        const remoteUserName = sshUser // Docker requires root access. It has to be root or any non root user that can run Docker without sudo
 
         return Promise.resolve()
             .then(function () {
@@ -94,7 +96,7 @@ export default class DockerUtils {
                         })
                         .connect({
                             host: remoteNodeIpAddress,
-                            port: 22,
+                            port: sshPort,
                             username: remoteUserName,
                             privateKey: privateKey,
                         })

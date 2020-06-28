@@ -105,6 +105,8 @@ export default class BackupManager {
                                 )
                                 return DockerUtils.joinDockerNode(
                                     DockerApi.get(),
+                                    'root',
+                                    22,
                                     captainIpAddress,
                                     isManager,
                                     NEW_IP,
