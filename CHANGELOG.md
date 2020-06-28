@@ -16,6 +16,7 @@
 -   Security: Updated Node dependencies
 -   Security: Updated Certbot to 1.5.0
 -   New: Added random hex generator for one click apps (https://github.com/caprover/caprover/issues/637)
+-   New: Added ability to customize port and user when attaching a new node
 
 ## [1.6.1] - 2020-01-02
 
