@@ -93,8 +93,7 @@ class CertbotManager {
 
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.VERIFICATION_FAILED,
-                        `Unexpected output when enabling SSL for${domainName} with ACME Certbot 
-${output}`
+                        `Unexpected output when enabling SSL for${domainName} with ACME Certbot \n ${output}`
                     )
                 })
             })
@@ -140,8 +139,7 @@ ${output}`
                 }
 
                 throw new Error(
-                    `Unexpected output when registering with ACME Certbot 
-${registerOutput}`
+                    `Unexpected output when registering with ACME Certbot \n ${registerOutput}`
                 )
             })
     }
