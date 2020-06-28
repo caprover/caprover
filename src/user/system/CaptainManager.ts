@@ -174,13 +174,11 @@ class CaptainManager {
                 }
             })
             .then(function () {
-                const secretFileName =
-                    '/run/secrets/' + CaptainConstants.captainSaltSecretKey
+                const secretFileName = `/run/secrets/${CaptainConstants.captainSaltSecretKey}`
 
                 if (!fs.pathExistsSync(secretFileName)) {
                     throw new Error(
-                        'Secret is attached according to Docker. But file cannot be found. ' +
-                            secretFileName
+                        `Secret is attached according to Docker. But file cannot be found. ${secretFileName}`
                     )
                 }
 
@@ -269,10 +267,9 @@ class CaptainManager {
 
     performHealthCheck() {
         const self = this
-        const captainPublicDomain =
-            CaptainConstants.captainSubDomain +
-            '.' +
-            self.dataStore.getRootDomain()
+        const captainPublicDomain = `${
+            CaptainConstants.captainSubDomain
+        }.${self.dataStore.getRootDomain()}`
 
         function scheduleNextHealthCheck() {
             self.healthCheckUuid = uuid()
@@ -310,10 +307,7 @@ class CaptainManager {
                 return
             }
 
-            const url =
-                'http://' +
-                captainPublicDomain +
-                CaptainConstants.healthCheckEndPoint
+            const url = `http://${captainPublicDomain}${CaptainConstants.healthCheckEndPoint}`
 
             request(
                 url,
@@ -387,18 +381,14 @@ class CaptainManager {
 
             if (!checksPerformed.captainHealth.value) {
                 Logger.w(
-                    'Captain health check failed: #' +
-                        self.consecutiveHealthCheckFailCount +
-                        ' at ' +
-                        captainPublicDomain
+                    `Captain health check failed: #${self.consecutiveHealthCheckFailCount} at ${captainPublicDomain}`
                 )
                 hasFailedCheck = true
             }
 
             if (!checksPerformed.nginxHealth.value) {
                 Logger.w(
-                    'NGINX health check failed: #' +
-                        self.consecutiveHealthCheckFailCount
+                    `NGINX health check failed: #${self.consecutiveHealthCheckFailCount}`
                 )
                 hasFailedCheck = true
             }
@@ -480,8 +470,7 @@ class CaptainManager {
                             })
                             .then(function () {
                                 Logger.d(
-                                    'Waiting 5 second for the service to settle... ' +
-                                        appName
+                                    `Waiting 5 second for the service to settle... ${appName}`
                                 )
                                 return Utils.getDelayedPromise(5000)
                             })
@@ -670,9 +659,9 @@ class CaptainManager {
             })
             .then(function () {
                 return self.certbotManager.enableSsl(
-                    CaptainConstants.captainSubDomain +
-                        '.' +
-                        self.dataStore.getRootDomain()
+                    `${
+                        CaptainConstants.captainSubDomain
+                    }.${self.dataStore.getRootDomain()}`
                 )
             })
             .then(function () {
@@ -747,12 +736,9 @@ class CaptainManager {
         // Some DNS servers do not allow wild cards. Therefore this line may fail.
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
-        const url =
-            uuid() +
-            '.' +
-            requestedCustomDomain +
-            ':' +
+        const url = `${uuid()}.${requestedCustomDomain}:${
             CaptainConstants.nginxPortNumber
+        }`
 
         return self.domainResolveChecker
             .verifyDomainResolvesToDefaultServerOnHost(url)

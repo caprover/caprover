@@ -35,9 +35,9 @@ class SelfHostedDockerRegistry {
                 }
 
                 return self.certbotManager.enableSsl(
-                    CaptainConstants.registrySubDomain +
-                        '.' +
-                        self.dataStore.getRootDomain()
+                    `${
+                        CaptainConstants.registrySubDomain
+                    }.${self.dataStore.getRootDomain()}`
                 )
             })
             .then(function () {
@@ -53,13 +53,11 @@ class SelfHostedDockerRegistry {
     getLocalRegistryDomainAndPort() {
         const self = this
 
-        return (
-            CaptainConstants.registrySubDomain +
-            '.' +
-            self.dataStore.getRootDomain() +
-            ':' +
+        return `${
+            CaptainConstants.registrySubDomain
+        }.${self.dataStore.getRootDomain()}:${
             CaptainConstants.configs.registrySubDomainPort
-        )
+        }`
     }
 
     ensureServiceRemoved() {
@@ -98,9 +96,9 @@ class SelfHostedDockerRegistry {
                 .then(function () {
                     const waitTimeInMillis = 5000
                     Logger.d(
-                        'Waiting for ' +
-                            waitTimeInMillis / 1000 +
-                            ' seconds for Registry to start up'
+                        `Waiting for ${
+                            waitTimeInMillis / 1000
+                        } seconds for Registry to start up`
                     )
                     return new Promise<boolean>(function (resolve, reject) {
                         setTimeout(function () {
@@ -114,10 +112,9 @@ class SelfHostedDockerRegistry {
 
         return Promise.resolve()
             .then(function () {
-                const authContent =
-                    CaptainConstants.captainRegistryUsername +
-                    ':' +
-                    bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+                const authContent = `${
+                    CaptainConstants.captainRegistryUsername
+                }:${bcrypt.hashSync(password, bcrypt.genSaltSync(10))}`
 
                 return fs.outputFile(
                     CaptainConstants.registryAuthPathOnHost,
@@ -197,21 +194,15 @@ class SelfHostedDockerRegistry {
                     [
                         {
                             key: 'REGISTRY_HTTP_TLS_CERTIFICATE',
-                            value:
-                                '/cert-files/live/' +
-                                CaptainConstants.registrySubDomain +
-                                '.' +
-                                dataStore.getRootDomain() +
-                                '/fullchain.pem',
+                            value: `/cert-files/live/${
+                                CaptainConstants.registrySubDomain
+                            }.${dataStore.getRootDomain()}/fullchain.pem`,
                         },
                         {
                             key: 'REGISTRY_HTTP_TLS_KEY',
-                            value:
-                                '/cert-files/live/' +
-                                CaptainConstants.registrySubDomain +
-                                '.' +
-                                dataStore.getRootDomain() +
-                                '/privkey.pem',
+                            value: `/cert-files/live/${
+                                CaptainConstants.registrySubDomain
+                            }.${dataStore.getRootDomain()}/privkey.pem`,
                         },
                         {
                             key: 'REGISTRY_AUTH',

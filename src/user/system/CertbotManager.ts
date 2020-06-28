@@ -36,7 +36,7 @@ class CertbotManager {
 
         self.domainValidOrThrow(domainName)
 
-        return '/live/' + domainName + '/fullchain.pem'
+        return `/live/${domainName}/fullchain.pem`
     }
 
     getKeyRelativePathForDomain(domainName: string) {
@@ -44,13 +44,13 @@ class CertbotManager {
 
         self.domainValidOrThrow(domainName)
 
-        return '/live/' + domainName + '/privkey.pem'
+        return `/live/${domainName}/privkey.pem`
     }
 
     enableSsl(domainName: string) {
         const self = this
 
-        Logger.d('Enabling SSL for ' + domainName)
+        Logger.d(`Enabling SSL for ${domainName}`)
 
         return Promise.resolve()
             .then(function () {
@@ -63,7 +63,7 @@ class CertbotManager {
                     'certonly',
                     '--webroot',
                     '-w',
-                    WEBROOT_PATH_IN_CERTBOT + '/' + domainName,
+                    `${WEBROOT_PATH_IN_CERTBOT}/${domainName}`,
                     '-d',
                     domainName,
                 ]
@@ -93,10 +93,8 @@ class CertbotManager {
 
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.VERIFICATION_FAILED,
-                        'Unexpected output when enabling SSL for' +
-                            domainName +
-                            ' with ACME Certbot \n' +
-                            output
+                        `Unexpected output when enabling SSL for${domainName} with ACME Certbot 
+${output}`
                     )
                 })
             })
@@ -142,8 +140,8 @@ class CertbotManager {
                 }
 
                 throw new Error(
-                    'Unexpected output when registering with ACME Certbot \n' +
-                        registerOutput
+                    `Unexpected output when registering with ACME Certbot 
+${registerOutput}`
                 )
             })
     }
@@ -251,7 +249,7 @@ class CertbotManager {
     ensureDomainHasDirectory(domainName: string) {
         return Promise.resolve() //
             .then(function () {
-                return fs.ensureDir(WEBROOT_PATH_IN_CAPTAIN + '/' + domainName)
+                return fs.ensureDir(`${WEBROOT_PATH_IN_CAPTAIN}/${domainName}`)
             })
     }
 

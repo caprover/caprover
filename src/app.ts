@@ -54,10 +54,7 @@ if (CaptainConstants.isDebug) {
         res.setHeader('Access-Control-Allow-Credentials', 'true')
         res.setHeader(
             'Access-Control-Allow-Headers',
-            CaptainConstants.headerNamespace +
-                ',' +
-                CaptainConstants.headerAuth +
-                ',Content-Type'
+            `${CaptainConstants.headerNamespace},${CaptainConstants.headerAuth},Content-Type`
         )
 
         if (req.method === 'OPTIONS') {
@@ -84,7 +81,7 @@ app.use(function (req, res, next) {
             req.secure || req.get('X-Forwarded-Proto') === 'https'
 
         if (!isRequestSsl) {
-            let newUrl = 'https://' + req.get('host') + req.originalUrl
+            let newUrl = `https://${req.get('host')}${req.originalUrl}`
             res.redirect(302, newUrl)
             return
         }
@@ -151,13 +148,10 @@ httpProxy.on('error', function (err, req, resOriginal) {
         0
     ) {
         resOriginal.end(
-            'Something went wrong... err: \n ' +
-                'NetData is not running! Are you sure you have started it?'
+            `Something went wrong... err:  \n NetData is not running! Are you sure you have started it?`
         )
     } else {
-        resOriginal.end(
-            'Something went wrong... err: \n ' + (err ? err : 'NULL')
-        )
+        resOriginal.end(`Something went wrong... err: \n ${err ? err : 'NULL'}`)
     }
 })
 
@@ -171,7 +165,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     }
 
     httpProxy.web(req, res, {
-        target: 'http://' + CaptainConstants.netDataContainerName + ':19999',
+        target: `http://${CaptainConstants.netDataContainerName}:19999`,
     })
 })
 
@@ -186,8 +180,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         res.send(
             new BaseApi(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'This captain instance only accepts API ' +
-                    CaptainConstants.apiVersion
+                `This captain instance only accepts API ${CaptainConstants.apiVersion}`
             )
         )
         return

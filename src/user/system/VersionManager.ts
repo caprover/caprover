@@ -35,8 +35,7 @@ class VersionManager {
 
                 if (resp.status !== 100) {
                     throw new Error(
-                        'Bad response from the upstream version info: ' +
-                            resp.status
+                        `Bad response from the upstream version info: ${resp.status}`
                     )
                 }
 
@@ -75,10 +74,7 @@ class VersionManager {
         // - The API contract is not guaranteed to always be the same, it might break in the future
         // - This method does not return the changeLogMessage
 
-        const url =
-            'https://hub.docker.com/v2/repositories/' +
-            CaptainConstants.configs.publishedNameOnDockerHub +
-            '/tags'
+        const url = `https://hub.docker.com/v2/repositories/${CaptainConstants.configs.publishedNameOnDockerHub}/tags`
 
         return new Promise<string[]>(function (resolve, reject) {
             request(
@@ -157,9 +153,7 @@ class VersionManager {
         return Promise.resolve().then(function () {
             return self.dockerApi.updateService(
                 CaptainConstants.captainServiceName,
-                CaptainConstants.configs.publishedNameOnDockerHub +
-                    ':' +
-                    versionTag,
+                `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`,
                 undefined,
                 undefined,
                 undefined,

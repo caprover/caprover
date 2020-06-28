@@ -36,12 +36,12 @@ export default class DockerUtils {
                         .on('ready', function () {
                             Logger.d('SSH Client :: ready')
                             conn.exec(
-                                CaptainConstants.disableFirewallCommand +
-                                    ' ' +
-                                    dockerApi.createJoinCommand(
-                                        captainIpAddress,
-                                        token
-                                    ),
+                                `${
+                                    CaptainConstants.disableFirewallCommand
+                                } ${dockerApi.createJoinCommand(
+                                    captainIpAddress,
+                                    token
+                                )}`,
                                 function (err, stream) {
                                     if (err) {
                                         Logger.e(err)
@@ -62,10 +62,7 @@ export default class DockerUtils {
                                             signal: string
                                         ) {
                                             Logger.d(
-                                                'Stream :: close :: code: ' +
-                                                    code +
-                                                    ', signal: ' +
-                                                    signal
+                                                `Stream :: close :: code: ${code}, signal: ${signal}`
                                             )
                                             conn.end()
                                             if (hasExisted) {
@@ -75,10 +72,10 @@ export default class DockerUtils {
                                             resolve()
                                         })
                                         .on('data', function (data: string) {
-                                            Logger.d('STDOUT: ' + data)
+                                            Logger.d(`STDOUT: ${data}`)
                                         })
                                         .stderr.on('data', function (data) {
-                                            Logger.e('STDERR: ' + data)
+                                            Logger.e(`STDERR: ${data}`)
                                             if (hasExisted) {
                                                 return
                                             }
@@ -86,8 +83,7 @@ export default class DockerUtils {
                                             reject(
                                                 ApiStatusCodes.createError(
                                                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                                    'Error during setup: ' +
-                                                        data
+                                                    `Error during setup: ${data}`
                                                 )
                                             )
                                         })

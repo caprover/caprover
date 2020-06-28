@@ -209,7 +209,7 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
-                Logger.d('Verifying Captain owns domain: ' + customDomain)
+                Logger.d(`Verifying Captain owns domain: ${customDomain}`)
 
                 return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
                     customDomain,
@@ -217,7 +217,7 @@ class ServiceManager {
                 )
             })
             .then(function () {
-                Logger.d('Enabling SSL for: ' + appName + ' on ' + customDomain)
+                Logger.d(`Enabling SSL for: ${appName} on ${customDomain}`)
 
                 return self.dataStore
                     .getAppsDataStore()
@@ -244,7 +244,7 @@ class ServiceManager {
         return Promise.resolve()
             .then(function () {
                 const rootDomain = self.dataStore.getRootDomain()
-                const dotRootDomain = '.' + rootDomain
+                const dotRootDomain = `.${rootDomain}`
 
                 if (!customDomain || !/^[a-z0-9\-\.]+$/.test(customDomain)) {
                     throw ApiStatusCodes.createError(
@@ -285,7 +285,7 @@ class ServiceManager {
                 )
             })
             .then(function () {
-                Logger.d('Enabling custom domain for: ' + appName)
+                Logger.d(`Enabling custom domain for: ${appName}`)
 
                 return self.dataStore
                     .getAppsDataStore()
@@ -301,7 +301,7 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
-                Logger.d('Removing custom domain for: ' + appName)
+                Logger.d(`Removing custom domain for: ${appName}`)
 
                 return self.dataStore
                     .getAppsDataStore()
@@ -322,7 +322,7 @@ class ServiceManager {
                 return self.verifyCaptainOwnsGenericSubDomain(appName)
             })
             .then(function () {
-                Logger.d('Enabling SSL for: ' + appName)
+                Logger.d(`Enabling SSL for: ${appName}`)
 
                 return self.dataStore.getRootDomain()
             })
@@ -340,7 +340,7 @@ class ServiceManager {
                     .getAppDefinition(appName)
             })
             .then(function () {
-                return appName + '.' + rootDomain
+                return `${appName}.${rootDomain}`
             })
             .then(function (domainName) {
                 return self.domainResolveChecker.requestCertificateForDomain(
@@ -376,10 +376,10 @@ class ServiceManager {
                     .getAppDefinition(appName)
             })
             .then(function () {
-                return appName + '.' + rootDomain
+                return `${appName}.${rootDomain}`
             })
             .then(function (domainName) {
-                Logger.d('Verifying Captain owns domain: ' + domainName)
+                Logger.d(`Verifying Captain owns domain: ${domainName}`)
 
                 return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
                     domainName,
@@ -389,7 +389,7 @@ class ServiceManager {
     }
 
     renameApp(oldAppName: string, newAppName: string) {
-        Logger.d('Renaming app: ' + oldAppName)
+        Logger.d(`Renaming app: ${oldAppName}`)
         const self = this
 
         const oldServiceName = this.dataStore
@@ -412,7 +412,7 @@ class ServiceManager {
                 return self.ensureNotBuilding(oldAppName)
             })
             .then(function () {
-                Logger.d('Check if service is running: ' + oldServiceName)
+                Logger.d(`Check if service is running: ${oldServiceName}`)
                 return dockerApi.isServiceRunningByName(oldServiceName)
             })
             .then(function (isRunning) {
@@ -438,7 +438,7 @@ class ServiceManager {
     }
 
     removeApp(appName: string) {
-        Logger.d('Removing service for: ' + appName)
+        Logger.d(`Removing service for: ${appName}`)
         const self = this
 
         const serviceName = this.dataStore
@@ -452,7 +452,7 @@ class ServiceManager {
                 return self.ensureNotBuilding(appName)
             })
             .then(function () {
-                Logger.d('Check if service is running: ' + serviceName)
+                Logger.d(`Check if service is running: ${serviceName}`)
                 return dockerApi.isServiceRunningByName(serviceName)
             })
             .then(function (isRunning) {
@@ -460,8 +460,7 @@ class ServiceManager {
                     return dockerApi.removeServiceByName(serviceName)
                 } else {
                     Logger.w(
-                        'Cannot delete service... It is not running: ' +
-                            serviceName
+                        `Cannot delete service... It is not running: ${serviceName}`
                     )
                     return true
                 }
@@ -522,8 +521,7 @@ class ServiceManager {
 
     getUnusedImages(mostRecentLimit: number) {
         Logger.d(
-            'Getting unused images, excluding most recent ones: ' +
-                mostRecentLimit
+            `Getting unused images, excluding most recent ones: ${mostRecentLimit}`
         )
 
         const dockerApi = this.dockerApi
@@ -669,8 +667,7 @@ class ServiceManager {
 
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    'Node ID you requested is not part of the swarm cluster: ' +
-                        nodeIdToCheck
+                    `Node ID you requested is not part of the swarm cluster: ${nodeIdToCheck}`
                 )
             })
         }
@@ -819,7 +816,7 @@ class ServiceManager {
     }
 
     ensureServiceInitedAndUpdated(appName: string) {
-        Logger.d('Ensure service inited and Updated for: ' + appName)
+        Logger.d(`Ensure service inited and Updated for: ${appName}`)
         const self = this
 
         const serviceName = this.dataStore
@@ -859,7 +856,7 @@ class ServiceManager {
                 }
 
                 if (isRunning) {
-                    Logger.d('Service is already running: ' + serviceName)
+                    Logger.d(`Service is already running: ${serviceName}`)
                     return true
                 } else {
                     Logger.d(

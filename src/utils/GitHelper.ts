@@ -41,7 +41,7 @@ export default class GitHelper {
                 REPO_GIT_PATH
             )
 
-            Logger.d('Cloning SSH ' + REPO_GIT_PATH)
+            Logger.d(`Cloning SSH ${REPO_GIT_PATH}`)
 
             return Promise.resolve() //
                 .then(function () {
@@ -61,7 +61,7 @@ export default class GitHelper {
                 .then(function () {
                     return git() //
                         .silent(true) //
-                        .env('GIT_SSH_COMMAND', 'ssh -i ' + SSH_KEY_PATH) //
+                        .env('GIT_SSH_COMMAND', `ssh -i ${SSH_KEY_PATH}`) //
                         .raw([
                             'clone',
                             '--recursive',
@@ -79,7 +79,7 @@ export default class GitHelper {
             const REPO_PATH = GitHelper.sanitizeRepoPathHttps(repo)
 
             const remote = `https://${USER}:${PASS}@${REPO_PATH}`
-            Logger.dev('Cloning HTTPS ' + remote)
+            Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
                 .raw(['clone', '--recursive', '-b', branch, remote, directory])
@@ -112,7 +112,7 @@ export default class GitHelper {
         if (!input.startsWith('git@')) {
             // If we get here, we have something like github.com/username/repository.git
             input = input.replace('/', ':')
-            input = 'git@' + input
+            input = `git@${input}`
         }
 
         // At this point we have one of the following:
@@ -127,14 +127,14 @@ export default class GitHelper {
                 // input is already in this format: git@github.com:22/caprover/caprover
                 port = `${Number(secondSplit[0])}`
             } else {
-                input = split[0] + ':22/' + split[1]
+                input = `${split[0]}:22/${split[1]}`
             }
         } else {
-            throw new Error('Marformatted SSH path: ' + input)
+            throw new Error(`Marformatted SSH path: ${input}`)
         }
 
         if (!input.toLowerCase().startsWith('ssh://')) {
-            input = 'ssh://' + input
+            input = `ssh://${input}`
         }
 
         return {

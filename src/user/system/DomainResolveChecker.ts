@@ -46,11 +46,10 @@ export default class DomainResolveChecker {
             })
             .then(function () {
                 return fs.outputFile(
-                    CaptainConstants.captainStaticFilesDir +
-                        CaptainConstants.nginxDomainSpecificHtmlDir +
-                        '/' +
-                        domainName +
-                        captainConfirmationPath,
+                    `${
+                        CaptainConstants.captainStaticFilesDir +
+                        CaptainConstants.nginxDomainSpecificHtmlDir
+                    }/${domainName}${captainConfirmationPath}`,
                     randomUuid
                 )
             })
@@ -63,12 +62,7 @@ export default class DomainResolveChecker {
             })
             .then(function () {
                 return new Promise<void>(function (resolve, reject) {
-                    const url =
-                        'http://' +
-                        domainName +
-                        ':' +
-                        CaptainConstants.nginxPortNumber +
-                        captainConfirmationPath
+                    const url = `http://${domainName}:${CaptainConstants.nginxPortNumber}${captainConfirmationPath}`
 
                     request(
                         url,
@@ -76,11 +70,11 @@ export default class DomainResolveChecker {
                         function (error, response, body) {
                             if (error || !body || body !== randomUuid) {
                                 Logger.e(
-                                    'Verification Failed for ' + domainName
+                                    `Verification Failed for ${domainName}`
                                 )
-                                Logger.e('Error        ' + error)
-                                Logger.e('body         ' + body)
-                                Logger.e('randomUuid   ' + randomUuid)
+                                Logger.e(`Error        ${error}`)
+                                Logger.e(`body         ${body}`)
+                                Logger.e(`randomUuid   ${randomUuid}`)
                                 reject(
                                     ApiStatusCodes.createError(
                                         ApiStatusCodes.VERIFICATION_FAILED,
@@ -105,12 +99,9 @@ export default class DomainResolveChecker {
         const self = this
 
         return new Promise<void>(function (resolve, reject) {
-            const url =
-                'http://' +
-                domainName +
-                CaptainConstants.captainConfirmationPath
+            const url = `http://${domainName}${CaptainConstants.captainConfirmationPath}`
 
-            Logger.d('Sending request to ' + url)
+            Logger.d(`Sending request to ${url}`)
 
             request(url, function (error, response, body) {
                 if (

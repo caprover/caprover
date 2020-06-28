@@ -17,12 +17,7 @@ router.get('/', function (req, res, next) {
             ).decodeDownloadToken(downloadToken)
         })
         .then(function (obj) {
-            const fileFullPath =
-                CaptainConstants.captainDownloadsDirectory +
-                '/' +
-                namespace +
-                '/' +
-                obj.downloadFileName
+            const fileFullPath = `${CaptainConstants.captainDownloadsDirectory}/${namespace}/${obj.downloadFileName}`
             res.download(fileFullPath, function () {
                 Utils.deleteFileQuietly(fileFullPath)
             })

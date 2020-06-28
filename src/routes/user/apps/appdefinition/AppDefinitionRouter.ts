@@ -12,7 +12,7 @@ const router = express.Router()
 const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
     schemaVersion: 2,
     dockerfileLines: [
-        'FROM ' + CaptainConstants.configs.appPlaceholderImageName,
+        `FROM ${CaptainConstants.configs.appPlaceholderImageName}`,
     ],
 })
 
@@ -113,7 +113,7 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
             return serviceManager.enableSslForApp(appName)
         })
         .then(function () {
-            let msg = 'General SSL is enabled for: ' + appName
+            let msg = `General SSL is enabled for: ${appName}`
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -135,11 +135,7 @@ router.post('/customdomain/', function (req, res, next) {
             return serviceManager.addCustomDomain(appName, customDomain)
         })
         .then(function () {
-            let msg =
-                'Custom domain is enabled for: ' +
-                appName +
-                ' at ' +
-                customDomain
+            let msg = `Custom domain is enabled for: ${appName} at ${customDomain}`
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -158,11 +154,7 @@ router.post('/removecustomdomain/', function (req, res, next) {
             return serviceManager.removeCustomDomain(appName, customDomain)
         })
         .then(function () {
-            let msg =
-                'Custom domain is removed for: ' +
-                appName +
-                ' at ' +
-                customDomain
+            let msg = `Custom domain is removed for: ${appName} at ${customDomain}`
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -203,7 +195,7 @@ router.post('/register/', function (req, res, next) {
 
     let appCreated = false
 
-    Logger.d('Registering app started: ' + appName)
+    Logger.d(`Registering app started: ${appName}`)
 
     dataStore
         .getAppsDataStore()
@@ -225,7 +217,7 @@ router.post('/register/', function (req, res, next) {
             if (!isDetachedBuild) return promiseToIgnore
         })
         .then(function () {
-            Logger.d('AppName is saved: ' + appName)
+            Logger.d(`AppName is saved: ${appName}`)
             res.send(
                 new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
             )
@@ -258,7 +250,7 @@ router.post('/delete/', function (req, res, next) {
     let appName = req.body.appName
     let volumes = req.body.volumes || []
 
-    Logger.d('Deleting app started: ' + appName)
+    Logger.d(`Deleting app started: ${appName}`)
 
     Promise.resolve()
         .then(function () {
@@ -271,13 +263,14 @@ router.post('/delete/', function (req, res, next) {
             return serviceManager.removeVolsSafe(volumes)
         })
         .then(function (failedVolsToRemoved) {
-            Logger.d('AppName is deleted: ' + appName)
+            Logger.d(`AppName is deleted: ${appName}`)
 
             if (failedVolsToRemoved.length) {
                 const returnVal = new BaseApi(
                     ApiStatusCodes.STATUS_OK_PARTIALLY,
-                    'App is deleted. Some volumes were not safe to delete. Delete skipped for: ' +
-                        failedVolsToRemoved.join(' , ')
+                    `App is deleted. Some volumes were not safe to delete. Delete skipped for: ${failedVolsToRemoved.join(
+                        ' , '
+                    )}`
                 )
                 returnVal.data = { volumesFailedToDelete: failedVolsToRemoved }
                 res.send(returnVal)
@@ -367,7 +360,7 @@ router.post('/update/', function (req, res, next) {
         return
     }
 
-    Logger.d('Updating app started: ' + appName)
+    Logger.d(`Updating app started: ${appName}`)
 
     serviceManager
         .updateAppDefinition(
@@ -389,7 +382,7 @@ router.post('/update/', function (req, res, next) {
             websocketSupport
         )
         .then(function () {
-            Logger.d('AppName is updated: ' + appName)
+            Logger.d(`AppName is updated: ${appName}`)
             res.send(
                 new BaseApi(
                     ApiStatusCodes.STATUS_OK,

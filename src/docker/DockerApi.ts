@@ -41,7 +41,7 @@ function safeParseChunk(
     } catch (ignore) {
         return [
             {
-                stream: 'Cannot parse ' + chunk,
+                stream: `Cannot parse ${chunk}`,
             },
         ]
     }
@@ -69,17 +69,17 @@ class DockerApi {
         const self = this
 
         portNumber = portNumber || 2377
-        const port = '' + portNumber
+        const port = `${portNumber}`
 
-        const advertiseAddr = ip + ':' + port
+        const advertiseAddr = `${ip}:${port}`
 
         const swarmOptions = {
-            ListenAddr: '0.0.0.0:' + port,
+            ListenAddr: `0.0.0.0:${port}`,
             AdvertiseAddr: advertiseAddr,
             ForceNewCluster: false,
         }
 
-        Logger.d('Starting swarm at ' + advertiseAddr)
+        Logger.d(`Starting swarm at ${advertiseAddr}`)
 
         return self.dockerode.swarmInit(swarmOptions)
     }
@@ -117,10 +117,7 @@ class DockerApi {
                             }, 3000)
                         }).then(function () {
                             Logger.d(
-                                'Retrying to get NodeID for ' +
-                                    serviceName +
-                                    ' retry count:' +
-                                    retryCount
+                                `Retrying to get NodeID for ${serviceName} retry count:${retryCount}`
                             )
 
                             return self.getNodeIdByServiceName(
@@ -131,10 +128,7 @@ class DockerApi {
                     }
 
                     throw new Error(
-                        'There must be only one instance (not ' +
-                            data.length +
-                            ') of the service running to find node id. ' +
-                            serviceName
+                        `There must be only one instance (not ${data.length}) of the service running to find node id. ${serviceName}`
                     )
                 }
             })
@@ -170,13 +164,7 @@ class DockerApi {
     }
 
     createJoinCommand(captainIpAddress: string, token: string) {
-        return (
-            'docker swarm join --token ' +
-            token +
-            ' ' +
-            captainIpAddress +
-            ':2377'
-        )
+        return `docker swarm join --token ${token} ${captainIpAddress}:2377`
     }
 
     getNodesInfo() {
@@ -253,7 +241,7 @@ class DockerApi {
     ) {
         const self = this
 
-        const newVersion = '' + newVersionNumber
+        const newVersion = `${newVersionNumber}`
 
         Logger.d('Building docker image. This might take a few minutes...')
 
@@ -278,7 +266,7 @@ class DockerApi {
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunkRaw) {
-                        Logger.dev('stream data ' + chunkRaw)
+                        Logger.dev(`stream data ${chunkRaw}`)
                         safeParseChunk(chunkRaw).forEach((chunk) => {
                             const chuckStream = chunk.stream
                             if (chuckStream) {
@@ -359,7 +347,7 @@ class DockerApi {
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunkRaw) {
-                        Logger.dev('stream data ' + chunkRaw)
+                        Logger.dev(`stream data ${chunkRaw}`)
                         safeParseChunk(chunkRaw).forEach((chunk) => {
                             const chuckStream = chunk.stream
                             if (chuckStream) {
@@ -412,18 +400,18 @@ class DockerApi {
     ) {
         const self = this
 
-        Logger.d('Ensuring Stopped & Removed Container: ' + nameOrId)
+        Logger.d(`Ensuring Stopped & Removed Container: ${nameOrId}`)
 
         return Promise.resolve()
             .then(function () {
-                Logger.d('Stopping ' + nameOrId)
+                Logger.d(`Stopping ${nameOrId}`)
 
                 return self.dockerode.getContainer(nameOrId).stop({
                     t: 2,
                 })
             })
             .then(function () {
-                Logger.d('Waiting to stop ' + nameOrId)
+                Logger.d(`Waiting to stop ${nameOrId}`)
 
                 return Promise.race([
                     self.dockerode.getContainer(nameOrId).wait(),
@@ -436,13 +424,13 @@ class DockerApi {
             })
             .catch(function (error) {
                 if (error && error.statusCode === 304) {
-                    Logger.w('Container already stopped: ' + nameOrId)
+                    Logger.w(`Container already stopped: ${nameOrId}`)
                     return false
                 }
                 throw error
             })
             .then(function () {
-                Logger.d('Removing ' + nameOrId)
+                Logger.d(`Removing ${nameOrId}`)
 
                 return self.dockerode.getContainer(nameOrId).remove({
                     force: true,
@@ -457,7 +445,7 @@ class DockerApi {
                 })
             })
             .then(function () {
-                Logger.d('Disconnecting from network: ' + nameOrId)
+                Logger.d(`Disconnecting from network: ${nameOrId}`)
 
                 return self.dockerode.getNetwork(networkIdOrName).disconnect({
                     Force: true,
@@ -466,7 +454,7 @@ class DockerApi {
             })
             .catch(function (error) {
                 if (error && error.statusCode === 404) {
-                    Logger.w('Container not found: ' + nameOrId)
+                    Logger.w(`Container not found: ${nameOrId}`)
                     return false
                 }
                 throw error
@@ -501,17 +489,14 @@ class DockerApi {
     ) {
         const self = this
 
-        Logger.d('Creating Sticky Container: ' + imageName)
+        Logger.d(`Creating Sticky Container: ${imageName}`)
 
         const volumesMapped: string[] = []
         volumes = volumes || []
         for (let i = 0; i < volumes.length; i++) {
             const v = volumes[i]
             volumesMapped.push(
-                v.hostPath +
-                    ':' +
-                    v.containerPath +
-                    (v.mode ? ':' + v.mode : '')
+                `${v.hostPath}:${v.containerPath}${v.mode ? `:${v.mode}` : ''}`
             )
         }
 
@@ -519,7 +504,7 @@ class DockerApi {
         arrayOfEnvKeyAndValue = arrayOfEnvKeyAndValue || []
         for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
             const e = arrayOfEnvKeyAndValue[i]
-            envs.push(e.key + '=' + e.value)
+            envs.push(`${e.key}=${e.value}`)
         }
 
         return Promise.resolve()
@@ -590,8 +575,8 @@ class DockerApi {
     pushImage(imageName: string, authObj: DockerAuthObj, buildLogs: BuildLog) {
         const self = this
 
-        buildLogs.log('Pushing to remote: ' + imageName)
-        buildLogs.log('Server: ' + (authObj ? authObj.serveraddress : 'N/A'))
+        buildLogs.log(`Pushing to remote: ${imageName}`)
+        buildLogs.log(`Server: ${authObj ? authObj.serveraddress : 'N/A'}`)
         buildLogs.log('This might take a few minutes...')
 
         return Promise.resolve()
@@ -608,7 +593,7 @@ class DockerApi {
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunkRaw) {
-                        Logger.dev('stream data ' + chunkRaw)
+                        Logger.dev(`stream data ${chunkRaw}`)
                         safeParseChunk(chunkRaw).forEach((chunk) => {
                             const chuckStream = chunk.stream
                             if (chuckStream) {
@@ -735,7 +720,7 @@ class DockerApi {
                 },
                 Resources: resourcesObject,
                 Placement: {
-                    Constraints: nodeId ? ['node.id == ' + nodeId] : [],
+                    Constraints: nodeId ? [`node.id == ${nodeId}`] : [],
                 },
                 LogDriver: {
                     Name: 'json-file',
@@ -775,7 +760,7 @@ class DockerApi {
 
             for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
                 const keyVal = arrayOfEnvKeyAndValue[i]
-                const newSet = keyVal.key + '=' + keyVal.value
+                const newSet = `${keyVal.key}=${keyVal.value}`
                 dataToCreate.TaskTemplate.ContainerSpec.Env.push(newSet)
             }
         }
@@ -844,10 +829,7 @@ class DockerApi {
             .then(function (data) {
                 if (data.length >= 2) {
                     throw new Error(
-                        'There must be only one instance (not ' +
-                            data.length +
-                            ') of the service running for sendSingleContainerKillHUP. ' +
-                            serviceName
+                        `There must be only one instance (not ${data.length}) of the service running for sendSingleContainerKillHUP. ${serviceName}`
                     )
                 }
 
@@ -864,10 +846,7 @@ class DockerApi {
                         }, 3000)
                     }).then(function () {
                         Logger.d(
-                            'Retrying to get containerId for ' +
-                                serviceName +
-                                ' retry count:' +
-                                retryCount
+                            `Retrying to get containerId for ${serviceName} retry count:${retryCount}`
                         )
 
                         return self.getContainerIdByServiceName(
@@ -961,7 +940,7 @@ class DockerApi {
         return self
             .getContainerIdByServiceName(serviceName)
             .then(function (containerIdFound) {
-                Logger.d('Kill HUP Container: ' + containerIdFound)
+                Logger.d(`Kill HUP Container: ${containerIdFound}`)
 
                 return self.dockerode.getContainer(containerIdFound).kill({
                     signal: 'HUP',
@@ -997,7 +976,7 @@ class DockerApi {
                 }
 
                 if (!secretToExpose) {
-                    throw new Error('Cannot find secret: ' + secretName)
+                    throw new Error(`Cannot find secret: ${secretName}`)
                 }
 
                 return self.checkIfServiceHasSecret(
@@ -1008,20 +987,13 @@ class DockerApi {
             .then(function (hasSecret) {
                 if (hasSecret) {
                     Logger.d(
-                        serviceName +
-                            ' (service) has already been connected to secret: ' +
-                            secretName
+                        `${serviceName} (service) has already been connected to secret: ${secretName}`
                     )
                     return true
                 }
 
                 Logger.d(
-                    'Adding ' +
-                        secretToExpose.ID +
-                        ' Name:' +
-                        secretName +
-                        ' to service: ' +
-                        serviceName
+                    `Adding ${secretToExpose.ID} Name:${secretName} to service: ${serviceName}`
                 )
 
                 // we only want to update the service is it doesn't have the secret. Otherwise, it keeps restarting!
@@ -1144,10 +1116,7 @@ class DockerApi {
                 allNetworks.push(networkId)
 
                 Logger.d(
-                    'Attaching network ' +
-                        networkName +
-                        ' to service: ' +
-                        serviceName
+                    `Attaching network ${networkName} to service: ${serviceName}`
                 )
 
                 return self.updateService(
@@ -1284,7 +1253,7 @@ class DockerApi {
                             newConstraints.push(c)
                         }
                     }
-                    newConstraints.push('node.id == ' + nodeId)
+                    newConstraints.push(`node.id == ${nodeId}`)
                     updatedData.TaskTemplate.Placement.Constraints = newConstraints
                 }
 
@@ -1293,7 +1262,7 @@ class DockerApi {
 
                     for (let i = 0; i < arrayOfEnvKeyAndValue.length; i++) {
                         const keyVal = arrayOfEnvKeyAndValue[i]
-                        const newSet = keyVal.key + '=' + keyVal.value
+                        const newSet = `${keyVal.key}=${keyVal.value}`
                         updatedData.TaskTemplate.ContainerSpec.Env.push(newSet)
                     }
                 }
@@ -1433,9 +1402,7 @@ class DockerApi {
                         default:
                             let neverHappens: never = updateOrder
                             throw new Error(
-                                'Unknown update order! ' +
-                                    updateOrder +
-                                    neverHappens
+                                `Unknown update order! ${updateOrder}${neverHappens}`
                             )
                     }
                 }
@@ -1599,7 +1566,7 @@ class DockerApi {
                         .getImage(imageId)
                         .remove()
                         .then(function () {
-                            Logger.d('Image Deleted: ' + imageId)
+                            Logger.d(`Image Deleted: ${imageId}`)
                         })
                         .catch(function (err) {
                             Logger.e(err)
@@ -1672,8 +1639,7 @@ const connectionParams: Docker.DockerOptions =
               port: Number(dockerApiAddressSplited[1]),
           }
         : {
-              host:
-                  dockerApiAddressSplited[0] + ':' + dockerApiAddressSplited[1],
+              host: `${dockerApiAddressSplited[0]}:${dockerApiAddressSplited[1]}`,
               port: Number(dockerApiAddressSplited[2]),
           }
 

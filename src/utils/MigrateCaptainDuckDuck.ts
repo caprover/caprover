@@ -126,8 +126,9 @@ export default class MigrateCaptainDuckDuck {
                 const authObj = JSON.parse(
                     fs
                         .readFileSync(
-                            '/run/secrets/captain-reg-auth' +
-                                Number(oldData.captainRegistryAuthSecretVer)
+                            `/run/secrets/captain-reg-auth${Number(
+                                oldData.captainRegistryAuthSecretVer
+                            )}`
                         )
                         .toString()
                 )
@@ -136,10 +137,7 @@ export default class MigrateCaptainDuckDuck {
 
                 if (
                     (authObj.serveraddress as string).endsWith(
-                        (oldData.customDomain +
-                            ':' +
-                            CaptainConstants.configs
-                                .registrySubDomainPort) as string
+                        `${oldData.customDomain}:${CaptainConstants.configs.registrySubDomainPort}` as string
                     )
                 ) {
                     // local

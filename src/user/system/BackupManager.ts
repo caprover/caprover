@@ -21,8 +21,7 @@ const IP_PLACEHOLDER = 'replace-me-with-new-ip-or-empty-see-docs'
 const BACKUP_JSON = 'backup.json'
 const RESTORE_INSTRUCTIONS = 'restore-instructions.json'
 
-const RESTORE_INSTRUCTIONS_ABS_PATH =
-    CaptainConstants.restoreDirectoryPath + '/' + RESTORE_INSTRUCTIONS
+const RESTORE_INSTRUCTIONS_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/${RESTORE_INSTRUCTIONS}`
 
 export interface IBackupCallbacks {
     getNodesInfo: () => Promise<ServerDockerInfo[]>
@@ -30,8 +29,7 @@ export interface IBackupCallbacks {
     getCertbotManager: () => CertbotManager
 }
 
-const BACKUP_META_DATA_ABS_PATH =
-    CaptainConstants.restoreDirectoryPath + '/meta/' + BACKUP_JSON
+const BACKUP_META_DATA_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/meta/${BACKUP_JSON}`
 export default class BackupManager {
     private longOperationInProgress: boolean
 
@@ -101,7 +99,7 @@ export default class BackupManager {
                         return Promise.resolve()
                             .then(function () {
                                 Logger.d(
-                                    'Joining other node to swarm: ' + NEW_IP
+                                    `Joining other node to swarm: ${NEW_IP}`
                                 )
                                 return DockerUtils.joinDockerNode(
                                     DockerApi.get(),
@@ -114,7 +112,7 @@ export default class BackupManager {
                                 )
                             })
                             .then(function () {
-                                Logger.d('Joined swarm: ' + NEW_IP)
+                                Logger.d(`Joined swarm: ${NEW_IP}`)
                             })
                             .then(function () {
                                 Logger.d('Waiting 5 seconds...')
@@ -149,7 +147,7 @@ export default class BackupManager {
 
                     if (nodeId) return nodeId
 
-                    throw new Error('No NodeID found for ' + ip)
+                    throw new Error(`No NodeID found for ${ip}`)
                 }
 
                 const configFilePathRestoring =
@@ -322,7 +320,7 @@ export default class BackupManager {
 
         if (!currentNodeFound)
             throw new Error(
-                'You are not supposed to change ' + CURRENT_NODE_DONT_CHANGE
+                `You are not supposed to change ${CURRENT_NODE_DONT_CHANGE}`
             )
 
         const connectingFuncs: (() => Promise<void>)[] = []
@@ -391,13 +389,13 @@ export default class BackupManager {
 
                 if (!fs.pathExistsSync(privateKeyPath))
                     throw new Error(
-                        'private key is not found at ' + privateKeyPath
+                        `private key is not found at ${privateKeyPath}`
                     )
 
                 return fs.readFile(privateKeyPath, 'utf8')
             })
             .then(function (privateKey) {
-                Logger.d('Testing ' + remoteNodeIpAddress)
+                Logger.d(`Testing ${remoteNodeIpAddress}`)
 
                 return new Promise<string>(function (resolve, reject) {
                     const conn = new SshClient()
@@ -434,10 +432,7 @@ export default class BackupManager {
                                         signal: string
                                     ) {
                                         Logger.d(
-                                            'Stream :: close :: code: ' +
-                                                code +
-                                                ', signal: ' +
-                                                signal
+                                            `Stream :: close :: code: ${code}, signal: ${signal}`
                                         )
                                         conn.end()
                                         if (hasExisted) {
@@ -447,11 +442,11 @@ export default class BackupManager {
                                         resolve(dataReceived.join(''))
                                     })
                                     .on('data', function (data: string) {
-                                        Logger.d('STDOUT: ' + data)
+                                        Logger.d(`STDOUT: ${data}`)
                                         dataReceived.push(data)
                                     })
                                     .stderr.on('data', function (data) {
-                                        Logger.e('STDERR: ' + data)
+                                        Logger.e(`STDERR: ${data}`)
                                         if (hasExisted) {
                                             return
                                         }
@@ -459,7 +454,7 @@ export default class BackupManager {
                                         reject(
                                             ApiStatusCodes.createError(
                                                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                                'Error during setup: ' + data
+                                                `Error during setup: ${data}`
                                             )
                                         )
                                     })
@@ -476,11 +471,10 @@ export default class BackupManager {
             .then(function (data) {
                 if (data.toUpperCase().indexOf('SWARM: INACTIVE') < 0) {
                     throw new Error(
-                        'Either not root or already part of swarm? The output must include "Swarm: inactive" from ' +
-                            remoteNodeIpAddress
+                        `Either not root or already part of swarm? The output must include "Swarm: inactive" from ${remoteNodeIpAddress}`
                     )
                 }
-                Logger.d('Passed ' + remoteNodeIpAddress)
+                Logger.d(`Passed ${remoteNodeIpAddress}`)
             })
     }
 
@@ -649,7 +643,7 @@ export default class BackupManager {
                         return fs.ensureDir(RAW)
                     })
                     .then(function () {
-                        Logger.d('Copying data to ' + RAW)
+                        Logger.d(`Copying data to ${RAW}`)
 
                         const dest = RAW + '/data'
 
@@ -667,11 +661,11 @@ export default class BackupManager {
                         return iBackupCallbacks.getNodesInfo()
                     })
                     .then(function (nodes) {
-                        Logger.d('Copying meta to ' + RAW)
+                        Logger.d(`Copying meta to ${RAW}`)
 
                         nodeInfo = nodes
 
-                        return self.saveMetaFile(RAW + '/meta/' + BACKUP_JSON, {
+                        return self.saveMetaFile(`${RAW}/meta/${BACKUP_JSON}`, {
                             salt: iBackupCallbacks.getCaptainSalt(),
                             nodes: nodes,
                         })
@@ -681,7 +675,7 @@ export default class BackupManager {
                             CaptainConstants.captainRootDirectoryBackup +
                             '/backup.tar'
 
-                        Logger.d('Creating tar file: ' + tarFilePath)
+                        Logger.d(`Creating tar file: ${tarFilePath}`)
 
                         return tar
                             .c(
@@ -713,15 +707,11 @@ export default class BackupManager {
                         })
 
                         const now = moment()
-                        const newName =
-                            CaptainConstants.captainDownloadsDirectory +
-                            '/' +
-                            namespace +
-                            '/caprover-backup-' +
-                            (now.format('YYYY_MM_DD-HH_mm_ss') +
-                                '-' +
-                                now.valueOf()) +
-                            `-ip-${mainIP}.tar`
+                        const newName = `${
+                            CaptainConstants.captainDownloadsDirectory
+                        }/${namespace}/caprover-backup-${`${now.format(
+                            'YYYY_MM_DD-HH_mm_ss'
+                        )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
                         setTimeout(() => {

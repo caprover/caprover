@@ -143,6 +143,6 @@ export default class ApacheMd5 {
                 .digest('binary')
         }
 
-        return magic + salt + '$' + ApacheMd5.getPassword(final)
+        return `${magic + salt}$${ApacheMd5.getPassword(final)}`
     }
 }

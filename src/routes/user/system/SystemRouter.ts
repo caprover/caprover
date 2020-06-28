@@ -109,8 +109,9 @@ router.post('/forcessl/', function (req, res, next) {
             res.send(
                 new BaseApi(
                     ApiStatusCodes.STATUS_OK,
-                    'Non-SSL traffic is now ' +
-                        (isEnabled ? 'rejected.' : 'allowed.')
+                    `Non-SSL traffic is now ${
+                        isEnabled ? 'rejected.' : 'allowed.'
+                    }`
                 )
             )
         })
@@ -203,11 +204,11 @@ router.get('/netdata/', function (req, res, next) {
             return dataStore.getNetDataInfo()
         })
         .then(function (data) {
-            data.netDataUrl =
-                CaptainConstants.captainSubDomain +
-                '.' +
-                dataStore.getRootDomain() +
+            data.netDataUrl = `${
+                CaptainConstants.captainSubDomain
+            }.${dataStore.getRootDomain()}${
                 CaptainConstants.netDataRelativePath
+            }`
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Netdata info retrieved'

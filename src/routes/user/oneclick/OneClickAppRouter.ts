@@ -34,7 +34,7 @@ router.post('/repositories/insert', function (req, res, next) {
             if (urls.indexOf(apiBaseUrl) >= 0)
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_PARAMETER,
-                    'Repository URL already exists: ' + apiBaseUrl
+                    `Repository URL already exists: ${apiBaseUrl}`
                 )
 
             return axios
@@ -45,14 +45,14 @@ router.post('/repositories/insert', function (req, res, next) {
                 .then(function (apps: any[]) {
                     if (!apps || !apps.length)
                         throw new Error(
-                            'No apps were retrieved from ' + apiBaseUrl
+                            `No apps were retrieved from ${apiBaseUrl}`
                         )
                 })
                 .catch((err) => {
                     Logger.e(err)
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Could not fetch app lists from ' + apiBaseUrl
+                        `Could not fetch app lists from ${apiBaseUrl}`
                     )
                 })
         })
@@ -62,7 +62,7 @@ router.post('/repositories/insert', function (req, res, next) {
         .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'One Click apps repository URL is saved: ' + apiBaseUrl
+                `One Click apps repository URL is saved: ${apiBaseUrl}`
             )
             res.send(baseApi)
         })
@@ -85,7 +85,7 @@ router.post('/repositories/delete', function (req, res, next) {
             if (urls.indexOf(apiBaseUrl) < 0)
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_PARAMETER,
-                    'Repository URL does not exist ' + apiBaseUrl
+                    `Repository URL does not exist ${apiBaseUrl}`
                 )
         })
         .then(function () {
@@ -94,7 +94,7 @@ router.post('/repositories/delete', function (req, res, next) {
         .then(function () {
             let baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'One Click apps repository URL is deleted ' + apiBaseUrl
+                `One Click apps repository URL is deleted ${apiBaseUrl}`
             )
             res.send(baseApi)
         })
@@ -204,7 +204,7 @@ router.get('/template/app', function (req, res, next) {
                 )
 
             const appUrl = `${baseDomain}/${VERSION}/apps/${appName}`
-            Logger.d('retrieving app at: ' + appUrl)
+            Logger.d(`retrieving app at: ${appUrl}`)
 
             return axios.get(appUrl).then(function (responseObject) {
                 return responseObject.data

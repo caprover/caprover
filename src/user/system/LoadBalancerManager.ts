@@ -108,10 +108,9 @@ class LoadBalancerManager {
         const dataStore = q.dataStore
 
         // This will resolve to something like: /captain/nginx/conf.d/captain
-        const configFilePathBase =
-            CaptainConstants.perAppNginxConfigPathBase +
-            '/' +
-            dataStore.getNameSpace()
+        const configFilePathBase = `${
+            CaptainConstants.perAppNginxConfigPathBase
+        }/${dataStore.getNameSpace()}`
 
         const FUTURE = configFilePathBase + '.fut'
         const BACKUP = configFilePathBase + '.bak'
@@ -137,18 +136,16 @@ class LoadBalancerManager {
                             s.keyPath = self.getSslKeyPath(s.publicDomain)
                         }
 
-                        s.staticWebRoot =
+                        s.staticWebRoot = `${
                             CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir +
-                            '/' +
-                            s.publicDomain
+                            CaptainConstants.nginxDomainSpecificHtmlDir
+                        }/${s.publicDomain}`
 
                         s.customErrorPagesDirectory =
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir
 
-                        const pathOfAuthInHost =
-                            configFilePathBase + '-' + s.publicDomain + '.auth'
+                        const pathOfAuthInHost = `${configFilePathBase}-${s.publicDomain}.auth`
 
                         promises.push(
                             Promise.resolve()
@@ -261,9 +258,7 @@ class LoadBalancerManager {
                     const webApp = apps[appName]
                     const httpBasicAuth =
                         webApp.httpAuth && webApp.httpAuth.passwordHashed //
-                            ? webApp.httpAuth.user +
-                              ':' +
-                              webApp.httpAuth.passwordHashed
+                            ? `${webApp.httpAuth.user}:${webApp.httpAuth.passwordHashed}`
                             : ''
 
                     if (webApp.notExposeAsWebApp) {
@@ -281,8 +276,7 @@ class LoadBalancerManager {
                     const serverWithSubDomain = {} as IServerBlockDetails
                     serverWithSubDomain.hasSsl =
                         hasRootSsl && webApp.hasDefaultSubDomainSsl
-                    serverWithSubDomain.publicDomain =
-                        appName + '.' + rootDomain
+                    serverWithSubDomain.publicDomain = `${appName}.${rootDomain}`
                     serverWithSubDomain.localDomain = localDomain
                     serverWithSubDomain.forceSsl = forceSsl
                     serverWithSubDomain.websocketSupport = websocketSupport
@@ -344,12 +338,11 @@ class LoadBalancerManager {
 
     getInfo() {
         return new Promise<LoadBalancerInfo>(function (resolve, reject) {
-            const url =
-                'http://' + CaptainConstants.nginxServiceName + '/nginx_status'
+            const url = `http://${CaptainConstants.nginxServiceName}/nginx_status`
 
             request(url, function (error, response, body) {
                 if (error || !body) {
-                    Logger.e('Error        ' + error)
+                    Logger.e(`Error        ${error}`)
                     reject(
                         ApiStatusCodes.createError(
                             ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -392,10 +385,12 @@ class LoadBalancerManager {
     createRootConfFile(dataStore: DataStore) {
         const self = this
 
-        const captainDomain =
-            CaptainConstants.captainSubDomain + '.' + dataStore.getRootDomain()
-        const registryDomain =
-            CaptainConstants.registrySubDomain + '.' + dataStore.getRootDomain()
+        const captainDomain = `${
+            CaptainConstants.captainSubDomain
+        }.${dataStore.getRootDomain()}`
+        const registryDomain = `${
+            CaptainConstants.registrySubDomain
+        }.${dataStore.getRootDomain()}`
 
         let hasRootSsl = false
 
@@ -443,22 +438,20 @@ class LoadBalancerManager {
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
-                        staticWebRoot:
+                        staticWebRoot: `${
                             CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir +
-                            '/' +
-                            captainDomain,
+                            CaptainConstants.nginxDomainSpecificHtmlDir
+                        }/${captainDomain}`,
                     },
                     registry: {
                         crtPath: self.getSslCertPath(registryDomain),
                         keyPath: self.getSslKeyPath(registryDomain),
                         hasRootSsl: hasRegistrySsl,
                         domain: registryDomain,
-                        staticWebRoot:
+                        staticWebRoot: `${
                             CaptainConstants.nginxStaticRootDir +
-                            CaptainConstants.nginxDomainSpecificHtmlDir +
-                            '/' +
-                            registryDomain,
+                            CaptainConstants.nginxDomainSpecificHtmlDir
+                        }/${registryDomain}`,
                     },
                 })
             })
@@ -570,9 +563,9 @@ class LoadBalancerManager {
                 .then(function () {
                     const waitTimeInMillis = 5000
                     Logger.d(
-                        'Waiting for ' +
-                            waitTimeInMillis / 1000 +
-                            ' seconds for nginx to start up'
+                        `Waiting for ${
+                            waitTimeInMillis / 1000
+                        } seconds for nginx to start up`
                     )
                     return new Promise<boolean>(function (resolve, reject) {
                         setTimeout(function () {
@@ -748,9 +741,9 @@ class LoadBalancerManager {
 
                 const waitTimeInMillis = 5000
                 Logger.d(
-                    'Waiting for ' +
-                        waitTimeInMillis / 1000 +
-                        ' seconds for nginx reload to take into effect'
+                    `Waiting for ${
+                        waitTimeInMillis / 1000
+                    } seconds for nginx reload to take into effect`
                 )
                 return new Promise<boolean>(function (resolve, reject) {
                     setTimeout(function () {

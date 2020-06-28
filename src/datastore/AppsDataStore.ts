@@ -131,7 +131,7 @@ class AppsDataStore {
                         if (!isValidPath(obj.containerPath)) {
                             throw ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Invalid containerPath: ' + obj.containerPath
+                                `Invalid containerPath: ${obj.containerPath}`
                             )
                         }
 
@@ -139,7 +139,7 @@ class AppsDataStore {
                             if (!isValidPath(obj.hostPath)) {
                                 throw ApiStatusCodes.createError(
                                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                    'Invalid volume host path: ' + obj.hostPath
+                                    `Invalid volume host path: ${obj.hostPath}`
                                 )
                             }
                         } else {
@@ -149,7 +149,7 @@ class AppsDataStore {
                             ) {
                                 throw ApiStatusCodes.createError(
                                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                    'Invalid volume name: ' + obj.volumeName
+                                    `Invalid volume name: ${obj.volumeName}`
                                 )
                             }
                         }
@@ -194,7 +194,7 @@ class AppsDataStore {
                 return appToSave
             })
             .then(function (appToSave: IAppDefSaved) {
-                self.data.set(APP_DEFINITIONS + '.' + appName, appToSave)
+                self.data.set(`${APP_DEFINITIONS}.${appName}`, appToSave)
             })
     }
 
@@ -206,7 +206,7 @@ class AppsDataStore {
             )
         }
 
-        if (!!this.data.get(APP_DEFINITIONS + '.' + appName)) {
+        if (!!this.data.get(`${APP_DEFINITIONS}.${appName}`)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,
                 'App Name already exists. Please use a different name'
@@ -246,7 +246,7 @@ class AppsDataStore {
             .then(function (appData) {
                 if (appData.appName) appData.appName = newAppName
                 appData.hasDefaultSubDomainSsl = false
-                self.data.delete(APP_DEFINITIONS + '.' + oldAppName)
+                self.data.delete(`${APP_DEFINITIONS}.${oldAppName}`)
                 self.saveApp(newAppName, appData)
             })
             .then(function () {
@@ -255,11 +255,11 @@ class AppsDataStore {
     }
 
     getServiceName(appName: string) {
-        return 'srv-' + this.namepace + '--' + appName
+        return `srv-${this.namepace}--${appName}`
     }
 
     getVolumeName(volumeName: string) {
-        return this.namepace + '--' + volumeName
+        return `${this.namepace}--${volumeName}`
     }
 
     getAppDefinitions() {
@@ -793,7 +793,7 @@ class AppsDataStore {
                 return
             }
 
-            if (!self.data.get(APP_DEFINITIONS + '.' + appName)) {
+            if (!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -803,7 +803,7 @@ class AppsDataStore {
                 return
             }
 
-            self.data.delete(APP_DEFINITIONS + '.' + appName)
+            self.data.delete(`${APP_DEFINITIONS}.${appName}`)
             resolve()
         }).then(function () {
             Utils.getDelayedPromise(2000)
@@ -831,7 +831,7 @@ class AppsDataStore {
                 return
             }
 
-            if (!!self.data.get(APP_DEFINITIONS + '.' + appName)) {
+            if (!!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,

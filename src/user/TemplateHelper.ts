@@ -57,7 +57,7 @@ class TemplateHelper {
         }
         throw ApiStatusCodes.createError(
             ApiStatusCodes.STATUS_ERROR_GENERIC,
-            'TEMPLATE NAME NOT FOUND: ' + templateName
+            `TEMPLATE NAME NOT FOUND: ${templateName}`
         )
     }
 
@@ -74,13 +74,10 @@ class TemplateHelper {
 
         const templateObj = self.getTemplateFromTemplateName(templateName)
 
-        const fromLine =
-            templateObj.dockerHubImageName +
-            ':' +
-            templateVersion +
-            templateObj.tagSuffix
+        const fromLine = `${templateObj.dockerHubImageName}:${templateVersion}${templateObj.tagSuffix}`
 
-        return 'FROM ' + fromLine + '\n' + templateObj.postFromLines
+        return `FROM ${fromLine}
+${templateObj.postFromLines}`
     }
 }
 

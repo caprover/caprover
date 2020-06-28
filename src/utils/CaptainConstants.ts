@@ -174,7 +174,7 @@ function overrideFromFile(fileName: string) {
                 continue
             }
 
-            console.log('Overriding ' + prop + ' from ' + fileName)
+            console.log(`Overriding ${prop} from ${fileName}`)
             // @ts-ignore
             configs[prop] = overridingValuesConfigs[prop]
         }

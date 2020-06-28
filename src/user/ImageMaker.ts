@@ -81,13 +81,7 @@ export default class ImageMaker {
     }
 
     private getDirectoryForRawSource(appName: string, version: number) {
-        return (
-            CaptainConstants.captainRawSourceDirectoryBase +
-            '/' +
-            appName +
-            '/' +
-            version
-        )
+        return `${CaptainConstants.captainRawSourceDirectoryBase}/${appName}/${version}`
     }
 
     /**
@@ -105,17 +99,18 @@ export default class ImageMaker {
         const logs = self.buildLogsManager.getAppBuildLogs(appName)
 
         logs.clear()
-        logs.log('------------------------- ' + new Date())
-        logs.log('Build started for ' + appName)
+        logs.log(`------------------------- ${new Date()}`)
+        logs.log(`Build started for ${appName}`)
 
         let gitHash = ''
 
         const baseDir = self.getDirectoryForRawSource(appName, appVersion)
-        const rawDir = baseDir + '/' + RAW_SOURCE_DIRECTORY
-        const tarFilePath = baseDir + '/' + TAR_FILE_NAME_READY_FOR_DOCKER
+        const rawDir = `${baseDir}/${RAW_SOURCE_DIRECTORY}`
+        const tarFilePath = `${baseDir}/${TAR_FILE_NAME_READY_FOR_DOCKER}`
 
-        const baseImageNameWithoutVerAndReg =
-            'img-' + this.namespace + '-' + appName // img-captain-myapp
+        const baseImageNameWithoutVerAndReg = `img-${this.namespace}-${
+            appName // img-captain-myapp
+        }`
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
         return Promise.resolve() //
@@ -266,7 +261,7 @@ export default class ImageMaker {
                             .catch(function (error: AnyError) {
                                 throw ApiStatusCodes.createError(
                                     ApiStatusCodes.BUILD_ERROR,
-                                    ('' + error).trim()
+                                    `${error}`.trim()
                                 )
                             })
                     })
@@ -458,7 +453,7 @@ export default class ImageMaker {
             })
             .then(function (dockerfileContent) {
                 return fs.outputFile(
-                    directoryWithCaptainDefinition + '/' + DOCKER_FILE,
+                    `${directoryWithCaptainDefinition}/${DOCKER_FILE}`,
                     dockerfileContent
                 )
             })
@@ -504,7 +499,7 @@ export default class ImageMaker {
 
                             const captainDefinitionDefault: ICaptainDefinition = {
                                 schemaVersion: 2,
-                                dockerfilePath: './' + DOCKER_FILE,
+                                dockerfilePath: `./${DOCKER_FILE}`,
                             }
 
                             return fs

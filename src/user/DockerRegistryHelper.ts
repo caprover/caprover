@@ -25,7 +25,7 @@ class DockerRegistryHelper {
     ): Promise<string> {
         const self = this
         let allRegistries: IRegistryInfo[]
-        let fullImageName = imageName + ':' + version
+        let fullImageName = `${imageName}:${version}`
         return Promise.resolve() //
             .then(function () {
                 if (!imageName) throw new Error('no image name! cannot re-tag!')
@@ -56,12 +56,7 @@ class DockerRegistryHelper {
 
                 const imageNameWithoutDockerAuth = fullImageName
 
-                fullImageName =
-                    data.registryDomain +
-                    '/' +
-                    data.registryImagePrefix +
-                    '/' +
-                    fullImageName
+                fullImageName = `${data.registryDomain}/${data.registryImagePrefix}/${fullImageName}`
 
                 return self
                     .getDockerAuthObjectForImageName(fullImageName)
@@ -97,7 +92,7 @@ class DockerRegistryHelper {
                                     reject(
                                         ApiStatusCodes.createError(
                                             ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                            'Push failed: ' + error
+                                            `Push failed: ${error}`
                                         )
                                     )
                                 })
@@ -124,7 +119,7 @@ class DockerRegistryHelper {
                     const prefix = element.registryImagePrefix
                     const registryIdentifierPrefix =
                         element.registryDomain +
-                        (prefix ? '/' + prefix : '') +
+                        (prefix ? `/${prefix}` : '') +
                         '/'
 
                     if (imageName.startsWith(registryIdentifierPrefix)) {

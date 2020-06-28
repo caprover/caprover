@@ -9,8 +9,7 @@ function getTagsForImage(
     allTags: string[] | undefined
 ): Promise<string[]> {
     if (!url) {
-        url =
-            'https://hub.docker.com/v2/repositories/' + imageBaseName + '/tags'
+        url = `https://hub.docker.com/v2/repositories/${imageBaseName}/tags`
     }
 
     return new Promise<string[]>(function (resolve, reject) {
@@ -64,7 +63,7 @@ function getTagsForImage(
 
 function firstEndsWithSecond(str1: string, str2: string) {
     if (!str1 || !str2) {
-        throw new Error('Str1 or Str2 are null ' + !str1 + ' ' + !str2)
+        throw new Error(`Str1 or Str2 are null ${!str1} ${!str2}`)
     }
     const idx = str1.indexOf(str2)
     return idx >= 0 && idx + str2.length === str1.length

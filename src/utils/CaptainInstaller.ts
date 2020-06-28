@@ -66,7 +66,7 @@ function checkSystemReq() {
                     '******* Warning *******   With less than 1GB RAM, Docker builds might fail, see CapRover system requirements.'
                 )
             } else {
-                console.log('   Total RAM ' + totalMemInMb + ' MB')
+                console.log(`   Total RAM ${totalMemInMb} MB`)
             }
         })
         .catch(function (error) {
@@ -139,7 +139,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             'Otherwise, if you are running CapRover on a VPS with public IP:'
         )
         console.log(
-            'Your firewall may have been blocking an in-use port: ' + portToTest
+            `Your firewall may have been blocking an in-use port: ${portToTest}`
         )
         console.log(
             'A simple solution on Ubuntu systems is to run "ufw disable" (security risk)'
@@ -171,10 +171,10 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             finished = true
 
             printError()
-            reject(new Error('Port timed out: ' + portToTest))
+            reject(new Error(`Port timed out: ${portToTest}`))
         }, 5000)
 
-        request('http://' + ipAddr + ':' + portToTest, function (
+        request(`http://${ipAddr}:${portToTest}`, function (
             error,
             response,
             body
@@ -189,7 +189,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
                 resolve()
             } else {
                 printError()
-                reject(new Error('Port seems to be closed: ' + portToTest))
+                reject(new Error(`Port seems to be closed: ${portToTest}`))
             }
         })
     })
@@ -251,7 +251,7 @@ export function install() {
             }
         })
         .then(function (ip4) {
-            myIp4 = '' + ip4
+            myIp4 = `${ip4}`
 
             return startServerOnPort_80_443_3000()
         })
@@ -266,17 +266,17 @@ export function install() {
         })
         .then(function () {
             const imageName = CaptainConstants.configs.nginxImageName
-            console.log('Pulling: ' + imageName)
+            console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
             const imageName = CaptainConstants.configs.appPlaceholderImageName
-            console.log('Pulling: ' + imageName)
+            console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
             const imageName = CaptainConstants.certbotImageName
-            console.log('Pulling: ' + imageName)
+            console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
@@ -286,7 +286,7 @@ export function install() {
             return DockerApi.get().initSwarm(myIp4)
         })
         .then(function (swarmId: string) {
-            console.log('Swarm started: ' + swarmId)
+            console.log(`Swarm started: ${swarmId}`)
             return backupManger.startRestorationIfNeededPhase1(myIp4)
         })
         .then(function () {
@@ -327,10 +327,7 @@ export function install() {
 
             let ports: IAppPort[] = []
 
-            let captainNameAndVersion =
-                CaptainConstants.configs.publishedNameOnDockerHub +
-                ':' +
-                CaptainConstants.configs.version
+            let captainNameAndVersion = `${CaptainConstants.configs.publishedNameOnDockerHub}:${CaptainConstants.configs.version}`
 
             if (CaptainConstants.isDebug) {
                 captainNameAndVersion =
