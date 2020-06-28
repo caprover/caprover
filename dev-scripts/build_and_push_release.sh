@@ -6,6 +6,8 @@ set -e
 # Print all commands
 set -x 
 
+pwd
+
 CAPROVER_VERSION_FROM_TAG=$1
 IMAGE_NAME=caprover/caprover
 
@@ -25,14 +27,12 @@ if [[ "$BRANCH" != "release" ]]; then
     exit 1;
 fi
 
-pwd
 
 git clean -fdx .
 npm ci
 npm run build
 
 node ./dev-scripts/validateBuildVersion.js
-# Run validateBuildVersion.js
 # Get version from constant file
 # Get version from tag (CAPROVER_VERSION_FROM_TAG) env var
 # Make sure the two are the same
