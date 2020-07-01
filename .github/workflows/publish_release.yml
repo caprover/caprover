@@ -1,0 +1,13 @@
+name: Build and push the release image
+
+on:
+    push:
+        branches:
+            - release
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+              run: sudo ./dev-scripts/build_and_push_release.sh

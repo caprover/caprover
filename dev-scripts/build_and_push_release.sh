@@ -32,7 +32,7 @@ git clean -fdx .
 npm ci
 npm run build
 
-node ./dev-scripts/validateBuildVersion.js
+node ./dev-scripts/validate-build-version-docker-hub.js
 # Get version from constant file
 # Get version from tag (CAPROVER_VERSION_FROM_TAG) env var
 # Make sure the two are the same

@@ -6,6 +6,8 @@
 /built
 /dist-frontend
 
+version
+
 # JetBrains
 .idea
 

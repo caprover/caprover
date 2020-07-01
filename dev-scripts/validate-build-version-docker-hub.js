@@ -8,6 +8,7 @@
 // # Run API request to DockerHub and make sure it's a new version
 
 const requestOriginal = require('request')
+const fs = require('fs-extra')
 
 function request(url) {
     return new Promise(function (resolve, reject) {
@@ -32,20 +33,18 @@ let version = ''
 
 Promise.resolve()
     .then(function () {
-
-        version = require('./built/utils/CaptainConstants').configs.version
-        publishedNameOnDockerHub = require('./built/utils/CaptainConstants').configs.publishedNameOnDockerHub;
+        version = require('../built/utils/CaptainConstants').default.configs
+            .version
+        publishedNameOnDockerHub = require('../built/utils/CaptainConstants')
+            .default.configs.publishedNameOnDockerHub
 
         if (!version || !publishedNameOnDockerHub) {
-            throw new Error('Version and publishedNameOnDockerHub must be present')
+            throw new Error(
+                'Version and publishedNameOnDockerHub must be present'
+            )
         }
 
-        if (version !== process.env.CAPROVER_VERSION_FROM_TAG) {
-            throw new Error(`Version and CAPROVER_VERSION_FROM_TAG must be the same: ${version} ${process.env.CAPROVER_VERSION_FROM_TAG}`)
-        }
-
-        var URL =
-            `https://hub.docker.com/v2/repositories/${publishedNameOnDockerHub}/tags`
+        var URL = `https://hub.docker.com/v2/repositories/${publishedNameOnDockerHub}/tags`
 
         return request(URL)
     })
@@ -92,6 +91,7 @@ Promise.resolve()
             )
         }
 
+        fs.outputFileSync(`./version`, version)
     })
     .catch(function (err) {
         console.error(err)
