@@ -10,4 +10,4 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
-              run: sudo ./dev-scripts/build_and_push_release.sh
+            - run: sudo ./dev-scripts/build_and_push_release.sh
