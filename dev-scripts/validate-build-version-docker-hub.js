@@ -91,7 +91,7 @@ Promise.resolve()
             )
         }
 
-        fs.outputFileSync(`./version`, version)
+        fs.outputFileSync(`./version`, `export CAPROVER_VERSION="${version}"`)
     })
     .catch(function (err) {
         console.error(err)
