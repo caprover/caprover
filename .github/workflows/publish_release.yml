@@ -15,4 +15,4 @@ jobs:
             #   run: echo "$GITHUB_REF"
             - name: Extract branch name
               shell: bash
-              run: sudo ./dev-scripts/build_and_push_release.sh
+              run: ./dev-scripts/build_and_push_release.sh
