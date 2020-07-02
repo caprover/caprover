@@ -21,7 +21,10 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# On Github the line above does not work, instead:
+BRANCH=${GITHUB_REF##*/}
+
 echo "on branch $BRANCH"
 if [[ "$BRANCH" != "testing-release" ]]; then
     echo 'Not on release branch! Aborting script!';
