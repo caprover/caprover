@@ -12,5 +12,5 @@ jobs:
             - uses: actions/checkout@v1
             - name: Extract branch name
               shell: bash
-              run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+              run: echo "$GITHUB_REF"
             - run: sudo ./dev-scripts/build_and_push_release.sh
