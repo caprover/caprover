@@ -22,6 +22,7 @@ if ! [ $(id -u) = 0 ]; then
 fi
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "on branch $BRANCH"
 if [[ "$BRANCH" != "testing-release" ]]; then
     echo 'Not on release branch! Aborting script!';
     exit 1;
