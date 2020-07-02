@@ -22,7 +22,7 @@ if ! [ $(id -u) = 0 ]; then
 fi
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ "$BRANCH" != "release" ]]; then
+if [[ "$BRANCH" != "testing-release" ]]; then
     echo 'Not on release branch! Aborting script!';
     exit 1;
 fi
@@ -35,9 +35,6 @@ npm run build
 node ./dev-scripts/validate-build-version-docker-hub.js
 
 source ./version
-
-echo $CAPROVER_VERSION
-exit
 
 docker build -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release .
 docker push  $IMAGE_NAME:$CAPROVER_VERSION
