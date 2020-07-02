@@ -3,7 +3,7 @@ name: Build and push the release image
 on:
     push:
         branches:
-            - release
+            - testing-release
 
 jobs:
     build:
