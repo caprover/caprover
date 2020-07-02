@@ -10,9 +10,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
-            # - name: Extract branch name
-            #   shell: bash
-            #   run: echo "$GITHUB_REF"
-            - name: Extract branch name
+            - name: Build and Push Release to DockerHub
               shell: bash
               run: ./dev-scripts/build_and_push_release.sh
