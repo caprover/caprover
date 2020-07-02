@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo Reserved for REPO_NAME=${GITHUB_REPOSITORY##*/}
+echo GITHUB_REF=${GITHUB_REF}
+echo EXTRACT_GITHUB_REF=${GITHUB_REF##*/}
+echo EXTRACT_GITHUB_REF_HEADS=$(echo ${GITHUB_REF#refs/heads/})
+BRANCH=${GITHUB_REF##*/}
+
 # Exit early if any command fails
 set -e
 
@@ -23,11 +29,6 @@ fi
 
 # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # On Github the line above does not work, instead:
-echo Reserved for REPO_NAME=${GITHUB_REPOSITORY##*/}
-echo GITHUB_REF=${GITHUB_REF}
-echo EXTRACT_GITHUB_REF=${GITHUB_REF##*/}
-echo EXTRACT_GITHUB_REF_HEADS=$(echo ${GITHUB_REF#refs/heads/})
-BRANCH=${GITHUB_REF##*/}
 
 echo "on branch $BRANCH"
 if [[ "$BRANCH" != "testing-release" ]]; then
