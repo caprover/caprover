@@ -23,7 +23,7 @@ fi
 
 # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # On Github the line above does not work, instead:
-env
+echo "------------- $GITHUB_REF"
 BRANCH=${GITHUB_REF##*/}
 
 echo "on branch $BRANCH"
