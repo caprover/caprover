@@ -18,6 +18,10 @@ jobs:
         needs: run-pre-checks
         runs-on: ubuntu-latest
         steps:
+            - uses: azure/docker-login@v1
+              with:
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
             - uses: actions/checkout@v1
             - name: Build and Push Release to DockerHub
               shell: bash
