@@ -671,6 +671,7 @@ class CaptainManager {
                 return self.dataStore.setHasRootSsl(true)
             })
             .then(function () {
+                Logger.d('Updating Load Balancer - CaptainManager.enableSsl')
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
@@ -798,6 +799,9 @@ class CaptainManager {
                 return self.dataStore.setCustomDomain(requestedCustomDomain)
             })
             .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - CaptainManager.changeCaptainRootDomain'
+                )
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )

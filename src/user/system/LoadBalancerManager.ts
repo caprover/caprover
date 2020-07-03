@@ -10,7 +10,6 @@ import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import Utils from '../../utils/Utils'
 import CertbotManager from './CertbotManager'
 import fs = require('fs-extra')
 import request = require('request')
@@ -501,25 +500,24 @@ class LoadBalancerManager {
             })
     }
 
-    ensureDhParamFileExistsAfterDelay(dataStore: DataStore) {
+    ensureDhParamFileExists(dataStore: DataStore) {
         const self = this
-        fs.pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
+        return fs
+            .pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
             .then(function (dhParamExists) {
                 if (dhParamExists) {
                     return
                 }
-                return Utils.getDelayedPromise(60 * 1000)
-                    .then(function () {
-                        Logger.d(
-                            'Creating dhparams for the first time - high CPU load is expected.'
-                        )
-                        return exec(
-                            `openssl dhparam -out ${DH_PARAMS_FILE_PATH_ON_HOST} 2048`
-                        )
-                    })
-                    .then(function () {
-                        return self.rePopulateNginxConfigFile(dataStore)
-                    })
+
+                Logger.d(
+                    'Creating dhparams for the first time - high CPU load is expected.'
+                )
+                return exec(
+                    `openssl dhparam -out ${DH_PARAMS_FILE_PATH_ON_HOST} 2048`
+                ).then(function () {
+                    Logger.d('Updating Load Balancer - ensureDhParamFileExists')
+                    return self.rePopulateNginxConfigFile(dataStore)
+                })
             })
             .catch((err) => Logger.e(err))
     }
@@ -641,7 +639,9 @@ class LoadBalancerManager {
                 )
             })
             .then(function () {
-                Logger.d('Setting up NGINX conf file...')
+                Logger.d(
+                    'Updating Load Balancer - Setting up NGINX conf file...'
+                )
                 return self.rePopulateNginxConfigFile(dataStore, true)
             })
             .then(function () {
@@ -737,8 +737,6 @@ class LoadBalancerManager {
                 )
             })
             .then(function () {
-                self.ensureDhParamFileExistsAfterDelay(dataStore)
-
                 const waitTimeInMillis = 5000
                 Logger.d(
                     `Waiting for ${
@@ -756,9 +754,14 @@ class LoadBalancerManager {
                 return self.certbotManager.init(myNodeId)
             })
             .then(function () {
-                // schedule the first attempt to renew certs in 1 minute
+                // schedule the 1 minute:
+                // Ensure DH Params exists
+                // First attempt to renew certs in
                 setTimeout(function () {
-                    self.renewAllCertsAndReload(dataStore)
+                    self.ensureDhParamFileExists(dataStore) //
+                        .then(function () {
+                            return self.renewAllCertsAndReload(dataStore)
+                        })
                 }, 1000 * 60)
             })
     }
@@ -777,6 +780,7 @@ class LoadBalancerManager {
         return self.certbotManager
             .renewAllCerts() //
             .then(function () {
+                Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile(dataStore)
             })
     }
