@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+-   Something new soon!
+
+## [1.7.1] - 2020-07-03
+
 -   New: Improved TLS security settings for the built-in docker registry (https://github.com/caprover/caprover/pull/595)
 -   New: Allowing custom ports for git remote repositories. (https://github.com/caprover/caprover/issues/606)
 -   New: Default to http2 (https://github.com/caprover/caprover/pull/667)
