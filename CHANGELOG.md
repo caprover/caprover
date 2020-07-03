@@ -9,7 +9,7 @@
 -   New: Added a step to create dhparams during installation to improve security.
 -   New: Added docker API version to the config params so that it can be changed by the users (https://github.com/caprover/caprover/issues/620)
 -   New: Added ability to add 3rd party one-click app repositories (https://github.com/caprover/caprover/issues/691)
--   New: Added image name deploy to web UI panel
+-   New: Added image name deploy to web UI panel - UI Improvement
 
 -   Bugfix: Root domain change prevented nginx from booting up if a local registry was enabled (https://github.com/caprover/caprover/issues/686)
 -   Bugfix: Refreshing the webhook URL to appear right after Save & Update (https://github.com/caprover/caprover-frontend/issues/41)
