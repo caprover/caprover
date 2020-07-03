@@ -13,8 +13,14 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: 14
-            - run: sudo mkdir /captain && npm ci && npm run build && npm run tslint && npm run formatter && sudo npm run test
-    publish-docker-hub:
+            - run: |
+                  sudo mkdir /captain
+                  npm ci
+                  npm run build
+                  npm run tslint
+                  npm run formatter
+                  sudo npm run test
+    build-publish-docker-hub:
         needs: run-pre-checks
         runs-on: ubuntu-latest
         steps:
