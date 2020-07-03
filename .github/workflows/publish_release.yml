@@ -6,7 +6,15 @@ on:
             - testing-release
 
 jobs:
-    build:
+    run pre-checks:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 14
+            - run: sudo mkdir /captain && npm ci && npm run build && npm run tslint && npm run formatter && sudo npm run test
+    publish-docker-hub:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
