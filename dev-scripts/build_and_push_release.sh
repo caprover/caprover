@@ -21,7 +21,7 @@ fi
 # On Github the line above does not work, instead:
 BRANCH=${GITHUB_REF##*/}
 echo "on branch $BRANCH"
-if [[ "$BRANCH" != "testing-release" ]]; then
+if [[ "$BRANCH" != "release" ]]; then
     echo 'Not on release branch! Aborting script!';
     exit 1;
 fi
