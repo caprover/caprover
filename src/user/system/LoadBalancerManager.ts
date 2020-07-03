@@ -754,7 +754,7 @@ class LoadBalancerManager {
                 return self.certbotManager.init(myNodeId)
             })
             .then(function () {
-                // schedule the 1 minute:
+                // schedule the 10sec:
                 // Ensure DH Params exists
                 // First attempt to renew certs in
                 setTimeout(function () {
@@ -762,7 +762,7 @@ class LoadBalancerManager {
                         .then(function () {
                             return self.renewAllCertsAndReload(dataStore)
                         })
-                }, 1000 * 60)
+                }, 1000 * 10)
             })
     }
 
