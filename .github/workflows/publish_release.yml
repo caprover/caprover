@@ -15,6 +15,7 @@ jobs:
                   node-version: 14
             - run: sudo mkdir /captain && npm ci && npm run build && npm run tslint && npm run formatter && sudo npm run test
     publish-docker-hub:
+        needs: run-pre-checks
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
