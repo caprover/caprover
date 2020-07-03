@@ -65,8 +65,11 @@ class SelfHostedDockerRegistry {
 
     ensureServiceRemoved() {
         const dockerApi = this.dockerApi
-
+        const self = this
         return Promise.resolve() //
+            .then(function () {
+                return self.dataStore.setHasRegistrySsl(false)
+            })
             .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.registryServiceName
