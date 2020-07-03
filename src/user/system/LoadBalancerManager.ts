@@ -518,6 +518,9 @@ class LoadBalancerManager {
                         )
                     })
                     .then(function () {
+                        Logger.d(
+                            'Updating Load Balancer - ensureDhParamFileExistsAfterDelay'
+                        )
                         return self.rePopulateNginxConfigFile(dataStore)
                     })
             })
@@ -641,7 +644,9 @@ class LoadBalancerManager {
                 )
             })
             .then(function () {
-                Logger.d('Setting up NGINX conf file...')
+                Logger.d(
+                    'Updating Load Balancer - Setting up NGINX conf file...'
+                )
                 return self.rePopulateNginxConfigFile(dataStore, true)
             })
             .then(function () {
@@ -777,6 +782,7 @@ class LoadBalancerManager {
         return self.certbotManager
             .renewAllCerts() //
             .then(function () {
+                Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile(dataStore)
             })
     }

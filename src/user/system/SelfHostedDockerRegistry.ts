@@ -44,6 +44,9 @@ class SelfHostedDockerRegistry {
                 return self.dataStore.setHasRegistrySsl(true)
             })
             .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - SelfHostedDockerRegistry.enableRegistrySsl'
+                )
                 return self.loadBalancerManager.rePopulateNginxConfigFile(
                     self.dataStore
                 )
