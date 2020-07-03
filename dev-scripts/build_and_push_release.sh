@@ -16,10 +16,6 @@ if [ ! -f ./package-lock.json ]; then
     exit 1;
 fi
 
-# if ! [ $(id -u) = 0 ]; then
-#    echo "Must run as sudo or root"
-#    exit 1
-# fi
 
 # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # On Github the line above does not work, instead:
