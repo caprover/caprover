@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   Something new soon!
+-   Added deletion capability to selfhost Docker Registry. [Issue-580](https://github.com/caprover/caprover/issues/580)
 
 ## [1.7.1] - 2020-07-03
 
