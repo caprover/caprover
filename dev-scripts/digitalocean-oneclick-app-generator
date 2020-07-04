@@ -2,8 +2,7 @@
 # https://github.com/digitalocean/marketplace-partners/blob/master/marketplace_docs/build-an-image.md#cleaning-up-your-build-droplet
 
 
-apt -y update
-apt -y upgrade
+apt -y update && apt -y full-upgrade
 
 
 
@@ -71,13 +70,13 @@ EOT
 
 chmod +x 99-caprover-readme
 
+
+
 ############################ WAIT
 
 
 
-
-apt -y update
-apt -y upgrade
+apt -y update && apt -y full-upgrade
 
 
 cd /etc
@@ -94,7 +93,6 @@ cd /etc
 wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/img_check.sh
 chmod +x img_check.sh
 ./img_check.sh
-
 
 
 
