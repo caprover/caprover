@@ -163,8 +163,12 @@ class DockerApi {
             })
     }
 
-    createJoinCommand(captainIpAddress: string, token: string) {
-        return `docker swarm join --token ${token} ${captainIpAddress}:2377`
+    createJoinCommand(
+        captainIpAddress: string,
+        token: string,
+        workerIp: string
+    ) {
+        return `docker swarm join --token ${token} ${captainIpAddress}:2377 --advertise-addr ${workerIp}:2377`
     }
 
     getNodesInfo() {

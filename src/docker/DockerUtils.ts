@@ -40,7 +40,8 @@ export default class DockerUtils {
                                     CaptainConstants.disableFirewallCommand
                                 } ${dockerApi.createJoinCommand(
                                     captainIpAddress,
-                                    token
+                                    token,
+                                    remoteNodeIpAddress
                                 )}`,
                                 function (err, stream) {
                                     if (err) {
