@@ -29,6 +29,8 @@ const configs = {
 
     skipVerifyingDomains: false,
 
+    enableDockerLogsTimestamp: true,
+
     registrySubDomainPort: 996,
 
     dockerApiVersion: 'v1.30',

@@ -1513,7 +1513,8 @@ class DockerApi {
                     .logs({
                         tail: tailCount,
                         follow: false,
-                        timestamps: true,
+                        timestamps: !!CaptainConstants.configs
+                            .enableDockerLogsTimestamp,
                         stdout: true,
                         stderr: true,
                     })

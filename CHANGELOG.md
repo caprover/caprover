@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
 -   Added deletion capability to selfhost Docker Registry. [Issue-580](https://github.com/caprover/caprover/issues/580)
+-   Allow logs timestamp to be disabled for services. [Issue-602](https://github.com/caprover/caprover/issues/602)
 
 ## [1.7.1] - 2020-07-03
 
