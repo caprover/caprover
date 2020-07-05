@@ -484,11 +484,13 @@ class LoadBalancerManager {
 
                 return ejs.render(baseConfigTemplate, {
                     base: {
-                        dhparamsFilePath: fs.existsSync(
-                            DH_PARAMS_FILE_PATH_ON_HOST
-                        )
-                            ? DH_PARAMS_FILE_PATH_ON_NGINX
-                            : '',
+                        dhparamsFilePath:
+                            fs.existsSync(DH_PARAMS_FILE_PATH_ON_HOST) &&
+                            fs
+                                .readFileSync(DH_PARAMS_FILE_PATH_ON_HOST)
+                                .toString().length > 10 // making sure it's not an buggy file
+                                ? DH_PARAMS_FILE_PATH_ON_NGINX
+                                : '',
                     },
                 })
             })
@@ -504,6 +506,29 @@ class LoadBalancerManager {
         const self = this
         return fs
             .pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
+            .then(function (dhParamExists) {
+                if (!dhParamExists) {
+                    return false
+                }
+
+                const dhFileContent = fs
+                    .readFileSync(DH_PARAMS_FILE_PATH_ON_HOST)
+                    .toString()
+
+                const contentValid =
+                    dhFileContent.indexOf('END DH PARAMETERS') > 0
+
+                if (contentValid) {
+                    return true
+                }
+
+                Logger.d(
+                    `Invalid dh param content - size of: ${dhFileContent.length}`
+                )
+                fs.removeSync(DH_PARAMS_FILE_PATH_ON_HOST)
+
+                return false
+            })
             .then(function (dhParamExists) {
                 if (dhParamExists) {
                     return
