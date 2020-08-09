@@ -4,6 +4,7 @@
 -   Allow logs timestamp to be disabled for services. [Issue-602](https://github.com/caprover/caprover/issues/602)
 -   Added --advertise-addr for Docker swarm join. [Issue-572](https://github.com/caprover/caprover/issues/572)
 -   Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
+-   One-click apps are now more compatible with docker compose YAML [Issue-786](https://github.com/caprover/caprover/issues/786)
 
 ## [1.7.1] - 2020-07-03
 
