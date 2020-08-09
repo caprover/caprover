@@ -12,6 +12,7 @@ const VERSION = `v4`
 
 interface IOneClickAppIdentifier {
     baseUrl: string
+    isOfficial: boolean
     name: string
     displayName: string
     description: string
@@ -145,6 +146,9 @@ router.get('/template/list', function (req, res, next) {
                                 baseUrl: apiBaseUrl,
                                 name: element.name,
                                 displayName: `${element.displayName}`,
+                                isOfficial:
+                                    (element.isOfficial + '').toLowerCase() ===
+                                    'true',
                                 description: `${element.description}`,
                                 logoUrl:
                                     element.logoUrl &&
