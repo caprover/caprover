@@ -8,7 +8,7 @@ import Logger from '../../../utils/Logger'
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
-const VERSION = `v3`
+const VERSION = `v4`
 
 interface IOneClickAppIdentifier {
     baseUrl: string
