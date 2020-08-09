@@ -246,11 +246,11 @@ class AppsDataStore {
             .then(function (appData) {
                 if (appData.appName) appData.appName = newAppName
                 appData.hasDefaultSubDomainSsl = false
-                self.data.delete(`${APP_DEFINITIONS}.${oldAppName}`)
-                self.saveApp(newAppName, appData)
+                return self.saveApp(newAppName, appData)
             })
             .then(function () {
-                Utils.getDelayedPromise(2000)
+                self.data.delete(`${APP_DEFINITIONS}.${oldAppName}`)
+                return Utils.getDelayedPromise(2000)
             })
     }
 
@@ -806,7 +806,7 @@ class AppsDataStore {
             self.data.delete(`${APP_DEFINITIONS}.${appName}`)
             resolve()
         }).then(function () {
-            Utils.getDelayedPromise(2000)
+            return Utils.getDelayedPromise(2000)
         })
     }
 
