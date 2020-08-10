@@ -6,6 +6,7 @@
 -   Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
 -   One-click apps are now more compatible with docker compose YAML [Issue-786](https://github.com/caprover/caprover/issues/786)
 -   Fixed an issue with app renaming where the app was deleted [Issue-701](https://github.com/caprover/caprover/issues/701)
+-   Fixed an issue with HTTPS redirection on query parameters [PR-788](https://github.com/caprover/caprover/pull/788)
 
 ## [1.7.1] - 2020-07-03
 
