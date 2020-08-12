@@ -334,6 +334,7 @@ export default class MigrateCaptainDuckDuck {
                                         self.authenticator,
                                         app.customNginxConfig,
                                         app.preDeployFunction,
+                                        '',
                                         false
                                     )
                                 })

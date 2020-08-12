@@ -30,7 +30,6 @@ test('Testing dropFirstElements - smaller', () => {
         .toBe('A0,A1')
 })
 
-
 test('Testing dropFirstElements - smaller (1)', () => {
     const originalArray = []
     for (let index = 0; index < 1; index++) {
@@ -40,7 +39,6 @@ test('Testing dropFirstElements - smaller (1)', () => {
     expect(Utils.dropFirstElements(originalArray, 3).join(',')) //
         .toBe('A0')
 })
-
 
 test('Testing dropFirstElements - smaller (0)', () => {
     const originalArray = []
@@ -71,7 +69,7 @@ function createTestArray() {
 test('Testing filter in place - remove 1st', () => {
     const originalArray = createTestArray()
 
-    Utils.filterInPlace(originalArray, v => v.val1 !== 'e-1-1')
+    Utils.filterInPlace(originalArray, (v) => v.val1 !== 'e-1-1')
     expect(originalArray.length).toBe(1)
     expect(originalArray[0].val1).toBe('e-1-2')
     expect(originalArray[0].val2).toBe('e-2-2')
@@ -80,7 +78,7 @@ test('Testing filter in place - remove 1st', () => {
 test('Testing filter in place - remove 2nd', () => {
     const originalArray = createTestArray()
 
-    Utils.filterInPlace(originalArray, v => v.val1 !== 'e-1-2')
+    Utils.filterInPlace(originalArray, (v) => v.val1 !== 'e-1-2')
     expect(originalArray.length).toBe(1)
     expect(originalArray[0].val1).toBe('e-1-1')
     expect(originalArray[0].val2).toBe('e-2-1')

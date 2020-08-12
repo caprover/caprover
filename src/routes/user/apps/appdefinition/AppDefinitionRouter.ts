@@ -325,6 +325,7 @@ router.post('/update/', function (req, res, next) {
     let ports = req.body.ports || []
     let instanceCount = req.body.instanceCount || '0'
     let preDeployFunction = req.body.preDeployFunction || ''
+    let serviceUpdateOverride = req.body.serviceUpdateOverride || ''
     let containerHttpPort = Number(req.body.containerHttpPort) || 80
     let httpAuth = req.body.httpAuth
     let description = req.body.description || ''
@@ -379,6 +380,7 @@ router.post('/update/', function (req, res, next) {
             repoInfo,
             customNginxConfig,
             preDeployFunction,
+            serviceUpdateOverride,
             websocketSupport
         )
         .then(function () {

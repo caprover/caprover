@@ -616,6 +616,7 @@ class AppsDataStore {
         authenticator: Authenticator,
         customNginxConfig: string,
         preDeployFunction: string,
+        serviceUpdateOverride: string,
         websocketSupport: boolean
     ) {
         const self = this
@@ -688,6 +689,7 @@ class AppsDataStore {
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.preDeployFunction = preDeployFunction
+                appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
 
                 if (httpAuth && httpAuth.user) {

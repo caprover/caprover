@@ -247,6 +247,7 @@ class SelfHostedDockerRegistry {
                     ],
                     undefined,
                     undefined,
+                    undefined,
                     undefined
                 )
             })

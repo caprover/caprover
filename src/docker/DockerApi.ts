@@ -1021,6 +1021,7 @@ class DockerApi {
                         undefined,
                         undefined,
                         undefined,
+                        undefined,
                         undefined
                     )
                     .then(function () {
@@ -1137,6 +1138,7 @@ class DockerApi {
                     undefined,
                     undefined,
                     undefined,
+                    undefined,
                     undefined
                 )
             })
@@ -1222,6 +1224,7 @@ class DockerApi {
         ports: IAppPort[] | undefined,
         appObject: IAppDef | undefined,
         updateOrder: IDockerUpdateOrder | undefined,
+        serviceUpdateOverride: any | undefined,
         preDeployFunction: Function | undefined
     ) {
         const self = this
@@ -1467,6 +1470,9 @@ class DockerApi {
                     updatedData.Mode.Replicated.Replicas = instanceCount
                 }
 
+                return Utils.mergeObjects(updatedData, serviceUpdateOverride)
+            })
+            .then(function (updatedData) {
                 if (preDeployFunction) {
                     Logger.d('Running preDeployFunction')
                     return preDeployFunction(appObject, updatedData)
