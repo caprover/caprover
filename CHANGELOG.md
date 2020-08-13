@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
 -   Added deletion capability to selfhost Docker Registry. [Issue-580](https://github.com/caprover/caprover/issues/580)
+-   Change one-click app schema to be more compatible with Docker compose. [Issue-786](https://github.com/caprover/caprover/issues/786)
 -   Allow logs timestamp to be disabled for services. [Issue-602](https://github.com/caprover/caprover/issues/602)
 -   Added --advertise-addr for Docker swarm join. [Issue-572](https://github.com/caprover/caprover/issues/572)
 -   Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
