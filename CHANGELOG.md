@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   New: Update Docker API to v1.40 - Make sure to have Docker v19.03 or above
+-   New: Update Docker API to v1.40 - Make sure to have Docker v19.03 or above. [Issue-797](https://github.com/caprover/caprover/issues/797)
 -   New: Change one-click app schema to be more compatible with Docker compose. [Issue-786](https://github.com/caprover/caprover/issues/786)
 -   New: Added hostname support for one-click apps which was necessary for some apps. [Issue-404](https://github.com/caprover/caprover/issues/404)
 -   New: Added ability to override docker service configs that are not present in CapRover (read-only volumes, CPU/RAM limitation and reservation and many more. [See docs](https://caprover.com/docs/service-update-override.html)
@@ -11,6 +11,8 @@
 -   Bugfix: Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
 -   Bugfix: Fixed an issue with app renaming where the app was deleted [Issue-701](https://github.com/caprover/caprover/issues/701)
 -   Bugfix: Fixed an issue with HTTPS redirection on query parameters [PR-788](https://github.com/caprover/caprover/pull/788)
+
+-   Security: Updated Node dependencies
 
 ## [1.7.1] - 2020-07-03
 
