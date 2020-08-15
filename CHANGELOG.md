@@ -7,6 +7,8 @@
 -   New: Allow logs timestamp to be disabled for services. [Issue-602](https://github.com/caprover/caprover/issues/602)
 -   New: Added --advertise-addr for Docker swarm join. [Issue-572](https://github.com/caprover/caprover/issues/572)
 -   New: Added deletion capability to selfhost Docker Registry. [Issue-580](https://github.com/caprover/caprover/issues/580)
+-   New: Remove "Exposed Webapp" in apps table in favor of adding last deployed time. [Issue-47](https://github.com/caprover/caprover-frontend/issues/47)
+-   New: Default to a Apps tab if the instance is fully set up. [Issue-48](https://github.com/caprover/caprover-frontend/issues/48)
 
 -   Bugfix: Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
 -   Bugfix: Fixed an issue with app renaming where the app was deleted [Issue-701](https://github.com/caprover/caprover/issues/701)
