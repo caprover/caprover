@@ -441,12 +441,7 @@ class DockerApi {
                 })
             })
             .then(function () {
-                Logger.d('Pruning containers...')
-
-                return self.pruneContainers().catch(function (err) {
-                    Logger.d('Prune Containers Failed!')
-                    Logger.e(err)
-                })
+                return self.pruneContainers()
             })
             .then(function () {
                 Logger.d(`Disconnecting from network: ${nameOrId}`)
@@ -1489,10 +1484,7 @@ class DockerApi {
                 // give some time such that the new container is updated.
                 // also we don't want to fail the update just because prune failed.
                 setTimeout(function () {
-                    self.pruneContainers().catch(function (err) {
-                        Logger.d('Prune Containers Failed!')
-                        Logger.e(err)
-                    })
+                    self.pruneContainers()
                 }, 5000)
 
                 return serviceData
@@ -1500,8 +1492,20 @@ class DockerApi {
     }
 
     pruneContainers() {
+        Logger.d('Pruning containers...')
+
         const self = this
-        return self.dockerode.pruneContainers()
+        return self.dockerode
+            .pruneContainers() //
+            .catch(function (error) {
+                // Error: (HTTP code 409) unexpected - a prune operation is already running
+                if (error && error.statusCode === 409) {
+                    Logger.d('Skipping prune due to a minor error: ' + error)
+                    return
+                }
+                Logger.d('Prune Containers Failed!')
+                Logger.e(error)
+            })
     }
 
     isNodeManager(nodeId: string) {
