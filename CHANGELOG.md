@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+-   TBD
+
+## [1.8.0] - 2020-08-16
+
 -   New: Update Docker API to v1.40 - Make sure to have Docker v19.03 or above. [Issue-797](https://github.com/caprover/caprover/issues/797)
 -   New: Change one-click app schema to be more compatible with Docker compose. [Issue-786](https://github.com/caprover/caprover/issues/786)
 -   New: Added hostname support for one-click apps which was necessary for some apps. [Issue-404](https://github.com/caprover/caprover/issues/404)
