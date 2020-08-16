@@ -9,7 +9,7 @@ apt -y update && apt -y full-upgrade
 ############################ WAIT
 
 
-docker pull  caprover/caprover:1.7.1
+docker pull  caprover/caprover:1.8.0
 
 
 cd /var/lib/cloud/scripts/per-instance
