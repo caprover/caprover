@@ -246,11 +246,11 @@ class AppsDataStore {
             .then(function (appData) {
                 if (appData.appName) appData.appName = newAppName
                 appData.hasDefaultSubDomainSsl = false
-                self.data.delete(`${APP_DEFINITIONS}.${oldAppName}`)
-                self.saveApp(newAppName, appData)
+                return self.saveApp(newAppName, appData)
             })
             .then(function () {
-                Utils.getDelayedPromise(2000)
+                self.data.delete(`${APP_DEFINITIONS}.${oldAppName}`)
+                return Utils.getDelayedPromise(2000)
             })
     }
 
@@ -616,6 +616,7 @@ class AppsDataStore {
         authenticator: Authenticator,
         customNginxConfig: string,
         preDeployFunction: string,
+        serviceUpdateOverride: string,
         websocketSupport: boolean
     ) {
         const self = this
@@ -688,6 +689,7 @@ class AppsDataStore {
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.preDeployFunction = preDeployFunction
+                appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
 
                 if (httpAuth && httpAuth.user) {
@@ -806,7 +808,7 @@ class AppsDataStore {
             self.data.delete(`${APP_DEFINITIONS}.${appName}`)
             resolve()
         }).then(function () {
-            Utils.getDelayedPromise(2000)
+            return Utils.getDelayedPromise(2000)
         })
     }
 

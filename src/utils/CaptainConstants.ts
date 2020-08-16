@@ -29,9 +29,11 @@ const configs = {
 
     skipVerifyingDomains: false,
 
+    enableDockerLogsTimestamp: true,
+
     registrySubDomainPort: 996,
 
-    dockerApiVersion: 'v1.30',
+    dockerApiVersion: 'v1.40',
 
     netDataImageName: 'titpetric/netdata:1.8',
 

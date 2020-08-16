@@ -251,7 +251,7 @@ export default class BackupManager {
                         Logger.d(
                             'waiting 20 seconds for all services to settle'
                         )
-                        Utils.getDelayedPromise(20000)
+                        return Utils.getDelayedPromise(20000)
                     })
                     .then(function () {
                         return fs.remove(CaptainConstants.restoreDirectoryPath)

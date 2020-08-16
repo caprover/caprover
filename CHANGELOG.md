@@ -1,5 +1,25 @@
 ## [Next Version - available as `edge`]
 
+-   TBD
+
+## [1.8.0] - 2020-08-16
+
+-   New: Update Docker API to v1.40 - Make sure to have Docker v19.03 or above. [Issue-797](https://github.com/caprover/caprover/issues/797)
+-   New: Change one-click app schema to be more compatible with Docker compose. [Issue-786](https://github.com/caprover/caprover/issues/786)
+-   New: Added hostname support for one-click apps which was necessary for some apps. [Issue-404](https://github.com/caprover/caprover/issues/404)
+-   New: Added ability to override docker service configs that are not present in CapRover (read-only volumes, CPU/RAM limitation and reservation and many more. [See docs](https://caprover.com/docs/service-update-override.html)
+-   New: Allow logs timestamp to be disabled for services. [Issue-602](https://github.com/caprover/caprover/issues/602)
+-   New: Added --advertise-addr for Docker swarm join. [Issue-572](https://github.com/caprover/caprover/issues/572)
+-   New: Added deletion capability to selfhost Docker Registry. [Issue-580](https://github.com/caprover/caprover/issues/580)
+-   New: Remove "Exposed Webapp" in apps table in favor of adding last deployed time. [Issue-47](https://github.com/caprover/caprover-frontend/issues/47)
+-   New: Default to a Apps tab if the instance is fully set up. [Issue-48](https://github.com/caprover/caprover-frontend/issues/48)
+-   Bugfix: Fixed a edge case where dhparam file is empty [Issue-745](https://github.com/caprover/caprover/issues/745)
+-   Bugfix: Fixed an issue with app renaming where the app was deleted [Issue-701](https://github.com/caprover/caprover/issues/701)
+-   Bugfix: Fixed an issue with HTTPS redirection on query parameters [PR-788](https://github.com/caprover/caprover/pull/788)
+-   Security: Updated Node dependencies
+
+## [1.7.1] - 2020-07-03
+
 -   New: Improved TLS security settings for the built-in docker registry (https://github.com/caprover/caprover/pull/595)
 -   New: Allowing custom ports for git remote repositories. (https://github.com/caprover/caprover/issues/606)
 -   New: Default to http2 (https://github.com/caprover/caprover/pull/667)

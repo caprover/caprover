@@ -96,7 +96,12 @@ class SelfHostedDockerRegistry {
                     undefined,
                     nodeId,
                     undefined,
-                    undefined,
+                    [
+                        {
+                            key: 'REGISTRY_STORAGE_DELETE_ENABLED',
+                            value: 'true',
+                        },
+                    ],
                     undefined
                 )
                 .then(function () {
@@ -222,6 +227,10 @@ class SelfHostedDockerRegistry {
                             key: 'REGISTRY_AUTH_HTPASSWD_PATH',
                             value: '/etc/auth',
                         },
+                        {
+                            key: 'REGISTRY_STORAGE_DELETE_ENABLED',
+                            value: 'true',
+                        },
                     ],
                     undefined,
                     undefined,
@@ -236,6 +245,7 @@ class SelfHostedDockerRegistry {
                                 CaptainConstants.configs.registrySubDomainPort,
                         },
                     ],
+                    undefined,
                     undefined,
                     undefined,
                     undefined

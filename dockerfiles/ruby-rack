@@ -1,3 +1,7 @@
+# FROM ruby:2.7.1-alpine
+# Uncomment the line above if you want to use a Dockerfile instead of templateId
+
+
 RUN apk update && apk upgrade && \
     apk add --no-cache make g++ git postgresql-dev
     

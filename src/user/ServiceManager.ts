@@ -4,6 +4,7 @@ import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
+import Utils from '../utils/Utils'
 import Authenticator from './Authenticator'
 import DockerRegistryHelper from './DockerRegistryHelper'
 import ImageMaker, { BuildLogsManager } from './ImageMaker'
@@ -649,6 +650,7 @@ class ServiceManager {
         repoInfo: RepoInfo,
         customNginxConfig: string,
         preDeployFunction: string,
+        serviceUpdateOverride: string,
         websocketSupport: boolean
     ) {
         const self = this
@@ -732,6 +734,22 @@ class ServiceManager {
                 }
             })
             .then(function () {
+                serviceUpdateOverride = !!serviceUpdateOverride
+                    ? `${serviceUpdateOverride}`.trim()
+                    : ''
+                if (!serviceUpdateOverride) {
+                    // no override!
+                    return
+                }
+
+                if (!Utils.convertYamlOrJsonToObject(serviceUpdateOverride)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'serviceUpdateOverride must be either a valid JSON object starting with { or an equivalent yaml'
+                    )
+                }
+            })
+            .then(function () {
                 return dataStore
                     .getAppsDataStore()
                     .updateAppDefinitionInDb(
@@ -751,6 +769,7 @@ class ServiceManager {
                         self.authenticator,
                         customNginxConfig,
                         preDeployFunction,
+                        serviceUpdateOverride,
                         websocketSupport
                     )
             })
@@ -906,6 +925,7 @@ class ServiceManager {
                     app.ports,
                     app,
                     IDockerUpdateOrders.AUTO,
+                    Utils.convertYamlOrJsonToObject(app.serviceUpdateOverride),
                     preDeployFunction
                 )
             })

@@ -8,10 +8,11 @@ import Logger from '../../../utils/Logger'
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
-const VERSION = `v3`
+const VERSION = `v4`
 
 interface IOneClickAppIdentifier {
     baseUrl: string
+    isOfficial: boolean
     name: string
     displayName: string
     description: string
@@ -145,6 +146,9 @@ router.get('/template/list', function (req, res, next) {
                                 baseUrl: apiBaseUrl,
                                 name: element.name,
                                 displayName: `${element.displayName}`,
+                                isOfficial:
+                                    (element.isOfficial + '').toLowerCase() ===
+                                    'true',
                                 description: `${element.description}`,
                                 logoUrl:
                                     element.logoUrl &&

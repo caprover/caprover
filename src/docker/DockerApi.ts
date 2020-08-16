@@ -163,8 +163,12 @@ class DockerApi {
             })
     }
 
-    createJoinCommand(captainIpAddress: string, token: string) {
-        return `docker swarm join --token ${token} ${captainIpAddress}:2377`
+    createJoinCommand(
+        captainIpAddress: string,
+        token: string,
+        workerIp: string
+    ) {
+        return `docker swarm join --token ${token} ${captainIpAddress}:2377 --advertise-addr ${workerIp}:2377`
     }
 
     getNodesInfo() {
@@ -437,12 +441,7 @@ class DockerApi {
                 })
             })
             .then(function () {
-                Logger.d('Pruning containers...')
-
-                return self.pruneContainers().catch(function (err) {
-                    Logger.d('Prune Containers Failed!')
-                    Logger.e(err)
-                })
+                return self.pruneContainers()
             })
             .then(function () {
                 Logger.d(`Disconnecting from network: ${nameOrId}`)
@@ -1017,6 +1016,7 @@ class DockerApi {
                         undefined,
                         undefined,
                         undefined,
+                        undefined,
                         undefined
                     )
                     .then(function () {
@@ -1133,6 +1133,7 @@ class DockerApi {
                     undefined,
                     undefined,
                     undefined,
+                    undefined,
                     undefined
                 )
             })
@@ -1218,6 +1219,7 @@ class DockerApi {
         ports: IAppPort[] | undefined,
         appObject: IAppDef | undefined,
         updateOrder: IDockerUpdateOrder | undefined,
+        serviceUpdateOverride: any | undefined,
         preDeployFunction: Function | undefined
     ) {
         const self = this
@@ -1463,6 +1465,9 @@ class DockerApi {
                     updatedData.Mode.Replicated.Replicas = instanceCount
                 }
 
+                return Utils.mergeObjects(updatedData, serviceUpdateOverride)
+            })
+            .then(function (updatedData) {
                 if (preDeployFunction) {
                     Logger.d('Running preDeployFunction')
                     return preDeployFunction(appObject, updatedData)
@@ -1479,10 +1484,7 @@ class DockerApi {
                 // give some time such that the new container is updated.
                 // also we don't want to fail the update just because prune failed.
                 setTimeout(function () {
-                    self.pruneContainers().catch(function (err) {
-                        Logger.d('Prune Containers Failed!')
-                        Logger.e(err)
-                    })
+                    self.pruneContainers()
                 }, 5000)
 
                 return serviceData
@@ -1490,8 +1492,20 @@ class DockerApi {
     }
 
     pruneContainers() {
+        Logger.d('Pruning containers...')
+
         const self = this
-        return self.dockerode.pruneContainers()
+        return self.dockerode
+            .pruneContainers() //
+            .catch(function (error) {
+                // Error: (HTTP code 409) unexpected - a prune operation is already running
+                if (error && error.statusCode === 409) {
+                    Logger.d('Skipping prune due to a minor error: ' + error)
+                    return
+                }
+                Logger.d('Prune Containers Failed!')
+                Logger.e(error)
+            })
     }
 
     isNodeManager(nodeId: string) {
@@ -1513,7 +1527,8 @@ class DockerApi {
                     .logs({
                         tail: tailCount,
                         follow: false,
-                        timestamps: true,
+                        timestamps: !!CaptainConstants.configs
+                            .enableDockerLogsTimestamp,
                         stdout: true,
                         stderr: true,
                     })

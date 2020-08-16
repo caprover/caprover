@@ -61,6 +61,7 @@ interface IAppDefinitionBase {
     nodeId?: string
     instanceCount: number
     preDeployFunction?: string
+    serviceUpdateOverride?: string
     customNginxConfig?: string
     networks: string[]
     customDomain: IAppCustomDomain[]
