@@ -130,7 +130,7 @@ export default class GitHelper {
                 input = `${split[0]}:22/${split[1]}`
             }
         } else {
-            throw new Error(`Marformatted SSH path: ${input}`)
+            throw new Error(`Malformatted SSH path: ${input}`)
         }
 
         if (!input.toLowerCase().startsWith('ssh://')) {
