@@ -1,6 +1,8 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   New: CapRover now supports ARM processors [issue-445](https://github.com/caprover/caprover/issues/445)
+-   Fixed: Logout did not clear cookies. [issue-810](https://github.com/caprover/caprover/issues/810)
+
 
 ## [1.8.0] - 2020-08-16
 
