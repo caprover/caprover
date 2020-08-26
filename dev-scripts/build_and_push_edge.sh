@@ -8,6 +8,16 @@ set -x
 
 pwd
 
+# ensure you're not running it on local machine
+if [ -z "$CI" ] || [ -z "$GITHUB_REF" ]; then
+    echo "Running on a local machine! Exiting!"
+    exit 127
+else
+    echo "Running on CI"
+fi
+
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 CAPROVER_VERSION=0.0.1
 IMAGE_NAME=caprover/caprover-edge
 
