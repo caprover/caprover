@@ -30,11 +30,9 @@ fi
 
 
 
+export DOCKER_CLI_EXPERIMENTAL=enabled
+docker buildx ls
+docker buildx create --name mybuilder
+docker buildx use mybuilder
 
-
-
-
-
-docker build -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.edge .
-docker push  $IMAGE_NAME:$CAPROVER_VERSION
-docker push  $IMAGE_NAME:latest
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest  -f dockerfile-captain.edge --push .

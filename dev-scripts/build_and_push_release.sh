@@ -35,6 +35,9 @@ node ./dev-scripts/validate-build-version-docker-hub.js
 
 source ./version
 
-docker build -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release .
-docker push  $IMAGE_NAME:$CAPROVER_VERSION
-docker push  $IMAGE_NAME:latest
+export DOCKER_CLI_EXPERIMENTAL=enabled
+docker buildx ls
+docker buildx create --name mybuilder
+docker buildx use mybuilder
+
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release --push .

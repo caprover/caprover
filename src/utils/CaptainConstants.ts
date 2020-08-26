@@ -123,7 +123,7 @@ let data = {
 
     // ********************* Local Docker Constants  ************************
 
-    certbotImageName: 'caprover/certbot-sleeping:v1.5.0',
+    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
     captainSaltSecretKey: 'captain-salt',
 
