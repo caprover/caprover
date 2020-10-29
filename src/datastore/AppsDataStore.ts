@@ -742,7 +742,7 @@ class AppsDataStore {
 
                         appObj.envVars.push({
                             key: obj.key,
-                            value: obj.value,
+                            value: `${obj.value}`,
                         })
                     }
                 }
