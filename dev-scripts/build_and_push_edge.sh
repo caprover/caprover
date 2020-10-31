@@ -8,6 +8,16 @@ set -x
 
 pwd
 
+# ensure you're not running it on local machine
+if [ -z "$CI" ] || [ -z "$GITHUB_REF" ]; then
+    echo "Running on a local machine! Exiting!"
+    exit 127
+else
+    echo "Running on CI"
+fi
+
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 CAPROVER_VERSION=0.0.1
 IMAGE_NAME=caprover/caprover-edge
 
@@ -30,11 +40,9 @@ fi
 
 
 
+export DOCKER_CLI_EXPERIMENTAL=enabled
+docker buildx ls
+docker buildx create --name mybuilder
+docker buildx use mybuilder
 
-
-
-
-
-docker build -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.edge .
-docker push  $IMAGE_NAME:$CAPROVER_VERSION
-docker push  $IMAGE_NAME:latest
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest  -f dockerfile-captain.edge --push .

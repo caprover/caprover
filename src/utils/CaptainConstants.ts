@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.8.0',
+    version: '1.8.1',
 
     defaultMaxLogSize: '512m',
 
@@ -35,7 +35,7 @@ const configs = {
 
     dockerApiVersion: 'v1.40',
 
-    netDataImageName: 'titpetric/netdata:1.8',
+    netDataImageName: 'caprover/netdata:v1.8.0',
 
     registryImageName: 'registry:2',
 
@@ -123,7 +123,7 @@ let data = {
 
     // ********************* Local Docker Constants  ************************
 
-    certbotImageName: 'caprover/certbot-sleeping:v1.5.0',
+    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
     captainSaltSecretKey: 'captain-salt',
 

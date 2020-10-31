@@ -788,6 +788,9 @@ class LoadBalancerManager {
                         .then(function () {
                             return self.renewAllCertsAndReload(dataStore)
                         })
+                        .catch((err) => {
+                            Logger.e(err)
+                        })
                 }, 1000 * 10)
             })
     }
@@ -800,7 +803,10 @@ class LoadBalancerManager {
         // the day in case if that's our super high traffic time
 
         setTimeout(function () {
-            self.renewAllCertsAndReload(dataStore)
+            self.renewAllCertsAndReload(dataStore) //
+                .catch((err) => {
+                    Logger.e(err)
+                })
         }, 1000 * 3600 * 20.3)
 
         return self.certbotManager
