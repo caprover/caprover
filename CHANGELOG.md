@@ -6,7 +6,7 @@
 
 -   Fixed: The following frontend bug fixes didn't make it to 1.8.1 due to a release mistake
 -   Fixed: Logout did not clear cookies. [issue-810](https://github.com/caprover/caprover/issues/810)
--   Fixed: Creating a new app while another app is building breaks the UI [Issue-56](https://github.com/caprover/caprover-frontend/
+-   Fixed: Creating a new app while another app is building breaks the UI [Issue-56](https://github.com/caprover/caprover-frontend/issues/56)
 
 ## [1.8.1] - 2020-10-31
 
