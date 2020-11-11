@@ -50,4 +50,4 @@ docker buildx ls
 docker buildx create --name mybuilder
 docker buildx use mybuilder
 
-docker buildx build --platform linux/amd64,linux/arm64,linux/arm,linux/386 -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release --push .
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release --push .
