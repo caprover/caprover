@@ -11,5 +11,5 @@ all_services=$(docker service ls --format {{.Name}})
 for srv in $all_services
 do
   echo "Service: $srv"
-  docker service update --with-registry-auth $srv --force -d
+  docker service update --with-registry-auth $srv  --label-add "registry-added" --force --detach
 done
