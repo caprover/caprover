@@ -250,13 +250,17 @@ export default class ImageMaker {
                         )
                     })
                     .then(function () {
+                        return self.dockerRegistryHelper.createDockerRegistryConfig()
+                    })
+                    .then(function (registryConfig) {
                         return self.dockerApi
                             .buildImageFromDockerFile(
                                 baseImageNameWithoutVersionAndReg,
                                 appVersion,
                                 tarFilePath,
                                 self.buildLogsManager.getAppBuildLogs(appName),
-                                envVars
+                                envVars,
+                                registryConfig
                             )
                             .catch(function (error: AnyError) {
                                 throw ApiStatusCodes.createError(

@@ -241,7 +241,8 @@ class DockerApi {
         newVersionNumber: number,
         tarballFilePath: string,
         buildLogs: BuildLog,
-        envVars: IAppEnvVar[]
+        envVars: IAppEnvVar[],
+        registryConfig: DockerRegistryConfig
     ) {
         const self = this
 
@@ -257,10 +258,28 @@ class DockerApi {
                     buildargs[env.key] = env.value
                 })
 
-                return self.dockerode.buildImage(tarballFilePath, {
+                if (envVars.length > 0) {
+                    buildLogs.log(
+                        'Ignore warnings for unconsumed build-args if there is any'
+                    )
+                }
+
+                const optionsForBuild = {
                     t: imageName,
                     buildargs: buildargs,
-                })
+                } as any
+
+                if (Object.keys(registryConfig).length > 0) {
+                    // https://github.com/apocas/dockerode/blob/ed6ef39e0fc81963fedf208c7e0854d8a44cb9a8/lib/docker.js#L271-L274
+                    // https://github.com/apocas/docker-modem/blob/master/lib/modem.js#L160-L163
+                    // "X-Registry-Config" in docker API
+                    optionsForBuild['registryconfig'] = registryConfig
+                }
+
+                return self.dockerode.buildImage(
+                    tarballFilePath,
+                    optionsForBuild as {}
+                )
             })
             .then(function (stream) {
                 return new Promise<void>(function (resolve, reject) {

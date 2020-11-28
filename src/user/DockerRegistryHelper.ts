@@ -131,7 +131,50 @@ class DockerRegistryHelper {
                         }
                     }
                 }
+
+                // if none of the registries explicitly relates to the image name, try the official one
+                for (let index = 0; index < regs.length; index++) {
+                    const element = regs[index]
+                    if (element.registryDomain === 'registry-1.docker.io') {
+                        return {
+                            serveraddress: element.registryDomain,
+                            username: element.registryUser,
+                            password: element.registryPassword,
+                            // email: CaptainConstants.defaultEmail, // email is optional
+                        }
+                    }
+                }
+
                 return undefined
+            })
+    }
+
+    createDockerRegistryConfig(): Promise<DockerRegistryConfig> {
+        const self = this
+        return Promise.resolve() //
+            .then(function () {
+                //
+                return self.getAllRegistries()
+            })
+            .then(function (regs) {
+                let registryConfig: DockerRegistryConfig = {}
+
+                for (let index = 0; index < regs.length; index++) {
+                    const element = regs[index]
+                    if (element.registryDomain.indexOf('.docker.io') >= 0) {
+                        registryConfig['https://index.docker.io/v1/'] = {
+                            username: element.registryUser,
+                            password: element.registryPassword,
+                        }
+                    } else {
+                        registryConfig[element.registryDomain] = {
+                            username: element.registryUser,
+                            password: element.registryPassword,
+                        }
+                    }
+                }
+
+                return registryConfig
             })
     }
 
