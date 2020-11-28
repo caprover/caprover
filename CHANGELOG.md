@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   New: Automatically adding Docker Hub credentials to the public images to improve limit rate [Issue-906](https://github.com/caprover/caprover/issues/906)
 
 ## [1.8.2] - 2020-11-02
 

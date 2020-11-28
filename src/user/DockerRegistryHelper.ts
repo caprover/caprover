@@ -161,6 +161,12 @@ class DockerRegistryHelper {
 
                 for (let index = 0; index < regs.length; index++) {
                     const element = regs[index]
+                    // https://docs.docker.com/engine/api/v1.40/#operation/ImageBuild
+                    // For: X-Registry-Config
+                    // Only the registry domain name (and port if not the default 443) are required. However,
+                    // for legacy reasons, the Docker Hub registry must be specified with both a https:// prefix
+                    // and a /v1/ suffix even though Docker will prefer to use the v2 registry API.
+
                     if (element.registryDomain.indexOf('.docker.io') >= 0) {
                         registryConfig['https://index.docker.io/v1/'] = {
                             username: element.registryUser,
