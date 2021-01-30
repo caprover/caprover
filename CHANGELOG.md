@@ -2,6 +2,7 @@
 
 -   New: Automatically adding Docker Hub credentials to the public images to improve limit rate [Issue-906](https://github.com/caprover/caprover/issues/906)
 -   New: Dark mode is added [PR-62](https://github.com/caprover/caprover-frontend/pull/62)
+-   New: Open in New Window functionality is added [PR-63](https://github.com/caprover/caprover-frontend/pull/63)
 
 ## [1.8.2] - 2020-11-02
 
