@@ -2,6 +2,7 @@ import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
+import Logger from '../../../../utils/Logger'
 import multer = require('multer')
 
 const TEMP_UPLOAD = 'temp_upload/'
@@ -120,6 +121,11 @@ router.post('/:appName/', upload.single('sourceFile'), function (
                     'Deploy is started'
                 )
             )
+
+            // To avoid unhandled promise error
+            promiseToDeployNewVer.catch(function (err) {
+                Logger.e(err)
+            })
         } else {
             promiseToDeployNewVer
                 .then(function () {
