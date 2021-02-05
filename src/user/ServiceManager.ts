@@ -210,6 +210,16 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'You have to first enable SSL for your root domain'
+                    )
+                }
+
                 Logger.d(`Verifying Captain owns domain: ${customDomain}`)
 
                 return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
@@ -320,6 +330,15 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'You have to first enable SSL for your root domain'
+                    )
+                }
                 return self.verifyCaptainOwnsGenericSubDomain(appName)
             })
             .then(function () {
