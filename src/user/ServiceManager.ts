@@ -12,6 +12,9 @@ import DomainResolveChecker from './system/DomainResolveChecker'
 import LoadBalancerManager from './system/LoadBalancerManager'
 import requireFromString = require('require-from-string')
 
+const ERROR_FIRST_ENABLE_ROOT_SSL =
+    'You have to first enable SSL for your root domain'
+
 const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
 interface QueuedPromise {
@@ -216,7 +219,7 @@ class ServiceManager {
                 if (!rootHasSsl) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'You have to first enable SSL for your root domain'
+                        ERROR_FIRST_ENABLE_ROOT_SSL
                     )
                 }
 
@@ -336,7 +339,7 @@ class ServiceManager {
                 if (!rootHasSsl) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'You have to first enable SSL for your root domain'
+                        ERROR_FIRST_ENABLE_ROOT_SSL
                     )
                 }
                 return self.verifyCaptainOwnsGenericSubDomain(appName)
