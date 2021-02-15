@@ -1,12 +1,20 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   TBD.
+
+## [1.9.0] - 2021-02-15
+
+-   New: Automatically adding Docker Hub credentials to the public images to improve limit rate [Issue-906](https://github.com/caprover/caprover/issues/906)
+-   New: Dark mode is added [PR-62](https://github.com/caprover/caprover-frontend/pull/62)
+-   New: Open in New Window functionality is added [PR-63](https://github.com/caprover/caprover-frontend/pull/63)
+-   Fixed: Enable https on app only works if https is enabled on dashboard [Issue-998](https://github.com/caprover/caprover/issues/998)
+-   Update: npm modules updated to the latest versions.
 
 ## [1.8.2] - 2020-11-02
 
--   Fixed: The following frontend bugs didn't make it to 1.8.1 due to a release mistake
+-   Fixed: The following frontend bug fixes didn't make it to 1.8.1 due to a release mistake
 -   Fixed: Logout did not clear cookies. [issue-810](https://github.com/caprover/caprover/issues/810)
--   Fixed: Creating a new app while another app is building breaks the UI [Issue-56](https://github.com/caprover/caprover-frontend/
+-   Fixed: Creating a new app while another app is building breaks the UI [Issue-56](https://github.com/caprover/caprover-frontend/issues/56)
 
 ## [1.8.1] - 2020-10-31
 

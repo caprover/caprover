@@ -12,6 +12,9 @@ import DomainResolveChecker from './system/DomainResolveChecker'
 import LoadBalancerManager from './system/LoadBalancerManager'
 import requireFromString = require('require-from-string')
 
+const ERROR_FIRST_ENABLE_ROOT_SSL =
+    'You have to first enable SSL for your root domain'
+
 const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
 interface QueuedPromise {
@@ -210,6 +213,16 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        ERROR_FIRST_ENABLE_ROOT_SSL
+                    )
+                }
+
                 Logger.d(`Verifying Captain owns domain: ${customDomain}`)
 
                 return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
@@ -320,6 +333,15 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        ERROR_FIRST_ENABLE_ROOT_SSL
+                    )
+                }
                 return self.verifyCaptainOwnsGenericSubDomain(appName)
             })
             .then(function () {
@@ -884,15 +906,17 @@ class ServiceManager {
 
                     // if we pass in networks here. Almost always it results in a delayed update which causes
                     // update errors if they happen right away!
-                    return dockerApi.createServiceOnNodeId(
-                        CaptainConstants.configs.appPlaceholderImageName,
-                        serviceName,
-                        undefined,
-                        undefined,
-                        undefined,
-                        undefined,
-                        undefined
-                    )
+                    return dockerApi
+                        .createServiceOnNodeId(
+                            CaptainConstants.configs.appPlaceholderImageName,
+                            serviceName,
+                            undefined,
+                            undefined,
+                            undefined,
+                            undefined,
+                            undefined
+                        )
+                        .then(() => true)
                 }
             })
             .then(function () {

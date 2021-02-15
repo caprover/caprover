@@ -58,20 +58,23 @@ export default class DockerUtils {
                                     let hasExisted = false
 
                                     stream
-                                        .on('close', function (
-                                            code: string,
-                                            signal: string
-                                        ) {
-                                            Logger.d(
-                                                `Stream :: close :: code: ${code}, signal: ${signal}`
-                                            )
-                                            conn.end()
-                                            if (hasExisted) {
-                                                return
+                                        .on(
+                                            'close',
+                                            function (
+                                                code: string,
+                                                signal: string
+                                            ) {
+                                                Logger.d(
+                                                    `Stream :: close :: code: ${code}, signal: ${signal}`
+                                                )
+                                                conn.end()
+                                                if (hasExisted) {
+                                                    return
+                                                }
+                                                hasExisted = true
+                                                resolve()
                                             }
-                                            hasExisted = true
-                                            resolve()
-                                        })
+                                        )
                                         .on('data', function (data: string) {
                                             Logger.d(`STDOUT: ${data}`)
                                         })
