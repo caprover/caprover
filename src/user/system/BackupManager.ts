@@ -427,20 +427,23 @@ export default class BackupManager {
                                 let hasExisted = false
 
                                 stream
-                                    .on('close', function (
-                                        code: string,
-                                        signal: string
-                                    ) {
-                                        Logger.d(
-                                            `Stream :: close :: code: ${code}, signal: ${signal}`
-                                        )
-                                        conn.end()
-                                        if (hasExisted) {
-                                            return
+                                    .on(
+                                        'close',
+                                        function (
+                                            code: string,
+                                            signal: string
+                                        ) {
+                                            Logger.d(
+                                                `Stream :: close :: code: ${code}, signal: ${signal}`
+                                            )
+                                            conn.end()
+                                            if (hasExisted) {
+                                                return
+                                            }
+                                            hasExisted = true
+                                            resolve(dataReceived.join(''))
                                         }
-                                        hasExisted = true
-                                        resolve(dataReceived.join(''))
-                                    })
+                                    )
                                     .on('data', function (data: string) {
                                         Logger.d(`STDOUT: ${data}`)
                                         dataReceived.push(data)

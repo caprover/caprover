@@ -174,24 +174,23 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
             reject(new Error(`Port timed out: ${portToTest}`))
         }, 5000)
 
-        request(`http://${ipAddr}:${portToTest}`, function (
-            error,
-            response,
-            body
-        ) {
-            if (finished) {
-                return
-            }
+        request(
+            `http://${ipAddr}:${portToTest}`,
+            function (error, response, body) {
+                if (finished) {
+                    return
+                }
 
-            finished = true
+                finished = true
 
-            if (body + '' === FIREWALL_PASSED) {
-                resolve()
-            } else {
-                printError()
-                reject(new Error(`Port seems to be closed: ${portToTest}`))
+                if (body + '' === FIREWALL_PASSED) {
+                    resolve()
+                } else {
+                    printError()
+                    reject(new Error(`Port seems to be closed: ${portToTest}`))
+                }
             }
-        })
+        )
     })
 }
 

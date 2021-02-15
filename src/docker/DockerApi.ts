@@ -159,7 +159,7 @@ class DockerApi {
                 return self.dockerode.listServices()
             })
             .then(function (services) {
-                return (services || []) as DockerService[]
+                return ((services || []) as unknown) as DockerService[]
             })
     }
 
@@ -975,7 +975,7 @@ class DockerApi {
     ensureSecretOnService(serviceName: string, secretName: string) {
         const self = this
 
-        let secretToExpose: Docker.SecretInfo
+        let secretToExpose: Docker.Secret
 
         return self.dockerode
             .listSecrets({

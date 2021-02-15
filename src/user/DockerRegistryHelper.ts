@@ -84,9 +84,10 @@ class DockerRegistryHelper {
                                 )
                             })
                             .catch(function (error: AnyError) {
-                                return new Promise<
-                                    void
-                                >(function (resolve, reject) {
+                                return new Promise<void>(function (
+                                    resolve,
+                                    reject
+                                ) {
                                     Logger.e('PUSH FAILED')
                                     Logger.e(error)
                                     reject(

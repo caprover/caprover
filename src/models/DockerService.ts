@@ -10,7 +10,7 @@ export interface Mount {
     Target: string
 }
 
-export interface ContainerSpec {
+export interface ContainerSpecType {
     Image: string
     Env: string[]
     Mounts: Mount[]
@@ -33,7 +33,7 @@ export interface LogDriver {
 }
 
 export interface TaskTemplate {
-    ContainerSpec: ContainerSpec
+    ContainerSpec: ContainerSpecType
     Resources: Resources
     Placement: Placement
     LogDriver: LogDriver

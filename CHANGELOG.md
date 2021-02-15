@@ -4,6 +4,7 @@
 -   New: Dark mode is added [PR-62](https://github.com/caprover/caprover-frontend/pull/62)
 -   New: Open in New Window functionality is added [PR-63](https://github.com/caprover/caprover-frontend/pull/63)
 -   Fixed: Enable https on app only works if https is enabled on dashboard [Issue-998](https://github.com/caprover/caprover/issues/998)
+-   Update: npm modules updated to the latest versions.
 
 ## [1.8.2] - 2020-11-02
 

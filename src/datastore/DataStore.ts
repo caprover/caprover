@@ -267,7 +267,7 @@ class DataStore {
     insertOneClickBaseUrl(url: string) {
         const self = this
 
-        return new Promise<string>(function (resolve, reject) {
+        return new Promise<void>(function (resolve, reject) {
             const parsedArray = JSON.parse(
                 self.data.get(CUSTOM_ONE_CLICK_APP_URLS) || '[]'
             ) as string[]
@@ -284,7 +284,7 @@ class DataStore {
     deleteOneClickBaseUrl(url: string) {
         const self = this
 
-        return new Promise<string>(function (resolve, reject) {
+        return new Promise<void>(function (resolve, reject) {
             const parsedArray = JSON.parse(
                 self.data.get(CUSTOM_ONE_CLICK_APP_URLS) || '[]'
             ) as string[]

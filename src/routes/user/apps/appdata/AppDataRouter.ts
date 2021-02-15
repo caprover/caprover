@@ -70,72 +70,75 @@ router.post('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.post('/:appName/', upload.single('sourceFile'), function (
-    req,
-    res,
-    next
-) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+router.post(
+    '/:appName/',
+    upload.single('sourceFile'),
+    function (req, res, next) {
+        const serviceManager = InjectionExtractor.extractUserFromInjected(res)
+            .user.serviceManager
 
-    const appName = req.params.appName
-    const isDetachedBuild = !!req.query.detached
-    const captainDefinitionContent =
-        (req.body.captainDefinitionContent || '') + ''
-    const gitHash = (req.body.gitHash || '') + ''
-    let tarballSourceFilePath: string = !!req.file ? req.file.path : ''
+        const appName = req.params.appName
+        const isDetachedBuild = !!req.query.detached
+        const captainDefinitionContent =
+            (req.body.captainDefinitionContent || '') + ''
+        const gitHash = (req.body.gitHash || '') + ''
+        let tarballSourceFilePath: string = !!req.file ? req.file.path : ''
 
-    if (!!tarballSourceFilePath === !!captainDefinitionContent) {
-        res.send(
-            new BaseApi(
-                ApiStatusCodes.ILLEGAL_OPERATION,
-                'Either tarballfile or captainDefinitionContent should be present.'
-            )
-        )
-        return
-    }
-
-    Promise.resolve().then(function () {
-        const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
-            appName,
-            {
-                uploadedTarPathSource: !!tarballSourceFilePath
-                    ? {
-                          uploadedTarPath: tarballSourceFilePath,
-                          gitHash,
-                      }
-                    : undefined,
-                captainDefinitionContentSource: !!captainDefinitionContent
-                    ? {
-                          captainDefinitionContent,
-                          gitHash,
-                      }
-                    : undefined,
-            }
-        )
-
-        if (isDetachedBuild) {
+        if (!!tarballSourceFilePath === !!captainDefinitionContent) {
             res.send(
                 new BaseApi(
-                    ApiStatusCodes.STATUS_OK_DEPLOY_STARTED,
-                    'Deploy is started'
+                    ApiStatusCodes.ILLEGAL_OPERATION,
+                    'Either tarballfile or captainDefinitionContent should be present.'
                 )
             )
-
-            // To avoid unhandled promise error
-            promiseToDeployNewVer.catch(function (err) {
-                Logger.e(err)
-            })
-        } else {
-            promiseToDeployNewVer
-                .then(function () {
-                    res.send(
-                        new BaseApi(ApiStatusCodes.STATUS_OK, 'Deploy is done')
-                    )
-                })
-                .catch(ApiStatusCodes.createCatcher(res))
+            return
         }
-    })
-})
+
+        Promise.resolve().then(function () {
+            const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
+                appName,
+                {
+                    uploadedTarPathSource: !!tarballSourceFilePath
+                        ? {
+                              uploadedTarPath: tarballSourceFilePath,
+                              gitHash,
+                          }
+                        : undefined,
+                    captainDefinitionContentSource: !!captainDefinitionContent
+                        ? {
+                              captainDefinitionContent,
+                              gitHash,
+                          }
+                        : undefined,
+                }
+            )
+
+            if (isDetachedBuild) {
+                res.send(
+                    new BaseApi(
+                        ApiStatusCodes.STATUS_OK_DEPLOY_STARTED,
+                        'Deploy is started'
+                    )
+                )
+
+                // To avoid unhandled promise error
+                promiseToDeployNewVer.catch(function (err) {
+                    Logger.e(err)
+                })
+            } else {
+                promiseToDeployNewVer
+                    .then(function () {
+                        res.send(
+                            new BaseApi(
+                                ApiStatusCodes.STATUS_OK,
+                                'Deploy is done'
+                            )
+                        )
+                    })
+                    .catch(ApiStatusCodes.createCatcher(res))
+            }
+        })
+    }
+)
 
 export default router
