@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
--   TBD.
+-   Fixed: Editing a docker remote registry does not trigger an authentication check [Issue-1027](https://github.com/caprover/caprover/issues/1027)
+-   Fixed: Show Password caches the modal in registry [Issue-69](https://github.com/caprover/caprover-frontend/issues/69)
 
 ## [1.9.0] - 2021-02-15
 

@@ -254,20 +254,11 @@ class DockerRegistryHelper {
                     return
                 }
 
-                return self.dockerApi
-                    .checkRegistryAuth({
-                        username: registryUser,
-                        password: registryPassword,
-                        serveraddress: registryDomain,
-                        // email: CaptainConstants.defaultEmail, // email is optional
-                    })
-                    .catch(function (err) {
-                        Logger.e(err)
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.AUTHENTICATION_FAILED,
-                            'Authentication failed. Either username, password or domain is incorrect.'
-                        )
-                    })
+                return self.ensureAuthenticationForRegistry(
+                    registryUser,
+                    registryPassword,
+                    registryDomain
+                )
             })
             .then(function () {
                 return self.registriesDataStore.getAllRegistries()
@@ -306,17 +297,46 @@ class DockerRegistryHelper {
         registryImagePrefix: string
     ) {
         const self = this
-        return Promise.resolve().then(function () {
-            registryDomain = Utils.removeHttpHttps(registryDomain)
+        return Promise.resolve()
+            .then(function () {
+                registryDomain = Utils.removeHttpHttps(registryDomain)
 
-            return self.registriesDataStore.updateRegistry(
-                id,
-                registryUser,
-                registryPassword,
-                registryDomain,
-                registryImagePrefix
-            )
-        })
+                return self.ensureAuthenticationForRegistry(
+                    registryUser,
+                    registryPassword,
+                    registryDomain
+                )
+            })
+            .then(function () {
+                return self.registriesDataStore.updateRegistry(
+                    id,
+                    registryUser,
+                    registryPassword,
+                    registryDomain,
+                    registryImagePrefix
+                )
+            })
+    }
+
+    private ensureAuthenticationForRegistry(
+        registryUser: string,
+        registryPassword: string,
+        registryDomain: string
+    ): any {
+        const self = this
+        return self.dockerApi
+            .checkRegistryAuth({
+                username: registryUser,
+                password: registryPassword,
+                serveraddress: registryDomain,
+            })
+            .catch(function (err) {
+                Logger.e(err)
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.AUTHENTICATION_FAILED,
+                    'Authentication failed. Either username, password or domain is incorrect.'
+                )
+            })
     }
 }
 
