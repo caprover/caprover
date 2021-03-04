@@ -18,7 +18,7 @@ if (s.forceSsl) {
         }
 
         location / {
-            return 302 https://$http_host$request_uri$is_args$query_string;
+            return 302 https://$http_host$request_uri;
         }
     }
 <%
