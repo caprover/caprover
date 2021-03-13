@@ -163,6 +163,8 @@ let data = {
 
     disableFirewallCommand:
         'ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
+
+    gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }
 
 function overrideFromFile(fileName: string) {

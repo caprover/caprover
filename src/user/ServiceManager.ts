@@ -166,21 +166,20 @@ class ServiceManager {
                     .getAppsDataStore()
                     .getAppDefinition(appName)
                     .then(function (app) {
-                        const envVars = app.envVars
+                        const envVars = app.envVars || []
 
                         const includesGitCommitEnvVar = envVars.find(
-                            (envVar) => envVar.key === 'CAPROVER_GIT_COMMIT_SHA'
+                            (envVar) =>
+                                envVar.key === CaptainConstants.gitShaEnvVarKey
                         )
                         const gitHash =
                             source.captainDefinitionContentSource?.gitHash ||
                             source.uploadedTarPathSource?.gitHash
                         if (gitHash && !includesGitCommitEnvVar) {
-                            if (gitHash) {
-                                envVars.push({
-                                    key: 'CAPROVER_GIT_COMMIT_SHA',
-                                    value: gitHash,
-                                })
-                            }
+                            envVars.push({
+                                key: CaptainConstants.gitShaEnvVarKey,
+                                value: gitHash,
+                            })
                         }
 
                         return self.imageMaker.ensureImage(
