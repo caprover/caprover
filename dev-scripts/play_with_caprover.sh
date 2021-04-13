@@ -52,6 +52,7 @@ echo "{
         \"customDomain\": \"${CAPROVER_ROOT_DOMAIN}\"
 }" > /captain/data/config-captain.json
 cat /captain/data/config-captain.json
+echo  "{\"skipVerifyingDomains\":\"true\"}" >  /captain/data/config-override.json
 docker container prune --force
 docker service scale captain-captain=1
 
