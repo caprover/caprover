@@ -275,6 +275,7 @@ class ServiceManager {
             .then(function () {
                 const rootDomain = self.dataStore.getRootDomain()
                 const dotRootDomain = `.${rootDomain}`
+                const appDomain = appName + dotRootDomain
 
                 if (!customDomain || !/^[a-z0-9\-\.]+$/.test(customDomain)) {
                     throw ApiStatusCodes.createError(
@@ -301,7 +302,7 @@ class ServiceManager {
                     customDomain.indexOf(dotRootDomain) >= 0 &&
                     customDomain.indexOf(dotRootDomain) +
                         dotRootDomain.length ===
-                        customDomain.length
+                        appDomain.length
                 ) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
