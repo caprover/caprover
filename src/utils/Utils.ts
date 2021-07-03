@@ -120,4 +120,34 @@ export default class Utils {
 
         return Promise.resolve()
     }
+
+    static checkCustomDomain(
+        customDomain: string,
+        appName: string,
+        rootDomain: string
+    ) {
+        const dotRootDomain = `.${rootDomain}`
+        const dotAppDomain = `.${appName}${dotRootDomain}`
+
+        if (!customDomain || !/^[a-z0-9\-\.]+$/.test(customDomain)) {
+            throw 'Domain name is not accepted. Please use alphanumerical domains such as myapp.google123.ca'
+        }
+
+        if (customDomain.length > 80) {
+            throw 'Domain name is not accepted. Please use alphanumerical domains less than 80 characters in length.'
+        }
+
+        if (customDomain.indexOf('..') >= 0) {
+            throw 'Domain name is not accepted. You cannot have two consecutive periods ".." inside a domain name. Please use alphanumerical domains such as myapp.google123.ca'
+        }
+
+        if (
+            customDomain.indexOf(dotAppDomain) === -1 &&
+            customDomain.indexOf(dotRootDomain) >= 0 &&
+            customDomain.indexOf(dotRootDomain) + dotRootDomain.length ===
+                customDomain.length
+        ) {
+            throw 'Domain name is not accepted. Custom domain cannot be subdomain of root domain.'
+        }
+    }
 }
