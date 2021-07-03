@@ -111,7 +111,9 @@ export default class GitHelper {
         input = Utils.removeHttpHttps(input)
         if (!input.startsWith('git@')) {
             // If we get here, we have something like github.com/username/repository.git
-            input = input.replace('/', ':')
+            if (input.indexOf(':') < 0) {
+                input = input.replace('/', ':')
+            }
             input = `git@${input}`
         }
 
