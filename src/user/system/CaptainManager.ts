@@ -268,7 +268,7 @@ class CaptainManager {
     performHealthCheck() {
         const self = this
         const captainPublicDomain = `${
-            CaptainConstants.captainSubDomain
+            CaptainConstants.configs.captainSubDomain
         }.${self.dataStore.getRootDomain()}`
 
         function scheduleNextHealthCheck() {
@@ -660,7 +660,7 @@ class CaptainManager {
             .then(function () {
                 return self.certbotManager.enableSsl(
                     `${
-                        CaptainConstants.captainSubDomain
+                        CaptainConstants.configs.captainSubDomain
                     }.${self.dataStore.getRootDomain()}`
                 )
             })

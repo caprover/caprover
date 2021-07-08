@@ -205,7 +205,7 @@ router.get('/netdata/', function (req, res, next) {
         })
         .then(function (data) {
             data.netDataUrl = `${
-                CaptainConstants.captainSubDomain
+                CaptainConstants.configs.captainSubDomain
             }.${dataStore.getRootDomain()}${
                 CaptainConstants.netDataRelativePath
             }`

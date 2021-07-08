@@ -44,6 +44,8 @@ const configs = {
     nginxImageName: 'nginx:1',
 
     defaultEmail: 'runner@caprover.com',
+
+    captainSubDomain: 'captain',
 }
 
 let data = {
@@ -148,8 +150,6 @@ let data = {
     netDataRelativePath: '/net-data-monitor',
 
     healthCheckEndPoint: '/checkhealth',
-
-    captainSubDomain: 'captain',
 
     registrySubDomain: 'registry',
 

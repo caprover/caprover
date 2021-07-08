@@ -385,7 +385,7 @@ class LoadBalancerManager {
         const self = this
 
         const captainDomain = `${
-            CaptainConstants.captainSubDomain
+            CaptainConstants.configs.captainSubDomain
         }.${dataStore.getRootDomain()}`
         const registryDomain = `${
             CaptainConstants.registrySubDomain
