@@ -703,7 +703,7 @@ class AppsDataStore {
                 } else if (!appObj.appDeployTokenConfig.appDeployToken) {
                     // App is supposed to have a token, but it doesn't have one yet. The first time use case.
                     appObj.appDeployTokenConfig.appDeployToken = Utils.generateRandomString(
-                        12
+                        32
                     )
                 }
 
