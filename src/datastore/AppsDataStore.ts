@@ -695,7 +695,7 @@ class AppsDataStore {
 
                 appObj.appDeployTokenConfig = {
                     enabled: !!appDeployTokenConfig.enabled,
-                    appDeployToken: appDeployTokenConfig.appDeployToken,
+                    appDeployToken: `${appDeployTokenConfig.appDeployToken}`,
                 }
 
                 if (!appObj.appDeployTokenConfig.enabled) {
