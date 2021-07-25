@@ -1,3 +1,4 @@
+import * as crypto from 'crypto'
 import { remove } from 'fs-extra'
 import * as yaml from 'yaml'
 import Logger from './Logger'
@@ -8,6 +9,13 @@ export default class Utils {
         input = input.replace(/^(?:http?:\/\/)?/i, '')
         input = input.replace(/^(?:https?:\/\/)?/i, '')
         return input
+    }
+
+    static generateRandomString(byteLength?: number) {
+        if (!length) {
+            length = 12
+        }
+        return crypto.randomBytes(length).toString('hex')
     }
 
     static isValidIp(ip: string) {

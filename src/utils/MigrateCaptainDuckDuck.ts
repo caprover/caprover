@@ -335,7 +335,10 @@ export default class MigrateCaptainDuckDuck {
                                         app.customNginxConfig,
                                         app.preDeployFunction,
                                         '',
-                                        false
+                                        false,
+                                        {
+                                            enabled: false,
+                                        }
                                     )
                                 })
                         })

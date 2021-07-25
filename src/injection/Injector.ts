@@ -91,6 +91,75 @@ export function injectUser() {
 }
 
 /**
+ * A pseudo user injection. Only used for build triggers. Can only trigger certain actions.
+ */
+export function injectUserForBuildTrigger() {
+    return function (req: Request, res: Response, next: NextFunction) {
+        const token = req.query.token as string
+        const namespace = req.query.namespace as string
+        const appName = req.params.appName as string
+
+        if (!token || !namespace || !appName) {
+            Logger.e(
+                'Trigger app build is called with no token/namespace/appName'
+            )
+            next()
+            return
+        }
+
+        const dataStore = DataStoreProvider.getDataStore(namespace)
+        let app: IAppDef | undefined = undefined
+
+        Promise.resolve()
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (appFound) {
+                app = appFound
+
+                const tokenMatches =
+                    app?.appDeployTokenConfig?.enabled &&
+                    app.appDeployTokenConfig.appDeployToken === token
+
+                if (!tokenMatches) {
+                    Logger.e('Token mismatch for app build')
+                    next()
+                    return
+                }
+
+                const datastore = DataStoreProvider.getDataStore(namespace)
+
+                const serviceManager = ServiceManager.get(
+                    namespace,
+                    Authenticator.getAuthenticator(namespace),
+                    datastore,
+                    dockerApi,
+                    CaptainManager.get().getLoadBalanceManager(),
+                    CaptainManager.get().getDomainResolveChecker()
+                )
+
+                const user: UserModel.UserInjected = {
+                    namespace: namespace,
+                    dataStore: datastore,
+                    serviceManager: serviceManager,
+                    initialized: serviceManager.isInited(),
+                }
+
+                res.locals.user = user
+                res.locals.app = app
+                res.locals.appName = appName
+
+                next()
+            })
+            .catch(function (error) {
+                Logger.e(error)
+                res.locals.app = undefined
+                next()
+            })
+    }
+}
+
+/**
  * A pseudo user injection. Only used for webhooks. Can only trigger certain actions.
  */
 export function injectUserForWebhook() {

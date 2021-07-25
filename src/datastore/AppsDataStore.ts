@@ -617,7 +617,8 @@ class AppsDataStore {
         customNginxConfig: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
-        websocketSupport: boolean
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
     ) {
         const self = this
         let appObj: IAppDef
@@ -691,6 +692,20 @@ class AppsDataStore {
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+
+                appObj.appDeployTokenConfig = {
+                    enabled: !!appDeployTokenConfig.enabled,
+                    appDeployToken: appDeployTokenConfig.appDeployToken,
+                }
+
+                if (!appObj.appDeployTokenConfig.enabled) {
+                    appObj.appDeployTokenConfig.appDeployToken = undefined
+                } else if (!appObj.appDeployTokenConfig.appDeployToken) {
+                    // App is supposed to have a token, but it doesn't have one yet. The first time use case.
+                    appObj.appDeployTokenConfig.appDeployToken = Utils.generateRandomString(
+                        12
+                    )
+                }
 
                 if (httpAuth && httpAuth.user) {
                     const newAuth: IHttpAuth = {

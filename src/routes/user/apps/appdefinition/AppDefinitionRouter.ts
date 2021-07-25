@@ -328,7 +328,19 @@ router.post('/update/', function (req, res, next) {
     let serviceUpdateOverride = req.body.serviceUpdateOverride || ''
     let containerHttpPort = Number(req.body.containerHttpPort) || 80
     let httpAuth = req.body.httpAuth
+    let appDeployTokenConfig = req.body.appDeployTokenConfig as
+        | AppDeployTokenConfig
+        | undefined
     let description = req.body.description || ''
+
+    if (!appDeployTokenConfig) {
+        appDeployTokenConfig = { enabled: false }
+    } else {
+        appDeployTokenConfig = {
+            enabled: !!appDeployTokenConfig.enabled,
+            appDeployToken: `${appDeployTokenConfig.appDeployToken}`.trim(),
+        }
+    }
 
     if (repoInfo.user) {
         repoInfo.user = repoInfo.user.trim()
