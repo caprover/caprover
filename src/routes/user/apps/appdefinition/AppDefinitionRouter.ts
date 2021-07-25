@@ -393,7 +393,8 @@ router.post('/update/', function (req, res, next) {
             customNginxConfig,
             preDeployFunction,
             serviceUpdateOverride,
-            websocketSupport
+            websocketSupport,
+            appDeployTokenConfig
         )
         .then(function () {
             Logger.d(`AppName is updated: ${appName}`)
