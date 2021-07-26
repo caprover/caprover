@@ -338,7 +338,11 @@ router.post('/update/', function (req, res, next) {
     } else {
         appDeployTokenConfig = {
             enabled: !!appDeployTokenConfig.enabled,
-            appDeployToken: `${appDeployTokenConfig.appDeployToken}`.trim(),
+            appDeployToken: `${
+                appDeployTokenConfig.appDeployToken
+                    ? appDeployTokenConfig.appDeployToken
+                    : ''
+            }`.trim(),
         }
     }
 

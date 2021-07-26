@@ -5,6 +5,7 @@ import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import configstore = require('configstore')
 
@@ -695,7 +696,20 @@ class AppsDataStore {
 
                 appObj.appDeployTokenConfig = {
                     enabled: !!appDeployTokenConfig.enabled,
-                    appDeployToken: `${appDeployTokenConfig.appDeployToken}`,
+                    appDeployToken: `${
+                        appDeployTokenConfig.appDeployToken
+                            ? appDeployTokenConfig.appDeployToken
+                            : ''
+                    }`,
+                }
+
+                if (
+                    appObj.appDeployTokenConfig.appDeployToken ===
+                        'undefined' ||
+                    appObj.appDeployTokenConfig.appDeployToken === 'null'
+                ) {
+                    appObj.appDeployTokenConfig = { enabled: false }
+                    Logger.e('Bad values in the token')
                 }
 
                 if (!appObj.appDeployTokenConfig.enabled) {
