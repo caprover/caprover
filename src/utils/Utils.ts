@@ -12,10 +12,10 @@ export default class Utils {
     }
 
     static generateRandomString(byteLength?: number) {
-        if (!length) {
-            length = 12
+        if (!byteLength) {
+            byteLength = 12
         }
-        return crypto.randomBytes(length).toString('hex')
+        return crypto.randomBytes(byteLength).toString('hex')
     }
 
     static isValidIp(ip: string) {
