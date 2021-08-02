@@ -95,8 +95,10 @@ export function injectUser() {
  */
 export function injectUserForBuildTrigger() {
     return function (req: Request, res: Response, next: NextFunction) {
-        const token = req.query.token as string
-        const namespace = req.query.namespace as string
+        const locals = res.locals
+
+        const token = req.header(CaptainConstants.headerAppToken) as string
+        const namespace = locals.namespace
         const appName = req.params.appName as string
 
         if (!token || !namespace || !appName) {
