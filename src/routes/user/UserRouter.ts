@@ -18,6 +18,10 @@ const threadLockNamespace = {} as IHashMapGeneric<boolean>
 
 router.use('/apps/webhooks/', Injector.injectUserForWebhook())
 
+// Only for POST request to build the image
+// Ensure that it doesn't allow for GET requests etc.
+router.post('/apps/appData/:appName/', Injector.injectUserForBuildTrigger())
+
 router.use(Injector.injectUser())
 
 router.use(function (req, res, next) {

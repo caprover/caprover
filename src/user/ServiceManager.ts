@@ -664,7 +664,8 @@ class ServiceManager {
         customNginxConfig: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
-        websocketSupport: boolean
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
     ) {
         const self = this
         const dataStore = this.dataStore
@@ -783,7 +784,8 @@ class ServiceManager {
                         customNginxConfig,
                         preDeployFunction,
                         serviceUpdateOverride,
-                        websocketSupport
+                        websocketSupport,
+                        appDeployTokenConfig
                     )
             })
             .then(function () {

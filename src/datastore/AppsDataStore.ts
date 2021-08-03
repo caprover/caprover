@@ -5,6 +5,7 @@ import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import configstore = require('configstore')
 
@@ -617,7 +618,8 @@ class AppsDataStore {
         customNginxConfig: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
-        websocketSupport: boolean
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
     ) {
         const self = this
         let appObj: IAppDef
@@ -691,6 +693,33 @@ class AppsDataStore {
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+
+                appObj.appDeployTokenConfig = {
+                    enabled: !!appDeployTokenConfig.enabled,
+                    appDeployToken: `${
+                        appDeployTokenConfig.appDeployToken
+                            ? appDeployTokenConfig.appDeployToken
+                            : ''
+                    }`,
+                }
+
+                if (
+                    appObj.appDeployTokenConfig.appDeployToken ===
+                        'undefined' ||
+                    appObj.appDeployTokenConfig.appDeployToken === 'null'
+                ) {
+                    appObj.appDeployTokenConfig = { enabled: false }
+                    Logger.e('Bad values in the token')
+                }
+
+                if (!appObj.appDeployTokenConfig.enabled) {
+                    appObj.appDeployTokenConfig.appDeployToken = undefined
+                } else if (!appObj.appDeployTokenConfig.appDeployToken) {
+                    // App is supposed to have a token, but it doesn't have one yet. The first time use case.
+                    appObj.appDeployTokenConfig.appDeployToken = Utils.generateRandomString(
+                        32
+                    )
+                }
 
                 if (httpAuth && httpAuth.user) {
                     const newAuth: IHttpAuth = {

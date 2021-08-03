@@ -157,6 +157,8 @@ let data = {
 
     headerAuth: 'x-captain-auth',
 
+    headerAppToken: 'x-captain-app-token',
+
     headerNamespace: 'x-namespace',
 
     // *********************     ETC       ************************
