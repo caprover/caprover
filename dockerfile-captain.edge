@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-RUN yarn install --frozen-lockfile --production && \
+RUN npm ci --production && \
      npm cache clean --force && \
      npm run build && \
      mv ./edge-override.json ./config-override.json
