@@ -2,6 +2,7 @@
 
 -   Fixed: Editing a docker remote registry does not trigger an authentication check [Issue-1027](https://github.com/caprover/caprover/issues/1027)
 -   Fixed: Show Password caches the modal in registry [Issue-69](https://github.com/caprover/caprover-frontend/issues/69)
+-   Fixed: Remember Me throws an error if the server restarts [Issue-1056](https://github.com/caprover/caprover/issues/1056)
 -   New: Now git sha values are available during the build process and runtime as `CAPROVER_GIT_COMMIT_SHA` [PR-1094](https://github.com/caprover/caprover/pull/1049/files)
 -   New: UI components and typeface are now more modern looking
 -   New: Support for app tokens [Issue-698](https://github.com/caprover/caprover/issues/698)
