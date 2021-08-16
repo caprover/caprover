@@ -133,18 +133,26 @@ class DockerRegistryHelper {
                     }
                 }
 
-                // if none of the registries explicitly relates to the image name, try the official one
-                for (let index = 0; index < regs.length; index++) {
-                    const element = regs[index]
-                    if (element.registryDomain === 'registry-1.docker.io') {
-                        return {
-                            serveraddress: element.registryDomain,
-                            username: element.registryUser,
-                            password: element.registryPassword,
-                            // email: CaptainConstants.defaultEmail, // email is optional
+                // if none of the registries explicitly relates to the image name, and no other explicit domain is defined,
+                // try Docker Hub registry as the default
+                if (
+                    imageName.split('/').length == 2 || // user/image is from Docker Hub
+                    imageName.split('/')[0].endsWith('.docker.io') || // registry-1.docker.io/user/image is from Docker Hub
+                    imageName.split('/')[0] === 'docker.io' || // registry-1.docker.io/user/image is from Docker Hub
+                    imageName.split('/')[0].endsWith('.docker.com') || // hub.docker.com/user/image is from Docker Hub
+                    imageName.split('/')[0] === 'docker.io' // hub.docker.com/user/image is from Docker Hub
+                )
+                    for (let index = 0; index < regs.length; index++) {
+                        const element = regs[index]
+                        if (element.registryDomain === 'registry-1.docker.io') {
+                            return {
+                                serveraddress: element.registryDomain,
+                                username: element.registryUser,
+                                password: element.registryPassword,
+                                // email: CaptainConstants.defaultEmail, // email is optional
+                            }
                         }
                     }
-                }
 
                 return undefined
             })
