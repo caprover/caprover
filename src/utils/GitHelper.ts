@@ -78,7 +78,10 @@ export default class GitHelper {
             // Some people put https when they are entering their git information
             const REPO_PATH = GitHelper.sanitizeRepoPathHttps(repo)
 
-            const remote = `https://${USER}:${PASS}@${REPO_PATH}`
+            // respect the explicit http repo path
+            const SCHEME = repo.startsWith('http://') ? 'http' : 'https'
+
+            const remote = `${SCHEME}://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
