@@ -2,7 +2,9 @@ export interface Version {
     Index: number
 }
 
-export interface Labels {}
+export interface Labels {
+    [id: string]: string
+}
 
 export interface Mount {
     Type: string
@@ -17,7 +19,16 @@ export interface ContainerSpecType {
     Isolation: string
 }
 
-export interface Resources {}
+export interface Resources {
+    Limits: {
+        MemoryBytes: number
+        NanoCPUs: number
+    }
+    Reservations: {
+        MemoryBytes: number
+        NanoCPUs: number
+    }
+}
 
 export interface Placement {
     Constraints: string[]
