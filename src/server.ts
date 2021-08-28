@@ -9,7 +9,9 @@ import { AnyError } from './models/OtherTypes'
 import CaptainConstants from './utils/CaptainConstants'
 import * as CaptainInstaller from './utils/CaptainInstaller'
 import EnvVars from './utils/EnvVars'
-const debug = require('debug')('caprover:server')
+import debugModule = require('debug')
+
+const debug = debugModule('caprover:server')
 
 function startServer() {
     if (CaptainConstants.isDebug) {

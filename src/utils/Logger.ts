@@ -1,6 +1,6 @@
+import * as moment from 'moment'
 import { AnyError } from '../models/OtherTypes'
 import CaptainConstants from './CaptainConstants'
-const moment = require('moment')
 
 function errorize(error: AnyError) {
     if (!(error instanceof Error)) {

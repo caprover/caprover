@@ -9,7 +9,7 @@ import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import configstore = require('configstore')
 
-const isValidPath = require('is-valid-path')
+import isValidPath = require('is-valid-path')
 
 const APP_DEFINITIONS = 'appDefinitions'
 

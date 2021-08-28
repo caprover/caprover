@@ -14,7 +14,7 @@ import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Dockerode = require('dockerode')
-const dockerodeUtils = require('dockerode/lib/util')
+import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 

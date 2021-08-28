@@ -2,7 +2,7 @@
 // Project is licensed under MIT. https://github.com/http-auth/apache-md5/blob/master/LICENSE
 
 // Crypto module import.
-const crypto = require('crypto')
+import * as crypto from 'crypto'
 
 // Hash generation string.
 const itoa64 =
