@@ -46,8 +46,8 @@ class LoadBalancerManager {
     private reloadInProcess: boolean
     private requestedReloadPromises: {
         dataStore: DataStore
-        resolve: Function
-        reject: Function
+        resolve: VoidFunction
+        reject: VoidFunction
     }[]
     private captainPublicRandomKey: string
 

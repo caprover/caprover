@@ -5,6 +5,7 @@ import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,
     IDockerContainerResource,
+    PreDeployFunction,
     VolumesTypes,
 } from '../models/OtherTypes'
 import BuildLog from '../user/BuildLog'
@@ -12,6 +13,7 @@ import CaptainConstants from '../utils/CaptainConstants'
 import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
+import Dockerode = require('dockerode')
 const dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
@@ -262,10 +264,10 @@ class DockerApi {
                     )
                 }
 
-                const optionsForBuild = {
+                const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
-                } as any
+                }
 
                 if (Object.keys(registryConfig).length > 0) {
                     // https://github.com/apocas/dockerode/blob/ed6ef39e0fc81963fedf208c7e0854d8a44cb9a8/lib/docker.js#L271-L274
@@ -276,7 +278,7 @@ class DockerApi {
 
                 return self.dockerode.buildImage(
                     tarballFilePath,
-                    optionsForBuild as {}
+                    optionsForBuild
                 )
             })
             .then(function (stream) {
@@ -1237,7 +1239,7 @@ class DockerApi {
         appObject: IAppDef | undefined,
         updateOrder: IDockerUpdateOrder | undefined,
         serviceUpdateOverride: any | undefined,
-        preDeployFunction: Function | undefined
+        preDeployFunction: PreDeployFunction | undefined
     ) {
         const self = this
         return self.dockerode

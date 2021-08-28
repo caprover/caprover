@@ -2,6 +2,7 @@ import { ImageInfo } from 'dockerode'
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
+import { PreDeployFunction } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
@@ -612,7 +613,9 @@ class ServiceManager {
         })
     }
 
-    createPreDeployFunctionIfExist(app: IAppDef): Function | undefined {
+    createPreDeployFunctionIfExist(
+        app: IAppDef
+    ): PreDeployFunction | undefined {
         let preDeployFunction = app.preDeployFunction
 
         if (!preDeployFunction) {
