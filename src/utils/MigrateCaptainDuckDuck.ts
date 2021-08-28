@@ -268,7 +268,7 @@ export default class MigrateCaptainDuckDuck {
                                     )
 
                                     oldVers.forEach((element) => {
-                                        let thisVersion = Number(
+                                        const thisVersion = Number(
                                             element.version
                                         )
 
@@ -348,7 +348,9 @@ export default class MigrateCaptainDuckDuck {
                     promises.push(p)
                 })
 
-                return Promise.all(promises).then(function () {})
+                return Promise.all(promises).then(function () {
+                    //
+                })
             })
             .then(function () {
                 Logger.d(

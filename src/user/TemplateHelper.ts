@@ -1,7 +1,6 @@
 import fs = require('fs-extra')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import { ITemplate } from '../models/OtherTypes'
-import TemplateHelperVersionPrinter from '../utils/TemplateHelperVersionPrinter'
 
 class TemplateHelper {
     private templates: ITemplate[]
@@ -42,11 +41,9 @@ class TemplateHelper {
         this.templates = templates
 
         // Change to true if you want tags to be printed on screen upon start up (after 40 sec ish)
-        if (false) {
-            new TemplateHelperVersionPrinter().printAvailableImageTagsForReadme(
-                this.templates
-            )
-        }
+        // new TemplateHelperVersionPrinter().printAvailableImageTagsForReadme(
+        //     this.templates
+        // )
     }
 
     getTemplateFromTemplateName(templateName: string) {

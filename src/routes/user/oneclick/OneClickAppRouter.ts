@@ -61,7 +61,7 @@ router.post('/repositories/insert', function (req, res, next) {
             return dataStore.insertOneClickBaseUrl(apiBaseUrl)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 `One Click apps repository URL is saved: ${apiBaseUrl}`
             )
@@ -93,7 +93,7 @@ router.post('/repositories/delete', function (req, res, next) {
             return dataStore.deleteOneClickBaseUrl(apiBaseUrl)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 `One Click apps repository URL is deleted ${apiBaseUrl}`
             )
@@ -111,7 +111,7 @@ router.get('/repositories/', function (req, res, next) {
             return dataStore.getAllOneClickBaseUrls()
         })
         .then(function (urls) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'One click repositories are retrieved '
             )
@@ -178,7 +178,7 @@ router.get('/template/list', function (req, res, next) {
             return allApps
         })
         .then(function (allApps) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'All one click apps are retrieved'
             )
@@ -215,7 +215,7 @@ router.get('/template/app', function (req, res, next) {
             })
         })
         .then(function (appTemplate) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App template is retrieved'
             )

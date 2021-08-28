@@ -37,7 +37,7 @@ class AppsDataStore {
         this.encryptor = encryptor
     }
 
-    private saveApp(appName: String, app: IAppDef) {
+    private saveApp(appName: string, app: IAppDef) {
         const self = this
 
         return Promise.resolve()
@@ -205,7 +205,7 @@ class AppsDataStore {
             )
         }
 
-        if (!!this.data.get(`${APP_DEFINITIONS}.${appName}`)) {
+        if (this.data.get(`${APP_DEFINITIONS}.${appName}`)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,
                 'App Name already exists. Please use a different name'
@@ -264,8 +264,8 @@ class AppsDataStore {
     getAppDefinitions() {
         const self = this
         return new Promise<IAllAppDefinitions>(function (resolve, reject) {
-            let allApps = self.data.get(APP_DEFINITIONS) || {}
-            let allAppsUnencrypted: IAllAppDefinitions = {}
+            const allApps = self.data.get(APP_DEFINITIONS) || {}
+            const allAppsUnencrypted: IAllAppDefinitions = {}
 
             Object.keys(allApps).forEach(function (appName) {
                 allAppsUnencrypted[appName] = allApps[appName]
@@ -859,7 +859,7 @@ class AppsDataStore {
                 return
             }
 
-            if (!!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
+            if (self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,

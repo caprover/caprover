@@ -41,8 +41,8 @@ router.post('/enableregistry/', function (req, res, next) {
                     )
                 }
             }
-            let user = CaptainConstants.captainRegistryUsername
-            let domain = captainManager
+            const user = CaptainConstants.captainRegistryUsername
+            const domain = captainManager
                 .getDockerRegistry()
                 .getLocalRegistryDomainAndPort()
 
@@ -55,7 +55,7 @@ router.post('/enableregistry/', function (req, res, next) {
             )
         })
         .then(function () {
-            let msg = 'Local registry is created.'
+            const msg = 'Local registry is created.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -89,7 +89,7 @@ router.post('/disableregistry/', function (req, res, next) {
             return captainManager.getDockerRegistry().ensureServiceRemoved()
         })
         .then(function () {
-            let msg = 'Local registry is removed.'
+            const msg = 'Local registry is removed.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })

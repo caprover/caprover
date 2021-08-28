@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "eg2.tslint",
         "streetsidesoftware.code-spell-checker",
         "pflannery.vscode-versionlens",
         "remimarsal.prettier-now",

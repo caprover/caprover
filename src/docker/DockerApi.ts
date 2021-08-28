@@ -1318,7 +1318,7 @@ class DockerApi {
                     for (let idx = 0; idx < volumes.length; idx++) {
                         const v = volumes[idx]
 
-                        if (!!v.hostPath) {
+                        if (v.hostPath) {
                             mts.push({
                                 Source: v.hostPath,
                                 Target: v.containerPath,
@@ -1326,7 +1326,7 @@ class DockerApi {
                                 ReadOnly: false,
                                 Consistency: 'default',
                             })
-                        } else if (!!v.volumeName) {
+                        } else if (v.volumeName) {
                             // named volumes are created here:
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
@@ -1420,7 +1420,7 @@ class DockerApi {
                             updatedData.UpdateConfig.Order = 'stop-first'
                             break
                         default:
-                            let neverHappens: never = updateOrder
+                            const neverHappens: never = updateOrder
                             throw new Error(
                                 `Unknown update order! ${updateOrder}${neverHappens}`
                             )

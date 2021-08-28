@@ -30,9 +30,9 @@ export default class CaptainEncryptor {
     encrypt(clearText: string) {
         const self = this
 
-        let iv = crypto.randomBytes(IV_LENGTH)
-        let key = Buffer.from(self.encryptionKey)
-        let cipher = crypto.createCipheriv(algorithm, key, iv)
+        const iv = crypto.randomBytes(IV_LENGTH)
+        const key = Buffer.from(self.encryptionKey)
+        const cipher = crypto.createCipheriv(algorithm, key, iv)
         let encrypted = cipher.update(clearText)
 
         encrypted = Buffer.concat([encrypted, cipher.final()])
@@ -44,14 +44,14 @@ export default class CaptainEncryptor {
         const self = this
         text = text + ''
 
-        let textParts = text.split(':')
-        let shifted = textParts.shift()
+        const textParts = text.split(':')
+        const shifted = textParts.shift()
         if (!shifted) throw new Error('text.split failed')
 
-        let iv = Buffer.from(shifted, 'hex')
-        let encryptedText = Buffer.from(textParts.join(':'), 'hex')
-        let key = Buffer.from(self.encryptionKey)
-        let decipher = crypto.createDecipheriv(algorithm, key, iv)
+        const iv = Buffer.from(shifted, 'hex')
+        const encryptedText = Buffer.from(textParts.join(':'), 'hex')
+        const key = Buffer.from(self.encryptionKey)
+        const decipher = crypto.createDecipheriv(algorithm, key, iv)
         let decrypted = decipher.update(encryptedText)
 
         decrypted = Buffer.concat([decrypted, decipher.final()])

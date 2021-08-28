@@ -30,7 +30,7 @@ class Logger {
     }
 
     static e(msgOrError: AnyError) {
-        let err = errorize(msgOrError)
+        const err = errorize(msgOrError)
         console.error(`${getTime() + err}
 ${err.stack}`)
     }

@@ -6,7 +6,8 @@
         "start": "node ./built/server.js",
         "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
         "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
-        "tslint": "tslint -c tslint.json -p tsconfig.json",
+        "lint": "eslint -c .eslintrc.js --ext .ts ./src",
+        "lint-fix": "eslint --fix -c .eslintrc.js --ext .ts ./src",
         "formatter": "prettier --check './src/**/*.ts'",
         "formatter-write": "prettier --write './src/**/*.ts'",
         "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && echo 'Build successful'",
@@ -62,14 +63,16 @@
         "simple-git": "^2.45.0",
         "ssh2": "^1.3.0",
         "tar": "^6.1.11",
-        "tslint": "^6.1.3",
-        "typescript": "^4.4.2",
         "uuid": "^8.3.2",
         "validator": "^13.6.0",
         "yaml": "^1.10.2"
     },
     "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^4.29.3",
+        "@typescript-eslint/parser": "^4.29.3",
+        "eslint": "^7.32.0",
         "jest": "^27.1.0",
-        "ts-jest": "^27.0.5"
+        "ts-jest": "^27.0.5",
+        "typescript": "^4.3.5"
     }
 }

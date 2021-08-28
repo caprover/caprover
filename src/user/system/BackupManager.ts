@@ -334,7 +334,7 @@ export default class BackupManager {
 
             if (n.newIp === CURRENT_NODE_DONT_CHANGE) return
 
-            if (!!n.newIp) {
+            if (n.newIp) {
                 if (n.newIp === IP_PLACEHOLDER) {
                     Logger.d(
                         '***       MULTI-NODE RESTORATION DETECTED        ***'
@@ -689,7 +689,7 @@ export default class BackupManager {
                                 ['./']
                             )
                             .then(function () {
-                                let fileSizeInMb = Math.ceil(
+                                const fileSizeInMb = Math.ceil(
                                     fs.statSync(tarFilePath).size / 1000000
                                 )
 

@@ -42,7 +42,7 @@ class DockerRegistryHelper {
                 return self.getDefaultPushRegistryId()
             })
             .then(function (defaultRegId) {
-                let ret: IRegistryInfo | undefined = undefined
+                const ret: IRegistryInfo | undefined = undefined
                 for (let idx = 0; idx < allRegistries.length; idx++) {
                     const element = allRegistries[idx]
                     if (defaultRegId && element.id === defaultRegId) {
@@ -166,7 +166,7 @@ class DockerRegistryHelper {
                 return self.getAllRegistries()
             })
             .then(function (regs) {
-                let registryConfig: DockerRegistryConfig = {}
+                const registryConfig: DockerRegistryConfig = {}
 
                 for (let index = 0; index < regs.length; index++) {
                     const element = regs[index]

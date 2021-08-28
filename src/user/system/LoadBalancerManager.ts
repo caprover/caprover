@@ -78,7 +78,7 @@ class LoadBalancerManager {
             })
             self.consumeQueueIfAnyInNginxReloadQueue()
         }).then(function () {
-            if (!!noReload) return
+            if (noReload) return
             Logger.d('sendReloadSignal...')
             return self.dockerApi.sendSingleContainerKillHUP(
                 CaptainConstants.nginxServiceName

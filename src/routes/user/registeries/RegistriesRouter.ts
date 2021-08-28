@@ -23,7 +23,7 @@ router.get('/', function (req, res, next) {
             return registryHelper.getDefaultPushRegistryId()
         })
         .then(function (defaultPush) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'All registries retrieved'
             )
@@ -36,10 +36,10 @@ router.get('/', function (req, res, next) {
 })
 
 router.post('/insert/', function (req, res, next) {
-    let registryUser = req.body.registryUser + ''
-    let registryPassword = req.body.registryPassword + ''
-    let registryDomain = req.body.registryDomain + ''
-    let registryImagePrefix = req.body.registryImagePrefix + ''
+    const registryUser = req.body.registryUser + ''
+    const registryPassword = req.body.registryPassword + ''
+    const registryDomain = req.body.registryDomain + ''
+    const registryImagePrefix = req.body.registryImagePrefix + ''
 
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
@@ -57,7 +57,7 @@ router.post('/insert/', function (req, res, next) {
             )
         })
         .then(function () {
-            let msg = 'Registry is added.'
+            const msg = 'Registry is added.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -66,11 +66,11 @@ router.post('/insert/', function (req, res, next) {
 
 // ERRORS if it's local
 router.post('/update/', function (req, res, next) {
-    let registryId = req.body.id + ''
-    let registryUser = req.body.registryUser + ''
-    let registryPassword = req.body.registryPassword + ''
-    let registryDomain = req.body.registryDomain + ''
-    let registryImagePrefix = req.body.registryImagePrefix + ''
+    const registryId = req.body.id + ''
+    const registryUser = req.body.registryUser + ''
+    const registryPassword = req.body.registryPassword + ''
+    const registryDomain = req.body.registryDomain + ''
+    const registryImagePrefix = req.body.registryImagePrefix + ''
 
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
@@ -88,7 +88,7 @@ router.post('/update/', function (req, res, next) {
             )
         })
         .then(function () {
-            let msg = 'Registry is updated.'
+            const msg = 'Registry is updated.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -97,7 +97,7 @@ router.post('/update/', function (req, res, next) {
 
 // ERRORS if default push is this OR if it's local
 router.post('/delete/', function (req, res, next) {
-    let registryId = req.body.registryId + ''
+    const registryId = req.body.registryId + ''
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
             res
@@ -108,7 +108,7 @@ router.post('/delete/', function (req, res, next) {
             return registryHelper.deleteRegistry(registryId, false)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Registry deleted'
             )
@@ -118,7 +118,7 @@ router.post('/delete/', function (req, res, next) {
 })
 
 router.post('/setpush/', function (req, res, next) {
-    let registryId = req.body.registryId + ''
+    const registryId = req.body.registryId + ''
     const registryHelper =
         InjectionExtractor.extractUserFromInjected(
             res
@@ -129,7 +129,7 @@ router.post('/setpush/', function (req, res, next) {
             return registryHelper.setDefaultPushRegistry(registryId)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Push Registry changed'
             )

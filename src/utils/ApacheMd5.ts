@@ -32,7 +32,7 @@ export default class ApacheMd5 {
         } else {
             while (salt.length < 8) {
                 // Random 8 chars.
-                let rchIndex = Math.floor(Math.random() * 64)
+                const rchIndex = Math.floor(Math.random() * 64)
                 salt += itoa64[rchIndex]
             }
         }

@@ -91,7 +91,7 @@ class ServiceManager {
     scheduleDeployNewVersion(appName: string, source: IImageSource) {
         const self = this
 
-        let activeBuildAppName = self.isAnyBuildRunning()
+        const activeBuildAppName = self.isAnyBuildRunning()
         this.activeOrScheduledBuilds[appName] = true
 
         self.buildLogsManager.getAppBuildLogs(appName).clear()
@@ -128,13 +128,13 @@ class ServiceManager {
                     `An active build (${activeBuildAppName}) is in progress. This build is queued...`
                 )
 
-            let promiseToSave: QueuedPromise = {
+            const promiseToSave: QueuedPromise = {
                 resolve: undefined,
                 reject: undefined,
                 promise: undefined,
             }
 
-            let promise = new Promise(function (resolve, reject) {
+            const promise = new Promise(function (resolve, reject) {
                 promiseToSave.resolve = resolve
                 promiseToSave.reject = reject
             })
@@ -218,7 +218,7 @@ class ServiceManager {
         self.activeOrScheduledBuilds[appName] = false
 
         Promise.resolve().then(function () {
-            let newBuild = self.queuedBuilds.shift()
+            const newBuild = self.queuedBuilds.shift()
             if (newBuild)
                 self.startDeployingNewVersion(newBuild.appName, newBuild.source)
         })
@@ -748,7 +748,7 @@ class ServiceManager {
                 }
             })
             .then(function () {
-                serviceUpdateOverride = !!serviceUpdateOverride
+                serviceUpdateOverride = serviceUpdateOverride
                     ? `${serviceUpdateOverride}`.trim()
                     : ''
                 if (!serviceUpdateOverride) {
@@ -808,7 +808,7 @@ class ServiceManager {
         const activeBuilds = this.activeOrScheduledBuilds
 
         for (const appName in activeBuilds) {
-            if (!!activeBuilds[appName]) {
+            if (activeBuilds[appName]) {
                 return appName
             }
         }

@@ -27,7 +27,7 @@ export default class GitHelper {
         const USER = encodeURIComponent(username)
         const PASS = encodeURIComponent(pass)
 
-        if (!!sshKey) {
+        if (sshKey) {
             const SSH_KEY_PATH = path.join(
                 CaptainConstants.captainRootDirectoryTemp,
                 uuid.v4()
@@ -85,7 +85,9 @@ export default class GitHelper {
             return git() //
                 .silent(true) //
                 .raw(['clone', '--recursive', '-b', branch, remote, directory])
-                .then(function () {})
+                .then(function () {
+                    //
+                })
         }
     }
 

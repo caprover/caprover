@@ -105,13 +105,13 @@ class VersionManager {
                 }
             )
         }).then(function (tagList) {
-            let currentVersion = CaptainConstants.configs.version.split('.')
+            const currentVersion = CaptainConstants.configs.version.split('.')
             let latestVersion = CaptainConstants.configs.version.split('.')
 
             let canUpdate = false
 
             for (let i = 0; i < tagList.length; i++) {
-                let tag = tagList[i].split('.')
+                const tag = tagList[i].split('.')
 
                 if (tag.length !== 3) {
                     continue

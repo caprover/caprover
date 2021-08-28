@@ -205,7 +205,7 @@ class CaptainManager {
                 )
                     .migrateIfNeeded()
                     .then(function (migrationPerformed) {
-                        if (!!migrationPerformed) {
+                        if (migrationPerformed) {
                             return self.resetSelf()
                         }
                     })
@@ -226,7 +226,7 @@ class CaptainManager {
                     }
                 }
 
-                if (!!localRegistry) {
+                if (localRegistry) {
                     Logger.d('Ensuring Docker Registry is running...')
                     return self.dockerRegistry.ensureDockerRegistryRunningOnThisNode(
                         localRegistry.registryPassword
@@ -786,7 +786,7 @@ class CaptainManager {
                     }
                 }
 
-                if (!!localRegistry) {
+                if (localRegistry) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
                         'Delete your self-hosted Docker registry before changing the domain.'
