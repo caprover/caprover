@@ -16,9 +16,7 @@ const dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 
-function safeParseChunk(
-    chunk: string
-): {
+function safeParseChunk(chunk: string): {
     stream?: string
     error?: any
     errorDetail?: any
@@ -159,7 +157,7 @@ class DockerApi {
                 return self.dockerode.listServices()
             })
             .then(function (services) {
-                return ((services || []) as unknown) as DockerService[]
+                return (services || []) as unknown as DockerService[]
             })
     }
 
@@ -1275,7 +1273,8 @@ class DockerApi {
                         }
                     }
                     newConstraints.push(`node.id == ${nodeId}`)
-                    updatedData.TaskTemplate.Placement.Constraints = newConstraints
+                    updatedData.TaskTemplate.Placement.Constraints =
+                        newConstraints
                 }
 
                 if (arrayOfEnvKeyAndValue) {
@@ -1437,7 +1436,8 @@ class DockerApi {
                 // to restart once. Once rebooted, all changes start showing up.
                 updatedData.TaskTemplate.ContainerSpec.Labels =
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
-                updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
+                updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate =
+                    uuid()
 
                 updatedData.authconfig = authObject
 
@@ -1546,8 +1546,9 @@ class DockerApi {
                     .logs({
                         tail: tailCount,
                         follow: false,
-                        timestamps: !!CaptainConstants.configs
-                            .enableDockerLogsTimestamp,
+                        timestamps:
+                            !!CaptainConstants.configs
+                                .enableDockerLogsTimestamp,
                         stdout: true,
                         stderr: true,
                     })

@@ -822,8 +822,8 @@ class ServiceManager {
         return {
             isAppBuilding: self.isAppBuilding(appName),
             logs: self.buildLogsManager.getAppBuildLogs(appName).getLogs(),
-            isBuildFailed: self.buildLogsManager.getAppBuildLogs(appName)
-                .isBuildFailed,
+            isBuildFailed:
+                self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
         }
     }
 

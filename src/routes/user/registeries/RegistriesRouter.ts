@@ -8,9 +8,10 @@ import Logger from '../../../utils/Logger'
 const router = express.Router()
 
 router.get('/', function (req, res, next) {
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
     let registries: IRegistryInfo[] = []
 
     return Promise.resolve()
@@ -40,9 +41,10 @@ router.post('/insert/', function (req, res, next) {
     let registryDomain = req.body.registryDomain + ''
     let registryImagePrefix = req.body.registryImagePrefix + ''
 
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -70,9 +72,10 @@ router.post('/update/', function (req, res, next) {
     let registryDomain = req.body.registryDomain + ''
     let registryImagePrefix = req.body.registryImagePrefix + ''
 
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -95,9 +98,10 @@ router.post('/update/', function (req, res, next) {
 // ERRORS if default push is this OR if it's local
 router.post('/delete/', function (req, res, next) {
     let registryId = req.body.registryId + ''
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -115,9 +119,10 @@ router.post('/delete/', function (req, res, next) {
 
 router.post('/setpush/', function (req, res, next) {
     let registryId = req.body.registryId + ''
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {

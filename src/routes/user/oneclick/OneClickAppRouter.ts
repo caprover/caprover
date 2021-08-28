@@ -20,8 +20,8 @@ interface IOneClickAppIdentifier {
 }
 
 router.post('/repositories/insert', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let apiBaseUrl = `${req.body.repositoryUrl || ''}`
     if (apiBaseUrl.endsWith('/')) {
         apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
@@ -71,8 +71,8 @@ router.post('/repositories/insert', function (req, res, next) {
 })
 
 router.post('/repositories/delete', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let apiBaseUrl = `${req.body.repositoryUrl || ''}`
     if (apiBaseUrl.endsWith('/')) {
         apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
@@ -103,8 +103,8 @@ router.post('/repositories/delete', function (req, res, next) {
 })
 
 router.get('/repositories/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {
@@ -123,8 +123,8 @@ router.get('/repositories/', function (req, res, next) {
 })
 
 router.get('/template/list', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {
@@ -192,8 +192,8 @@ router.get('/template/list', function (req, res, next) {
 router.get('/template/app', function (req, res, next) {
     const baseDomain = req.query.baseDomain as string
     const appName = req.query.appName as string
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {

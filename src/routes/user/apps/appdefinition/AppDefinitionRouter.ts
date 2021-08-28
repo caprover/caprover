@@ -18,8 +18,8 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     Promise.resolve()
         .then(function () {
@@ -41,8 +41,8 @@ router.get('/unusedImages', function (req, res, next) {
 
 // delete images
 router.post('/deleteImages', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
     let imageIds = req.body.imageIds || []
 
     Promise.resolve()
@@ -61,10 +61,10 @@ router.post('/deleteImages', function (req, res, next) {
 
 // Get All App Definitions
 router.get('/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
     let appsArray: IAppDef[] = []
 
     dataStore
@@ -103,8 +103,8 @@ router.get('/', function (req, res, next) {
 })
 
 router.post('/enablebasedomainssl/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName
 
@@ -121,8 +121,8 @@ router.post('/enablebasedomainssl/', function (req, res, next) {
 })
 
 router.post('/customdomain/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let appName = req.body.appName
     let customDomain = (req.body.customDomain || '').toLowerCase()
@@ -143,8 +143,8 @@ router.post('/customdomain/', function (req, res, next) {
 })
 
 router.post('/removecustomdomain/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let appName = req.body.appName
     let customDomain = (req.body.customDomain || '').toLowerCase()
@@ -162,8 +162,8 @@ router.post('/removecustomdomain/', function (req, res, next) {
 })
 
 router.post('/enablecustomdomainssl/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let appName = req.body.appName
     let customDomain = (req.body.customDomain || '').toLowerCase()
@@ -184,10 +184,10 @@ router.post('/enablecustomdomainssl/', function (req, res, next) {
 })
 
 router.post('/register/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName as string
     const hasPersistentData = !!req.body.hasPersistentData
@@ -208,7 +208,8 @@ router.post('/register/', function (req, res, next) {
                 appName,
                 {
                     captainDefinitionContentSource: {
-                        captainDefinitionContent: DEFAULT_APP_CAPTAIN_DEFINITION,
+                        captainDefinitionContent:
+                            DEFAULT_APP_CAPTAIN_DEFINITION,
                         gitHash: '',
                     },
                 }
@@ -244,8 +245,8 @@ router.post('/register/', function (req, res, next) {
 })
 
 router.post('/delete/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let appName = req.body.appName
     let volumes = req.body.volumes || []
@@ -284,8 +285,8 @@ router.post('/delete/', function (req, res, next) {
 })
 
 router.post('/rename/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let oldAppName = req.body.oldAppName + ''
     let newAppName = req.body.newAppName + ''
@@ -306,8 +307,8 @@ router.post('/rename/', function (req, res, next) {
 })
 
 router.post('/update/', function (req, res, next) {
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     let appName = req.body.appName
     let nodeId = req.body.nodeId

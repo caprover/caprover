@@ -45,9 +45,8 @@ function getPushedBranches(req: express.Request) {
 router.post('/triggerbuild', urlencodedParser, function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            const extracted = InjectionExtractor.extractAppAndUserForWebhook(
-                res
-            )
+            const extracted =
+                InjectionExtractor.extractAppAndUserForWebhook(res)
             const { serviceManager, namespace } = extracted.user
             const { appName, app } = extracted
 

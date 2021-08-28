@@ -25,8 +25,8 @@ router.post('/', function (req, res, next) {
 
     let authToken: string
 
-    const namespace = InjectionExtractor.extractGlobalsFromInjected(res)
-        .namespace
+    const namespace =
+        InjectionExtractor.extractGlobalsFromInjected(res).namespace
 
     let loadedHashedPassword = ''
 

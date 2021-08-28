@@ -181,15 +181,13 @@ class AppsDataStore {
                 const appToSave: IAppDefSaved = <IAppDefSaved>app
 
                 if (passwordToBeEncrypted) {
-                    appToSave.appPushWebhook!.repoInfo!.passwordEncrypted = self.encryptor.encrypt(
-                        passwordToBeEncrypted
-                    )
+                    appToSave.appPushWebhook!.repoInfo!.passwordEncrypted =
+                        self.encryptor.encrypt(passwordToBeEncrypted)
                 }
 
                 if (sshKeyToBeEncrypted) {
-                    appToSave.appPushWebhook!.repoInfo!.sshKeyEncrypted = self.encryptor.encrypt(
-                        sshKeyToBeEncrypted
-                    )
+                    appToSave.appPushWebhook!.repoInfo!.sshKeyEncrypted =
+                        self.encryptor.encrypt(sshKeyToBeEncrypted)
                 }
 
                 return appToSave
@@ -716,9 +714,8 @@ class AppsDataStore {
                     appObj.appDeployTokenConfig.appDeployToken = undefined
                 } else if (!appObj.appDeployTokenConfig.appDeployToken) {
                     // App is supposed to have a token, but it doesn't have one yet. The first time use case.
-                    appObj.appDeployTokenConfig.appDeployToken = Utils.generateRandomString(
-                        32
-                    )
+                    appObj.appDeployTokenConfig.appDeployToken =
+                        Utils.generateRandomString(32)
                 }
 
                 if (httpAuth && httpAuth.user) {

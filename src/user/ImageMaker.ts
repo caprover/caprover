@@ -501,10 +501,11 @@ export default class ImageMaker {
                         .then(function (dockerfileExists) {
                             if (!dockerfileExists) return false
 
-                            const captainDefinitionDefault: ICaptainDefinition = {
-                                schemaVersion: 2,
-                                dockerfilePath: `./${DOCKER_FILE}`,
-                            }
+                            const captainDefinitionDefault: ICaptainDefinition =
+                                {
+                                    schemaVersion: 2,
+                                    dockerfilePath: `./${DOCKER_FILE}`,
+                                }
 
                             return fs
                                 .outputFile(

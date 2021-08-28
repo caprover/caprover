@@ -13,8 +13,8 @@ const upload = multer({
 
 router.get('/:appName/logs', function (req, res, next) {
     let appName = req.params.appName
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     return Promise.resolve()
         .then(function () {
@@ -37,8 +37,8 @@ router.get('/:appName/logs', function (req, res, next) {
 
 router.get('/:appName/', function (req, res, next) {
     let appName = req.params.appName
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     return Promise.resolve()
         .then(function () {
@@ -56,8 +56,8 @@ router.get('/:appName/', function (req, res, next) {
 })
 
 router.post('/:appName/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let appName = req.params.appName
 
     dataStore
@@ -74,8 +74,8 @@ router.post(
     '/:appName/',
     upload.single('sourceFile'),
     function (req, res, next) {
-        const serviceManager = InjectionExtractor.extractUserFromInjected(res)
-            .user.serviceManager
+        const serviceManager =
+            InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
         const appName = req.params.appName
         const isDetachedBuild = !!req.query.detached
@@ -95,9 +95,8 @@ router.post(
         }
 
         Promise.resolve().then(function () {
-            const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
-                appName,
-                {
+            const promiseToDeployNewVer =
+                serviceManager.scheduleDeployNewVersion(appName, {
                     uploadedTarPathSource: !!tarballSourceFilePath
                         ? {
                               uploadedTarPath: tarballSourceFilePath,
@@ -110,8 +109,7 @@ router.post(
                               gitHash,
                           }
                         : undefined,
-                }
-            )
+                })
 
             if (isDetachedBuild) {
                 res.send(

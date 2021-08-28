@@ -272,13 +272,14 @@ class DockerRegistryHelper {
                 return self.registriesDataStore.getAllRegistries()
             })
             .then(function (allRegs) {
-                let promiseToAddRegistry = self.registriesDataStore.addRegistryToDb(
-                    registryUser,
-                    registryPassword,
-                    registryDomain,
-                    registryImagePrefix,
-                    registryType
-                )
+                let promiseToAddRegistry =
+                    self.registriesDataStore.addRegistryToDb(
+                        registryUser,
+                        registryPassword,
+                        registryDomain,
+                        registryImagePrefix,
+                        registryType
+                    )
 
                 // Product decision. We want to make the first added registry the default one,
                 // this way, it's easier for new users to grasp the concept of default push registry.

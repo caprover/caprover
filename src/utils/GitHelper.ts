@@ -37,9 +37,8 @@ export default class GitHelper {
             const REPO_GIT_PATH = sanitized.repoPath
             const SSH_PORT = sanitized.port
 
-            const DOMAIN = GitHelper.getDomainFromSanitizedSshRepoPath(
-                REPO_GIT_PATH
-            )
+            const DOMAIN =
+                GitHelper.getDomainFromSanitizedSshRepoPath(REPO_GIT_PATH)
 
             Logger.d(`Cloning SSH ${REPO_GIT_PATH}`)
 

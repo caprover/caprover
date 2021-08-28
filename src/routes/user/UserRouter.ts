@@ -96,10 +96,10 @@ router.use(function (req, res, next) {
 })
 
 router.post('/changepassword/', function (req, res, next) {
-    const namespace = InjectionExtractor.extractUserFromInjected(res).user
-        .namespace
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const namespace =
+        InjectionExtractor.extractUserFromInjected(res).user.namespace
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     Promise.resolve() //
         .then(function (data) {

@@ -14,9 +14,10 @@ const router = express.Router()
 router.post('/enableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get()
     const password = uuid()
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -64,9 +65,10 @@ router.post('/enableregistry/', function (req, res, next) {
 // ERRORS if default push is this
 router.post('/disableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get()
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {

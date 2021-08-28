@@ -119,8 +119,8 @@ router.post('/forcessl/', function (req, res, next) {
 })
 
 router.get('/info/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve()
         .then(function () {
@@ -196,8 +196,8 @@ router.post('/versionInfo/', function (req, res, next) {
 })
 
 router.get('/netdata/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve()
         .then(function () {
@@ -294,9 +294,10 @@ router.get('/nodes/', function (req, res, next) {
 router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager'
     const WORKER = 'worker'
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     let isManager: boolean
 

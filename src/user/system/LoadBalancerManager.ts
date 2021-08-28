@@ -281,7 +281,8 @@ class LoadBalancerManager {
                     serverWithSubDomain.websocketSupport = websocketSupport
                     const httpPort = webApp.containerHttpPort || 80
                     serverWithSubDomain.containerHttpPort = httpPort
-                    serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
+                    serverWithSubDomain.nginxConfigTemplate =
+                        nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
 
                     servers.push(serverWithSubDomain)
