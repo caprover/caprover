@@ -13,5 +13,5 @@
     },
     "typescript.referencesCodeLens.enabled": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "cSpell.words": ["csrf", "definitelytyped", "promisified"]
+    "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"]
 }
