@@ -9,7 +9,7 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-RUN npm ci --production && \
+RUN npm ci && \
      npm cache clean --force && \
      npm run build && \
      mv ./edge-override.json ./config-override.json
