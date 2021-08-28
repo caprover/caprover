@@ -4,6 +4,7 @@
         "pflannery.vscode-versionlens",
         "remimarsal.prettier-now",
         "hookyqr.beautify",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
     ]
 }
