@@ -8,7 +8,7 @@ import * as crypto from 'crypto'
 const itoa64 =
     './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-const DIGEST_ENCODING = 'base64'
+const DIGEST_ENCODING = 'binary'
 export default class ApacheMd5 {
     // To 64 bit version.
     static to64(index: number, count: number) {
