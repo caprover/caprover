@@ -14,9 +14,10 @@ const router = express.Router()
 router.post('/enableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get()
     const password = uuid()
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -40,8 +41,8 @@ router.post('/enableregistry/', function (req, res, next) {
                     )
                 }
             }
-            let user = CaptainConstants.captainRegistryUsername
-            let domain = captainManager
+            const user = CaptainConstants.captainRegistryUsername
+            const domain = captainManager
                 .getDockerRegistry()
                 .getLocalRegistryDomainAndPort()
 
@@ -54,7 +55,7 @@ router.post('/enableregistry/', function (req, res, next) {
             )
         })
         .then(function () {
-            let msg = 'Local registry is created.'
+            const msg = 'Local registry is created.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })
@@ -64,9 +65,10 @@ router.post('/enableregistry/', function (req, res, next) {
 // ERRORS if default push is this
 router.post('/disableregistry/', function (req, res, next) {
     const captainManager = CaptainManager.get()
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
@@ -87,7 +89,7 @@ router.post('/disableregistry/', function (req, res, next) {
             return captainManager.getDockerRegistry().ensureServiceRemoved()
         })
         .then(function () {
-            let msg = 'Local registry is removed.'
+            const msg = 'Local registry is removed.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })

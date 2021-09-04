@@ -10,6 +10,11 @@ export abstract class VolumesTypes {
 
 export type AnyError = any
 
+export type PreDeployFunction = (
+    appDef: IAppDef | undefined,
+    updatedData: any
+) => Promise<void>
+
 export interface IDockerApiPort {
     Protocol: string
     TargetPort: number

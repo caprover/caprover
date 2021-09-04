@@ -3,17 +3,15 @@
     "search.exclude": {
         "**/node_modules": true,
         "**/bower_components": true,
-        "**/dist": true,
+        "**/built": true,
         "**/coverge": true
     },
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
     },
     "typescript.referencesCodeLens.enabled": true,
-    "tslint.ignoreDefinitionFiles": false,
-    "tslint.autoFixOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "tslint.exclude": "**/node_modules/**/*",
-    "cSpell.words": ["csrf", "definitelytyped", "promisified"]
+    "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"]
 }

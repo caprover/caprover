@@ -20,9 +20,9 @@ function checkSystemReq() {
             console.log(' ')
             console.log(' >>> Checking System Compatibility <<<')
 
-            let ver = output.Version.split('.')
-            let maj = Number(ver[0])
-            let min = Number(ver[1])
+            const ver = output.Version.split('.')
+            const maj = Number(ver[0])
+            const min = Number(ver[1])
 
             let versionOk = false
 
@@ -59,7 +59,7 @@ function checkSystemReq() {
                 console.log('   X86 CPU detected.')
             }
 
-            let totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0)
+            const totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0)
 
             if (totalMemInMb < 1000) {
                 console.log(
@@ -292,14 +292,14 @@ export function install() {
             return DockerApi.get().getLeaderNodeId()
         })
         .then(function (nodeId: string) {
-            let volumeToMount = [
+            const volumeToMount = [
                 {
                     hostPath: CaptainConstants.captainBaseDirectory,
                     containerPath: CaptainConstants.captainBaseDirectory,
                 },
             ]
 
-            let env = [] as IAppEnvVar[]
+            const env = [] as IAppEnvVar[]
             env.push({
                 key: EnvVar.keys.IS_CAPTAIN_INSTANCE,
                 value: '1',
@@ -324,7 +324,7 @@ export function install() {
                 })
             }
 
-            let ports: IAppPort[] = []
+            const ports: IAppPort[] = []
 
             let captainNameAndVersion = `${CaptainConstants.configs.publishedNameOnDockerHub}:${CaptainConstants.configs.version}`
 

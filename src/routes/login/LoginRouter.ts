@@ -12,10 +12,10 @@ const router = express.Router()
 const failedLoginCircularTimestamps = new CircularQueue<number>(5)
 
 router.post('/', function (req, res, next) {
-    let password = req.body.password || ''
+    const password = req.body.password || ''
 
     if (!password) {
-        let response = new BaseApi(
+        const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_GENERIC,
             'password is empty.'
         )
@@ -25,8 +25,8 @@ router.post('/', function (req, res, next) {
 
     let authToken: string
 
-    const namespace = InjectionExtractor.extractGlobalsFromInjected(res)
-        .namespace
+    const namespace =
+        InjectionExtractor.extractGlobalsFromInjected(res).namespace
 
     let loadedHashedPassword = ''
 
@@ -59,7 +59,7 @@ router.post('/', function (req, res, next) {
         })
         .then(function (cookieAuth) {
             res.cookie(CaptainConstants.headerCookieAuth, cookieAuth)
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Login succeeded'
             )

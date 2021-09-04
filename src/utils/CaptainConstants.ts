@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.9.0',
+    version: '1.10.0',
 
     defaultMaxLogSize: '512m',
 
@@ -44,9 +44,11 @@ const configs = {
     nginxImageName: 'nginx:1',
 
     defaultEmail: 'runner@caprover.com',
+
+    captainSubDomain: 'captain',
 }
 
-let data = {
+const data = {
     configs: configs, // values that can be overridden
 
     // ******************** Global Constants *********************
@@ -149,13 +151,13 @@ let data = {
 
     healthCheckEndPoint: '/checkhealth',
 
-    captainSubDomain: 'captain',
-
     registrySubDomain: 'registry',
 
     headerCookieAuth: 'captainCookieAuth',
 
     headerAuth: 'x-captain-auth',
+
+    headerAppToken: 'x-captain-app-token',
 
     headerNamespace: 'x-namespace',
 
@@ -163,15 +165,18 @@ let data = {
 
     disableFirewallCommand:
         'ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
+
+    gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }
 
 function overrideFromFile(fileName: string) {
-    let overridingValuesConfigs = fs.readJsonSync(fileName, {
+    const overridingValuesConfigs = fs.readJsonSync(fileName, {
         throws: false,
     })
 
-    if (!!overridingValuesConfigs) {
-        for (let prop in overridingValuesConfigs) {
+    if (overridingValuesConfigs) {
+        for (const prop in overridingValuesConfigs) {
+            // eslint-disable-next-line no-prototype-builtins
             if (!overridingValuesConfigs.hasOwnProperty(prop)) {
                 continue
             }
@@ -188,7 +193,7 @@ overrideFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
 overrideFromFile(CONSTANT_FILE_OVERRIDE_USER)
 
 if (data.isDebug) {
-    let devDirectoryOnLocalMachine = fs
+    const devDirectoryOnLocalMachine = fs
         .readFileSync(__dirname + '/../../currentdirectory')
         .toString()
         .trim()

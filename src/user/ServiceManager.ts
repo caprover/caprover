@@ -2,6 +2,7 @@ import { ImageInfo } from 'dockerode'
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
+import { PreDeployFunction } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
@@ -91,7 +92,7 @@ class ServiceManager {
     scheduleDeployNewVersion(appName: string, source: IImageSource) {
         const self = this
 
-        let activeBuildAppName = self.isAnyBuildRunning()
+        const activeBuildAppName = self.isAnyBuildRunning()
         this.activeOrScheduledBuilds[appName] = true
 
         self.buildLogsManager.getAppBuildLogs(appName).clear()
@@ -128,13 +129,13 @@ class ServiceManager {
                     `An active build (${activeBuildAppName}) is in progress. This build is queued...`
                 )
 
-            let promiseToSave: QueuedPromise = {
+            const promiseToSave: QueuedPromise = {
                 resolve: undefined,
                 reject: undefined,
                 promise: undefined,
             }
 
-            let promise = new Promise(function (resolve, reject) {
+            const promise = new Promise(function (resolve, reject) {
                 promiseToSave.resolve = resolve
                 promiseToSave.reject = reject
             })
@@ -166,12 +167,28 @@ class ServiceManager {
                     .getAppsDataStore()
                     .getAppDefinition(appName)
                     .then(function (app) {
+                        const envVars = app.envVars || []
+
+                        const includesGitCommitEnvVar = envVars.find(
+                            (envVar) =>
+                                envVar.key === CaptainConstants.gitShaEnvVarKey
+                        )
+                        const gitHash =
+                            source.captainDefinitionContentSource?.gitHash ||
+                            source.uploadedTarPathSource?.gitHash
+                        if (gitHash && !includesGitCommitEnvVar) {
+                            envVars.push({
+                                key: CaptainConstants.gitShaEnvVarKey,
+                                value: gitHash,
+                            })
+                        }
+
                         return self.imageMaker.ensureImage(
                             source,
                             appName,
                             app.captainDefinitionRelativeFilePath,
                             appVersion,
-                            app.envVars
+                            envVars
                         )
                     })
             })
@@ -202,7 +219,7 @@ class ServiceManager {
         self.activeOrScheduledBuilds[appName] = false
 
         Promise.resolve().then(function () {
-            let newBuild = self.queuedBuilds.shift()
+            const newBuild = self.queuedBuilds.shift()
             if (newBuild)
                 self.startDeployingNewVersion(newBuild.appName, newBuild.source)
         })
@@ -258,38 +275,13 @@ class ServiceManager {
         return Promise.resolve()
             .then(function () {
                 const rootDomain = self.dataStore.getRootDomain()
-                const dotRootDomain = `.${rootDomain}`
 
-                if (!customDomain || !/^[a-z0-9\-\.]+$/.test(customDomain)) {
+                try {
+                    Utils.checkCustomDomain(customDomain, appName, rootDomain)
+                } catch (error) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'Domain name is not accepted. Please use alphanumerical domains such as myapp.google123.ca'
-                    )
-                }
-
-                if (customDomain.length > 80) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'Domain name is not accepted. Please use alphanumerical domains less than 80 characters in length.'
-                    )
-                }
-
-                if (customDomain.indexOf('..') >= 0) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'Domain name is not accepted. You cannot have two consecutive periods ".." inside a domain name. Please use alphanumerical domains such as myapp.google123.ca'
-                    )
-                }
-
-                if (
-                    customDomain.indexOf(dotRootDomain) >= 0 &&
-                    customDomain.indexOf(dotRootDomain) +
-                        dotRootDomain.length ===
-                        customDomain.length
-                ) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'Domain name is not accepted. Custom domain cannot be subdomain of root domain.'
+                        error
                     )
                 }
             })
@@ -621,7 +613,9 @@ class ServiceManager {
         })
     }
 
-    createPreDeployFunctionIfExist(app: IAppDef): Function | undefined {
+    createPreDeployFunctionIfExist(
+        app: IAppDef
+    ): PreDeployFunction | undefined {
         let preDeployFunction = app.preDeployFunction
 
         if (!preDeployFunction) {
@@ -673,7 +667,8 @@ class ServiceManager {
         customNginxConfig: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
-        websocketSupport: boolean
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
     ) {
         const self = this
         const dataStore = this.dataStore
@@ -756,7 +751,7 @@ class ServiceManager {
                 }
             })
             .then(function () {
-                serviceUpdateOverride = !!serviceUpdateOverride
+                serviceUpdateOverride = serviceUpdateOverride
                     ? `${serviceUpdateOverride}`.trim()
                     : ''
                 if (!serviceUpdateOverride) {
@@ -792,7 +787,8 @@ class ServiceManager {
                         customNginxConfig,
                         preDeployFunction,
                         serviceUpdateOverride,
-                        websocketSupport
+                        websocketSupport,
+                        appDeployTokenConfig
                     )
             })
             .then(function () {
@@ -815,7 +811,7 @@ class ServiceManager {
         const activeBuilds = this.activeOrScheduledBuilds
 
         for (const appName in activeBuilds) {
-            if (!!activeBuilds[appName]) {
+            if (activeBuilds[appName]) {
                 return appName
             }
         }
@@ -829,8 +825,8 @@ class ServiceManager {
         return {
             isAppBuilding: self.isAppBuilding(appName),
             logs: self.buildLogsManager.getAppBuildLogs(appName).getLogs(),
-            isBuildFailed: self.buildLogsManager.getAppBuildLogs(appName)
-                .isBuildFailed,
+            isBuildFailed:
+                self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
         }
     }
 

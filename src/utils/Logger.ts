@@ -1,6 +1,6 @@
+import * as moment from 'moment'
 import { AnyError } from '../models/OtherTypes'
 import CaptainConstants from './CaptainConstants'
-const moment = require('moment')
 
 function errorize(error: AnyError) {
     if (!(error instanceof Error)) {
@@ -30,7 +30,7 @@ class Logger {
     }
 
     static e(msgOrError: AnyError) {
-        let err = errorize(msgOrError)
+        const err = errorize(msgOrError)
         console.error(`${getTime() + err}
 ${err.stack}`)
     }

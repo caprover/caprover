@@ -35,7 +35,7 @@ router.post('/createbackup/', function (req, res, next) {
 })
 
 router.post('/changerootdomain/', function (req, res, next) {
-    let requestedCustomDomain = Utils.removeHttpHttps(
+    const requestedCustomDomain = Utils.removeHttpHttps(
         (req.body.rootDomain || '').toLowerCase()
     )
 
@@ -101,7 +101,7 @@ router.post('/enablessl/', function (req, res, next) {
 })
 
 router.post('/forcessl/', function (req, res, next) {
-    let isEnabled = !!req.body.isEnabled
+    const isEnabled = !!req.body.isEnabled
 
     CaptainManager.get()
         .forceSsl(isEnabled)
@@ -119,8 +119,8 @@ router.post('/forcessl/', function (req, res, next) {
 })
 
 router.get('/info/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve()
         .then(function () {
@@ -136,7 +136,7 @@ router.get('/info/', function (req, res, next) {
             }
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Captain info retrieved'
             )
@@ -152,7 +152,7 @@ router.get('/loadbalancerinfo/', function (req, res, next) {
             return CaptainManager.get().getLoadBalanceManager().getInfo()
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Load Balancer info retrieved'
             )
@@ -168,7 +168,7 @@ router.get('/versionInfo/', function (req, res, next) {
             return VersionManager.get().getCaptainImageTags()
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Version Info Retrieved'
             )
@@ -179,14 +179,14 @@ router.get('/versionInfo/', function (req, res, next) {
 })
 
 router.post('/versionInfo/', function (req, res, next) {
-    let latestVersion = req.body.latestVersion
+    const latestVersion = req.body.latestVersion
 
     return Promise.resolve()
         .then(function () {
             return VersionManager.get().updateCaptain(latestVersion)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Captain update process has started...'
             )
@@ -196,8 +196,8 @@ router.post('/versionInfo/', function (req, res, next) {
 })
 
 router.get('/netdata/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve()
         .then(function () {
@@ -205,11 +205,11 @@ router.get('/netdata/', function (req, res, next) {
         })
         .then(function (data) {
             data.netDataUrl = `${
-                CaptainConstants.captainSubDomain
+                CaptainConstants.configs.captainSubDomain
             }.${dataStore.getRootDomain()}${
                 CaptainConstants.netDataRelativePath
             }`
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Netdata info retrieved'
             )
@@ -220,7 +220,7 @@ router.get('/netdata/', function (req, res, next) {
 })
 
 router.post('/netdata/', function (req, res, next) {
-    let netDataInfo = req.body.netDataInfo
+    const netDataInfo = req.body.netDataInfo
     netDataInfo.netDataUrl = undefined // Frontend app returns this value, but we really don't wanna save this.
     // root address is subject to change.
 
@@ -229,7 +229,7 @@ router.post('/netdata/', function (req, res, next) {
             return CaptainManager.get().updateNetDataInfo(netDataInfo)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Netdata info is updated'
             )
@@ -244,7 +244,7 @@ router.get('/nginxconfig/', function (req, res, next) {
             return CaptainManager.get().getNginxConfig()
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Nginx config retrieved'
             )
@@ -255,8 +255,8 @@ router.get('/nginxconfig/', function (req, res, next) {
 })
 
 router.post('/nginxconfig/', function (req, res, next) {
-    let baseConfigCustomValue = req.body.baseConfig.customValue
-    let captainConfigCustomValue = req.body.captainConfig.customValue
+    const baseConfigCustomValue = req.body.baseConfig.customValue
+    const captainConfigCustomValue = req.body.captainConfig.customValue
 
     return Promise.resolve()
         .then(function () {
@@ -266,7 +266,7 @@ router.post('/nginxconfig/', function (req, res, next) {
             )
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Nginx config is updated'
             )
@@ -281,7 +281,7 @@ router.get('/nodes/', function (req, res, next) {
             return CaptainManager.get().getNodesInfo()
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Node info retrieved'
             )
@@ -294,9 +294,10 @@ router.get('/nodes/', function (req, res, next) {
 router.post('/nodes/', function (req, res, next) {
     const MANAGER = 'manager'
     const WORKER = 'worker'
-    const registryHelper = InjectionExtractor.extractUserFromInjected(
-        res
-    ).user.serviceManager.getRegistryHelper()
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     let isManager: boolean
 
@@ -314,11 +315,11 @@ router.post('/nodes/', function (req, res, next) {
         return
     }
 
-    let privateKey = req.body.privateKey
-    let remoteNodeIpAddress = req.body.remoteNodeIpAddress
-    let captainIpAddress = req.body.captainIpAddress
-    let sshPort = parseInt(req.body.sshPort) || 22
-    let sshUser = (req.body.sshUser || 'root').trim()
+    const privateKey = req.body.privateKey
+    const remoteNodeIpAddress = req.body.remoteNodeIpAddress
+    const captainIpAddress = req.body.captainIpAddress
+    const sshPort = parseInt(req.body.sshPort) || 22
+    const sshUser = (req.body.sshUser || 'root').trim()
 
     if (!captainIpAddress || !remoteNodeIpAddress || !privateKey) {
         res.send(
@@ -354,7 +355,7 @@ router.post('/nodes/', function (req, res, next) {
             )
         })
         .then(function () {
-            let msg = 'Docker node is successfully joined.'
+            const msg = 'Docker node is successfully joined.'
             Logger.d(msg)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, msg))
         })

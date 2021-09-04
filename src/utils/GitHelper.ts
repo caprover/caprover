@@ -27,7 +27,7 @@ export default class GitHelper {
         const USER = encodeURIComponent(username)
         const PASS = encodeURIComponent(pass)
 
-        if (!!sshKey) {
+        if (sshKey) {
             const SSH_KEY_PATH = path.join(
                 CaptainConstants.captainRootDirectoryTemp,
                 uuid.v4()
@@ -37,9 +37,8 @@ export default class GitHelper {
             const REPO_GIT_PATH = sanitized.repoPath
             const SSH_PORT = sanitized.port
 
-            const DOMAIN = GitHelper.getDomainFromSanitizedSshRepoPath(
-                REPO_GIT_PATH
-            )
+            const DOMAIN =
+                GitHelper.getDomainFromSanitizedSshRepoPath(REPO_GIT_PATH)
 
             Logger.d(`Cloning SSH ${REPO_GIT_PATH}`)
 
@@ -78,12 +77,17 @@ export default class GitHelper {
             // Some people put https when they are entering their git information
             const REPO_PATH = GitHelper.sanitizeRepoPathHttps(repo)
 
-            const remote = `https://${USER}:${PASS}@${REPO_PATH}`
+            // respect the explicit http repo path
+            const SCHEME = repo.startsWith('http://') ? 'http' : 'https'
+
+            const remote = `${SCHEME}://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
                 .raw(['clone', '--recursive', '-b', branch, remote, directory])
-                .then(function () {})
+                .then(function () {
+                    //
+                })
         }
     }
 
@@ -111,7 +115,9 @@ export default class GitHelper {
         input = Utils.removeHttpHttps(input)
         if (!input.startsWith('git@')) {
             // If we get here, we have something like github.com/username/repository.git
-            input = input.replace('/', ':')
+            if (input.indexOf(':') < 0) {
+                input = input.replace('/', ':')
+            }
             input = `git@${input}`
         }
 

@@ -250,7 +250,8 @@ export default class MigrateCaptainDuckDuck {
                             return Promise.resolve()
                                 .then(function () {
                                     const customDomains = app.customDomain || []
-                                    const hasDefaultSubDomainSsl = !!app.hasDefaultSubDomainSsl
+                                    const hasDefaultSubDomainSsl =
+                                        !!app.hasDefaultSubDomainSsl
                                     return appStore.addCustomDomainForAppForMigration(
                                         appName,
                                         hasDefaultSubDomainSsl,
@@ -260,22 +261,24 @@ export default class MigrateCaptainDuckDuck {
                                 .then(function () {
                                     const oldVers: any[] = app.versions || []
                                     const newVers: IAppVersion[] = []
-                                    const newVersOnlyDeployVersion: IAppVersion[] = []
+                                    const newVersOnlyDeployVersion: IAppVersion[] =
+                                        []
                                     const deployedVersion = Number(
                                         app.deployedVersion
                                     )
 
                                     oldVers.forEach((element) => {
-                                        let thisVersion = Number(
+                                        const thisVersion = Number(
                                             element.version
                                         )
 
                                         let deployedImageName = `img-captain--${appName}:${thisVersion}`
 
                                         if (thisVersion === deployedVersion) {
-                                            deployedImageName = findCurrentlyInUseImageForApp(
-                                                appName
-                                            )
+                                            deployedImageName =
+                                                findCurrentlyInUseImageForApp(
+                                                    appName
+                                                )
 
                                             // Only add the currently deployed version. Revert won't work for other versions as
                                             // it's impossible to guess their image name correct 100% due to the fact that
@@ -335,14 +338,19 @@ export default class MigrateCaptainDuckDuck {
                                         app.customNginxConfig,
                                         app.preDeployFunction,
                                         '',
-                                        false
+                                        false,
+                                        {
+                                            enabled: false,
+                                        }
                                     )
                                 })
                         })
                     promises.push(p)
                 })
 
-                return Promise.all(promises).then(function () {})
+                return Promise.all(promises).then(function () {
+                    //
+                })
             })
             .then(function () {
                 Logger.d(

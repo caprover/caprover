@@ -5,6 +5,7 @@ import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,
     IDockerContainerResource,
+    PreDeployFunction,
     VolumesTypes,
 } from '../models/OtherTypes'
 import BuildLog from '../user/BuildLog'
@@ -12,13 +13,13 @@ import CaptainConstants from '../utils/CaptainConstants'
 import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
-const dockerodeUtils = require('dockerode/lib/util')
+import Dockerode = require('dockerode')
+// @ts-ignore
+import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 
-function safeParseChunk(
-    chunk: string
-): {
+function safeParseChunk(chunk: string): {
     stream?: string
     error?: any
     errorDetail?: any
@@ -159,7 +160,7 @@ class DockerApi {
                 return self.dockerode.listServices()
             })
             .then(function (services) {
-                return ((services || []) as unknown) as DockerService[]
+                return (services || []) as unknown as DockerService[]
             })
     }
 
@@ -264,10 +265,10 @@ class DockerApi {
                     )
                 }
 
-                const optionsForBuild = {
+                const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
-                } as any
+                }
 
                 if (Object.keys(registryConfig).length > 0) {
                     // https://github.com/apocas/dockerode/blob/ed6ef39e0fc81963fedf208c7e0854d8a44cb9a8/lib/docker.js#L271-L274
@@ -278,7 +279,7 @@ class DockerApi {
 
                 return self.dockerode.buildImage(
                     tarballFilePath,
-                    optionsForBuild as {}
+                    optionsForBuild
                 )
             })
             .then(function (stream) {
@@ -1239,7 +1240,7 @@ class DockerApi {
         appObject: IAppDef | undefined,
         updateOrder: IDockerUpdateOrder | undefined,
         serviceUpdateOverride: any | undefined,
-        preDeployFunction: Function | undefined
+        preDeployFunction: PreDeployFunction | undefined
     ) {
         const self = this
         return self.dockerode
@@ -1275,7 +1276,8 @@ class DockerApi {
                         }
                     }
                     newConstraints.push(`node.id == ${nodeId}`)
-                    updatedData.TaskTemplate.Placement.Constraints = newConstraints
+                    updatedData.TaskTemplate.Placement.Constraints =
+                        newConstraints
                 }
 
                 if (arrayOfEnvKeyAndValue) {
@@ -1319,7 +1321,7 @@ class DockerApi {
                     for (let idx = 0; idx < volumes.length; idx++) {
                         const v = volumes[idx]
 
-                        if (!!v.hostPath) {
+                        if (v.hostPath) {
                             mts.push({
                                 Source: v.hostPath,
                                 Target: v.containerPath,
@@ -1327,7 +1329,7 @@ class DockerApi {
                                 ReadOnly: false,
                                 Consistency: 'default',
                             })
-                        } else if (!!v.volumeName) {
+                        } else if (v.volumeName) {
                             // named volumes are created here:
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
@@ -1421,7 +1423,7 @@ class DockerApi {
                             updatedData.UpdateConfig.Order = 'stop-first'
                             break
                         default:
-                            let neverHappens: never = updateOrder
+                            const neverHappens: never = updateOrder
                             throw new Error(
                                 `Unknown update order! ${updateOrder}${neverHappens}`
                             )
@@ -1437,7 +1439,8 @@ class DockerApi {
                 // to restart once. Once rebooted, all changes start showing up.
                 updatedData.TaskTemplate.ContainerSpec.Labels =
                     updatedData.TaskTemplate.ContainerSpec.Labels || {}
-                updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate = uuid()
+                updatedData.TaskTemplate.ContainerSpec.Labels.randomLabelForceUpdate =
+                    uuid()
 
                 updatedData.authconfig = authObject
 
@@ -1546,8 +1549,9 @@ class DockerApi {
                     .logs({
                         tail: tailCount,
                         follow: false,
-                        timestamps: !!CaptainConstants.configs
-                            .enableDockerLogsTimestamp,
+                        timestamps:
+                            !!CaptainConstants.configs
+                                .enableDockerLogsTimestamp,
                         stdout: true,
                         stderr: true,
                     })

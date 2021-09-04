@@ -20,8 +20,8 @@ interface IOneClickAppIdentifier {
 }
 
 router.post('/repositories/insert', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let apiBaseUrl = `${req.body.repositoryUrl || ''}`
     if (apiBaseUrl.endsWith('/')) {
         apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
@@ -61,7 +61,7 @@ router.post('/repositories/insert', function (req, res, next) {
             return dataStore.insertOneClickBaseUrl(apiBaseUrl)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 `One Click apps repository URL is saved: ${apiBaseUrl}`
             )
@@ -71,8 +71,8 @@ router.post('/repositories/insert', function (req, res, next) {
 })
 
 router.post('/repositories/delete', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     let apiBaseUrl = `${req.body.repositoryUrl || ''}`
     if (apiBaseUrl.endsWith('/')) {
         apiBaseUrl = apiBaseUrl.substring(0, apiBaseUrl.length - 1)
@@ -93,7 +93,7 @@ router.post('/repositories/delete', function (req, res, next) {
             return dataStore.deleteOneClickBaseUrl(apiBaseUrl)
         })
         .then(function () {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 `One Click apps repository URL is deleted ${apiBaseUrl}`
             )
@@ -103,15 +103,15 @@ router.post('/repositories/delete', function (req, res, next) {
 })
 
 router.get('/repositories/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {
             return dataStore.getAllOneClickBaseUrls()
         })
         .then(function (urls) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'One click repositories are retrieved '
             )
@@ -123,8 +123,8 @@ router.get('/repositories/', function (req, res, next) {
 })
 
 router.get('/template/list', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {
@@ -178,7 +178,7 @@ router.get('/template/list', function (req, res, next) {
             return allApps
         })
         .then(function (allApps) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'All one click apps are retrieved'
             )
@@ -192,8 +192,8 @@ router.get('/template/list', function (req, res, next) {
 router.get('/template/app', function (req, res, next) {
     const baseDomain = req.query.baseDomain as string
     const appName = req.query.appName as string
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve() //
         .then(function () {
@@ -215,7 +215,7 @@ router.get('/template/app', function (req, res, next) {
             })
         })
         .then(function (appTemplate) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App template is retrieved'
             )

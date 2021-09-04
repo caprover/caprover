@@ -22,7 +22,7 @@ import Utils from './utils/Utils'
 
 const httpProxy = httpProxyImport.createProxyServer({})
 
-let app = express()
+const app = express()
 
 app.set('views', path.join(__dirname, '../views'))
 app.set('view engine', 'ejs')
@@ -77,11 +77,11 @@ app.use(Injector.injectGlobal())
 
 app.use(function (req, res, next) {
     if (InjectionExtractor.extractGlobalsFromInjected(res).forceSsl) {
-        let isRequestSsl =
+        const isRequestSsl =
             req.secure || req.get('X-Forwarded-Proto') === 'https'
 
         if (!isRequestSsl) {
-            let newUrl = `https://${req.get('host')}${req.originalUrl}`
+            const newUrl = `https://${req.get('host')}${req.originalUrl}`
             res.redirect(302, newUrl)
             return
         }
@@ -105,10 +105,10 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
         req.originalUrl.indexOf(CaptainConstants.netDataRelativePath + '/') !==
         0
     ) {
-        let isRequestSsl =
+        const isRequestSsl =
             req.secure || req.get('X-Forwarded-Proto') === 'https'
 
-        let newUrl =
+        const newUrl =
             (isRequestSsl ? 'https://' : 'http://') +
             req.get('host') +
             CaptainConstants.netDataRelativePath +
@@ -173,7 +173,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 
 //  *********************  Beginning of API End Points  *******************************************
 
-let API_PREFIX = '/api/'
+const API_PREFIX = '/api/'
 
 app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
     if (req.params.apiVersionFromRequest !== CaptainConstants.apiVersion) {
@@ -187,7 +187,7 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
     }
 
     if (!InjectionExtractor.extractGlobalsFromInjected(res).initialized) {
-        let response = new BaseApi(
+        const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED,
             'Captain is not ready yet...'
         )

@@ -12,9 +12,9 @@ const upload = multer({
 })
 
 router.get('/:appName/logs', function (req, res, next) {
-    let appName = req.params.appName
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const appName = req.params.appName
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     return Promise.resolve()
         .then(function () {
@@ -25,7 +25,7 @@ router.get('/:appName/logs', function (req, res, next) {
             )
         })
         .then(function (logs) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App runtime logs are retrieved'
             )
@@ -36,16 +36,16 @@ router.get('/:appName/logs', function (req, res, next) {
 })
 
 router.get('/:appName/', function (req, res, next) {
-    let appName = req.params.appName
-    const serviceManager = InjectionExtractor.extractUserFromInjected(res).user
-        .serviceManager
+    const appName = req.params.appName
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     return Promise.resolve()
         .then(function () {
             return serviceManager.getBuildStatus(appName)
         })
         .then(function (data) {
-            let baseApi = new BaseApi(
+            const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'App build status retrieved'
             )
@@ -56,9 +56,9 @@ router.get('/:appName/', function (req, res, next) {
 })
 
 router.post('/:appName/', function (req, res, next) {
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
-    let appName = req.params.appName
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const appName = req.params.appName
 
     dataStore
         .getAppsDataStore()
@@ -74,15 +74,15 @@ router.post(
     '/:appName/',
     upload.single('sourceFile'),
     function (req, res, next) {
-        const serviceManager = InjectionExtractor.extractUserFromInjected(res)
-            .user.serviceManager
+        const serviceManager =
+            InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
         const appName = req.params.appName
         const isDetachedBuild = !!req.query.detached
         const captainDefinitionContent =
             (req.body.captainDefinitionContent || '') + ''
         const gitHash = (req.body.gitHash || '') + ''
-        let tarballSourceFilePath: string = !!req.file ? req.file.path : ''
+        const tarballSourceFilePath: string = req.file ? req.file.path : ''
 
         if (!!tarballSourceFilePath === !!captainDefinitionContent) {
             res.send(
@@ -95,23 +95,21 @@ router.post(
         }
 
         Promise.resolve().then(function () {
-            const promiseToDeployNewVer = serviceManager.scheduleDeployNewVersion(
-                appName,
-                {
-                    uploadedTarPathSource: !!tarballSourceFilePath
+            const promiseToDeployNewVer =
+                serviceManager.scheduleDeployNewVersion(appName, {
+                    uploadedTarPathSource: tarballSourceFilePath
                         ? {
                               uploadedTarPath: tarballSourceFilePath,
                               gitHash,
                           }
                         : undefined,
-                    captainDefinitionContentSource: !!captainDefinitionContent
+                    captainDefinitionContentSource: captainDefinitionContent
                         ? {
                               captainDefinitionContent,
                               gitHash,
                           }
                         : undefined,
-                }
-            )
+                })
 
             if (isDetachedBuild) {
                 res.send(

@@ -71,6 +71,7 @@ function firstEndsWithSecond(str1: string, str2: string) {
 
 function isEmpty(obj: any) {
     for (const key in obj) {
+        // eslint-disable-next-line no-prototype-builtins
         if (obj.hasOwnProperty(key)) {
             return false
         }

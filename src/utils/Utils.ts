@@ -1,3 +1,4 @@
+import * as crypto from 'crypto'
 import { remove } from 'fs-extra'
 import * as yaml from 'yaml'
 import Logger from './Logger'
@@ -8,6 +9,13 @@ export default class Utils {
         input = input.replace(/^(?:http?:\/\/)?/i, '')
         input = input.replace(/^(?:https?:\/\/)?/i, '')
         return input
+    }
+
+    static generateRandomString(byteLength?: number) {
+        if (!byteLength) {
+            byteLength = 12
+        }
+        return crypto.randomBytes(byteLength).toString('hex')
     }
 
     static isValidIp(ip: string) {
@@ -43,7 +51,7 @@ export default class Utils {
     }
 
     static convertYamlOrJsonToObject(raw: string | undefined) {
-        raw = !!raw ? `${raw}`.trim() : ''
+        raw = raw ? `${raw}`.trim() : ''
         if (!raw.length) {
             return undefined
         }
@@ -93,7 +101,7 @@ export default class Utils {
     }
 
     static filterInPlace<T>(arr: T[], condition: (value: T) => boolean) {
-        let newArray = arr.filter(condition)
+        const newArray = arr.filter(condition)
         arr.splice(0, arr.length)
         newArray.forEach((value) => arr.push(value))
     }
@@ -111,7 +119,7 @@ export default class Utils {
         promises: (() => Promise<void>)[],
         curr?: number
     ): Promise<void> {
-        let currCorrected = curr ? curr : 0
+        const currCorrected = curr ? curr : 0
         if (promises.length > currCorrected) {
             return promises[currCorrected]().then(function () {
                 return Utils.runPromises(promises, currCorrected + 1)
@@ -119,5 +127,35 @@ export default class Utils {
         }
 
         return Promise.resolve()
+    }
+
+    static checkCustomDomain(
+        customDomain: string,
+        appName: string,
+        rootDomain: string
+    ) {
+        const dotRootDomain = `.${rootDomain}`
+        const dotAppDomain = `.${appName}${dotRootDomain}`
+
+        if (!customDomain || !/^[a-z0-9\-\.]+$/.test(customDomain)) {
+            throw 'Domain name is not accepted. Please use alphanumerical domains such as myapp.google123.ca'
+        }
+
+        if (customDomain.length > 80) {
+            throw 'Domain name is not accepted. Please use alphanumerical domains less than 80 characters in length.'
+        }
+
+        if (customDomain.indexOf('..') >= 0) {
+            throw 'Domain name is not accepted. You cannot have two consecutive periods ".." inside a domain name. Please use alphanumerical domains such as myapp.google123.ca'
+        }
+
+        if (
+            customDomain.indexOf(dotAppDomain) === -1 &&
+            customDomain.indexOf(dotRootDomain) >= 0 &&
+            customDomain.indexOf(dotRootDomain) + dotRootDomain.length ===
+                customDomain.length
+        ) {
+            throw 'Domain name is not accepted. Custom domain cannot be subdomain of root domain.'
+        }
     }
 }

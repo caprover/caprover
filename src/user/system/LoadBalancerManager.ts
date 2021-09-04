@@ -46,8 +46,8 @@ class LoadBalancerManager {
     private reloadInProcess: boolean
     private requestedReloadPromises: {
         dataStore: DataStore
-        resolve: Function
-        reject: Function
+        resolve: VoidFunction
+        reject: (reason: any) => void
     }[]
     private captainPublicRandomKey: string
 
@@ -78,7 +78,7 @@ class LoadBalancerManager {
             })
             self.consumeQueueIfAnyInNginxReloadQueue()
         }).then(function () {
-            if (!!noReload) return
+            if (noReload) return
             Logger.d('sendReloadSignal...')
             return self.dockerApi.sendSingleContainerKillHUP(
                 CaptainConstants.nginxServiceName
@@ -281,7 +281,8 @@ class LoadBalancerManager {
                     serverWithSubDomain.websocketSupport = websocketSupport
                     const httpPort = webApp.containerHttpPort || 80
                     serverWithSubDomain.containerHttpPort = httpPort
-                    serverWithSubDomain.nginxConfigTemplate = nginxConfigTemplate
+                    serverWithSubDomain.nginxConfigTemplate =
+                        nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
 
                     servers.push(serverWithSubDomain)
@@ -385,7 +386,7 @@ class LoadBalancerManager {
         const self = this
 
         const captainDomain = `${
-            CaptainConstants.captainSubDomain
+            CaptainConstants.configs.captainSubDomain
         }.${dataStore.getRootDomain()}`
         const registryDomain = `${
             CaptainConstants.registrySubDomain

@@ -397,10 +397,10 @@ export default class ImageMaker {
                 const hasDockerfileLines =
                     data.dockerfileLines && data.dockerfileLines.length > 0
 
-                let numberOfProperties =
-                    (!!data.templateId ? 1 : 0) +
-                    (!!data.imageName ? 1 : 0) +
-                    (!!data.dockerfilePath ? 1 : 0) +
+                const numberOfProperties =
+                    (data.templateId ? 1 : 0) +
+                    (data.imageName ? 1 : 0) +
+                    (data.dockerfilePath ? 1 : 0) +
                     (hasDockerfileLines ? 1 : 0)
 
                 if (numberOfProperties !== 1) {
@@ -420,7 +420,7 @@ export default class ImageMaker {
     ) {
         return Promise.resolve() //
             .then(function () {
-                let data = captainDefinition
+                const data = captainDefinition
                 if (data.templateId) {
                     return TemplateHelper.get().getDockerfileContentFromTemplateTag(
                         data.templateId
@@ -501,10 +501,11 @@ export default class ImageMaker {
                         .then(function (dockerfileExists) {
                             if (!dockerfileExists) return false
 
-                            const captainDefinitionDefault: ICaptainDefinition = {
-                                schemaVersion: 2,
-                                dockerfilePath: `./${DOCKER_FILE}`,
-                            }
+                            const captainDefinitionDefault: ICaptainDefinition =
+                                {
+                                    schemaVersion: 2,
+                                    dockerfilePath: `./${DOCKER_FILE}`,
+                                }
 
                             return fs
                                 .outputFile(

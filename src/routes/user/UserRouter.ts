@@ -18,13 +18,17 @@ const threadLockNamespace = {} as IHashMapGeneric<boolean>
 
 router.use('/apps/webhooks/', Injector.injectUserForWebhook())
 
+// Only for POST request to build the image
+// Ensure that it doesn't allow for GET requests etc.
+router.post('/apps/appData/:appName/', Injector.injectUserForBuildTrigger())
+
 router.use(Injector.injectUser())
 
 router.use(function (req, res, next) {
     const user = InjectionExtractor.extractUserFromInjected(res).user
 
     if (!user) {
-        let response = new BaseApi(
+        const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
             'The request is not authorized.'
         )
@@ -33,7 +37,7 @@ router.use(function (req, res, next) {
     }
 
     if (!user.initialized) {
-        let response = new BaseApi(
+        const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_USER_NOT_INITIALIZED,
             'User data is being loaded... Please wait...'
         )
@@ -44,7 +48,7 @@ router.use(function (req, res, next) {
     const namespace = user.namespace
 
     if (!namespace) {
-        let response = new BaseApi(
+        const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
             'Cannot find the namespace attached to this user'
         )
@@ -55,7 +59,7 @@ router.use(function (req, res, next) {
     // All requests except GET might be making changes to some stuff that are not designed for an asynchronous process
     // I'm being extra cautious. But removal of this lock mechanism requires testing and consideration of edge cases.
     if (Utils.isNotGetRequest(req)) {
-        if (!!EnvVars.DEMO_MODE_ADMIN_IP) {
+        if (EnvVars.DEMO_MODE_ADMIN_IP) {
             const realIp = `${req.headers['x-real-ip']}`
             const forwardedIp = `${req.headers['x-forwarded-for']}`
             if (
@@ -64,7 +68,7 @@ router.use(function (req, res, next) {
                 realIp !== forwardedIp ||
                 EnvVars.DEMO_MODE_ADMIN_IP !== realIp
             ) {
-                let response = new BaseApi(
+                const response = new BaseApi(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
                     'Demo mode is only for viewing purposes.'
                 )
@@ -92,10 +96,10 @@ router.use(function (req, res, next) {
 })
 
 router.post('/changepassword/', function (req, res, next) {
-    const namespace = InjectionExtractor.extractUserFromInjected(res).user
-        .namespace
-    const dataStore = InjectionExtractor.extractUserFromInjected(res).user
-        .dataStore
+    const namespace =
+        InjectionExtractor.extractUserFromInjected(res).user.namespace
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     Promise.resolve() //
         .then(function (data) {

@@ -68,14 +68,19 @@ interface IAppDefinitionBase {
     ports: IAppPort[]
     volumes: IAppVolume[]
     envVars: IAppEnvVar[]
-
     versions: IAppVersion[]
+    appDeployTokenConfig?: AppDeployTokenConfig
 }
 
 interface IHttpAuth {
     user: string
     password?: string
     passwordHashed?: string
+}
+
+interface AppDeployTokenConfig {
+    enabled: boolean
+    appDeployToken?: string
 }
 
 interface IAppDef extends IAppDefinitionBase {

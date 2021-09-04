@@ -5,10 +5,11 @@ import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import configstore = require('configstore')
 
-const isValidPath = require('is-valid-path')
+import isValidPath = require('is-valid-path')
 
 const APP_DEFINITIONS = 'appDefinitions'
 
@@ -36,7 +37,7 @@ class AppsDataStore {
         this.encryptor = encryptor
     }
 
-    private saveApp(appName: String, app: IAppDef) {
+    private saveApp(appName: string, app: IAppDef) {
         const self = this
 
         return Promise.resolve()
@@ -180,15 +181,13 @@ class AppsDataStore {
                 const appToSave: IAppDefSaved = <IAppDefSaved>app
 
                 if (passwordToBeEncrypted) {
-                    appToSave.appPushWebhook!.repoInfo!.passwordEncrypted = self.encryptor.encrypt(
-                        passwordToBeEncrypted
-                    )
+                    appToSave.appPushWebhook!.repoInfo!.passwordEncrypted =
+                        self.encryptor.encrypt(passwordToBeEncrypted)
                 }
 
                 if (sshKeyToBeEncrypted) {
-                    appToSave.appPushWebhook!.repoInfo!.sshKeyEncrypted = self.encryptor.encrypt(
-                        sshKeyToBeEncrypted
-                    )
+                    appToSave.appPushWebhook!.repoInfo!.sshKeyEncrypted =
+                        self.encryptor.encrypt(sshKeyToBeEncrypted)
                 }
 
                 return appToSave
@@ -206,7 +205,7 @@ class AppsDataStore {
             )
         }
 
-        if (!!this.data.get(`${APP_DEFINITIONS}.${appName}`)) {
+        if (this.data.get(`${APP_DEFINITIONS}.${appName}`)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,
                 'App Name already exists. Please use a different name'
@@ -265,8 +264,8 @@ class AppsDataStore {
     getAppDefinitions() {
         const self = this
         return new Promise<IAllAppDefinitions>(function (resolve, reject) {
-            let allApps = self.data.get(APP_DEFINITIONS) || {}
-            let allAppsUnencrypted: IAllAppDefinitions = {}
+            const allApps = self.data.get(APP_DEFINITIONS) || {}
+            const allAppsUnencrypted: IAllAppDefinitions = {}
 
             Object.keys(allApps).forEach(function (appName) {
                 allAppsUnencrypted[appName] = allApps[appName]
@@ -617,7 +616,8 @@ class AppsDataStore {
         customNginxConfig: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
-        websocketSupport: boolean
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
     ) {
         const self = this
         let appObj: IAppDef
@@ -691,6 +691,32 @@ class AppsDataStore {
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+
+                appObj.appDeployTokenConfig = {
+                    enabled: !!appDeployTokenConfig.enabled,
+                    appDeployToken: `${
+                        appDeployTokenConfig.appDeployToken
+                            ? appDeployTokenConfig.appDeployToken
+                            : ''
+                    }`,
+                }
+
+                if (
+                    appObj.appDeployTokenConfig.appDeployToken ===
+                        'undefined' ||
+                    appObj.appDeployTokenConfig.appDeployToken === 'null'
+                ) {
+                    appObj.appDeployTokenConfig = { enabled: false }
+                    Logger.e('Bad values in the token')
+                }
+
+                if (!appObj.appDeployTokenConfig.enabled) {
+                    appObj.appDeployTokenConfig.appDeployToken = undefined
+                } else if (!appObj.appDeployTokenConfig.appDeployToken) {
+                    // App is supposed to have a token, but it doesn't have one yet. The first time use case.
+                    appObj.appDeployTokenConfig.appDeployToken =
+                        Utils.generateRandomString(32)
+                }
 
                 if (httpAuth && httpAuth.user) {
                     const newAuth: IHttpAuth = {
@@ -833,7 +859,7 @@ class AppsDataStore {
                 return
             }
 
-            if (!!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
+            if (self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,

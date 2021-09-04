@@ -2,12 +2,13 @@
 // Project is licensed under MIT. https://github.com/http-auth/apache-md5/blob/master/LICENSE
 
 // Crypto module import.
-const crypto = require('crypto')
+import * as crypto from 'crypto'
 
 // Hash generation string.
 const itoa64 =
     './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
+const DIGEST_ENCODING = 'binary'
 export default class ApacheMd5 {
     // To 64 bit version.
     static to64(index: number, count: number) {
@@ -32,7 +33,7 @@ export default class ApacheMd5 {
         } else {
             while (salt.length < 8) {
                 // Random 8 chars.
-                let rchIndex = Math.floor(Math.random() * 64)
+                const rchIndex = Math.floor(Math.random() * 64)
                 salt += itoa64[rchIndex]
             }
         }
@@ -95,7 +96,8 @@ export default class ApacheMd5 {
         let final = crypto
             .createHash('md5')
             .update(password + salt + password, 'ascii')
-            .digest('binary')
+            //@ts-ignore
+            .digest(DIGEST_ENCODING)
 
         for (let pl = password.length; pl > 0; pl -= 16) {
             ctx += final.substr(0, pl > 16 ? 16 : pl)
@@ -109,7 +111,12 @@ export default class ApacheMd5 {
             }
         }
 
-        final = crypto.createHash('md5').update(ctx, 'ascii').digest('binary')
+        //@ts-ignore
+        final = crypto
+            .createHash('md5')
+            .update(ctx, 'ascii')
+            //@ts-ignore
+            .digest(DIGEST_ENCODING)
 
         // 1000 loop.
         for (let i = 0; i < 1000; ++i) {
@@ -140,7 +147,8 @@ export default class ApacheMd5 {
             final = crypto
                 .createHash('md5')
                 .update(ctxl, 'ascii')
-                .digest('binary')
+                //@ts-ignore
+                .digest(DIGEST_ENCODING)
         }
 
         return `${magic + salt}$${ApacheMd5.getPassword(final)}`
