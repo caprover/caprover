@@ -3,7 +3,6 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "start": "node ./built/server.js",
         "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
         "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
         "lint": "eslint -c .eslintrc.js --ext .ts ./src",
