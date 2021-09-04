@@ -80,9 +80,9 @@ apt -y update && apt -y full-upgrade
 
 
 cd /etc
-wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/cleanup.sh
-chmod +x cleanup.sh
-./cleanup.sh
+wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/99-img-check.sh
+chmod +x 99-img-check.sh
+./99-img-check.sh
 
 
 ############################ WAIT
@@ -90,9 +90,9 @@ chmod +x cleanup.sh
 
 
 cd /etc
-wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/img_check.sh
-chmod +x img_check.sh
-./img_check.sh
+wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/90-cleanup.sh
+chmod +x 90-cleanup.sh
+./90-cleanup.sh
 
 
 
