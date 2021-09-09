@@ -101,7 +101,7 @@ export function injectUserForBuildTrigger() {
         const namespace = locals.namespace
         const appName = req.params.appName as string
 
-        if (!!req.header(CaptainConstants.headerAuth)) {
+        if (req.header(CaptainConstants.headerAuth)) {
             // Auth header is present, skip user injection for app token
             next()
             return
