@@ -350,6 +350,7 @@ export function install() {
 
             ports.push({
                 protocol: 'tcp',
+                publishMode: 'host',
                 containerPort: CaptainConstants.captainServiceExposedPort,
                 hostPort: CaptainConstants.captainServiceExposedPort,
             })
