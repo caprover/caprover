@@ -1,6 +1,8 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   Fixed: Fixed expired SSL certs issue [Issue-1215](https://github.com/caprover/caprover/issues/1215)
+-   Fixed: On some VMs the initial installation used to fail due to issues with Docker's ingress network. [Issue-1206](https://github.com/caprover/caprover/issues/1206)
+-   Fixed: CAPROVER_GIT_COMMIT_SHA wasn't available if deployed using webhook [Issue-1198](https://github.com/caprover/caprover/issues/1198)
 
 ## [1.10.0] - 2021-08-31
 
