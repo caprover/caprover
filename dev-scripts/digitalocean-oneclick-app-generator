@@ -9,7 +9,7 @@ apt -y update && apt -y full-upgrade && apt autoclean -y && apt autoremove -y
 ############################ WAIT
 
 
-docker pull  caprover/caprover:1.9.0
+docker pull  caprover/caprover:1.10.0
 
 
 cd /var/lib/cloud/scripts/per-instance
@@ -23,7 +23,7 @@ cat <<EOT >> z_01_caprover_installation.sh
 
 ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp;
 
-docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover:1.9.0
+docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover:1.10.0
 
 
 EOT
@@ -80,9 +80,9 @@ apt -y update && apt -y full-upgrade
 
 
 cd /etc
-wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/cleanup.sh
-chmod +x cleanup.sh
-./cleanup.sh
+wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/99-img-check.sh
+chmod +x 99-img-check.sh
+./99-img-check.sh
 
 
 ############################ WAIT
@@ -90,9 +90,9 @@ chmod +x cleanup.sh
 
 
 cd /etc
-wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/img_check.sh
-chmod +x img_check.sh
-./img_check.sh
+wget https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/90-cleanup.sh
+chmod +x 90-cleanup.sh
+./90-cleanup.sh
 
 
 

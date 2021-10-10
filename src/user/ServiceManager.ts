@@ -169,20 +169,6 @@ class ServiceManager {
                     .then(function (app) {
                         const envVars = app.envVars || []
 
-                        const includesGitCommitEnvVar = envVars.find(
-                            (envVar) =>
-                                envVar.key === CaptainConstants.gitShaEnvVarKey
-                        )
-                        const gitHash =
-                            source.captainDefinitionContentSource?.gitHash ||
-                            source.uploadedTarPathSource?.gitHash
-                        if (gitHash && !includesGitCommitEnvVar) {
-                            envVars.push({
-                                key: CaptainConstants.gitShaEnvVarKey,
-                                value: gitHash,
-                            })
-                        }
-
                         return self.imageMaker.ensureImage(
                             source,
                             appName,

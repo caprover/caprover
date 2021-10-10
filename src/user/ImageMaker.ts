@@ -123,6 +123,18 @@ export default class ImageMaker {
             })
             .then(function (gitHashFromImageSource) {
                 gitHash = gitHashFromImageSource
+
+                const includesGitCommitEnvVar = envVars.find(
+                    (envVar) => envVar.key === CaptainConstants.gitShaEnvVarKey
+                )
+
+                if (gitHash && !includesGitCommitEnvVar) {
+                    envVars.push({
+                        key: CaptainConstants.gitShaEnvVarKey,
+                        value: gitHash,
+                    })
+                }
+
                 // some users convert the directory into TAR instead of converting the content into TAR.
                 // we go one level deep and try to find the right directory.
                 // Also, they may have no captain-definition file, in that case, fall back to Dockerfile if exists.
