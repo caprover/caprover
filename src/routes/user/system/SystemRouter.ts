@@ -180,10 +180,17 @@ router.get('/versionInfo/', function (req, res, next) {
 
 router.post('/versionInfo/', function (req, res, next) {
     const latestVersion = req.body.latestVersion
+    const registryHelper =
+        InjectionExtractor.extractUserFromInjected(
+            res
+        ).user.serviceManager.getRegistryHelper()
 
     return Promise.resolve()
         .then(function () {
-            return VersionManager.get().updateCaptain(latestVersion)
+            return VersionManager.get().updateCaptain(
+                latestVersion,
+                registryHelper
+            )
         })
         .then(function () {
             const baseApi = new BaseApi(

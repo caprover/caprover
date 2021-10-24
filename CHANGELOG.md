@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
 
 ## [1.10.1] - 2021-10-09
 

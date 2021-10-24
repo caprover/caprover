@@ -3,6 +3,7 @@ import axios from 'axios'
 import DockerApi from '../../docker/DockerApi'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
+import DockerRegistryHelper from '../DockerRegistryHelper'
 
 class VersionManager {
     private dockerApi: DockerApi
@@ -148,27 +149,40 @@ class VersionManager {
         })
     }
 
-    updateCaptain(versionTag: string) {
+    updateCaptain(
+        versionTag: string,
+        dockerRegistryHelper: DockerRegistryHelper
+    ) {
         const self = this
-        return Promise.resolve().then(function () {
-            return self.dockerApi.updateService(
-                CaptainConstants.captainServiceName,
-                `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined
-            )
-        })
+        const providedImageName = `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`
+        return Promise.resolve()
+            .then(function () {
+                return dockerRegistryHelper.getDockerAuthObjectForImageName(
+                    providedImageName
+                )
+            })
+            .then(function (authObj) {
+                return self.dockerApi.pullImage(providedImageName, authObj)
+            })
+            .then(function () {
+                return self.dockerApi.updateService(
+                    CaptainConstants.captainServiceName,
+                    providedImageName,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined
+                )
+            })
     }
 
     private static captainManagerInstance: VersionManager | undefined
