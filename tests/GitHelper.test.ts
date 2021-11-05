@@ -29,7 +29,7 @@ test('Testing  - sanitizeRepoPathSsh - port', () => {
         GitHelper.sanitizeRepoPathSsh(
             ' git@github.com:username/repository.git/  '
         ).port
-    ).toBe('22')
+    ).toBe(22)
 })
 
 test('Testing  - sanitizeRepoPathSsh - custom port', () => {
@@ -37,7 +37,7 @@ test('Testing  - sanitizeRepoPathSsh - custom port', () => {
         GitHelper.sanitizeRepoPathSsh(
             ' git@github.com:1234/username/repository.git/  '
         ).port
-    ).toBe('1234')
+    ).toBe(1234)
 })
 
 test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
@@ -46,6 +46,22 @@ test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
             '  https://github.com/username/repository.git/ '
         ).repoPath
     ).toBe('ssh://git@github.com:22/username/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - alt domain', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            '  https://gitea@git.alt-domain.com:2221/username/repository/ '
+        ).repoPath
+    ).toBe('ssh://gitea@git.alt-domain.com:2221/username/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - no owner', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            '  foo@git.alt-domain.com:repository.git '
+        ).repoPath
+    ).toBe('ssh://foo@git.alt-domain.com:22/repository.git')
 })
 
 test('Testing  - getDomainFromSanitizedSshRepoPath - pure', () => {
@@ -74,4 +90,12 @@ test('Testing  - getDomainFromSanitizedSshRepoPath from HTTPS', () => {
             ).repoPath
         )
     ).toBe('github.com')
+})
+
+test('Testing  - getDomainFromSanitizedSshRepoPath - alt domain', () => {
+    expect(
+        GitHelper.getDomainFromSanitizedSshRepoPath(
+            ' ssh://user@some.do-main.com/owner/repository.git/ '
+        )
+    ).toBe('some.do-main.com')
 })
