@@ -48,20 +48,48 @@ test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
     ).toBe('ssh://git@github.com:22/username/repository.git')
 })
 
+test('Testing  - sanitizeRepoPathSsh - not git suffix', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repository ').repoPath
+    ).toBe('ssh://git@github.com:22/owner/repository.git')
+})
+
 test('Testing  - sanitizeRepoPathSsh - alt domain', () => {
     expect(
         GitHelper.sanitizeRepoPathSsh(
-            '  https://gitea@git.alt-domain.com:2221/username/repository/ '
+            '  git@git.alt-domain.com/owner/repository.git/ '
         ).repoPath
-    ).toBe('ssh://gitea@git.alt-domain.com:2221/username/repository.git')
+    ).toBe('ssh://git@git.alt-domain.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - alt user', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            '  foobar@github.com/owner/repository.git/ '
+        ).repoPath
+    ).toBe('ssh://foobar@github.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - default user', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repository.git/ ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/repository.git')
 })
 
 test('Testing  - sanitizeRepoPathSsh - no owner', () => {
     expect(
+        GitHelper.sanitizeRepoPathSsh('  git@github.com:repository.git/ ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - invalid url', () => {
+    expect(() =>
         GitHelper.sanitizeRepoPathSsh(
-            '  foo@git.alt-domain.com:repository.git '
-        ).repoPath
-    ).toBe('ssh://foo@git.alt-domain.com:22/repository.git')
+            '  git:password@github.com/owner/repository.git/ '
+        )
+    ).toThrow(Error)
 })
 
 test('Testing  - getDomainFromSanitizedSshRepoPath - pure', () => {
@@ -95,7 +123,7 @@ test('Testing  - getDomainFromSanitizedSshRepoPath from HTTPS', () => {
 test('Testing  - getDomainFromSanitizedSshRepoPath - alt domain', () => {
     expect(
         GitHelper.getDomainFromSanitizedSshRepoPath(
-            ' ssh://user@some.do-main.com/owner/repository.git/ '
+            ' ssh://user@some.other-domain.com/owner/repository.git/ '
         )
-    ).toBe('some.do-main.com')
+    ).toBe('some.other-domain.com')
 })
