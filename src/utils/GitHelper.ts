@@ -1,4 +1,4 @@
-import * as childPross from 'child_process'
+import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as git from 'simple-git/promise'
@@ -7,10 +7,10 @@ import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
 import Logger from './Logger'
 import Utils from './Utils'
-const exec = util.promisify(childPross.exec)
+const exec = util.promisify(childProcess.exec)
 
 export default class GitHelper {
-    static #SSH_PATH_RE = new RegExp(
+    private static SSH_PATH_RE = new RegExp(
         [
             /^\s*/,
             /(?:(?<proto>[a-z]+):\/\/)?/,
@@ -127,7 +127,7 @@ export default class GitHelper {
 
     // It returns a string like this "ssh://git@github.com:22/caprover/caprover-cli.git"
     static sanitizeRepoPathSsh(input: string) {
-        const found = input.match(GitHelper.#SSH_PATH_RE)
+        const found = input.match(GitHelper.SSH_PATH_RE)
         if (!found) {
             throw new Error(`Malformatted SSH path: ${input}`)
         }
