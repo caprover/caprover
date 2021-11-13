@@ -41,6 +41,7 @@
 
         listen       80;
         client_max_body_size 300m;
+        gzip on;
 
     <%
         if (captain.hasRootSsl) {
