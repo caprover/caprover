@@ -243,7 +243,8 @@ class DockerApi {
         tarballFilePath: string,
         buildLogs: BuildLog,
         envVars: IAppEnvVar[],
-        registryConfig: DockerRegistryConfig
+        registryConfig: DockerRegistryConfig,
+        overrideOptions: String[]
     ) {
         const self = this
 
@@ -268,6 +269,7 @@ class DockerApi {
                 const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
+                    overrideOptions: [...overrideOptions],
                 }
 
                 if (Object.keys(registryConfig).length > 0) {

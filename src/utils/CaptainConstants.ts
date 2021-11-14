@@ -46,6 +46,8 @@ const configs = {
     defaultEmail: 'runner@caprover.com',
 
     captainSubDomain: 'captain',
+
+    overrideOptions: [],
 }
 
 const data = {
