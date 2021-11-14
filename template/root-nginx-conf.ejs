@@ -39,9 +39,35 @@
 # Captain dashboard at captain.captainroot.domain.com
     server {
 
-        listen       80;
-        client_max_body_size 300m;
-        gzip on;
+	listen       80;
+	client_max_body_size 300m;
+
+	gzip on;
+	gzip_disable "MSIE [1-6]\.";
+	gzip_vary on;
+	gzip_proxied any;
+	gzip_comp_level 6;
+	gzip_min_length 860;
+	gzip_buffers 16 8k;
+	gzip_types
+		text/css
+		text/plain
+		text/javascript
+		application/javascript
+		application/json
+		application/x-javascript
+		application/xml
+		application/xml+rss
+		application/xhtml+xml
+		application/x-font-ttf
+		application/x-font-opentype
+		application/vnd.ms-fontobject
+		image/svg+xml
+		image/x-icon
+		application/rss+xml
+		application/atom_xml;
+
+
 
     <%
         if (captain.hasRootSsl) {
