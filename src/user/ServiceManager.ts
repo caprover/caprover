@@ -168,13 +168,15 @@ class ServiceManager {
                     .getAppDefinition(appName)
                     .then(function (app) {
                         const envVars = app.envVars || []
+                        const overrideOptions = app.overrideOptions || []
 
                         return self.imageMaker.ensureImage(
                             source,
                             appName,
                             app.captainDefinitionRelativeFilePath,
                             appVersion,
-                            envVars
+                            envVars,
+                            overrideOptions
                         )
                     })
             })

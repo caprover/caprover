@@ -92,6 +92,7 @@ interface IAppDef extends IAppDefinitionBase {
     httpAuth?: IHttpAuth
     appName?: string
     isAppBuilding?: boolean
+    overrideOptions?: string[]
 }
 
 interface IAppDefSaved extends IAppDefinitionBase {

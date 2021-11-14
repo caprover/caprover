@@ -244,7 +244,7 @@ class DockerApi {
         buildLogs: BuildLog,
         envVars: IAppEnvVar[],
         registryConfig: DockerRegistryConfig,
-        overrideOptions: String[]
+        overrideOptions: string[] | undefined
     ) {
         const self = this
 
@@ -269,7 +269,7 @@ class DockerApi {
                 const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
-                    overrideOptions: [...overrideOptions],
+                    ...overrideOptions,
                 }
 
                 if (Object.keys(registryConfig).length > 0) {
