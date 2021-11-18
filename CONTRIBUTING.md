@@ -7,13 +7,13 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## IMPORTANT: CapRover Goals & Scope
 
-Since the birth of CapRover, there has been many contributions and suggestions that shaped CapRover as we know it today. One of the very important factor in the contribution you make is to stick with CapRover design philosophy.- CapRover is not an enterprise grade application like Kubernetes. *Do not* patch it with half-done features that make it look like one - it will eventually fail as we don't have resources to support such features.- CapRover scope is a helper around Docker, nginx and Let's Encrypt.
+Since the birth of CapRover, there has been many contributions and suggestions that shaped CapRover as we know it today. One of the very important factor in the contribution you make is to stick with CapRover design philosophy.- CapRover is not an enterprise grade application like Kubernetes. _Do not_ patch it with half-done features that make it look like one - it will eventually fail as we don't have resources to support such features.- CapRover scope is a helper around Docker, nginx and Let's Encrypt.
 
 The goal is to make the common use-cases exposed via simple controls on UI while allowing further customizations to be done through hooks and scripts. If a new feature is doable via the existing features, or a basic tool, do not add it to CapRover. We do not want to bloat this application. One example is: "Add a flag to customize the placement constraints of containers". This is definitely doable in Docker, but we don't want to mirror every single functionality of Docker to CapRover. If we do that, CapRover becomes a very hard to maintain project. Instead we should add customization hooks for these advanced and rare use cases. For example, instead of mirroring every single nginx config, we added the ability of customizing the nginx config for advanced users.- Last but not least AVOID LARGE PULL REQUESTS at all cost as they won't get reviewed unless they are discussed in the Slack channel beforehand.
 
 ## Pull Request Process
 
-1. IF APPLICABLE: Update the docs (https://github.com/caprover/caprover-website) with details of changes to the interface, this includes new environment 
+1. IF APPLICABLE: Update the docs (https://github.com/caprover/caprover-website) with details of changes to the interface, this includes new environment
    variables, exposed ports, useful file locations and container parameters.
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
@@ -21,13 +21,13 @@ The goal is to make the common use-cases exposed via simple controls on UI while
 5. To keep the process simple with just a few contributors, development happens directly on the master branch
    and releases will be deployed on the same branch.
 6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
-   
-## Running dev environment
+
+### Running backend dev environment
 
 First, you need a Captain instance running in debug mode, this can be a remote server, a VM on your local machine,
 or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README). Ubuntu is the best dev environment for CapRover.
 
-> Docker for Mac users: You need to add `/captain` to shared paths.   
+> Docker for Mac users: You need to add `/captain` to shared paths.  
 > To do so, click on the Docker icon -> Preferences -> File Sharing and add `/captain`
 > This is not possible in Catalina or above versions. You can try your luck by changing `CAPTAIN_BASE_DIRECTORY` in `src/utils/CaptainConstants.ts` and in `dev-scripts/dev-clean-run-as-dev.sh` but it might be best to develop in a linux VM for best results.
 
@@ -38,18 +38,21 @@ $   npm install
 $   npm run build
 $   ./dev-scripts/dev-clean-run-as-dev.sh
 ```
+
 You are good to go! You can run the following line to see the logs for the back-end service.
 
 ```bash
 npm run dev
 ```
+
 The main differences between the release and debug mode are:
-- docker image is created from the local source file, instead of getting pulled from Docker hub
-- security is much weaker is debug due to a static salt
-- self health monitoring is disabled in debug so that we can see possible crashes
-- same origin policy is disabled in debug mode to make front end development easier
-- an additional endpoint is available at `/force-exit` which force restarts the backend service
-- static resources (including front end app) are not being served in debug build.
+
+-   docker image is created from the local source file, instead of getting pulled from Docker hub
+-   security is much weaker is debug due to a static salt
+-   self health monitoring is disabled in debug so that we can see possible crashes
+-   same origin policy is disabled in debug mode to make front end development easier
+-   an additional endpoint is available at `/force-exit` which force restarts the backend service
+-   static resources (including front end app) are not being served in debug build.
 
 Captain by default uses `captain.localhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
@@ -61,8 +64,10 @@ And add this line to it: `address=/captain.localhost/192.168.1.2` where `192.168
 To make sure you have dnsmasq, you can run `which dnsmasq` on your terminal, if it's available,
 path of it will be printed on the terminal, otherwise, there won't be anything printed on your terminal.
 
+To test the API, you can import the Postman collection JSON in `./dev-scripts` directory.
 
 ### front end development:
+
 See https://github.com/caprover/caprover-frontend
 
 ### CLI development:
@@ -70,13 +75,14 @@ See https://github.com/caprover/caprover-frontend
 See https://github.com/caprover/caprover-cli
 
 ### Backend development:
+
 Start the debug build for the backend service as explained above. To see any changes you make,
 first save the changes, then you need to restart the service either by sending a request to `/force-exit` endpoint,
 or by running `npm run dev`.
 
 ### Security Issues
-Security issues are high priority and they will be addressed immediately. If you find a security issue, please do not post as a public issue, instead, please email it to us: security at caprover dot com.
 
+Security issues are high priority and they will be addressed immediately. If you find a security issue, please do not post as a public issue, instead, please email it to us: security at caprover dot com.
 
 ## Code of Conduct
 
@@ -94,22 +100,22 @@ orientation.
 Examples of behavior that contributes to creating a positive environment
 include:
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+-   Using welcoming and inclusive language
+-   Being respectful of differing viewpoints and experiences
+-   Gracefully accepting constructive criticism
+-   Focusing on what is best for the community
+-   Showing empathy towards other community members
 
 Examples of unacceptable behavior by participants include:
 
-* The use of sexualized language or imagery and unwelcome sexual attention or
-advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic
-  address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+-   The use of sexualized language or imagery and unwelcome sexual attention or
+    advances
+-   Trolling, insulting/derogatory comments, and personal or political attacks
+-   Public or private harassment
+-   Publishing others' private information, such as a physical or electronic
+    address, without explicit permission
+-   Other conduct which could reasonably be considered inappropriate in a
+    professional setting
 
 ### Our Responsibilities
 

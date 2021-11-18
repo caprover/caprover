@@ -1,0 +1,876 @@
+{
+  "info": {
+    "_postman_id": "5152aadd-9cc9-fae5-ca8a-f2c51f9797a2",
+    "name": "CapRover",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "RUN FIRST: Get Auth Token",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "postman.setGlobalVariable(\"baseUrl\", \"http://captain.captain.localhost/api/v2\");",
+              "// ",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "tests[\"Your test name\"] = jsonData.status === 100;",
+              "",
+              "postman.setGlobalVariable(\"captain_auth_token\", jsonData.data.token);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "password",
+              "value": "captain42",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "FORCE RESTART",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "{{baseUrl}}/force-exit",
+          "host": ["{{baseUrl}}"],
+          "path": ["force-exit"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"oldPassword\": \"captain42\",\n    \"newPassword\": \"captain4242\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/changepassword",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "changepassword"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Custom Domain",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"rootDomain\": \"test.x.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/system/changerootdomain",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "changerootdomain"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Enable SSL Captain",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"emailAddress\": \"noreply@gmail.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/system/enablessl",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "enablessl"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST update NetData",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"netDataInfo\": {\n    \t\"isEnabled\":false\n    }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/system/netdata/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "netdata", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Join a Node",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"nodeType\": \"worker\",\n    \"privateKey\": \"-----BEGIN RSA PRIVATE KEY-----\\xxxxxxxxxxxxxxxxxx\\n-----END RSA PRIVATE KEY-----\",\n    \"captainIpAddress\": \"200.200.200.200\",\n    \"remoteNodeIpAddress\": \"100.100.100.100\",\n    \"remoteUserName\": \"root\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/system/nodes",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "nodes"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET appDefinitions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/apps/appDefinitions/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "apps", "appDefinitions", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET OneClick Repos List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/oneclick/repositories/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "oneclick", "repositories", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET OneClick Repos DELETE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"repositoryUrl\":\"https://oneclickapps.caprover.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/oneclick/repositories/delete/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "oneclick", "repositories", "delete", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET OneClick Repos INSERT",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"repositoryUrl\":\"https://oneclickapps.caprover.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/oneclick/repositories/insert/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "oneclick", "repositories", "insert", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET OneClick List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/oneclick/template/list/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "oneclick", "template", "list", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET OneClick MySQL",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/oneclick/template/app?appName=mysql&baseDomain=https%3A%2F%2Foneclickapps.caprover.com",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "oneclick", "template", "app"],
+          "query": [
+            {
+              "key": "appName",
+              "value": "mysql"
+            },
+            {
+              "key": "baseDomain",
+              "value": "https%3A%2F%2Foneclickapps.caprover.com"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET app logs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/apps/appData/q1/logs",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "apps", "appData", "q1", "logs"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Docker Regs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/registries/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "registries", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET nodes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/nodes",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "nodes"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Backup",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/createbackup",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "createbackup"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET unusedImages",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/apps/appDefinitions/unusedImages",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "apps", "appDefinitions", "unusedImages"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET captainInfo",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/info",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "info"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET versionInfo",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/versionInfo",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "versionInfo"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET loadBalancerInfo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/loadbalancerinfo",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "loadbalancerinfo"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST appDefinitions REGISTER",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/apps/appDefinitions/register/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "apps", "appDefinitions", "register", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST appDefinitions DELETE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/apps/appDefinitions/delete/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "apps", "appDefinitions", "delete", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST appDefinitions UPDATE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"test1\",\n    \"instanceCount\":\"1\",\n    \"notExposeAsWebApp\":true,\n    \"ports\":[\n    \t{\n    \t\t\"containerPort\":\"1000\",\n    \t\t\"hostPort\":\"6000\"\n    \t}]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appDefinitions/update/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appDefinitions", "update", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Enable SSL for subdomain",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appDefinitions/enablessl/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appDefinitions", "enablessl", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Custom App Domain",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\",\n    \"customDomain\": \"y.x.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appDefinitions/customdomain/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appDefinitions", "customdomain", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Custom App Domain REMOVE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\",\n    \"customDomain\": \"y.x.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appDefinitions/removecustomdomain/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appDefinitions", "removecustomdomain", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Custom App Domain SSL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"appName\": \"my-first-app-001\",\n    \"customDomain\": \"x.y.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appDefinitions/customdomainssl/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appDefinitions", "customdomainssl", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST appData",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "sourceFile",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/appData/my-first-app-001",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "appData", "my-first-app-001"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
