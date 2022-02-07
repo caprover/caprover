@@ -94,6 +94,7 @@ router.get('/', function (req, res, next) {
             baseApi.data = {
                 appDefinitions: appsArray,
                 rootDomain: dataStore.getRootDomain(),
+                captainSubDomain: CaptainConstants.configs.captainSubDomain,
                 defaultNginxConfig: defaultNginxConfig,
             }
 

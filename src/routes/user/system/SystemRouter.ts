@@ -133,6 +133,7 @@ router.get('/info/', function (req, res, next) {
                 rootDomain: dataStore.hasCustomDomain()
                     ? dataStore.getRootDomain()
                     : '',
+                captainSubDomain: CaptainConstants.configs.captainSubDomain,
             }
         })
         .then(function (data) {
