@@ -19,7 +19,7 @@ jobs:
                   npm run build
                   npm run lint
                   npm run formatter
-                  sudo npm run test
+                  sudo bash -c "npm run test" 
     build-publish-docker-hub:
         needs: run-pre-checks
         runs-on: ubuntu-latest
