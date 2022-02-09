@@ -14,12 +14,12 @@ jobs:
               with:
                   node-version: 14
             - run: |
-                  sudo mkdir /captain
+                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
                   npm ci
                   npm run build
                   npm run lint
                   npm run formatter
-                  sudo npm run test
+                  npm run test
     build-publish-docker-hub:
         needs: run-pre-checks
         runs-on: ubuntu-latest
