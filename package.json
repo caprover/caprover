@@ -38,7 +38,7 @@
         "@types/validator": "^13.6.3",
         "@typescript-eslint/eslint-plugin": "^4.29.3",
         "@typescript-eslint/parser": "^4.29.3",
-        "axios": "^0.21.1",
+        "axios": "^0.21.2",
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.19.0",
         "configstore": "^5.0.1",
