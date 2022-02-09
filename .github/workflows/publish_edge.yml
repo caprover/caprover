@@ -31,4 +31,4 @@ jobs:
             - uses: actions/checkout@v1
             - name: Build and Push Edge to DockerHub
               shell: bash
-              run: echo 1 || ./dev-scripts/build_and_push_edge.sh
+              run: ./dev-scripts/build_and_push_edge.sh
