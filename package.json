@@ -10,7 +10,7 @@
         "formatter": "prettier --check './src/**/*.ts'",
         "formatter-write": "prettier --write './src/**/*.ts'",
         "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && echo 'Build successful'",
-        "test": "npm run build && jest"
+        "test": "jest"
     },
     "dependencies": {
         "@types/bcryptjs": "^2.4.2",
