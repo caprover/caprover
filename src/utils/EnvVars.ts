@@ -35,7 +35,5 @@ export default {
         ? process.env.CAPTAIN_IMAGE_NAME
         : 'caprover/caprover',
 
-    CAPTAIN_IMAGE_VERSION: process.env.CAPTAIN_IMAGE_VERSION
-        ? process.env.CAPTAIN_IMAGE_VERSION
-        : 'latest',
+    CAPTAIN_IMAGE_VERSION: process.env.CAPTAIN_IMAGE_VERSION,
 }
