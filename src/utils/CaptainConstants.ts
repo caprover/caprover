@@ -17,7 +17,9 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: EnvVars.CAPTAIN_IMAGE_NAME,
 
-    version: EnvVars.CAPTAIN_IMAGE_VERSION?EnvVars.CAPTAIN_IMAGE_VERSION:'1.10.2',
+    version: EnvVars.CAPTAIN_IMAGE_VERSION
+        ? EnvVars.CAPTAIN_IMAGE_VERSION
+        : '1.10.2',
 
     defaultMaxLogSize: '512m',
 
