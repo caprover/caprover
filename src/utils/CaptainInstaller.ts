@@ -349,11 +349,11 @@ export function install() {
             }
             env.push({
                 key: EnvVar.keys.NGINX_HTTP_PORT,
-                value: EnvVar.NGINX_HTTP_PORT+'',
+                value: EnvVar.NGINX_HTTP_PORT + '',
             })
             env.push({
                 key: EnvVar.keys.NGINX_HTTPS_PORT,
-                value: EnvVar.NGINX_HTTPS_PORT+'',
+                value: EnvVar.NGINX_HTTPS_PORT + '',
             })
 
             ports.push({

@@ -23,11 +23,19 @@ export default {
 
     DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD,
 
-    NGINX_HTTP_PORT: parseInt(process.env.NGINX_HTTP_PORT?process.env.NGINX_HTTP_PORT:'80'),
+    NGINX_HTTP_PORT: parseInt(
+        process.env.NGINX_HTTP_PORT ? process.env.NGINX_HTTP_PORT : '80'
+    ),
 
-    NGINX_HTTPS_PORT: parseInt(process.env.NGINX_HTTPS_PORT?process.env.NGINX_HTTPS_PORT:'443'),
+    NGINX_HTTPS_PORT: parseInt(
+        process.env.NGINX_HTTPS_PORT ? process.env.NGINX_HTTPS_PORT : '443'
+    ),
 
-    CAPTAIN_IMAGE_NAME: process.env.CAPTAIN_IMAGE_NAME?process.env.CAPTAIN_IMAGE_NAME:'caprover/caprover',
+    CAPTAIN_IMAGE_NAME: process.env.CAPTAIN_IMAGE_NAME
+        ? process.env.CAPTAIN_IMAGE_NAME
+        : 'caprover/caprover',
 
-    CAPTAIN_IMAGE_VERSION: process.env.CAPTAIN_IMAGE_VERSION?process.env.CAPTAIN_IMAGE_VERSION:'latest',
+    CAPTAIN_IMAGE_VERSION: process.env.CAPTAIN_IMAGE_VERSION
+        ? process.env.CAPTAIN_IMAGE_VERSION
+        : 'latest',
 }
