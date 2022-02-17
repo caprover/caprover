@@ -15,9 +15,9 @@ const CONSTANT_FILE_OVERRIDE_USER =
     CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
-    publishedNameOnDockerHub: 'caprover/caprover',
+    publishedNameOnDockerHub: EnvVars.CAPTAIN_IMAGE_NAME,
 
-    version: '1.10.1',
+    version: EnvVars.CAPTAIN_IMAGE_VERSION,
 
     defaultMaxLogSize: '512m',
 
@@ -145,7 +145,9 @@ const data = {
 
     // ********************* HTTP Related Constants  ************************
 
-    nginxPortNumber: 80,
+    nginxPortNumber: EnvVars.NGINX_HTTP_PORT,
+
+    nginxHttpsPort: EnvVars.NGINX_HTTPS_PORT,
 
     netDataRelativePath: '/net-data-monitor',
 
