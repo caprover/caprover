@@ -574,6 +574,12 @@ class LoadBalancerManager {
                             containerPort: 443,
                             hostPort: 443,
                         },
+                        {
+                            protocol: 'udp',
+                            publishMode: 'host',
+                            containerPort: 443,
+                            hostPort: 443,
+                        },
                     ],
                     nodeId,
                     undefined,
