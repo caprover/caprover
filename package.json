@@ -63,7 +63,7 @@
         "request": "^2.88.2",
         "require-from-string": "^2.0.2",
         "serve-favicon": "~2.5.0",
-        "simple-git": "^2.45.0",
+        "simple-git": "^3.3.0",
         "ssh2": "^1.4.0",
         "tar": "^6.1.11",
         "typescript": "^4.3.5",
