@@ -29,9 +29,17 @@ const DEFAULT_NGINX_BASE_CONFIG = fs
 const DEFAULT_NGINX_CAPTAIN_CONFIG = fs
     .readFileSync(__dirname + '/../../template/root-nginx-conf.ejs')
     .toString()
+
+let DEFAULT_NGINX_CONFIG_FOR_APP_PATH = __dirname + '/../../template/server-block-conf.ejs'
+
+if (fs.pathExistsSync('/captain/data/server-block-conf-override.ejs')) {
+    DEFAULT_NGINX_CONFIG_FOR_APP_PATH = '/captain/data/server-block-conf-override.ejs'
+}
+
 const DEFAULT_NGINX_CONFIG_FOR_APP = fs
-    .readFileSync(__dirname + '/../../template/server-block-conf.ejs')
+    .readFileSync(DEFAULT_NGINX_CONFIG_FOR_APP_PATH)
     .toString()
+
 
 class DataStore {
     private encryptor: CaptainEncryptor
