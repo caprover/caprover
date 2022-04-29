@@ -20,7 +20,7 @@
         "cookie-parser": "~1.4.5",
         "debug": "~4.3.2",
         "dockerode": "^3.3.0",
-        "ejs": "^3.1.6",
+        "ejs": "^3.1.7",
         "express": "^4.17.1",
         "fs-extra": "^10.0.0",
         "http-proxy": "^1.18.1",
