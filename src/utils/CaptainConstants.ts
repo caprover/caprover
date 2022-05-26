@@ -35,7 +35,7 @@ const configs = {
 
     dockerApiVersion: 'v1.40',
 
-    netDataImageName: 'caprover/netdata:v1.8.0',
+    netDataImageName: 'caprover/netdata:v1.34.1',
 
     registryImageName: 'registry:2',
 
