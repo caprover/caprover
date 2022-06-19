@@ -572,7 +572,7 @@ class LoadBalancerManager {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 443,
-                            hostPort: 443,
+                            hostPort: CaptainConstants.nginxHttpsPort,
                         },
                     ],
                     nodeId,
