@@ -27,7 +27,7 @@
         "is-valid-path": "^0.1.1",
         "js-base64": "^3.6.1",
         "jsonwebtoken": "^8.5.1",
-        "moment": "^2.29.1",
+        "moment": "^2.29.4",
         "morgan": "^1.10.0",
         "multer": "^1.4.3",
         "on-finished": "^2.3.0",
