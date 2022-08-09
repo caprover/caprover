@@ -126,7 +126,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
         console.log(' ')
         console.log(' ')
         console.log(
-            'Are your trying to run CapRover on a local machine or a machine without public IP?'
+            'Are you trying to run CapRover on a local machine or a machine without a public IP?'
         )
         console.log(
             'In that case, you need to add this to your installation command:'
