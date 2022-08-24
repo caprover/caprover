@@ -126,7 +126,7 @@ router.post('/customdomain/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName
-    const customDomain = (req.body.customDomain || '').toLowerCase()
+    const customDomain = (req.body.customDomain || '').toLowerCase().trim()
 
     // verify customdomain.com going through the default NGINX
     // Add customdomain.com to app in Data Store
