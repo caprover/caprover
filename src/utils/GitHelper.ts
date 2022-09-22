@@ -100,7 +100,14 @@ export default class GitHelper {
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
-                .raw(['clone', '--recurse-submodules', '-b', branch, remote, directory])
+                .raw([
+                    'clone',
+                    '--recurse-submodules',
+                    '-b',
+                    branch,
+                    remote,
+                    directory,
+                ])
                 .then(function () {
                     //
                 })
