@@ -79,7 +79,7 @@ export default class GitHelper {
                         .env('GIT_SSH_COMMAND', `ssh -i ${SSH_KEY_PATH}`) //
                         .raw([
                             'clone',
-                            '--recursive',
+                            '--recurse-submodules',
                             '-b',
                             branch,
                             REPO_GIT_PATH,
@@ -100,7 +100,7 @@ export default class GitHelper {
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
-                .raw(['clone', '--recursive', '-b', branch, remote, directory])
+                .raw(['clone', '--recurse-submodules', '-b', branch, remote, directory])
                 .then(function () {
                     //
                 })
