@@ -512,7 +512,7 @@ export default class BackupManager {
 
                         const configData = fs.readJsonSync(
                             CaptainConstants.restoreDirectoryPath +
-                                '/data/config-captain.json'
+                            '/data/config-captain.json'
                         )
 
                         Logger.d('Creating the restoration instruction file...')
@@ -710,11 +710,10 @@ export default class BackupManager {
                         })
 
                         const now = moment()
-                        const newName = `${
-                            CaptainConstants.captainDownloadsDirectory
-                        }/${namespace}/caprover-backup-${`${now.format(
-                            'YYYY_MM_DD-HH_mm_ss'
-                        )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
+                        const newName = `${CaptainConstants.captainDownloadsDirectory
+                            }/${namespace}/caprover-backup-${nodeInfo[0].hostname}-${`${now.format(
+                                'YYYY_MM_DD-HH_mm_ss'
+                            )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
                         setTimeout(() => {
