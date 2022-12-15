@@ -28,7 +28,7 @@ First, you need a Captain instance running in debug mode, this can be a remote s
 or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README). Ubuntu is the best dev environment for CapRover.
 
 > Docker for Mac users: You need to add `/captain` to shared paths.  
-> To do so, click on the Docker icon -> Preferences -> File Sharing and add `/captain`
+> To do so, click on the Docker icon -> Preferences -> Ressources -> File Sharing and add `/captain`
 > This is not possible in Catalina or above versions. You can try your luck by changing `CAPTAIN_BASE_DIRECTORY` in `src/utils/CaptainConstants.ts` and in `dev-scripts/dev-clean-run-as-dev.sh` but it might be best to develop in a linux VM for best results.
 
 Log in to your machine, clone the git repo and run the following lines:
