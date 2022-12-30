@@ -4,7 +4,7 @@
 -   Improved: allowing custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
 -   Improved: Enabling gzip for the dashboard for a faster load
 -   Improved: Allowing custom captain domain for webhooks [PR-1330](https://github.com/caprover/caprover/pull/1330)
--   Improved: Update Netdata (PR-1432)[https://github.com/caprover/caprover/pull/1432]
+-   Improved: Update Netdata [PR-1432](https://github.com/caprover/caprover/pull/1432)
 -   Fixed: Allowing dots to be present in repo names [PR-1553](https://github.com/caprover/caprover/pull/1553)
 
 
