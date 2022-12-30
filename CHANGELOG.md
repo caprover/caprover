@@ -1,6 +1,12 @@
 ## [Next Version - available as `edge`]
 
 -   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
+-   Improved: allowing custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
+-   Improved: Enabling gzip for the dashboard for a faster load
+-   Improved: Allowing custom captain domain for webhooks [PR-1330](https://github.com/caprover/caprover/pull/1330)
+-   Improved: Update Netdata (PR-1432)[https://github.com/caprover/caprover/pull/1432]
+-   Fixed: Allowing dots to be present in repo names [PR-1553](https://github.com/caprover/caprover/pull/1553)
+
 
 ## [1.10.1] - 2021-10-09
 
