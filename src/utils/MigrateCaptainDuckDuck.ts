@@ -327,6 +327,7 @@ export default class MigrateCaptainDuckDuck {
                                         CaptainConstants.defaultCaptainDefinitionPath,
                                         app.envVars || [],
                                         app.volumes || [],
+                                        [],
                                         app.nodeId || '',
                                         !!app.notExposeAsWebApp,
                                         80,

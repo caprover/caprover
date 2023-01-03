@@ -316,6 +316,7 @@ router.post('/update/', function (req, res, next) {
     const captainDefinitionRelativeFilePath =
         req.body.captainDefinitionRelativeFilePath
     const notExposeAsWebApp = req.body.notExposeAsWebApp
+    const tags = req.body.tags || []
     const customNginxConfig = req.body.customNginxConfig
     const forceSsl = !!req.body.forceSsl
     const websocketSupport = !!req.body.websocketSupport
@@ -389,6 +390,7 @@ router.post('/update/', function (req, res, next) {
             captainDefinitionRelativeFilePath,
             envVars,
             volumes,
+            tags,
             nodeId,
             notExposeAsWebApp,
             containerHttpPort,

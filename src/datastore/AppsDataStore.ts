@@ -605,6 +605,7 @@ class AppsDataStore {
         captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
+        tags: IAppTag[],
         nodeId: string,
         notExposeAsWebApp: boolean,
         containerHttpPort: number,
@@ -691,6 +692,7 @@ class AppsDataStore {
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+                appObj.tags = tags
 
                 appObj.appDeployTokenConfig = {
                     enabled: !!appDeployTokenConfig.enabled,
@@ -879,6 +881,7 @@ class AppsDataStore {
                 envVars: [],
                 volumes: [],
                 ports: [],
+                tags: [],
                 versions: [],
                 deployedVersion: 0,
                 notExposeAsWebApp: false,
