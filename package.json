@@ -33,7 +33,7 @@
         "on-finished": "^2.3.0",
         "prettier": "2.3.2",
         "public-ip": "^4.0.4",
-        "recursive-readdir": "^2.2.2",
+        "recursive-readdir": "^2.2.3",
         "request": "^2.88.2",
         "require-from-string": "^2.0.2",
         "serve-favicon": "~2.5.0",
