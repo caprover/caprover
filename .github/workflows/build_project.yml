@@ -15,9 +15,9 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                  node-version: 10
+                  node-version: 18
             - run: |
-                sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
-                npm ci 
-                npm run build 
-                npm run test
+                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
+                  npm ci 
+                  npm run build 
+                  npm run test
