@@ -15,7 +15,6 @@ jobs:
                   node-version: 18
             - run: |
                   sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
-                  bash -c "node -v && export NODE_OPTIONS=--openssl-legacy-provider &&  node -v"
                   npm ci
                   npm run build
                   npm run lint
