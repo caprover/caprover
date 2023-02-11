@@ -32,7 +32,7 @@
         "multer": "^1.4.3",
         "on-finished": "^2.3.0",
         "prettier": "2.3.2",
-        "public-ip": "^4.0.4",
+        "public-ip": "^6.0.1",
         "recursive-readdir": "^2.2.2",
         "request": "^2.88.2",
         "require-from-string": "^2.0.2",
