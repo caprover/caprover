@@ -1479,12 +1479,10 @@ class DockerApi {
                     (instanceCount && instanceCount > 0) ||
                     instanceCount === 0
                 ) {
-                    if (!updatedData.Mode.Replicated) {
-                        throw new Error(
-                            'Non replicated services cannot be associated with instance count'
-                        )
+                    // assign instance count as replicas for replicated mode services, not for global mode services
+                    if (updatedData.Mode.Replicated) {
+                        updatedData.Mode.Replicated.Replicas = instanceCount
                     }
-                    updatedData.Mode.Replicated.Replicas = instanceCount
                 }
 
                 return Utils.mergeObjects(updatedData, serviceUpdateOverride)
