@@ -92,7 +92,8 @@ export default class ImageMaker {
         appName: string,
         captainDefinitionRelativeFilePath: string,
         appVersion: number,
-        envVars: IAppEnvVar[]
+        envVars: IAppEnvVar[],
+        overrideOptions: string[]
     ): Promise<IBuiltImage> {
         const self = this
 
@@ -183,7 +184,8 @@ export default class ImageMaker {
                             baseImageNameWithoutVerAndReg,
                             appName,
                             appVersion,
-                            envVars
+                            envVars,
+                            overrideOptions
                         )
                     })
             })
@@ -245,7 +247,8 @@ export default class ImageMaker {
         baseImageNameWithoutVersionAndReg: string,
         appName: string,
         appVersion: number,
-        envVars: IAppEnvVar[]
+        envVars: IAppEnvVar[],
+        overrideOptions?: string[]
     ) {
         const self = this
         return Promise.resolve() //
@@ -272,7 +275,8 @@ export default class ImageMaker {
                                 tarFilePath,
                                 self.buildLogsManager.getAppBuildLogs(appName),
                                 envVars,
-                                registryConfig
+                                registryConfig,
+                                overrideOptions
                             )
                             .catch(function (error: AnyError) {
                                 throw ApiStatusCodes.createError(
