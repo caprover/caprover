@@ -13,6 +13,11 @@ class TemplateHelper {
                 tagSuffix: '-alpine',
             },
             {
+                templateName: 'node-typescript',
+                dockerHubImageName: 'library/node',
+                tagSuffix: '-alpine',
+            },
+            {
                 templateName: 'php',
                 dockerHubImageName: 'library/php',
                 tagSuffix: '-apache',
