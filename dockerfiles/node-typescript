@@ -1,4 +1,4 @@
-# FROM node:18-alpine as builder
+# FROM node:18-alpine
 # Uncomment the line above if you want to use a Dockerfile instead of templateId
 
 
@@ -13,15 +13,15 @@ COPY ./ /usr/src/app
 
 RUN npm run build -- --outDir build
 
-FROM node:18-alpine as run
+FROM node:18-alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/package*.json /usr/src/app
+COPY --from=0 /usr/src/app/package*.json /usr/src/app
 
 RUN npm install --production && npm cache clean --force
-COPY --from=builder /usr/src/app/build /usr/src/app/build
+COPY --from=0 /usr/src/app/build /usr/src/app/build
 
 ENV NODE_ENV production
 ENV PORT 80
