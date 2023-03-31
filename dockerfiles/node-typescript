@@ -18,7 +18,7 @@ FROM node:18-alpine
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY --from=0 /usr/src/app/package*.json /usr/src/app
+COPY --from=0 /usr/src/app/package*.json /usr/src/app/
 
 RUN npm install --production && npm cache clean --force
 COPY --from=0 /usr/src/app/build /usr/src/app/build
