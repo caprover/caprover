@@ -282,6 +282,9 @@ export function install() {
             return backupManger.checkAndPrepareRestoration()
         })
         .then(function () {
+            if (CaptainConstants.configs.useExistingSwarm) {
+                return DockerApi.get().ensureSwarmExists()
+            }
             return DockerApi.get().initSwarm(myIp4)
         })
         .then(function (swarmId: string) {

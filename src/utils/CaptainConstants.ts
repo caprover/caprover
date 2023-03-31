@@ -46,6 +46,10 @@ const configs = {
     defaultEmail: 'runner@caprover.com',
 
     captainSubDomain: 'captain',
+
+    overlayNetworkOverride: {},
+
+    useExistingSwarm: false,
 }
 
 const data = {

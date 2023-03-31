@@ -136,7 +136,8 @@ class CaptainManager {
             })
             .then(function () {
                 return dockerApi.ensureOverlayNetwork(
-                    CaptainConstants.captainNetworkName
+                    CaptainConstants.captainNetworkName,
+                    CaptainConstants.configs.overlayNetworkOverride
                 )
             })
             .then(function () {
