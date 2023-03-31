@@ -134,7 +134,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     }
 })
 
-httpProxy.on('error', function (err, req, resOriginal) {
+httpProxy.on('error', function (err, req, resOriginal: any) {
     if (err) {
         Logger.e(err)
     }
