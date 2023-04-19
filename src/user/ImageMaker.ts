@@ -468,9 +468,12 @@ export default class ImageMaker {
                 }
             })
             .then(function (dockerfileContent) {
+                const hasCustomCMD = data.customCMD && data.customCMD.length > 0;
+                const finalDockerFileContent = hasCustomCMD ? dockerfileContent.replace(/CMD.*/g, `CMD ${data.customCMD}`) : dockerfileContent
+
                 return fs.outputFile(
                     `${directoryWithCaptainDefinition}/${DOCKER_FILE}`,
-                    dockerfileContent
+                    finalDockerFileContent
                 )
             })
     }
