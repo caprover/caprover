@@ -48,6 +48,10 @@ interface IAppCustomDomain {
     hasSsl: boolean
 }
 
+interface IAppTag {
+    tagName: string
+}
+
 interface IAppDefinitionBase {
     description: string
     deployedVersion: number
@@ -65,6 +69,7 @@ interface IAppDefinitionBase {
     customNginxConfig?: string
     networks: string[]
     customDomain: IAppCustomDomain[]
+    tags?: IAppTag[]
     ports: IAppPort[]
     volumes: IAppVolume[]
     envVars: IAppEnvVar[]
