@@ -1,11 +1,13 @@
 ## [Next Version - available as `edge`]
 
 -   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
--   Improved: allowing custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
--   Improved: Enabling gzip for the dashboard for a faster load
--   Improved: Allowing custom captain domain for webhooks [PR-1330](https://github.com/caprover/caprover/pull/1330)
--   Improved: Update Netdata [PR-1432](https://github.com/caprover/caprover/pull/1432)
--   Improved: Adding support for overwriting app defaults NGINX config [PR-1377](https://github.com/caprover/caprover/pull/1377)
+-   Improved: Allowed custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
+-   Improved: Enabled gzip for the dashboard for a faster load
+-   Improved: Allowed custom captain domain for webhooks [PR-1330](https://github.com/caprover/caprover/pull/1330)
+-   Improved: Updated Netdata version [PR-1432](https://github.com/caprover/caprover/pull/1432)
+-   Improved: Added support for overwriting app defaults NGINX config [PR-1377](https://github.com/caprover/caprover/pull/1377)
+-   Improved: Added support for app tags for grouping [PR-118](https://github.com/caprover/caprover-frontend/pull/118)
+-   Improved: Added support for overriding mesh network settings and using an existing Docker Swarm [56e739c](https://github.com/caprover/caprover/commit/56e739c0f57ce873bf8d032de838c415548041b7)
 -   Fixed: Allowing dots to be present in repo names [PR-1553](https://github.com/caprover/caprover/pull/1553)
 
 
