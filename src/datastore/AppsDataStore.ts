@@ -615,6 +615,7 @@ class AppsDataStore {
         repoInfo: RepoInfo,
         authenticator: Authenticator,
         customNginxConfig: string,
+        redirectDomain: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
@@ -689,6 +690,7 @@ class AppsDataStore {
                 appObj.websocketSupport = !!websocketSupport
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
+                appObj.redirectDomain = redirectDomain
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
@@ -887,6 +889,7 @@ class AppsDataStore {
                 notExposeAsWebApp: false,
                 customDomain: [],
                 hasDefaultSubDomainSsl: false,
+                redirectDomain: '',
                 forceSsl: false,
                 websocketSupport: false,
             }

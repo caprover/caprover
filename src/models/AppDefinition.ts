@@ -67,6 +67,7 @@ interface IAppDefinitionBase {
     preDeployFunction?: string
     serviceUpdateOverride?: string
     customNginxConfig?: string
+    redirectDomain?: string
     networks: string[]
     customDomain: IAppCustomDomain[]
     tags?: IAppTag[]
