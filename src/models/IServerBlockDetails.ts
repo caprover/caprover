@@ -13,4 +13,5 @@ interface IServerBlockDetails {
     keyPath?: string
     customErrorPagesDirectory: string
     staticWebRoot: string
+    redirectToPath?: string
 }

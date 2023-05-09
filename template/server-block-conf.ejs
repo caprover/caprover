@@ -57,6 +57,18 @@ server {
 
         location / {
 
+
+	<%
+	if (s.redirectToPath) {
+	%>
+	    return 302 <%-s.redirectToPath%>
+	<%
+	}
+	%>
+
+
+
+
     <%
     if (s.httpBasicAuthPath) {
     %>
