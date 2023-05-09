@@ -327,6 +327,7 @@ router.post('/update/', function (req, res, next) {
     const volumes = req.body.volumes || []
     const ports = req.body.ports || []
     const instanceCount = req.body.instanceCount || '0'
+    const redirectDomain = req.body.redirectDomain || ''
     const preDeployFunction = req.body.preDeployFunction || ''
     const serviceUpdateOverride = req.body.serviceUpdateOverride || ''
     const containerHttpPort = Number(req.body.containerHttpPort) || 80
@@ -399,6 +400,7 @@ router.post('/update/', function (req, res, next) {
             ports,
             repoInfo,
             customNginxConfig,
+            redirectDomain,
             preDeployFunction,
             serviceUpdateOverride,
             websocketSupport,
