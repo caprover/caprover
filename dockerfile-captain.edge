@@ -20,7 +20,6 @@ RUN npm ci && \
  # This quick hack invalidates the cache.
 ADD https://www.google.com /time.now
 
-ENV FRONTEND_COMMIT_HASH 1ff9807e1185d0c7f6fbce0bc4939cd4d42f3bfa
 
 # armV7 fails: https://github.com/yarnpkg/yarn/issues/5259 https://github.com/nodejs/docker-node/issues/1335
 # RUN curl -Iv https://registry.yarnpkg.com/@ant-design/icons-svg/-/icons-svg-4.1.0.tgz && \
@@ -28,7 +27,6 @@ RUN curl -Iv https://registry.yarnpkg.com/ && \
     mkdir -p /usr/src/app-frontend && cd /usr/src/app-frontend && \
     git clone https://github.com/githubsaturn/caprover-frontend.git && \
     cd caprover-frontend && \
-    git reset --hard ${FRONTEND_COMMIT_HASH} && \
     git log --max-count=1 && \
     yarn install  --no-cache --frozen-lockfile --network-timeout 600000 && echo "Installation finished" && \
     yarn run build && echo "Building finished" && \
