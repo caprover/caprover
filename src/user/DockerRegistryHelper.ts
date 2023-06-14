@@ -350,7 +350,7 @@ class DockerRegistryHelper {
                 Logger.e(err)
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.AUTHENTICATION_FAILED,
-                    'Authentication failed. Either username, password or domain is incorrect.'
+                    'Registry authentication failed. Either username, password or domain is incorrect.'
                 )
             })
     }
