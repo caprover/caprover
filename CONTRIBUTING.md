@@ -13,14 +13,14 @@ The goal is to make the common use-cases exposed via simple controls on UI while
 
 ## Pull Request Process
 
-1. IF APPLICABLE: Update the docs (https://github.com/caprover/caprover-website) with details of changes to the interface, this includes new environment
+1. IF APPLICABLE: Update the docs (<https://github.com/caprover/caprover-website>) with details of changes to the interface, this includes new environment
    variables, exposed ports, useful file locations and container parameters.
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
 4. Please avoid making opinion-based changes if it's just a code-style change - this includes, but not limited to, changes to how we work with promises, class inheritence and etc.
 5. To keep the process simple with just a few contributors, development happens directly on the master branch
    and releases will be deployed on the same branch.
-6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
+6. By creating a Pull Request, you agree to all terms in <https://github.com/caprover/caprover/blob/master/contrib.md>
 
 ### Running backend dev environment
 
@@ -28,11 +28,13 @@ First, you need a Captain instance running in debug mode, this can be a remote s
 or your local machine itself. Needless to say, Docker is required (same minimum version as mentioned in README). Ubuntu is the best dev environment for CapRover.
 
 Log in to your machine, clone the git repo and run the following lines:
+
 #### On Linux and Windows
+
 ```bash
-$   npm install
-$   npm run build
-$   sudo ./dev-scripts/dev-clean-run-as-dev.sh
+npm install
+npm run build
+sudo ./dev-scripts/dev-clean-run-as-dev.sh
 ```
 
 You are good to go! You can run the following line to see the logs for the back-end service.
@@ -42,11 +44,14 @@ npm run dev
 ```
 
 #### On macOs
+
 ##### Prepare your system (for Catalina and above)
+
 Because of security restriction we have more step to apply on macOs.
 Create a folder wherever you want (for me it will be /opt/captain).
 Link this folder to the root folder (Apple does not allow to create folder on the root but you can do it with a symb link by adding the file in `/etc/synthetic.conf` [see](https://stackoverflow.com/questions/58396821/what-is-the-proper-way-to-create-a-root-sym-link-in-catalina))
 (don't panic id the file does not exist, if you create it will work well.)
+
 1) `sudo vi /etc/synthetic.conf`
 2) add `captain opt/captain` into this file (note this is a tab and not a space ((Ctrl-V + Tab) character))
 3) reboot
@@ -57,23 +62,25 @@ Link this folder to the root folder (Apple does not allow to create folder on th
 > You need to add `/captain` to shared paths.  
 > To do so, click on the Docker icon -> Preferences -> Ressources -> File Sharing and add `/captain`
 
-##### 
+#####
+
 use node 14 then
+
 ```bash
-$   npm install
-$   npm run build
-$   sudo ./dev-scripts/dev-clean-run-as-dev-macos-step-1.sh
-$   ./dev-scripts/dev-clean-run-as-dev-macos-step-2.sh
+npm install
+npm run build
+sudo ./dev-scripts/dev-clean-run-as-dev-macos-step-1.sh
+./dev-scripts/dev-clean-run-as-dev-macos-step-2.sh
 ```
 
 The main differences between the release and debug mode are:
 
--   docker image is created from the local source file, instead of getting pulled from Docker hub
--   security is much weaker is debug due to a static salt
--   self health monitoring is disabled in debug so that we can see possible crashes
--   same origin policy is disabled in debug mode to make front end development easier
--   an additional endpoint is available at `/force-exit` which force restarts the backend service
--   static resources (including front end app) are not being served in debug build.
+- docker image is created from the local source file, instead of getting pulled from Docker hub
+- security is much weaker is debug due to a static salt
+- self health monitoring is disabled in debug so that we can see possible crashes
+- same origin policy is disabled in debug mode to make front end development easier
+- an additional endpoint is available at `/force-exit` which force restarts the backend service
+- static resources (including front end app) are not being served in debug build.
 
 Captain by default uses `captain.localhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
@@ -87,15 +94,15 @@ path of it will be printed on the terminal, otherwise, there won't be anything p
 
 To test the API, you can import the Postman collection JSON in `./dev-scripts` directory.
 
-### front end development:
+### front end development
 
-See https://github.com/caprover/caprover-frontend
+See <https://github.com/caprover/caprover-frontend>
 
-### CLI development:
+### CLI development
 
-See https://github.com/caprover/caprover-cli
+See <https://github.com/caprover/caprover-cli>
 
-### Backend development:
+### Backend development
 
 Start the debug build for the backend service as explained above. To see any changes you make,
 first save the changes, then you need to restart the service either by sending a request to `/force-exit` endpoint,
@@ -121,21 +128,21 @@ orientation.
 Examples of behavior that contributes to creating a positive environment
 include:
 
--   Using welcoming and inclusive language
--   Being respectful of differing viewpoints and experiences
--   Gracefully accepting constructive criticism
--   Focusing on what is best for the community
--   Showing empathy towards other community members
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
 
 Examples of unacceptable behavior by participants include:
 
--   The use of sexualized language or imagery and unwelcome sexual attention or
+- The use of sexualized language or imagery and unwelcome sexual attention or
     advances
--   Trolling, insulting/derogatory comments, and personal or political attacks
--   Public or private harassment
--   Publishing others' private information, such as a physical or electronic
+- Trolling, insulting/derogatory comments, and personal or political attacks
+- Public or private harassment
+- Publishing others' private information, such as a physical or electronic
     address, without explicit permission
--   Other conduct which could reasonably be considered inappropriate in a
+- Other conduct which could reasonably be considered inappropriate in a
     professional setting
 
 ### Our Responsibilities
@@ -171,6 +178,8 @@ Further details of specific enforcement policies may be posted separately.
 Project maintainers who do not follow or enforce the Code of Conduct in good
 faith may face temporary or permanent repercussions as determined by other
 members of the project's leadership.
+
+### Build from source production
 
 ### Attribution
 
