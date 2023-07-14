@@ -570,6 +570,24 @@ class CaptainManager {
                             key: 'SSMTP_PASS',
                             value: netDataInfo.data.smtp.password,
                         })
+
+                        // See: https://github.com/titpetric/netdata#changelog
+                        const otherEnvVars: any[] = []
+                        envVars.forEach((e) => {
+                            otherEnvVars.push({
+                                // change SSMTP to SMTP
+                                key: e.key.replace('SSMTP_', 'SMTP_'),
+                                value: e.value,
+                            })
+                        })
+                        envVars.push(...otherEnvVars)
+
+                        envVars.push({
+                            key: 'SMTP_STARTTLS',
+                            value: netDataInfo.data.smtp.allowNonTls
+                                ? ''
+                                : 'on',
+                        })
                     }
 
                     if (netDataInfo.data.slack) {
