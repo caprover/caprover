@@ -50,6 +50,13 @@ const configs = {
     overlayNetworkOverride: {},
 
     useExistingSwarm: false,
+
+    proApiDomains: [
+        'https://i1.v1.proapi.caprover.com',
+        'https://i2.v1.proapi.caprover.com',
+    ],
+
+    analyticsDomain: 'https://v1.analytics.caprover.com',
 }
 
 const data = {
@@ -164,6 +171,8 @@ const data = {
     headerAppToken: 'x-captain-app-token',
 
     headerNamespace: 'x-namespace',
+
+    headerCapRoverVersion: 'x-caprover-version',
 
     // *********************     ETC       ************************
 

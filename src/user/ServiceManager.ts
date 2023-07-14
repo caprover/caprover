@@ -8,6 +8,11 @@ import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Authenticator from './Authenticator'
 import DockerRegistryHelper from './DockerRegistryHelper'
+import { EventLogger } from './events/EventLogger'
+import {
+    CapRoverEventFactory,
+    CapRoverEventType,
+} from './events/ICapRoverEvent'
 import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
 import LoadBalancerManager from './system/LoadBalancerManager'
@@ -37,6 +42,7 @@ class ServiceManager {
         dataStore: DataStore,
         dockerApi: DockerApi,
         loadBalancerManager: LoadBalancerManager,
+        eventLogger: EventLogger,
         domainResolveChecker: DomainResolveChecker
     ) {
         if (!serviceMangerCache[namespace]) {
@@ -45,6 +51,7 @@ class ServiceManager {
                 authenticator,
                 dockerApi,
                 loadBalancerManager,
+                eventLogger,
                 domainResolveChecker
             )
         }
@@ -63,6 +70,7 @@ class ServiceManager {
         private authenticator: Authenticator,
         private dockerApi: DockerApi,
         private loadBalancerManager: LoadBalancerManager,
+        private eventLogger: EventLogger,
         private domainResolveChecker: DomainResolveChecker
     ) {
         this.activeOrScheduledBuilds = {}
@@ -189,6 +197,16 @@ class ServiceManager {
             })
             .then(function () {
                 self.onBuildFinished(appName)
+
+                self.eventLogger.trackEvent(
+                    CapRoverEventFactory.create(
+                        CapRoverEventType.AppBuildSuccessful,
+                        {
+                            appName,
+                        }
+                    )
+                )
+
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function (error) {
@@ -821,7 +839,15 @@ class ServiceManager {
     }
 
     logBuildFailed(appName: string, error: string) {
+        const self = this
         error = (error || '') + ''
+
+        self.eventLogger.trackEvent(
+            CapRoverEventFactory.create(CapRoverEventType.AppBuildFailed, {
+                appName,
+                error: error.substring(0, 1000),
+            })
+        )
         this.buildLogsManager.getAppBuildLogs(appName).onBuildFailed(error)
     }
 

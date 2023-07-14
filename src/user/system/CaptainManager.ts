@@ -9,6 +9,12 @@ import Logger from '../../utils/Logger'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
+import { EventLoggerFactory } from '../events/EventLogger'
+import {
+    CapRoverEventFactory,
+    CapRoverEventType,
+} from '../events/ICapRoverEvent'
+import ProManager from '../pro/ProManager'
 import ServiceManager from '../ServiceManager'
 import BackupManager from './BackupManager'
 import CertbotManager from './CertbotManager'
@@ -249,6 +255,17 @@ class CaptainManager {
 
                 self.performHealthCheck()
 
+                EventLoggerFactory.get(
+                    new ProManager(self.dataStore.getProDataStore())
+                )
+                    .getLogger()
+                    .trackEvent(
+                        CapRoverEventFactory.create(
+                            CapRoverEventType.InstanceStarted,
+                            {}
+                        )
+                    )
+
                 Logger.d(
                     '**** Captain is initialized and ready to serve you! ****'
                 )
@@ -459,6 +476,9 @@ class CaptainManager {
                     self.dataStore,
                     self.dockerApi,
                     CaptainManager.get().getLoadBalanceManager(),
+                    EventLoggerFactory.get(
+                        new ProManager(self.dataStore.getProDataStore())
+                    ).getLogger(),
                     CaptainManager.get().getDomainResolveChecker()
                 )
                 Object.keys(apps).forEach((appName) => {
@@ -569,6 +589,24 @@ class CaptainManager {
                         envVars.push({
                             key: 'SSMTP_PASS',
                             value: netDataInfo.data.smtp.password,
+                        })
+
+                        // See: https://github.com/titpetric/netdata#changelog
+                        const otherEnvVars: any[] = []
+                        envVars.forEach((e) => {
+                            otherEnvVars.push({
+                                // change SSMTP to SMTP
+                                key: e.key.replace('SSMTP_', 'SMTP_'),
+                                value: e.value,
+                            })
+                        })
+                        envVars.push(...otherEnvVars)
+
+                        envVars.push({
+                            key: 'SMTP_STARTTLS',
+                            value: netDataInfo.data.smtp.allowNonTls
+                                ? ''
+                                : 'on',
                         })
                     }
 

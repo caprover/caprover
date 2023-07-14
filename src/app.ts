@@ -6,6 +6,7 @@ import cookieParser = require('cookie-parser')
 import bodyParser = require('body-parser')
 import httpProxyImport = require('http-proxy')
 
+import * as http from 'http'
 import ApiStatusCodes from './api/ApiStatusCodes'
 import BaseApi from './api/BaseApi'
 import InjectionExtractor from './injection/InjectionExtractor'
@@ -134,7 +135,7 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
     }
 })
 
-httpProxy.on('error', function (err, req, resOriginal: any) {
+httpProxy.on('error', function (err, req, resOriginal: http.ServerResponse) {
     if (err) {
         Logger.e(err)
     }

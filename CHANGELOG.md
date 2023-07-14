@@ -8,9 +8,10 @@
 -   Improved: Added support for overwriting app defaults NGINX config [PR-1377](https://github.com/caprover/caprover/pull/1377)
 -   Improved: Added support for app tags for grouping [PR-118](https://github.com/caprover/caprover-frontend/pull/118)
 -   Improved: Added support for overriding mesh network settings and using an existing Docker Swarm [56e739c](https://github.com/caprover/caprover/commit/56e739c0f57ce873bf8d032de838c415548041b7)
--   Improved: Added support for domain aliases (redirecting to spacific domains) [PR-1744](https://github.com/caprover/caprover/pull/1744)
+-   Improved: Added support for domain aliases (redirecting to specific domains) [PR-1744](https://github.com/caprover/caprover/pull/1744)
+-   New/Experimental: Premium features (two factor auth, build success and failure alerts, login alerts)
+-   New/Experimental: Anonymous analytics. Read TERMS_AND_CONDITIONS.md for details.
 -   Fixed: Allowing dots to be present in repo names [PR-1553](https://github.com/caprover/caprover/pull/1553)
-
 
 ## [1.10.1] - 2021-10-09
 

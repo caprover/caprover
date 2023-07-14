@@ -6,6 +6,7 @@ import fs = require('fs-extra')
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import AppsDataStore from './AppsDataStore'
+import ProDataStore from './ProDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
 
 // keys:
@@ -48,6 +49,7 @@ class DataStore {
     private data: Configstore
     private appsDataStore: AppsDataStore
     private registriesDataStore: RegistriesDataStore
+    proDataStore: ProDataStore
 
     constructor(namespace: string) {
         const data = new Configstore(
@@ -62,6 +64,7 @@ class DataStore {
         this.namespace = namespace
         this.data.set(NAMESPACE, namespace)
         this.appsDataStore = new AppsDataStore(this.data, namespace)
+        this.proDataStore = new ProDataStore(this.data)
         this.registriesDataStore = new RegistriesDataStore(this.data, namespace)
     }
 
@@ -146,6 +149,10 @@ class DataStore {
 
     getAppsDataStore() {
         return this.appsDataStore
+    }
+
+    getProDataStore() {
+        return this.proDataStore
     }
 
     getRegistriesDataStore() {

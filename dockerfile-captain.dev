@@ -1,0 +1,35 @@
+FROM node:18-alpine
+RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+
+# Build backend code
+
+COPY . /usr/src/app
+
+RUN npm ci && \
+     npm cache clean --force && \
+     npm run build 
+
+
+# Build frontend code
+
+ # This quick hack invalidates the cache.
+ADD https://www.google.com /time.now
+
+# armV7 fails: https://github.com/yarnpkg/yarn/issues/5259 https://github.com/nodejs/docker-node/issues/1335
+RUN curl -Iv https://registry.yarnpkg.com/@ant-design/icons-svg/-/icons-svg-4.1.0.tgz && \
+    cd temp-frontend && \
+    yarn install  --no-cache --frozen-lockfile --network-timeout 600000 && echo "Installation finished" && \
+    yarn run build && echo "Building finished" && \
+    mv ./build ../dist-frontend && \
+    cd / && \
+    rm -rf /usr/src/app/temp-frontend
+
+ENV NODE_ENV production
+ENV PORT 3000
+EXPOSE 3000
+
+CMD ["node" , "./built/server.js"]

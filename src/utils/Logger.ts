@@ -29,9 +29,9 @@ class Logger {
         }
     }
 
-    static e(msgOrError: AnyError) {
+    static e(msgOrError: AnyError, message?: string) {
         const err = errorize(msgOrError)
-        console.error(`${getTime() + err}
+        console.error(`${getTime() + ((message || '') + '\n') + err}
 ${err.stack}`)
     }
 }

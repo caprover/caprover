@@ -1,5 +1,5 @@
-FROM node:18
-RUN apt-get update && apt-get full-upgrade -yqq && apt-get install build-essential cmake -yqq
+FROM node:18-alpine
+RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

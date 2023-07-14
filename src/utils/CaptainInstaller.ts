@@ -211,6 +211,19 @@ export function install() {
 
     Promise.resolve()
         .then(function () {
+            if (!EnvVar.ACCEPTED_TERMS) {
+                throw new Error(
+                    `
+                Add the following to the installer line:
+                -e ACCEPTED_TERMS=true
+                
+                Terms of service must be accepted before installation, view them here: 
+                https://github.com/caprover/caprover/blob/master/TERMS_AND_CONDITIONS.md
+                `.trim()
+                )
+            }
+        })
+        .then(function () {
             printTroubleShootingUrl()
         })
         .then(function () {
