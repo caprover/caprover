@@ -22,3 +22,7 @@ CapRover developers will do their best to ensure that CapRover remains functiona
 ### Analytics
 
 CapRover has built in anonymous usage analytics starting v1.11. CapRover **never** sends any private data, such as env vars, private images, etc. This data is only used to understand usage patterns of CapRover and optimize the experience for the users. If you wish to disable anonymous analytics, you can do so by passing an env variable CAPROVER_DISABLE_ANALYTICS=true to CapRover service. In the future, we will use this information to find out which one click apps are popular, whether or not we should focus on supporting multiple nodes (percentage of single node vs multi node), whether or not we should invest in supporting multi CPU clusters, and etc.
+
+### Future changes
+
+Terms of Service / Terms & Conditions may change at any point without a prior notice.
