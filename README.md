@@ -53,11 +53,11 @@ For more details and documentation, please visit https://CapRover.com/
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+CapRover exists thanks to all the great people who have contributed to this project. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/caprover/caprover/graphs/contributors"><img src="https://opencollective.com/caprover/contributors.svg?width=690&button=false" /></a>
 
-## Backers
+## Financial Supporters
 
-Thank you to all our backers! 🙏
+A big thank you to all our supporters! 🙏
 
 [![Donate](https://opencollective.com/caprover/donate/button.png?color=blue)](https://opencollective.com/caprover#backer)
