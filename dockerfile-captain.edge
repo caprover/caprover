@@ -1,5 +1,5 @@
 FROM node:18-alpine
-RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl openssl openssh ssh
+RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl openssl openssh
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
