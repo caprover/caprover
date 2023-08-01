@@ -51,12 +51,9 @@ const configs = {
 
     useExistingSwarm: false,
 
-    proApiDomains: [
-        'https://i1.v1.proapi.caprover.com',
-        'https://i2.v1.proapi.caprover.com',
-    ],
+    proApiDomains: ['https://pro.caprover.com'],
 
-    analyticsDomain: 'https://v1.analytics.caprover.com',
+    analyticsDomain: 'https://analytics-v1.caprover.com',
 }
 
 const data = {
