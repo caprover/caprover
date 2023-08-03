@@ -7,7 +7,7 @@ export default class FeatureFlags {
     static instance: FeatureFlags
 
     featureFlags: any | undefined
-    static IS_PRO_ENABLED: 'IS_PRO_ENABLED'
+    static IS_PRO_ENABLED: 'isProEnabled'
 
     static get(datastore: DataStore) {
         if (!FeatureFlags.instance) {
