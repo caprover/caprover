@@ -17,7 +17,7 @@ export class ProEmitter extends IEventsEmitter {
                 return self.proManager.getState()
             })
             .then(function (state) {
-                if (state.isFeatureFlagEnabled && state.isSubscribed) {
+                if (state.isSubscribed) {
                     self.proManager.reportEvent(event)
                 }
             })
