@@ -9,13 +9,14 @@ import Logger from '../../utils/Logger'
 import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
+import FeatureFlags from '../FeatureFlags'
+import ServiceManager from '../ServiceManager'
 import { EventLoggerFactory } from '../events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../events/ICapRoverEvent'
 import ProManager from '../pro/ProManager'
-import ServiceManager from '../ServiceManager'
 import BackupManager from './BackupManager'
 import CertbotManager from './CertbotManager'
 import DomainResolveChecker from './DomainResolveChecker'
@@ -256,7 +257,10 @@ class CaptainManager {
                 self.performHealthCheck()
 
                 EventLoggerFactory.get(
-                    new ProManager(self.dataStore.getProDataStore())
+                    new ProManager(
+                        self.dataStore.getProDataStore(),
+                        new FeatureFlags(this.datastore)
+                    )
                 )
                     .getLogger()
                     .trackEvent(
@@ -477,7 +481,10 @@ class CaptainManager {
                     self.dockerApi,
                     CaptainManager.get().getLoadBalanceManager(),
                     EventLoggerFactory.get(
-                        new ProManager(self.dataStore.getProDataStore())
+                        new ProManager(
+                            self.dataStore.getProDataStore(),
+                            new FeatureFlags(this.datastore)
+                        )
                     ).getLogger(),
                     CaptainManager.get().getDomainResolveChecker()
                 )

@@ -25,6 +25,4 @@ export default {
 
     CAPROVER_DISABLE_ANALYTICS:
         !!process.env.CAPROVER_DISABLE_ANALYTICS || !!process.env.DO_NOT_TRACK,
-
-    PRO_FEATURES_ENABLED: !!process.env.PRO_FEATURES_ENABLED,
 }

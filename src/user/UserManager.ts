@@ -3,6 +3,7 @@ import DataStoreProvider from '../datastore/DataStoreProvider'
 import DockerApi from '../docker/DockerApi'
 import Authenticator from './Authenticator'
 import { EventLogger, EventLoggerFactory } from './events/EventLogger'
+import FeatureFlags from './FeatureFlags'
 import OtpAuthenticator from './pro/OtpAuthenticator'
 import ProManager from './pro/ProManager'
 import ServiceManager from './ServiceManager'
@@ -16,7 +17,10 @@ export class UserManager {
     eventLogger: EventLogger
     constructor(namespace: string) {
         this.datastore = DataStoreProvider.getDataStore(namespace)
-        this.proManager = new ProManager(this.datastore.getProDataStore())
+        this.proManager = new ProManager(
+            this.datastore.getProDataStore(),
+            new FeatureFlags(this.datastore)
+        )
         this.eventLogger = EventLoggerFactory.get(this.proManager).getLogger()
         this.serviceManager = ServiceManager.get(
             namespace,

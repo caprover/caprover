@@ -21,6 +21,7 @@ const NET_DATA_INFO = 'netDataInfo'
 const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
+const FEATURE_FLAGS = 'featureFlags'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
@@ -76,6 +77,18 @@ class DataStore {
 
     getNameSpace(): string {
         return this.data.get(NAMESPACE)
+    }
+
+    getFeatureFlags(): any {
+        const self = this
+        return self.data.get(FEATURE_FLAGS)
+    }
+
+    setFeatureFlags(featureFlags: any) {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.set(FEATURE_FLAGS, featureFlags)
+        })
     }
 
     setHashedPassword(newHashedPassword: string) {

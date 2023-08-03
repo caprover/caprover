@@ -3,8 +3,8 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import ProDataStore from '../../datastore/ProDataStore'
 import { IProConfig, IProFeatures } from '../../models/IProFeatures'
 import CaptainConstants from '../../utils/CaptainConstants'
-import EnvVars from '../../utils/EnvVars'
 import Logger from '../../utils/Logger'
+import FeatureFlags from '../FeatureFlags'
 import { CapRoverEventType, ICapRoverEvent } from './../events/ICapRoverEvent'
 
 type API_METHOD = 'post' | 'get'
@@ -14,7 +14,10 @@ const API_KEY_HEADER = 'x-api-key'
 export default class ProManager {
     private static activeApiIndex = Math.floor(Math.random() * 2)
 
-    constructor(private proDataStore: ProDataStore) {
+    constructor(
+        private proDataStore: ProDataStore,
+        private featureFlagsProvider: FeatureFlags
+    ) {
         //
     }
 
@@ -126,7 +129,11 @@ export default class ProManager {
             .then(function (apiKey) {
                 return {
                     isSubscribed: !!apiKey,
-                    isFeatureFlagEnabled: !!EnvVars.PRO_FEATURES_ENABLED,
+                    isFeatureFlagEnabled:
+                        self.featureFlagsProvider.featureFlags &&
+                        self.featureFlagsProvider.featureFlags[
+                            FeatureFlags.IS_PRO_ENABLED
+                        ],
                 }
             })
     }
