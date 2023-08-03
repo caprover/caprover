@@ -25,7 +25,7 @@ class VersionManager {
 
         return Promise.resolve() //
             .then(function () {
-                return axios.get('https://api.v2.caprover.com/v2/versionInfo', {
+                return axios.get('https://api-v1.caprover.com/v2/versionInfo', {
                     params: {
                         currentVersion: currentVersion,
                     },
