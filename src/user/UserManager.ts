@@ -19,7 +19,7 @@ export class UserManager {
         this.datastore = DataStoreProvider.getDataStore(namespace)
         this.proManager = new ProManager(
             this.datastore.getProDataStore(),
-            new FeatureFlags(this.datastore)
+            FeatureFlags.get(this.datastore)
         )
         this.eventLogger = EventLoggerFactory.get(this.proManager).getLogger()
         this.serviceManager = ServiceManager.get(

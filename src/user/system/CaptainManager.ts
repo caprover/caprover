@@ -259,7 +259,7 @@ class CaptainManager {
                 EventLoggerFactory.get(
                     new ProManager(
                         self.dataStore.getProDataStore(),
-                        new FeatureFlags(this.datastore)
+                        FeatureFlags.get(this.datastore)
                     )
                 )
                     .getLogger()
@@ -483,7 +483,7 @@ class CaptainManager {
                     EventLoggerFactory.get(
                         new ProManager(
                             self.dataStore.getProDataStore(),
-                            new FeatureFlags(this.datastore)
+                            FeatureFlags.get(this.datastore)
                         )
                     ).getLogger(),
                     CaptainManager.get().getDomainResolveChecker()

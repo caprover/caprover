@@ -16,7 +16,7 @@ export default class FeatureFlags {
         return FeatureFlags.instance
     }
 
-    constructor(private datastore: DataStore) {
+    private constructor(private datastore: DataStore) {
         this.refreshFeatureFlags()
         const self = this
         self.featureFlags = self.datastore.getFeatureFlags()
