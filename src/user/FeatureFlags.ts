@@ -6,8 +6,8 @@ import Logger from '../utils/Logger'
 export default class FeatureFlags {
     static instance: FeatureFlags
 
-    featureFlags: any | undefined
-    static IS_PRO_ENABLED: 'isProEnabled'
+    private featureFlags: any | undefined
+    static IS_PRO_ENABLED = 'isProEnabled'
 
     static get(datastore: DataStore) {
         if (!FeatureFlags.instance) {
@@ -20,6 +20,10 @@ export default class FeatureFlags {
         this.refreshFeatureFlags()
         const self = this
         self.featureFlags = self.datastore.getFeatureFlags()
+    }
+
+    getFeatureFlags(): any | undefined {
+        return this.featureFlags
     }
 
     private refreshFeatureFlags() {

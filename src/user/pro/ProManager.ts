@@ -127,13 +127,11 @@ export default class ProManager {
                 return self.proDataStore.getApiKey()
             })
             .then(function (apiKey) {
+                const flags = self.featureFlagsProvider.getFeatureFlags()
                 return {
                     isSubscribed: !!apiKey,
                     isFeatureFlagEnabled:
-                        self.featureFlagsProvider.featureFlags &&
-                        self.featureFlagsProvider.featureFlags[
-                            FeatureFlags.IS_PRO_ENABLED
-                        ],
+                        flags && flags[FeatureFlags.IS_PRO_ENABLED],
                 }
             })
     }
