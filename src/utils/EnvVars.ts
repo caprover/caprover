@@ -23,6 +23,8 @@ export default {
 
     DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD,
 
+    FORCE_ENABLE_PRO: process.env.FORCE_ENABLE_PRO,
+
     CAPROVER_DISABLE_ANALYTICS:
         !!process.env.CAPROVER_DISABLE_ANALYTICS || !!process.env.DO_NOT_TRACK,
 }

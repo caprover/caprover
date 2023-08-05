@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import ProDataStore from '../../datastore/ProDataStore'
 import { IProConfig, IProFeatures } from '../../models/IProFeatures'
 import CaptainConstants from '../../utils/CaptainConstants'
+import EnvVars from '../../utils/EnvVars'
 import Logger from '../../utils/Logger'
 import FeatureFlags from '../FeatureFlags'
 import { CapRoverEventType, ICapRoverEvent } from './../events/ICapRoverEvent'
@@ -131,7 +132,9 @@ export default class ProManager {
                 return {
                     isSubscribed: !!apiKey,
                     isFeatureFlagEnabled:
-                        flags && flags[FeatureFlags.IS_PRO_ENABLED],
+                        !!apiKey || // if API key is there, assume feature flag is enabled
+                        EnvVars.FORCE_ENABLE_PRO || //
+                        (flags && flags[FeatureFlags.IS_PRO_ENABLED]),
                 }
             })
     }
