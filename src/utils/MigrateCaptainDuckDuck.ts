@@ -20,7 +20,6 @@ export default class MigrateCaptainDuckDuck {
         )
     }
     migrateIfNeeded() {
-        // TODO ensure this is all happening
         // Captain Boots-up
         // - Check if old conf file is available
         // - if so, then read json file and convert the old data into new data and save the data
