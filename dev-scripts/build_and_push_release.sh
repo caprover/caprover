@@ -32,6 +32,17 @@ if [[ "$BRANCH" != "release" ]]; then
     exit 1
 fi
 
+npm ci
+node ./dev-scripts/validate-build-version-docker-hub.js
+source ./version
+git clean -fdx
+
+echo "**************************************"
+echo "**************************************"
+echo $IMAGE_NAME:$CAPROVER_VERSION
+echo "**************************************"
+echo "**************************************"
+
 FRONTEND_COMMIT_HASH=36b569a0e9f9170ea10c80c989119ac880db807b
 
 ## Building frontend app
@@ -49,9 +60,6 @@ yarn run build
 echo "Building finished"
 cd $ORIG_DIR
 mv $FRONTEND_DIR/caprover-frontend/build ./dist-frontend
-
-node ./dev-scripts/validate-build-version-docker-hub.js
-source ./version
 
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 export DOCKER_CLI_EXPERIMENTAL=enabled
