@@ -33,6 +33,7 @@ if [[ "$BRANCH" != "release" ]]; then
 fi
 
 npm ci
+npm build
 node ./dev-scripts/validate-build-version-docker-hub.js
 source ./version
 git clean -fdx
