@@ -32,7 +32,7 @@ if [[ "$BRANCH" != "release" ]]; then
     exit 1
 fi
 
-FRONTEND_COMMIT_HASH=3a5f5d584e1e51ac22f07dea09be171bec9425a5
+FRONTEND_COMMIT_HASH=36b569a0e9f9170ea10c80c989119ac880db807b
 
 ## Building frontend app
 ORIG_DIR=$(pwd)
