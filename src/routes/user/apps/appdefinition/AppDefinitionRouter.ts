@@ -94,6 +94,7 @@ router.get('/', function (req, res, next) {
             baseApi.data = {
                 appDefinitions: appsArray,
                 rootDomain: dataStore.getRootDomain(),
+                captainSubDomain: CaptainConstants.configs.captainSubDomain,
                 defaultNginxConfig: defaultNginxConfig,
             }
 
@@ -125,7 +126,7 @@ router.post('/customdomain/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName
-    const customDomain = (req.body.customDomain || '').toLowerCase()
+    const customDomain = (req.body.customDomain || '').toLowerCase().trim()
 
     // verify customdomain.com going through the default NGINX
     // Add customdomain.com to app in Data Store
@@ -315,6 +316,7 @@ router.post('/update/', function (req, res, next) {
     const captainDefinitionRelativeFilePath =
         req.body.captainDefinitionRelativeFilePath
     const notExposeAsWebApp = req.body.notExposeAsWebApp
+    const tags = req.body.tags || []
     const customNginxConfig = req.body.customNginxConfig
     const forceSsl = !!req.body.forceSsl
     const websocketSupport = !!req.body.websocketSupport
@@ -325,6 +327,7 @@ router.post('/update/', function (req, res, next) {
     const volumes = req.body.volumes || []
     const ports = req.body.ports || []
     const instanceCount = req.body.instanceCount || '0'
+    const redirectDomain = req.body.redirectDomain || ''
     const preDeployFunction = req.body.preDeployFunction || ''
     const serviceUpdateOverride = req.body.serviceUpdateOverride || ''
     const containerHttpPort = Number(req.body.containerHttpPort) || 80
@@ -388,6 +391,7 @@ router.post('/update/', function (req, res, next) {
             captainDefinitionRelativeFilePath,
             envVars,
             volumes,
+            tags,
             nodeId,
             notExposeAsWebApp,
             containerHttpPort,
@@ -396,6 +400,7 @@ router.post('/update/', function (req, res, next) {
             ports,
             repoInfo,
             customNginxConfig,
+            redirectDomain,
             preDeployFunction,
             serviceUpdateOverride,
             websocketSupport,

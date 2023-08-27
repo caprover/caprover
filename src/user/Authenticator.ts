@@ -13,6 +13,14 @@ const COOKIE_AUTH_SUFFIX = 'cookie-'
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push'
 const DOWNLOAD_TOKEN = '-download-token'
 
+export interface OtpConfig {
+    otpToken: string
+    otpAuthenticator: {
+        // getting around circular dependency
+        isOtpTokenValid: (providedToken: string) => Promise<boolean>
+    }
+}
+
 class Authenticator {
     private encryptionKey: string
     private namespace: string
@@ -77,8 +85,13 @@ class Authenticator {
         })
     }
 
-    getAuthTokenForCookies(password: string, savedHashedPassword: string) {
+    getAuthTokenForCookies(
+        otpConfig: OtpConfig,
+        password: string,
+        savedHashedPassword: string
+    ) {
         return this.getAuthToken(
+            otpConfig,
             password,
             savedHashedPassword,
             COOKIE_AUTH_SUFFIX
@@ -86,21 +99,36 @@ class Authenticator {
     }
 
     getAuthToken(
+        otpConfig: OtpConfig,
         password: string,
         savedHashedPassword: string,
         keySuffix?: string
     ) {
         const self = this
 
+        // intentionally same error to avoid giving bad actors any hints
+        const INVALID_CREDS_ERROR = 'Invalid credentials'
+
         return Promise.resolve()
             .then(function () {
+                return otpConfig.otpAuthenticator.isOtpTokenValid(
+                    otpConfig.otpToken
+                )
+            })
+            .then(function (otpValid) {
+                if (!otpValid) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_WRONG_PASSWORD,
+                        INVALID_CREDS_ERROR
+                    )
+                }
                 return self.isPasswordCorrect(password, savedHashedPassword)
             })
             .then(function (isPasswordCorrect) {
                 if (!isPasswordCorrect) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_WRONG_PASSWORD,
-                        'Password is incorrect.'
+                        INVALID_CREDS_ERROR
                     )
                 }
 

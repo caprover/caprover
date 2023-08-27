@@ -29,64 +29,75 @@ afterEach(() => {
     return cleanup()
 })
 
-test('No backup file', () => {
-    const bk = new BackupManager()
-    return Promise.resolve()
-        .then(function () {
-            return bk.checkAndPrepareRestoration()
-        })
-        .then(function (data) {
-            expect(data).toBeFalsy()
-        })
-})
+if (process.env.CI) {
+    describe('backup tests [CI only]', backupTests)
+} else {
+    describe.skip('backup tests [CI only]', backupTests)
+}
 
-test('Test backup file', () => {
-    const bk = new BackupManager()
-    return Promise.resolve()
-        .then(function () {
-            return copy(`${__dirname}/backup.tar`, BACKUP_FILE_PATH_ABSOLUTE)
-        })
-        .then(function () {
-            return bk.checkAndPrepareRestoration()
-        })
-        .then(function () {
-            return readJson(
-                CaptainConstants.restoreDirectoryPath +
-                    '/restore-instructions.json'
-            )
-        })
-        .then(function (ret: RestoringInfo) {
-            const expectedValue = {
-                nodesMapping: [
-                    {
-                        newIp: 'CURRENT_NODE_DONT_CHANGE',
-                        oldIp: '123.123.123.123',
-                        privateKeyPath: '',
-                        user: '',
-                    },
-                ],
-                oldNodesForReference: [
-                    {
-                        nodeData: {
-                            nodeId: '123456789',
-                            type: 'manager',
-                            isLeader: true,
-                            hostname: 'test',
-                            architecture: 'x86_64',
-                            operatingSystem: 'linux',
-                            nanoCpu: 8000000000,
-                            memoryBytes: 8241434624,
-                            dockerEngineVersion: '18.09.2',
-                            ip: '123.123.123.123',
-                            state: 'ready',
-                            status: 'active',
+function backupTests() {
+    test('No backup file', () => {
+        const bk = new BackupManager()
+        return Promise.resolve()
+            .then(function () {
+                return bk.checkAndPrepareRestoration()
+            })
+            .then(function (data) {
+                expect(data).toBeFalsy()
+            })
+    })
+
+    test('Test backup file', () => {
+        const bk = new BackupManager()
+        return Promise.resolve()
+            .then(function () {
+                return copy(
+                    `${__dirname}/backup.tar`,
+                    BACKUP_FILE_PATH_ABSOLUTE
+                )
+            })
+            .then(function () {
+                return bk.checkAndPrepareRestoration()
+            })
+            .then(function () {
+                return readJson(
+                    CaptainConstants.restoreDirectoryPath +
+                        '/restore-instructions.json'
+                )
+            })
+            .then(function (ret: RestoringInfo) {
+                const expectedValue = {
+                    nodesMapping: [
+                        {
+                            newIp: 'CURRENT_NODE_DONT_CHANGE',
+                            oldIp: '123.123.123.123',
+                            privateKeyPath: '',
+                            user: '',
                         },
-                        appsLockOnThisNode: ['pers1'],
-                    },
-                ],
-            }
-            expect(isDeepStrictEqual(ret, expectedValue)).toBe(true)
-            ret.nodesMapping[0].oldIp += ' '
-            expect(isDeepStrictEqual(ret, expectedValue)).toBe(false)
-        })
-})
+                    ],
+                    oldNodesForReference: [
+                        {
+                            nodeData: {
+                                nodeId: '123456789',
+                                type: 'manager',
+                                isLeader: true,
+                                hostname: 'test',
+                                architecture: 'x86_64',
+                                operatingSystem: 'linux',
+                                nanoCpu: 8000000000,
+                                memoryBytes: 8241434624,
+                                dockerEngineVersion: '18.09.2',
+                                ip: '123.123.123.123',
+                                state: 'ready',
+                                status: 'active',
+                            },
+                            appsLockOnThisNode: ['pers1'],
+                        },
+                    ],
+                }
+                expect(isDeepStrictEqual(ret, expectedValue)).toBe(true)
+                ret.nodesMapping[0].oldIp += ' '
+                expect(isDeepStrictEqual(ret, expectedValue)).toBe(false)
+            })
+    })
+}

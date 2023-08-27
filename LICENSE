@@ -1,4 +1,4 @@
-Copyright 2017-2020 Kasra Bigdeli
+Copyright 2017-2023 Kasra Bigdeli
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,3 +11,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+Appendix:
+In case of a conflict, the terms of this appendix supersede the general apache license.
+
+-   Unless provided with a written agreement, the paid features of CapRover (as a service) cannot be modified.
+-   Unless provided with a written agreement, no persons are permitted to redistribute another paid version of CapRover.
+-   Furthermore, any modifications of free features of CapRover should be distributed as free & opensource software.
+
+If you have any questions, please feel free to reach out to us.
+
+For terms and conditions of the software and the service, please see TERMS_AND_CONDITIONS.md

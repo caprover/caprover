@@ -126,7 +126,7 @@ function checkPortOrThrow(ipAddr: string, portToTest: number) {
         console.log(' ')
         console.log(' ')
         console.log(
-            'Are your trying to run CapRover on a local machine or a machine without public IP?'
+            'Are you trying to run CapRover on a local machine or a machine without a public IP?'
         )
         console.log(
             'In that case, you need to add this to your installation command:'
@@ -211,6 +211,19 @@ export function install() {
 
     Promise.resolve()
         .then(function () {
+            if (!EnvVar.ACCEPTED_TERMS) {
+                throw new Error(
+                    `
+                Add the following to the installer line:
+                -e ACCEPTED_TERMS=true
+                
+                Terms of service must be accepted before installation, view them here: 
+                https://github.com/caprover/caprover/blob/master/TERMS_AND_CONDITIONS.md
+                `.trim()
+                )
+            }
+        })
+        .then(function () {
             printTroubleShootingUrl()
         })
         .then(function () {
@@ -282,6 +295,9 @@ export function install() {
             return backupManger.checkAndPrepareRestoration()
         })
         .then(function () {
+            if (CaptainConstants.configs.useExistingSwarm) {
+                return DockerApi.get().ensureSwarmExists()
+            }
             return DockerApi.get().initSwarm(myIp4)
         })
         .then(function (swarmId: string) {

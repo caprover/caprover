@@ -1,4 +1,4 @@
-import * as childPross from 'child_process'
+import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as git from 'simple-git/promise'
@@ -7,9 +7,25 @@ import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
 import Logger from './Logger'
 import Utils from './Utils'
-const exec = util.promisify(childPross.exec)
+const exec = util.promisify(childProcess.exec)
 
 export default class GitHelper {
+    private static SSH_PATH_RE = new RegExp(
+        [
+            /^\s*/,
+            /(?:(?<proto>[a-z]+):\/\/)?/,
+            /(?:(?<user>[a-z_][a-z0-9_-]+)@)?/,
+            /(?<domain>[^\s\/\?#:]+)/,
+            /(?::(?<port>[0-9]{1,5}))?/,
+            /(?:[\/:](?<owner>[^\s\/\?#:]+))?/,
+            /(?:[\/:](?<repo>(?:[^\s\/\?#:.]|\.(?!git\/?\s*$))+))/,
+            /(?:.git)?\/?\s*$/,
+        ]
+            .map((r) => r.source)
+            .join(''),
+        'i'
+    )
+
     static getLastHash(directory: string) {
         return git(directory) //
             .silent(true) //
@@ -63,7 +79,7 @@ export default class GitHelper {
                         .env('GIT_SSH_COMMAND', `ssh -i ${SSH_KEY_PATH}`) //
                         .raw([
                             'clone',
-                            '--recursive',
+                            '--recurse-submodules',
                             '-b',
                             branch,
                             REPO_GIT_PATH,
@@ -84,7 +100,14 @@ export default class GitHelper {
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
                 .silent(true) //
-                .raw(['clone', '--recursive', '-b', branch, remote, directory])
+                .raw([
+                    'clone',
+                    '--recurse-submodules',
+                    '-b',
+                    branch,
+                    remote,
+                    directory,
+                ])
                 .then(function () {
                     //
                 })
@@ -93,8 +116,7 @@ export default class GitHelper {
 
     // input is like this: ssh://git@github.com:22/caprover/caprover-cli.git
     static getDomainFromSanitizedSshRepoPath(input: string) {
-        input = input.substring(10)
-        return input.substring(0, input.indexOf(':'))
+        return GitHelper.sanitizeRepoPathSsh(input).domain
     }
 
     // It returns a string like this "github.com/username/repository.git"
@@ -112,40 +134,22 @@ export default class GitHelper {
 
     // It returns a string like this "ssh://git@github.com:22/caprover/caprover-cli.git"
     static sanitizeRepoPathSsh(input: string) {
-        input = Utils.removeHttpHttps(input)
-        if (!input.startsWith('git@')) {
-            // If we get here, we have something like github.com/username/repository.git
-            if (input.indexOf(':') < 0) {
-                input = input.replace('/', ':')
-            }
-            input = `git@${input}`
-        }
-
-        // At this point we have one of the following:
-        // git@github.com:22/caprover/caprover
-        // git@github.com:caprover/caprover
-
-        let port = '22'
-        const split = input.split(':')
-        if (split.length == 2) {
-            const secondSplit = split[1].split('/')
-            if (`${Number(secondSplit[0])}` === secondSplit[0]) {
-                // input is already in this format: git@github.com:22/caprover/caprover
-                port = `${Number(secondSplit[0])}`
-            } else {
-                input = `${split[0]}:22/${split[1]}`
-            }
-        } else {
+        const found = input.match(GitHelper.SSH_PATH_RE)
+        if (!found) {
             throw new Error(`Malformatted SSH path: ${input}`)
         }
 
-        if (!input.toLowerCase().startsWith('ssh://')) {
-            input = `ssh://${input}`
-        }
-
         return {
-            repoPath: input.replace(/\/$/, ''),
-            port: port,
+            user: found.groups?.user ?? 'git',
+            domain: found.groups?.domain,
+            port: Number(found.groups?.port ?? 22),
+            owner: found.groups?.owner ?? '',
+            repo: found.groups?.repo,
+            get repoPath() {
+                return `ssh://${this.user}@${this.domain}:${this.port}/${
+                    this.owner
+                }${this.owner && '/'}${this.repo}.git`
+            },
         }
     }
 }

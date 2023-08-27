@@ -5,6 +5,7 @@
 /node_modules
 /built
 /dist-frontend
+/temp-frontend
 
 version
 
@@ -18,3 +19,4 @@ npm-debug.log
 .DS_Store
 /.project
 
+config-override.json

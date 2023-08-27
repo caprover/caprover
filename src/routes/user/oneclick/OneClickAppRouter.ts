@@ -3,12 +3,21 @@ import axios from 'axios'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import {
+    CapRoverEventFactory,
+    CapRoverEventType,
+} from '../../../user/events/ICapRoverEvent'
+import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
 const VERSION = `v4`
+
+const HEADERS = {} as any
+HEADERS[CaptainConstants.headerCapRoverVersion] =
+    CaptainConstants.configs.version
 
 interface IOneClickAppIdentifier {
     baseUrl: string
@@ -125,6 +134,9 @@ router.get('/repositories/', function (req, res, next) {
 router.get('/template/list', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const eventLogger =
+        InjectionExtractor.extractUserFromInjected(res).user.userManager
+            .eventLogger
 
     return Promise.resolve() //
         .then(function () {
@@ -134,9 +146,21 @@ router.get('/template/list', function (req, res, next) {
             urls.push(DEFAULT_ONE_CLICK_BASE_URL)
             const promises = [] as Promise<IOneClickAppIdentifier[]>[]
 
+            eventLogger.trackEvent(
+                CapRoverEventFactory.create(
+                    CapRoverEventType.OneClickAppListFetched,
+                    {
+                        numberOfRepos: urls.length,
+                    }
+                )
+            )
+
             urls.forEach((apiBaseUrl) => {
-                const p = axios
-                    .get(apiBaseUrl + `/${VERSION}/list`) //
+                const p = axios({
+                    method: 'get',
+                    url: apiBaseUrl + `/${VERSION}/list`,
+                    headers: HEADERS,
+                })
                     .then(function (axiosResponse) {
                         return axiosResponse.data.oneClickApps as any[]
                     })
@@ -194,6 +218,9 @@ router.get('/template/app', function (req, res, next) {
     const appName = req.query.appName as string
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const eventLogger =
+        InjectionExtractor.extractUserFromInjected(res).user.userManager
+            .eventLogger
 
     return Promise.resolve() //
         .then(function () {
@@ -210,7 +237,23 @@ router.get('/template/app', function (req, res, next) {
             const appUrl = `${baseDomain}/${VERSION}/apps/${appName}`
             Logger.d(`retrieving app at: ${appUrl}`)
 
-            return axios.get(appUrl).then(function (responseObject) {
+            // Only log the official repo events
+            if (baseDomain === DEFAULT_ONE_CLICK_BASE_URL) {
+                eventLogger.trackEvent(
+                    CapRoverEventFactory.create(
+                        CapRoverEventType.OneClickAppDetailsFetched,
+                        {
+                            appName,
+                        }
+                    )
+                )
+            }
+
+            return axios({
+                method: 'get',
+                url: appUrl,
+                headers: HEADERS,
+            }).then(function (responseObject) {
                 return responseObject.data
             })
         })

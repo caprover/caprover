@@ -8,6 +8,7 @@ import EnvVars from '../../utils/EnvVars'
 import Utils from '../../utils/Utils'
 import AppsRouter from './apps/AppsRouter'
 import OneClickAppRouter from './oneclick/OneClickAppRouter'
+import ProRouter from './pro/ProRouter'
 import RegistriesRouter from './registeries/RegistriesRouter'
 import SystemRouter from './system/SystemRouter'
 import onFinished = require('on-finished')
@@ -128,5 +129,7 @@ router.use('/oneclick/', OneClickAppRouter)
 router.use('/registries/', RegistriesRouter)
 
 router.use('/system/', SystemRouter)
+
+router.use('/pro/', ProRouter)
 
 export default router

@@ -12,8 +12,12 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
-                  node-version: 10
-            - run: sudo mkdir /captain && npm ci && npm run build && sudo npm run test
+                  node-version: 18
+            - run: |
+                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
+                  npm ci 
+                  npm run build 
+                  npm run test

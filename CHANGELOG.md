@@ -1,6 +1,18 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
+-   Improved: Allowed custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
+-   Improved: Enabled gzip for the dashboard for a faster load
+-   Improved: Allowed custom captain domain for webhooks [PR-1330](https://github.com/caprover/caprover/pull/1330)
+-   Improved: Updated Netdata version [PR-1432](https://github.com/caprover/caprover/pull/1432). This is a major upgrade. Make sure to test your notifications and emails.
+-   Improved: Added support for overwriting app defaults NGINX config [PR-1377](https://github.com/caprover/caprover/pull/1377)
+-   Improved: Added support for overriding mesh network settings and using an existing Docker Swarm [56e739c](https://github.com/caprover/caprover/commit/56e739c0f57ce873bf8d032de838c415548041b7)
+-   Improved: Updated the Docker image to use Alpine base image. Image size is now less than half!
+-   New/Experimental: Added support for domain aliases (redirecting to specific domains) [PR-1744](https://github.com/caprover/caprover/pull/1744)
+-   New/Experimental: Added support for app tags for grouping [PR-118](https://github.com/caprover/caprover-frontend/pull/118)
+-   New/Experimental: Premium features (two factor auth, build success and failure alerts, login alerts) - will be rolled out gradually.
+-   New/Experimental: Anonymous metric reporting added to CapRover. Please be sure to read TERMS_AND_CONDITIONS.md for details.
+-   Fixed: Allowing dots to be present in repo names [PR-1553](https://github.com/caprover/caprover/pull/1553)
 
 ## [1.10.1] - 2021-10-09
 

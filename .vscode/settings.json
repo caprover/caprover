@@ -13,5 +13,8 @@
     },
     "typescript.referencesCodeLens.enabled": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"]
+    "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"],
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    }
 }

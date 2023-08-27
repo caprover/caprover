@@ -387,7 +387,7 @@ class AppsDataStore {
         })
     }
 
-    removeCustomDomainForApp(appName: string, customDomain: string) {
+    removeCustomDomainForApp(appName: string, customDomainToRemove: string) {
         const self = this
 
         return this.getAppDefinition(appName).then(function (app) {
@@ -396,7 +396,9 @@ class AppsDataStore {
             const newDomains = []
             let removed = false
             for (let idx = 0; idx < app.customDomain.length; idx++) {
-                if (app.customDomain[idx].publicDomain === customDomain) {
+                if (
+                    app.customDomain[idx].publicDomain === customDomainToRemove
+                ) {
                     removed = true
                 } else {
                     newDomains.push(app.customDomain[idx])
@@ -406,8 +408,17 @@ class AppsDataStore {
             if (!removed) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.STATUS_ERROR_GENERIC,
-                    `Custom domain ${customDomain} does not exist in ${appName}`
+                    `Custom domain ${customDomainToRemove} does not exist in ${appName}`
                 )
+            }
+
+            if (app.redirectDomain) {
+                if (`${app.redirectDomain}` === customDomainToRemove) {
+                    app.redirectDomain = undefined
+                }
+                if (newDomains.length === 0) {
+                    app.redirectDomain = undefined
+                }
             }
 
             app.customDomain = newDomains
@@ -605,6 +616,7 @@ class AppsDataStore {
         captainDefinitionRelativeFilePath: string,
         envVars: IAppEnvVar[],
         volumes: IAppVolume[],
+        tags: IAppTag[],
         nodeId: string,
         notExposeAsWebApp: boolean,
         containerHttpPort: number,
@@ -614,6 +626,7 @@ class AppsDataStore {
         repoInfo: RepoInfo,
         authenticator: Authenticator,
         customNginxConfig: string,
+        redirectDomain: string,
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
@@ -688,9 +701,11 @@ class AppsDataStore {
                 appObj.websocketSupport = !!websocketSupport
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
+                appObj.redirectDomain = redirectDomain
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+                appObj.tags = tags
 
                 appObj.appDeployTokenConfig = {
                     enabled: !!appDeployTokenConfig.enabled,
@@ -879,11 +894,13 @@ class AppsDataStore {
                 envVars: [],
                 volumes: [],
                 ports: [],
+                tags: [],
                 versions: [],
                 deployedVersion: 0,
                 notExposeAsWebApp: false,
                 customDomain: [],
                 hasDefaultSubDomainSsl: false,
+                redirectDomain: '',
                 forceSsl: false,
                 websocketSupport: false,
             }

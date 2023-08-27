@@ -1,5 +1,6 @@
 import { Response } from 'express'
 import { UserInjected } from '../models/InjectionInterfaces'
+import { UserManager } from '../user/UserManager'
 
 class InjectionExtractor {
     static extractUserFromInjected(res: Response) {
@@ -13,6 +14,8 @@ class InjectionExtractor {
             initialized: res.locals.initialized as boolean,
             namespace: res.locals.namespace as string,
             forceSsl: res.locals.forceSsl as boolean,
+            userManagerForLoginOnly: res.locals
+                .userManagerForLoginOnly as UserManager,
         }
     }
     static extractAppAndUserForWebhook(res: Response) {

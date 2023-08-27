@@ -29,7 +29,7 @@ test('Testing  - sanitizeRepoPathSsh - port', () => {
         GitHelper.sanitizeRepoPathSsh(
             ' git@github.com:username/repository.git/  '
         ).port
-    ).toBe('22')
+    ).toBe(22)
 })
 
 test('Testing  - sanitizeRepoPathSsh - custom port', () => {
@@ -37,7 +37,7 @@ test('Testing  - sanitizeRepoPathSsh - custom port', () => {
         GitHelper.sanitizeRepoPathSsh(
             ' git@github.com:1234/username/repository.git/  '
         ).port
-    ).toBe('1234')
+    ).toBe(1234)
 })
 
 test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
@@ -46,6 +46,84 @@ test('Testing  - sanitizeRepoPathSsh from HTTPS', () => {
             '  https://github.com/username/repository.git/ '
         ).repoPath
     ).toBe('ssh://git@github.com:22/username/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - name with dot', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/site.com ').repoPath
+    ).toBe('ssh://git@github.com:22/owner/site.com.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - name with dot and git suffix', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/site.com.git ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/site.com.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - name containing ".git"', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repo.github ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/repo.github.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - name containing ".git" and git suffix', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repo.github.git ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/repo.github.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - name containing ".git", git suffix and /', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repo.github.git/ ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/repo.github.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - not git suffix', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repository ').repoPath
+    ).toBe('ssh://git@github.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - alt domain', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            '  git@git.alt-domain.com/owner/repository.git/ '
+        ).repoPath
+    ).toBe('ssh://git@git.alt-domain.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - alt user', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(
+            '  foobar@github.com/owner/repository.git/ '
+        ).repoPath
+    ).toBe('ssh://foobar@github.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - default user', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  github.com/owner/repository.git/ ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/owner/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - no owner', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh('  git@github.com:repository.git/ ')
+            .repoPath
+    ).toBe('ssh://git@github.com:22/repository.git')
+})
+
+test('Testing  - sanitizeRepoPathSsh - invalid url', () => {
+    expect(() =>
+        GitHelper.sanitizeRepoPathSsh(
+            '  git:password@github.com/owner/repository.git/ '
+        )
+    ).toThrow(Error)
 })
 
 test('Testing  - getDomainFromSanitizedSshRepoPath - pure', () => {
@@ -74,4 +152,12 @@ test('Testing  - getDomainFromSanitizedSshRepoPath from HTTPS', () => {
             ).repoPath
         )
     ).toBe('github.com')
+})
+
+test('Testing  - getDomainFromSanitizedSshRepoPath - alt domain', () => {
+    expect(
+        GitHelper.getDomainFromSanitizedSshRepoPath(
+            ' ssh://user@some.other-domain.com/owner/repository.git/ '
+        )
+    ).toBe('some.other-domain.com')
 })

@@ -66,6 +66,16 @@ class DockerApi {
         return dockerApiInstance
     }
 
+    ensureSwarmExists() {
+        const self = this
+
+        return self.dockerode
+            .swarmInspect() //
+            .then(function (data) {
+                return data.ID
+            })
+    }
+
     initSwarm(ip: string, portNumber?: number) {
         const self = this
 
@@ -1159,7 +1169,7 @@ class DockerApi {
             })
     }
 
-    ensureOverlayNetwork(networkName: string) {
+    ensureOverlayNetwork(networkName: string, networkOverride: any) {
         const self = this
 
         return self.dockerode
@@ -1171,12 +1181,17 @@ class DockerApi {
             })
             .catch(function (error) {
                 if (error && error.statusCode === 404) {
-                    return self.dockerode.createNetwork({
-                        Name: networkName,
-                        CheckDuplicate: true,
-                        Driver: 'overlay',
-                        Attachable: true,
-                    })
+                    return self.dockerode.createNetwork(
+                        Utils.mergeObjects(
+                            {
+                                Name: networkName,
+                                CheckDuplicate: true,
+                                Driver: 'overlay',
+                                Attachable: true,
+                            },
+                            networkOverride
+                        )
+                    )
                 }
 
                 return new Promise<any>(function (resolve, reject) {
@@ -1479,12 +1494,10 @@ class DockerApi {
                     (instanceCount && instanceCount > 0) ||
                     instanceCount === 0
                 ) {
-                    if (!updatedData.Mode.Replicated) {
-                        throw new Error(
-                            'Non replicated services cannot be associated with instance count'
-                        )
+                    // assign instance count as replicas for replicated mode services, not for global mode services
+                    if (updatedData.Mode.Replicated) {
+                        updatedData.Mode.Replicated.Replicas = instanceCount
                     }
-                    updatedData.Mode.Replicated.Replicas = instanceCount
                 }
 
                 return Utils.mergeObjects(updatedData, serviceUpdateOverride)

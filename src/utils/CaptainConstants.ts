@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.10.1',
+    version: '1.11.0',
 
     defaultMaxLogSize: '512m',
 
@@ -35,7 +35,7 @@ const configs = {
 
     dockerApiVersion: 'v1.40',
 
-    netDataImageName: 'caprover/netdata:v1.8.0',
+    netDataImageName: 'caprover/netdata:v1.34.1',
 
     registryImageName: 'registry:2',
 
@@ -46,6 +46,14 @@ const configs = {
     defaultEmail: 'runner@caprover.com',
 
     captainSubDomain: 'captain',
+
+    overlayNetworkOverride: {},
+
+    useExistingSwarm: false,
+
+    proApiDomains: ['https://pro.caprover.com'],
+
+    analyticsDomain: 'https://analytics-v1.caprover.com',
 }
 
 const data = {
@@ -160,6 +168,8 @@ const data = {
     headerAppToken: 'x-captain-app-token',
 
     headerNamespace: 'x-namespace',
+
+    headerCapRoverVersion: 'x-caprover-version',
 
     // *********************     ETC       ************************
 

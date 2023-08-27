@@ -11,7 +11,10 @@ const dataStoreCache: IHashMapGeneric<DataStore> = {}
 export default {
     getDataStore: function (namespace: string) {
         if (!namespace) {
-            throw new Error('NameSpace is empty')
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                'Empty namespace'
+            )
         }
 
         if (namespace !== CaptainConstants.rootNameSpace) {

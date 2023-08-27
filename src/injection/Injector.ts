@@ -6,8 +6,10 @@ import DockerApiProvider from '../docker/DockerApi'
 import * as UserModel from '../models/InjectionInterfaces'
 import { CaptainError } from '../models/OtherTypes'
 import Authenticator from '../user/Authenticator'
+import OtpAuthenticator from '../user/pro/OtpAuthenticator'
 import ServiceManager from '../user/ServiceManager'
 import CaptainManager from '../user/system/CaptainManager'
+import { UserManagerProvider } from '../user/UserManagerProvider'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
 import InjectionExtractor from './InjectionExtractor'
@@ -21,19 +23,22 @@ export function injectGlobal() {
     return function (req: Request, res: Response, next: NextFunction) {
         const locals = res.locals
 
-        locals.initialized = CaptainManager.get().isInitialized()
-        locals.namespace = req.header(CaptainConstants.headerNamespace)
-        locals.forceSsl = CaptainManager.get().getForceSslValue()
+        locals.namespace =
+            req.header(CaptainConstants.headerNamespace) ||
+            CaptainConstants.rootNameSpace
 
-        if (
-            locals.namespace &&
-            locals.namespace !== CaptainConstants.rootNameSpace
-        ) {
+        if (locals.namespace !== CaptainConstants.rootNameSpace) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
                 'Namespace unknown'
             )
         }
+
+        locals.initialized = CaptainManager.get().isInitialized()
+        locals.forceSsl = CaptainManager.get().getForceSslValue()
+        locals.userManagerForLoginOnly = UserManagerProvider.get(
+            locals.namespace
+        )
 
         next()
     }
@@ -56,6 +61,7 @@ export function injectUser() {
             .then(function (userDecoded) {
                 if (userDecoded) {
                     const datastore = DataStoreProvider.getDataStore(namespace)
+                    const userManager = UserManagerProvider.get(namespace)
 
                     const serviceManager = ServiceManager.get(
                         namespace,
@@ -63,13 +69,20 @@ export function injectUser() {
                         datastore,
                         dockerApi,
                         CaptainManager.get().getLoadBalanceManager(),
+                        userManager.eventLogger,
                         CaptainManager.get().getDomainResolveChecker()
                     )
+
                     const user: UserModel.UserInjected = {
                         namespace: namespace,
                         dataStore: datastore,
                         serviceManager: serviceManager,
+                        otpAuthenticator: new OtpAuthenticator(
+                            datastore,
+                            userManager.proManager
+                        ),
                         initialized: serviceManager.isInited(),
+                        userManager: userManager,
                     }
                     res.locals.user = user
                 }
@@ -136,6 +149,7 @@ export function injectUserForBuildTrigger() {
                 }
 
                 const datastore = DataStoreProvider.getDataStore(namespace)
+                const userManager = UserManagerProvider.get(namespace)
 
                 const serviceManager = ServiceManager.get(
                     namespace,
@@ -143,6 +157,7 @@ export function injectUserForBuildTrigger() {
                     datastore,
                     dockerApi,
                     CaptainManager.get().getLoadBalanceManager(),
+                    userManager.eventLogger,
                     CaptainManager.get().getDomainResolveChecker()
                 )
 
@@ -150,7 +165,12 @@ export function injectUserForBuildTrigger() {
                     namespace: namespace,
                     dataStore: datastore,
                     serviceManager: serviceManager,
+                    otpAuthenticator: new OtpAuthenticator(
+                        datastore,
+                        userManager.proManager
+                    ),
                     initialized: serviceManager.isInited(),
+                    userManager: userManager,
                 }
 
                 res.locals.user = user
@@ -206,6 +226,7 @@ export function injectUserForWebhook() {
                 }
 
                 const datastore = DataStoreProvider.getDataStore(namespace)
+                const userManager = UserManagerProvider.get(namespace)
 
                 const serviceManager = ServiceManager.get(
                     namespace,
@@ -213,14 +234,20 @@ export function injectUserForWebhook() {
                     datastore,
                     dockerApi,
                     CaptainManager.get().getLoadBalanceManager(),
+                    userManager.eventLogger,
                     CaptainManager.get().getDomainResolveChecker()
                 )
 
                 const user: UserModel.UserInjected = {
                     namespace: namespace,
                     dataStore: datastore,
+                    otpAuthenticator: new OtpAuthenticator(
+                        datastore,
+                        userManager.proManager
+                    ),
                     serviceManager: serviceManager,
                     initialized: serviceManager.isInited(),
+                    userManager: userManager,
                 }
 
                 res.locals.user = user

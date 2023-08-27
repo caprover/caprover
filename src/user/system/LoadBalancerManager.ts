@@ -285,6 +285,14 @@ class LoadBalancerManager {
                         nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
 
+                    if (
+                        webApp.redirectDomain &&
+                        serverWithSubDomain.publicDomain !==
+                            webApp.redirectDomain
+                    ) {
+                        serverWithSubDomain.redirectToPath = `http://${webApp.redirectDomain}`
+                    }
+
                     servers.push(serverWithSubDomain)
 
                     // adding custom domains
@@ -296,7 +304,7 @@ class LoadBalancerManager {
                             idx++
                         ) {
                             const d = customDomainArray[idx]
-                            servers.push({
+                            const newServerBlock: IServerBlockDetails = {
                                 containerHttpPort: httpPort,
                                 hasSsl: d.hasSsl,
                                 forceSsl: forceSsl,
@@ -307,7 +315,15 @@ class LoadBalancerManager {
                                 staticWebRoot: '',
                                 customErrorPagesDirectory: '',
                                 httpBasicAuth: httpBasicAuth,
-                            })
+                            }
+                            if (
+                                webApp.redirectDomain &&
+                                newServerBlock.publicDomain !==
+                                    webApp.redirectDomain
+                            ) {
+                                newServerBlock.redirectToPath = `http://${webApp.redirectDomain}`
+                            }
+                            servers.push(newServerBlock)
                         }
                     }
                 })

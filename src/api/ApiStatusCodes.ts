@@ -46,6 +46,8 @@ class ApiStatusCodes {
     static readonly NOT_FOUND = 1111
     static readonly AUTHENTICATION_FAILED = 1112
     static readonly STATUS_PASSWORD_BACK_OFF = 1113
+    static readonly STATUS_ERROR_OTP_REQUIRED = 1114
+    static readonly STATUS_ERROR_PRO_API_KEY_INVALIDATED = 1115
 }
 
 export default ApiStatusCodes
