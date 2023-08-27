@@ -1,4 +1,7 @@
 ## [Next Version - available as `edge`]
+-   TBD
+
+## [1.11.1] - 2023-08-27
 
 -   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
 -   Improved: Allowed custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
