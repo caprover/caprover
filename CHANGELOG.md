@@ -1,5 +1,6 @@
 ## [Next Version - available as `edge`]
--   TBD
+
+-   New/Experimental: Added a helper script for disabling the OTP
 
 ## [1.11.1] - 2023-08-27
 
