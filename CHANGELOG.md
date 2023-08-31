@@ -1,6 +1,8 @@
 ## [Next Version - available as `edge`]
 
+-   Fixed: Malformatted SSH issue [Issue-1863](https://github.com/caprover/caprover/issues/1863)
 -   New/Experimental: Added a helper script for disabling the OTP
+-   Improved: Locking the nginx version to avoid unstable deployments and upgrades
 
 ## [1.11.1] - 2023-08-27
 
