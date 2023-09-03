@@ -668,7 +668,23 @@ class CaptainManager {
                             value: 'YES',
                         })
                     }
-
+                    
+                    // For Discord Block
+                    if (netDataInfo.data.discord) {
+                        envVars.push({
+                            key: 'DISCORD_WEBHOOK_URL',
+                            value: netDataInfo.data.discord.hook,  // Replace with the actual source of value
+                        })
+                        envVars.push({
+                            key: 'DEFAULT_RECIPIENT_DISCORD',
+                            value: netDataInfo.data.discord.channel,  // Replace with the actual source of value
+                        })
+                        envVars.push({
+                            key: 'SEND_DISCORD',
+                            value: 'YES',  // Enable Discord notifications
+                        })
+                    }
+                    
                     // For PushOver
                     if (netDataInfo.data.pushOver) {
                         envVars.push({
@@ -682,7 +698,7 @@ class CaptainManager {
                         envVars.push({
                             key: 'SEND_PUSHOVER',
                             value: 'YES',
-                        });
+                        })
                     }
                     
                     return dockerApi.createStickyContainer(
