@@ -628,7 +628,7 @@ class CaptainManager {
                             value: netDataInfo.data.slack.hook,
                         })
                         envVars.push({
-                            key: 'SLACK_CHANNEL',
+                            key: 'DEFAULT_RECIPIENT_SLACK',
                             value: netDataInfo.data.slack.channel,
                         })
                         envVars.push({
@@ -644,7 +644,7 @@ class CaptainManager {
                             value: netDataInfo.data.telegram.botToken,
                         })
                         envVars.push({
-                            key: 'TELEGRAM_CHAT_ID',
+                            key: 'DEFAULT_RECIPIENT_TELEGRAM',
                             value: netDataInfo.data.telegram.chatId,
                         })
                         envVars.push({
