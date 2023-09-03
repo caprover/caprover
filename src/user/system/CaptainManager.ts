@@ -563,6 +563,10 @@ class CaptainManager {
 
                     if (netDataInfo.data.smtp) {
                         envVars.push({
+                            key: 'SEND_EMAIL',
+                            value: 'YES',  // Enable email notifications
+                        });
+                        envVars.push({
                             key: 'SSMTP_TO',
                             value: netDataInfo.data.smtp.to,
                         })
@@ -617,39 +621,72 @@ class CaptainManager {
                         })
                     }
 
+                    // For Slack
                     if (netDataInfo.data.slack) {
                         envVars.push({
                             key: 'SLACK_WEBHOOK_URL',
                             value: netDataInfo.data.slack.hook,
-                        })
+                        });
                         envVars.push({
                             key: 'SLACK_CHANNEL',
                             value: netDataInfo.data.slack.channel,
-                        })
+                        });
+                        envVars.push({
+                            key: 'SEND_SLACK',
+                            value: 'YES',
+                        });
                     }
-
+                    
+                    // For Telegram
                     if (netDataInfo.data.telegram) {
                         envVars.push({
                             key: 'TELEGRAM_BOT_TOKEN',
                             value: netDataInfo.data.telegram.botToken,
-                        })
+                        });
                         envVars.push({
                             key: 'TELEGRAM_CHAT_ID',
                             value: netDataInfo.data.telegram.chatId,
-                        })
+                        });
+                        envVars.push({
+                            key: 'SEND_TELEGRAM',
+                            value: 'YES',
+                        });
                     }
-
+                    
+                    // For PushBullet
                     if (netDataInfo.data.pushBullet) {
                         envVars.push({
                             key: 'PUSHBULLET_ACCESS_TOKEN',
                             value: netDataInfo.data.pushBullet.apiToken,
-                        })
+                        });
                         envVars.push({
-                            key: 'PUSHBULLET_DEFAULT_EMAIL',
+                            key: 'DEFAULT_RECIPIENT_PUSHBULLET',
                             value: netDataInfo.data.pushBullet.fallbackEmail,
-                        })
+                        });
+                        envVars.push({
+                            key: 'SEND_PUSHBULLET',
+                            value: 'YES',
+                        });
                     }
 
+                    // For PushOver
+                    if (netDataInfo.data.pushOver) {
+                        envVars.push({
+                            key: 'PUSHOVER_APP_TOKEN',
+                            value: netDataInfo.data.pushOver.appToken,  // Replace with the actual source of value
+                        });
+                        
+                        envVars.push({
+                            key: 'DEFAULT_RECIPIENT_PUSHOVER',
+                            value: netDataInfo.data.pushOver.userToken,  // Replace with the actual source of value
+                        });
+                    
+                        envVars.push({
+                            key: 'SEND_PUSHOVER',
+                            value: 'YES',
+                        });
+                    }
+                    
                     return dockerApi.createStickyContainer(
                         CaptainConstants.netDataContainerName,
                         CaptainConstants.configs.netDataImageName,
