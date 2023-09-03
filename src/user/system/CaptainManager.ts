@@ -563,10 +563,6 @@ class CaptainManager {
 
                     if (netDataInfo.data.smtp) {
                         envVars.push({
-                            key: 'SEND_EMAIL',
-                            value: 'YES',  // Enable email notifications
-                        })
-                        envVars.push({
                             key: 'SSMTP_TO',
                             value: netDataInfo.data.smtp.to,
                         })
@@ -631,10 +627,6 @@ class CaptainManager {
                             key: 'SLACK_CHANNEL',
                             value: netDataInfo.data.slack.channel,
                         })
-                        envVars.push({
-                            key: 'SEND_SLACK',
-                            value: 'YES',
-                        })
                     }
                     
                     // For Telegram
@@ -647,10 +639,6 @@ class CaptainManager {
                             key: 'TELEGRAM_CHAT_ID',
                             value: netDataInfo.data.telegram.chatId,
                         })
-                        envVars.push({
-                            key: 'SEND_TELEGRAM',
-                            value: 'YES',
-                        })
                     }
                     
                     // For PushBullet
@@ -662,42 +650,6 @@ class CaptainManager {
                         envVars.push({
                             key: 'PUSHBULLET_DEFAULT_EMAIL',
                             value: netDataInfo.data.pushBullet.fallbackEmail,
-                        })
-                        envVars.push({
-                            key: 'SEND_PUSHBULLET',
-                            value: 'YES',
-                        })
-                    }
-                    
-                    // For Discord Block
-                    if (netDataInfo.data.discord) {
-                        envVars.push({
-                            key: 'DISCORD_WEBHOOK_URL',
-                            value: netDataInfo.data.discord.hook,  // Replace with the actual source of value
-                        })
-                        envVars.push({
-                            key: 'DEFAULT_RECIPIENT_DISCORD',
-                            value: netDataInfo.data.discord.channel,  // Replace with the actual source of value
-                        })
-                        envVars.push({
-                            key: 'SEND_DISCORD',
-                            value: 'YES',  // Enable Discord notifications
-                        })
-                    }
-                    
-                    // For PushOver
-                    if (netDataInfo.data.pushOver) {
-                        envVars.push({
-                            key: 'PUSHOVER_APP_TOKEN',
-                            value: netDataInfo.data.pushOver.appToken,  // Replace with the actual source of value
-                        })
-                        envVars.push({
-                            key: 'DEFAULT_RECIPIENT_PUSHOVER',
-                            value: netDataInfo.data.pushOver.userToken,  // Replace with the actual source of value
-                        })
-                        envVars.push({
-                            key: 'SEND_PUSHOVER',
-                            value: 'YES',
                         })
                     }
                     
