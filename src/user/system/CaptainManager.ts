@@ -628,7 +628,7 @@ class CaptainManager {
                             value: netDataInfo.data.slack.hook,
                         })
                         envVars.push({
-                            key: 'DEFAULT_RECIPIENT_SLACK',
+                            key: 'SLACK_CHANNEL',
                             value: netDataInfo.data.slack.channel,
                         })
                         envVars.push({
@@ -644,7 +644,7 @@ class CaptainManager {
                             value: netDataInfo.data.telegram.botToken,
                         })
                         envVars.push({
-                            key: 'DEFAULT_RECIPIENT_TELEGRAM',
+                            key: 'TELEGRAM_CHAT_ID',
                             value: netDataInfo.data.telegram.chatId,
                         })
                         envVars.push({
@@ -660,7 +660,7 @@ class CaptainManager {
                             value: netDataInfo.data.pushBullet.apiToken,
                         })
                         envVars.push({
-                            key: 'DEFAULT_RECIPIENT_PUSHBULLET',
+                            key: 'PUSHBULLET_DEFAULT_EMAIL',
                             value: netDataInfo.data.pushBullet.fallbackEmail,
                         })
                         envVars.push({
