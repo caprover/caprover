@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
 -   Fixed: Malformatted SSH issue [Issue-1863](https://github.com/caprover/caprover/issues/1863)
+-   Fixed: Cannot save due to undefined property [Issue-1871](https://github.com/caprover/caprover/issues/1871)
 -   New/Experimental: Added a helper script for disabling the OTP
 -   Improved: Locking the nginx version to avoid unstable deployments and upgrades
 
