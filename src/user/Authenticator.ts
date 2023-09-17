@@ -329,6 +329,8 @@ class Authenticator {
                     captainSalt,
                     namespace
                 )
+            } else {
+                throw new Error('Salt is not set! Cannot create authenticator')
             }
         }
 

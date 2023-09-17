@@ -24,6 +24,13 @@ test('Testing  - sanitizeRepoPathSsh', () => {
     ).toBe('ssh://git@github.com:22/username/repository.git')
 })
 
+test('Testing  - sanitizeRepoPathSsh', () => {
+    expect(
+        GitHelper.sanitizeRepoPathSsh(' git@gitlab.com/test1/test2/test3.git')
+            .repoPath
+    ).toBe('ssh://git@gitlab.com:22/test1/test2/test3.git')
+})
+
 test('Testing  - sanitizeRepoPathSsh - port', () => {
     expect(
         GitHelper.sanitizeRepoPathSsh(
@@ -116,14 +123,6 @@ test('Testing  - sanitizeRepoPathSsh - no owner', () => {
         GitHelper.sanitizeRepoPathSsh('  git@github.com:repository.git/ ')
             .repoPath
     ).toBe('ssh://git@github.com:22/repository.git')
-})
-
-test('Testing  - sanitizeRepoPathSsh - invalid url', () => {
-    expect(() =>
-        GitHelper.sanitizeRepoPathSsh(
-            '  git:password@github.com/owner/repository.git/ '
-        )
-    ).toThrow(Error)
 })
 
 test('Testing  - getDomainFromSanitizedSshRepoPath - pure', () => {

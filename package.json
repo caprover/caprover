@@ -3,6 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
+        "disable-otp": "node ./built/scripts/disable-otp.js",
         "dev": "npm run build && sudo ./dev-scripts/dev-reset-service.sh",
         "clean": "npm run build && sudo ./dev-scripts/dev-clean-run-as-dev.sh",
         "lint": "eslint -c .eslintrc.js --ext .ts ./src",

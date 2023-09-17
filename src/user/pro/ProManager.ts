@@ -132,6 +132,7 @@ export default class ProManager {
                 return {
                     isSubscribed: !!apiKey,
                     isFeatureFlagEnabled:
+                        !!EnvVars.CAPTAIN_IS_DEBUG || //
                         !!apiKey || // if API key is there, assume feature flag is enabled
                         !!EnvVars.FORCE_ENABLE_PRO || //
                         (flags && flags[FeatureFlags.IS_PRO_ENABLED]),
