@@ -1,11 +1,15 @@
 ## [Next Version - available as `edge`]
 
+-   TBD
+
+## [1.11.1] - 2023-09-16
+
 -   Fixed: Malformatted SSH issue [Issue-1863](https://github.com/caprover/caprover/issues/1863)
 -   Fixed: Cannot save due to undefined property [Issue-1871](https://github.com/caprover/caprover/issues/1871)
 -   New/Experimental: Added a helper script for disabling the OTP
 -   Improved: Locking the nginx version to avoid unstable deployments and upgrades
 
-## [1.11.1] - 2023-08-27
+## [1.11.0] - 2023-08-27
 
 -   Improved: Pulling the new image before attempt to upgrade the CapRover engine to improve reliability of upgrades
 -   Improved: Allowed custom git usernames [PR-1254](https://github.com/caprover/caprover/pull/1254)
