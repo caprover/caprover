@@ -44,7 +44,7 @@ echo $IMAGE_NAME:$CAPROVER_VERSION
 echo "**************************************"
 echo "**************************************"
 
-FRONTEND_COMMIT_HASH=36b569a0e9f9170ea10c80c989119ac880db807b
+FRONTEND_COMMIT_HASH=d22029558a22b5f072d182965ad4495266bada67
 
 ## Building frontend app
 ORIG_DIR=$(pwd)
