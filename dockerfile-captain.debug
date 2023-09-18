@@ -1,7 +1,7 @@
 FROM node:18
 RUN apt-get update && apt-get full-upgrade -yqq && apt-get install build-essential cmake -yqq
 
-RUN apt-get -y install netcat socat
+RUN apt-get -y install netcat-traditional socat
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
@@ -9,6 +9,8 @@ ENV NODE_ENV development
 
 EXPOSE 38000
 EXPOSE 3000
+
+ENV ACCEPTED_TERMS=true
 
 # I don't know why, but for some reason this port
 # forwarding is necessary for NodeJs debugger to be able to attach!!
