@@ -61,7 +61,7 @@ server {
 	<%
 	if (s.redirectToPath) {
 	%>
-	    return 302 <%-s.redirectToPath%>;
+	    return 302 <%-s.redirectToPath%>$request_uri;
 	<%
 	} else {
 	%>
