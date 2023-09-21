@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   Improved: Now the redirects include the path
 
 ## [1.11.1] - 2023-09-16
 
