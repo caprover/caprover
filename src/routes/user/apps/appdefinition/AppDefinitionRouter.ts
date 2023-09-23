@@ -381,6 +381,15 @@ router.post('/update/', function (req, res, next) {
         return
     }
 
+    if (
+        repoInfo &&
+        repoInfo.sshKey &&
+        repoInfo.sshKey.indexOf('END OPENSSH PRIVATE KEY-----') > 0
+    ) {
+        repoInfo.sshKey = repoInfo.sshKey.trim()
+        repoInfo.sshKey = repoInfo.sshKey + '\n'
+    }
+
     Logger.d(`Updating app started: ${appName}`)
 
     serviceManager
