@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
 -   Improved: Now the redirects include the path
+-   Improved: SSH key handling to avoid human mistakes
 
 ## [1.11.1] - 2023-09-16
 
