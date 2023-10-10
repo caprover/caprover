@@ -2,7 +2,7 @@ import fs = require('fs-extra')
 import path = require('path')
 import EnvVars from './EnvVars'
 
-const CAPTAIN_BASE_DIRECTORY = '/captain'
+const CAPTAIN_BASE_DIRECTORY = EnvVars.CAPTAIN_BASE_DIRECTORY ?? '/captain'
 const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
@@ -179,7 +179,7 @@ const data = {
     gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }
 
-function overrideFromFile(fileName: string) {
+function overrideConfigFromFile(fileName: string) {
     const overridingValuesConfigs = fs.readJsonSync(fileName, {
         throws: false,
     })
@@ -198,9 +198,9 @@ function overrideFromFile(fileName: string) {
     }
 }
 
-overrideFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
+overrideConfigFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
 
-overrideFromFile(CONSTANT_FILE_OVERRIDE_USER)
+overrideConfigFromFile(CONSTANT_FILE_OVERRIDE_USER)
 
 if (data.isDebug) {
     const devDirectoryOnLocalMachine = fs

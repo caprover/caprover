@@ -35,9 +35,11 @@ const DEFAULT_NGINX_CAPTAIN_CONFIG = fs
 let DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
     __dirname + '/../../template/server-block-conf.ejs'
 
-if (fs.pathExistsSync('/captain/data/server-block-conf-override.ejs')) {
-    DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
-        '/captain/data/server-block-conf-override.ejs'
+const SERVER_BLOCK_CONF_OVERRIDE_PATH =
+    CaptainConstants.captainDataDirectory + '/server-block-conf-override.ejs'
+
+if (fs.pathExistsSync(SERVER_BLOCK_CONF_OVERRIDE_PATH)) {
+    DEFAULT_NGINX_CONFIG_FOR_APP_PATH = SERVER_BLOCK_CONF_OVERRIDE_PATH
 }
 
 const DEFAULT_NGINX_CONFIG_FOR_APP = fs
