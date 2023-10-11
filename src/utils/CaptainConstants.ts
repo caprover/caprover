@@ -2,7 +2,7 @@ import fs = require('fs-extra')
 import path = require('path')
 import EnvVars from './EnvVars'
 
-const CAPTAIN_BASE_DIRECTORY = EnvVars.CAPTAIN_BASE_DIRECTORY ?? '/captain'
+const CAPTAIN_BASE_DIRECTORY = EnvVars.CAPTAIN_BASE_DIRECTORY || '/captain'
 const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
