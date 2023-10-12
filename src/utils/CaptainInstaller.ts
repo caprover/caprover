@@ -340,6 +340,13 @@ export function install() {
                 })
             }
 
+            if (EnvVar.CAPTAIN_BASE_DIRECTORY) {
+                env.push({
+                    key: EnvVar.keys.CAPTAIN_BASE_DIRECTORY,
+                    value: EnvVar.CAPTAIN_BASE_DIRECTORY,
+                })
+            }
+
             const ports: IAppPort[] = []
 
             let captainNameAndVersion = `${CaptainConstants.configs.publishedNameOnDockerHub}:${CaptainConstants.configs.version}`
