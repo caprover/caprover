@@ -14,7 +14,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "axios": "^0.21.1",
+        "axios": "^1.6.0",
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.19.0",
         "configstore": "^5.0.1",
