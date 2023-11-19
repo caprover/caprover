@@ -204,10 +204,10 @@ export default class MigrateCaptainDuckDuck {
 
                     const p = Promise.resolve() //
                         .then(function () {
-                            return appStore.registerAppDefinition(
+                            return appStore.registerAppDefinition({
                                 appName,
-                                !!app.hasPersistentData
-                            )
+                                hasPersistentData: !!app.hasPersistentData,
+                            })
                         })
                         .then(function () {
                             for (

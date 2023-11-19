@@ -192,6 +192,8 @@ router.post('/register/', function (req, res, next) {
 
     const appName = req.body.appName as string
     const hasPersistentData = !!req.body.hasPersistentData
+    const tags = req.body.tags
+
     const isDetachedBuild = !!req.query.detached
 
     let appCreated = false
@@ -200,7 +202,11 @@ router.post('/register/', function (req, res, next) {
 
     dataStore
         .getAppsDataStore()
-        .registerAppDefinition(appName, hasPersistentData)
+        .registerAppDefinition({
+            appName,
+            hasPersistentData,
+            tags,
+        })
         .then(function () {
             appCreated = true
         })

@@ -856,11 +856,23 @@ class AppsDataStore {
     /**
      * Creates a new app definition.
      *
-     * @param appName                   The appName you want to register
-     * @param hasPersistentData         whether the app has persistent data, you can only run one instance of the app.
+     * @param options:
+     * {
+     *   appName                   The appName you want to register
+     *   hasPersistentData         whether the app has persistent data, you can only run one instance of the app.
+     *   tags                      Tags for the app
+     * }
      * @returns {Promise}
      */
-    registerAppDefinition(appName: string, hasPersistentData: boolean) {
+    registerAppDefinition({
+        appName,
+        hasPersistentData,
+        tags = [],
+    }: {
+        appName: string
+        hasPersistentData: boolean
+        tags?: string[]
+    }) {
         const self = this
 
         return new Promise<IAppDef>(function (resolve, reject) {
@@ -894,7 +906,9 @@ class AppsDataStore {
                 envVars: [],
                 volumes: [],
                 ports: [],
-                tags: [],
+                tags: tags.map((tagName) => ({
+                    tagName,
+                })),
                 versions: [],
                 deployedVersion: 0,
                 notExposeAsWebApp: false,
