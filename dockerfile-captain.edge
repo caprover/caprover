@@ -26,6 +26,7 @@ COPY --from=builder /usr/src/app/dist-frontend ./dist-frontend
 COPY --from=builder /usr/src/app/public ./public
 COPY --from=builder /usr/src/app/template ./template
 COPY --from=builder /usr/src/app/dockerfiles ./dockerfiles
+COPY --from=builder /usr/src/app/dev-scripts ./dev-scripts
 COPY --from=builder /usr/src/app/package.json /usr/src/app/config-override.json ./
 
 
