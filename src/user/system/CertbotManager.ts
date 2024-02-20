@@ -12,6 +12,33 @@ const WEBROOT_PATH_IN_CAPTAIN =
 
 const shouldUseStaging = false // CaptainConstants.isDebug;
 
+function isCertCommandSuccess(output: string) {
+    // https://github.com/certbot/certbot/blob/099c6c8b240400b928d6b349e023e5e8414611e6/certbot/certbot/_internal/main.py#L516
+    if (
+        output.indexOf(
+            'Congratulations! Your certificate and chain have been saved',
+        ) >= 0
+    ) {
+        return true
+    }
+
+    // https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/main.py#L632
+    if (output.indexOf('Successfully received certificate') >= 0) {
+        return true
+    }
+
+    // https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/main.py#L1596
+    if (
+        output.indexOf(
+            'Certificate not yet due for renewal; no action taken',
+        ) >= 0
+    ) {
+        return true
+    }
+
+    return false
+}
+
 class CertbotManager {
     private isOperationInProcess: boolean
 
@@ -91,19 +118,7 @@ class CertbotManager {
                 return self.runCommand(cmd).then(function (output) {
                     Logger.d(output)
 
-                    if (
-                        output.indexOf(
-                            'Congratulations! Your certificate and chain have been saved'
-                        ) >= 0
-                    ) {
-                        return true
-                    }
-
-                    if (
-                        output.indexOf(
-                            'Certificate not yet due for renewal; no action taken'
-                        ) >= 0
-                    ) {
+                    if (isCertCommandSuccess(output)) {
                         return true
                     }
 
