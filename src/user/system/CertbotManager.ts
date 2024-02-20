@@ -61,12 +61,18 @@ class CertbotManager {
                 const cmd = [
                     'certbot',
                     'certonly',
-                    '--webroot',
-                    '-w',
-                    `${WEBROOT_PATH_IN_CERTBOT}/${domainName}`,
+                ]
+
+                if (CaptainConstants.configs.certbotAuthenticator === 'webroot') {
+                    cmd.push('--webroot')
+                    cmd.push('-w')
+                    cmd.push(`${WEBROOT_PATH_IN_CERTBOT}/${domainName}`)
+                }
+
+                cmd.push(
                     '-d',
                     domainName,
-                ]
+                )
 
                 if (shouldUseStaging) {
                     cmd.push('--staging')
@@ -295,7 +301,7 @@ class CertbotManager {
 
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.certbotImageName,
+                    CaptainConstants.configs.certbotImageName,
                     CaptainConstants.certbotServiceName,
                     undefined,
                     nodeId,
@@ -373,7 +379,7 @@ class CertbotManager {
 
                 return dockerApi.updateService(
                     CaptainConstants.certbotServiceName,
-                    CaptainConstants.certbotImageName,
+                    CaptainConstants.configs.certbotImageName,
                     [
                         {
                             hostPath: CaptainConstants.letsEncryptEtcPath,
