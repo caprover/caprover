@@ -431,10 +431,10 @@ class CertbotManager {
                     undefined,
                     undefined,
                     undefined,
-                    undefined,
+                    undefined
                 )
             })
-            .then(function() {
+            .then(function () {
                 return self.ensureAllCurrentlyRegisteredDomainsHaveDirs()
             })
     }
