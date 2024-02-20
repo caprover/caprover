@@ -47,6 +47,30 @@ class CertbotManager {
         return `/live/${domainName}/privkey.pem`
     }
 
+    getCertbotCertCommand(domainName: string) {
+        /**
+         * ${domain} => domainName
+         * @param str
+         */
+        function replaceVariables(str: string) {
+            return str.replace(/\$\{domain}/g, domainName)
+        }
+
+        if (Array.isArray(CaptainConstants.configs.certbotCertCommand)) {
+            return CaptainConstants.configs.certbotCertCommand.map(replaceVariables)
+        }
+
+        return [
+            'certbot',
+            'certonly',
+            '--webroot',
+            '-w',
+            `${WEBROOT_PATH_IN_CERTBOT}/${domainName}`,
+            '-d',
+            domainName,
+        ]
+    }
+
     enableSsl(domainName: string) {
         const self = this
 
@@ -58,21 +82,7 @@ class CertbotManager {
                 return self.ensureDomainHasDirectory(domainName)
             })
             .then(function () {
-                const cmd = [
-                    'certbot',
-                    'certonly',
-                ]
-
-                if (CaptainConstants.configs.certbotAuthenticator === 'webroot') {
-                    cmd.push('--webroot')
-                    cmd.push('-w')
-                    cmd.push(`${WEBROOT_PATH_IN_CERTBOT}/${domainName}`)
-                }
-
-                cmd.push(
-                    '-d',
-                    domainName,
-                )
+                const cmd = self.getCertbotCertCommand(domainName)
 
                 if (shouldUseStaging) {
                     cmd.push('--staging')
@@ -406,10 +416,10 @@ class CertbotManager {
                     undefined,
                     undefined,
                     undefined,
-                    undefined
+                    undefined,
                 )
             })
-            .then(function () {
+            .then(function() {
                 return self.ensureAllCurrentlyRegisteredDomainsHaveDirs()
             })
     }

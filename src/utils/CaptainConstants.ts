@@ -57,7 +57,7 @@ const configs = {
 
     certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
-    certbotAuthenticator: 'webroot'
+    certbotCertCommand: undefined as string[] | undefined,
 }
 
 const data = {
