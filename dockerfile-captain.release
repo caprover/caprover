@@ -1,34 +1,15 @@
-# Build Source Into JS
-FROM node:18-alpine as builder
+FROM node:18-alpine
 RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
+
 WORKDIR /usr/src/app
 COPY . ./
+
+# Build backend code
 RUN npm ci && \
-     npm cache clean --force && \
-     npm run build 
-
-# Install only production dependencies
-FROM node:18-alpine as deps
-WORKDIR /usr/src/app
-COPY packag*.json ./
-RUN npm ci --omit=dev && \
+     npm run build && \
+     npm ci --omit=dev && \
      npm cache clean --force
-
-# Final Image in Production
-FROM node:18-alpine as runner
-RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
-WORKDIR /usr/src/app
-
-COPY --from=builder /usr/src/app/built ./built
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/dist-frontend ./dist-frontend
-COPY --from=builder /usr/src/app/public ./public
-COPY --from=builder /usr/src/app/template ./template
-COPY --from=builder /usr/src/app/dockerfiles ./dockerfiles
-COPY --from=builder /usr/src/app/dev-scripts ./dev-scripts
-COPY --from=builder /usr/src/app/package.json /usr/src/app/edge-override.json ./
-
-
+      
 ENV NODE_ENV production
 ENV PORT 3000
 EXPOSE 3000
