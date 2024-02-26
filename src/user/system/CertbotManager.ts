@@ -1,6 +1,6 @@
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
-import CaptainConstants from '../../utils/CaptainConstants'
+import CaptainConstants, { type CertbotCertCommandRule } from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import fs = require('fs-extra')
@@ -41,6 +41,7 @@ function isCertCommandSuccess(output: string) {
 
 class CertbotManager {
     private isOperationInProcess: boolean
+    private certCommandGenerator = new CertCommandGenerator(CaptainConstants.configs.certbotCertCommand ?? [], ['certbot', 'certonly', '--webroot', '-w', '${webroot}', '-d', '${domain}'])
 
     constructor(private dockerApi: DockerApi) {
         this.dockerApi = dockerApi
@@ -73,31 +74,6 @@ class CertbotManager {
 
         return `/live/${domainName}/privkey.pem`
     }
-
-    getCertbotCertCommand(domainName: string) {
-        /**
-         * ${domain} => domainName
-         * @param str
-         */
-        function replaceVariables(str: string) {
-            return str.replace(/\$\{domain}/g, domainName)
-        }
-
-        if (Array.isArray(CaptainConstants.configs.certbotCertCommand)) {
-            return CaptainConstants.configs.certbotCertCommand.map(replaceVariables)
-        }
-
-        return [
-            'certbot',
-            'certonly',
-            '--webroot',
-            '-w',
-            `${WEBROOT_PATH_IN_CERTBOT}/${domainName}`,
-            '-d',
-            domainName,
-        ]
-    }
-
     enableSsl(domainName: string) {
         const self = this
 
@@ -109,7 +85,10 @@ class CertbotManager {
                 return self.ensureDomainHasDirectory(domainName)
             })
             .then(function () {
-                const cmd = self.getCertbotCertCommand(domainName)
+                const cmd = self.certCommandGenerator.getCertbotCertCommand(domainName, {
+                    domain: domainName,
+                    webroot: WEBROOT_PATH_IN_CERTBOT + '/' + domainName
+                })
 
                 if (shouldUseStaging) {
                     cmd.push('--staging')
@@ -441,3 +420,24 @@ class CertbotManager {
 }
 
 export default CertbotManager
+
+export class CertCommandGenerator {
+    constructor(private rules: CertbotCertCommandRule[], private defaultCommand: string[]) {
+    }
+
+    private getCertbotCertCommandTemplate(domainName: string): string[] {
+        for (const rule of this.rules) {
+            if (rule.domain === '*'
+                || domainName === rule.domain
+                || domainName.endsWith('.' + rule.domain)
+            ) {
+                return rule.command ?? this.defaultCommand
+            }
+        }
+        return this.defaultCommand
+    }
+    getCertbotCertCommand(domainName: string, variables: Record<string, string> = {}): string[] {
+        const command = this.getCertbotCertCommandTemplate(domainName)
+        return command.map(c => c.replace(/\$\{(\w+)}/g, (match, p1) => variables[p1] ?? match))
+    }
+}
