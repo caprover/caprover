@@ -1,19 +1,15 @@
 FROM node:18-alpine
-RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl openssl openssh
+RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
 
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-
+COPY . ./
 
 # Build backend code
-
-COPY . /usr/src/app
-
 RUN npm ci && \
-     npm cache clean --force && \
-     npm run build 
-
-
+     npm run build && \
+     npm ci --omit=dev && \
+     npm cache clean --force
+      
 ENV NODE_ENV production
 ENV PORT 3000
 EXPOSE 3000
