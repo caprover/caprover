@@ -54,6 +54,21 @@ const configs = {
     proApiDomains: ['https://pro.caprover.com'],
 
     analyticsDomain: 'https://analytics-v1.caprover.com',
+
+    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
+
+    certbotCertCommand: undefined as CertbotCertCommandRule[] | undefined,
+}
+
+export interface CertbotCertCommandRule {
+    /**
+     * Matches both *.<domain> and <domain>, use '*' to match all domains
+     */
+    domain: string;
+    /**
+     * The Certbot command to execute, in Docker exec form, uses `${domain}` as the placeholder for the actual domain name
+     */
+    command?: string[];
 }
 
 const data = {
@@ -132,8 +147,6 @@ const data = {
     debugSourceDirectory: '', // Only used in debug mode
 
     // ********************* Local Docker Constants  ************************
-
-    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
     captainSaltSecretKey: 'captain-salt',
 
