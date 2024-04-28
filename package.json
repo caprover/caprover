@@ -67,7 +67,7 @@
         "@types/require-from-string": "^1.2.1",
         "@types/serve-favicon": "^2.5.3",
         "@types/ssh2": "^0.5.47",
-        "@types/tar": "^4.0.5",
+        "@types/tar": "^6.1.13",
         "@types/uuid": "^8.3.1",
         "@types/validator": "^13.6.3",
         "@typescript-eslint/eslint-plugin": "^4.29.3",
