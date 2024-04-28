@@ -1,7 +1,7 @@
 import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import * as git from 'simple-git/promise'
+import git from 'simple-git'
 import * as util from 'util'
 import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
@@ -28,7 +28,6 @@ export default class GitHelper {
 
     static getLastHash(directory: string) {
         return git(directory) //
-            .silent(true) //
             .raw(['rev-parse', 'HEAD']) //
     }
 
