@@ -98,7 +98,6 @@ export default class GitHelper {
             const remote = `${SCHEME}://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
-                .silent(true) //
                 .raw([
                     'clone',
                     '--recurse-submodules',
