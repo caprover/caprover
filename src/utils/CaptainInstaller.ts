@@ -226,7 +226,7 @@ export function install() {
                 return EnvVar.MAIN_NODE_IP_ADDRESS
             }
 
-            return externalIp.publicIpv4()
+            return externalIp.v4()
         })
         .then(function (ip4) {
             if (!ip4) {

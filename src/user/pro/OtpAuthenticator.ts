@@ -4,10 +4,7 @@ import { TwoFactorAuthResponse } from '../../models/IProFeatures'
 import ProManager from './ProManager'
 
 export default class OtpAuthenticator {
-    constructor(
-        private dataStore: DataStore,
-        private proManager: ProManager
-    ) {}
+    constructor(private dataStore: DataStore, private proManager: ProManager) {}
 
     set2fa(
         doEnable: boolean,
