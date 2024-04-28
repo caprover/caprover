@@ -249,14 +249,24 @@ router.post('/delete/', function (req, res, next) {
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
-    const appName = req.body.appName
-    const volumes = req.body.volumes || []
+    const appName: string = req.body.appName
+    const volumes: string[] = req.body.volumes || []
+    const appNames: string[] = req.body.appNames || []
+    const appsToDelete: string[] = appNames.length ? appNames : [appName]
 
     Logger.d(`Deleting app started: ${appName}`)
 
     Promise.resolve()
         .then(function () {
-            return serviceManager.removeApp(appName)
+            if (appNames.length > 0 && appName) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_OPERATION,
+                    'Either appName or appNames should be provided'
+                )
+            }
+        })
+        .then(function () {
+            return serviceManager.removeApps(appsToDelete)
         })
         .then(function () {
             return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
@@ -265,7 +275,7 @@ router.post('/delete/', function (req, res, next) {
             return serviceManager.removeVolsSafe(volumes)
         })
         .then(function (failedVolsToRemoved) {
-            Logger.d(`AppName is deleted: ${appName}`)
+            Logger.d(`Successfully deleted: ${appsToDelete.join(', ')}`)
 
             if (failedVolsToRemoved.length) {
                 const returnVal = new BaseApi(

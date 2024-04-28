@@ -1,5 +1,6 @@
 ## [Next Version - available as `edge`]
 
+-   New: Ability to delete multiple apps at once
 -   Improved: Now the redirects include the path
 -   Improved: SSH key handling to avoid human mistakes
 

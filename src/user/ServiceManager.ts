@@ -8,12 +8,12 @@ import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Authenticator from './Authenticator'
 import DockerRegistryHelper from './DockerRegistryHelper'
+import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import { EventLogger } from './events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from './events/ICapRoverEvent'
-import ImageMaker, { BuildLogsManager } from './ImageMaker'
 import DomainResolveChecker from './system/DomainResolveChecker'
 import LoadBalancerManager from './system/LoadBalancerManager'
 import requireFromString = require('require-from-string')
@@ -456,40 +456,51 @@ class ServiceManager {
             })
     }
 
-    removeApp(appName: string) {
-        Logger.d(`Removing service for: ${appName}`)
+    removeApps(appNames: string[]) {
+        Logger.d(`Removing service for: ${appNames.join(', ')}`)
         const self = this
 
-        const serviceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName)
-        const dockerApi = this.dockerApi
-        const dataStore = this.dataStore
+        const removeAppPromise = function (appName: string) {
+            const serviceName = self.dataStore
+                .getAppsDataStore()
+                .getServiceName(appName)
+            const dockerApi = self.dockerApi
+            const dataStore = self.dataStore
 
-        return Promise.resolve()
-            .then(function () {
-                return self.ensureNotBuilding(appName)
-            })
-            .then(function () {
-                Logger.d(`Check if service is running: ${serviceName}`)
-                return dockerApi.isServiceRunningByName(serviceName)
-            })
-            .then(function (isRunning) {
-                if (isRunning) {
-                    return dockerApi.removeServiceByName(serviceName)
-                } else {
-                    Logger.w(
-                        `Cannot delete service... It is not running: ${serviceName}`
-                    )
-                    return true
-                }
-            })
-            .then(function () {
-                return dataStore.getAppsDataStore().deleteAppDefinition(appName)
-            })
-            .then(function () {
-                return self.reloadLoadBalancer()
-            })
+            return Promise.resolve()
+                .then(function () {
+                    return self.ensureNotBuilding(appName)
+                })
+                .then(function () {
+                    Logger.d(`Check if service is running: ${serviceName}`)
+                    return dockerApi.isServiceRunningByName(serviceName)
+                })
+                .then(function (isRunning) {
+                    if (isRunning) {
+                        return dockerApi.removeServiceByName(serviceName)
+                    } else {
+                        Logger.w(
+                            `Cannot delete service... It is not running: ${serviceName}`
+                        )
+                        return true
+                    }
+                })
+                .then(function () {
+                    return dataStore
+                        .getAppsDataStore()
+                        .deleteAppDefinition(appName)
+                })
+                .then(function () {
+                    return self.reloadLoadBalancer()
+                })
+        }
+
+        const promises = []
+        for (const appName of appNames) {
+            promises.push(removeAppPromise(appName))
+        }
+
+        return Promise.all(promises)
     }
 
     removeVolsSafe(volumes: string[]) {

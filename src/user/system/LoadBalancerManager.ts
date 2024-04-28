@@ -89,14 +89,14 @@ class LoadBalancerManager {
     consumeQueueIfAnyInNginxReloadQueue() {
         const self = this
 
-        const q = self.requestedReloadPromises.pop()
-
-        if (!q) {
+        if (self.reloadInProcess) {
+            Logger.d('NGINX Reload already in process, Bouncing off...')
             return
         }
 
-        if (self.reloadInProcess) {
-            Logger.d('NGINX Reload already in process, Bouncing off...')
+        const q = self.requestedReloadPromises.pop()
+
+        if (!q) {
             return
         }
 
