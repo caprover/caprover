@@ -26,7 +26,7 @@ const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
-const AUTOMATED_CLEANUP = 'AUTOMATED_CLEANUP'
+const AUTOMATED_CLEANUP = 'automatedCleanup'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
