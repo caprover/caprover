@@ -19,6 +19,7 @@
         "body-parser": "^1.19.0",
         "configstore": "^5.0.1",
         "cookie-parser": "~1.4.5",
+        "cron": "^3.1.7",
         "debug": "~4.3.2",
         "dockerode": "^3.3.0",
         "ejs": "^3.1.6",

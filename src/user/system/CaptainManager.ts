@@ -70,7 +70,10 @@ class CaptainManager {
             this.loadBalancerManager,
             this.certbotManager
         )
-        this.diskCleanupManager = new DiskCleanupManager(this.dataStore)
+        this.diskCleanupManager = new DiskCleanupManager(
+            this.dataStore,
+            dockerApi
+        )
         this.myNodeId = undefined
         this.inited = false
         this.waitUntilRestarted = false

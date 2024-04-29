@@ -1,4 +1,3 @@
-import { ImageInfo } from 'dockerode'
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
@@ -547,85 +546,6 @@ class ServiceManager {
 
                 return Object.keys(volsFailedToDelete)
             })
-    }
-
-    getUnusedImages(mostRecentLimit: number) {
-        Logger.d(
-            `Getting unused images, excluding most recent ones: ${mostRecentLimit}`
-        )
-
-        const dockerApi = this.dockerApi
-        const dataStore = this.dataStore
-        let allImages: ImageInfo[]
-
-        return Promise.resolve()
-            .then(function () {
-                return dockerApi.getImages()
-            })
-            .then(function (images) {
-                allImages = images
-
-                return dataStore.getAppsDataStore().getAppDefinitions()
-            })
-            .then(function (apps) {
-                const unusedImages = []
-
-                if (mostRecentLimit < 0) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.ILLEGAL_PARAMETER,
-                        'Most Recent Limit cannot be negative'
-                    )
-                }
-
-                for (let i = 0; i < allImages.length; i++) {
-                    const currentImage = allImages[i]
-                    let imageInUse = false
-
-                    const repoTags = currentImage.RepoTags || []
-
-                    Object.keys(apps).forEach(function (appName) {
-                        const app = apps[appName]
-                        for (let k = 0; k < mostRecentLimit + 1; k++) {
-                            const versionToCheck =
-                                Number(app.deployedVersion) - k
-
-                            if (versionToCheck < 0) continue
-
-                            let deployedImage = ''
-                            app.versions.forEach((v) => {
-                                if (v.version === versionToCheck) {
-                                    deployedImage = v.deployedImageName || ''
-                                }
-                            })
-
-                            if (!deployedImage) continue
-
-                            if (repoTags.indexOf(deployedImage) >= 0) {
-                                imageInUse = true
-                            }
-                        }
-                    })
-
-                    if (!imageInUse) {
-                        unusedImages.push({
-                            id: currentImage.Id,
-                            tags: repoTags,
-                        })
-                    }
-                }
-
-                return unusedImages
-            })
-    }
-
-    deleteImages(imageIds: string[]) {
-        Logger.d('Deleting images...')
-
-        const dockerApi = this.dockerApi
-
-        return Promise.resolve().then(function () {
-            return dockerApi.deleteImages(imageIds)
-        })
     }
 
     createPreDeployFunctionIfExist(
