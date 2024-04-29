@@ -19,6 +19,7 @@ import {
 import ProManager from '../pro/ProManager'
 import BackupManager from './BackupManager'
 import CertbotManager from './CertbotManager'
+import DiskCleanupManager from './DiskCleanupManager'
 import DomainResolveChecker from './DomainResolveChecker'
 import LoadBalancerManager from './LoadBalancerManager'
 import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
@@ -41,6 +42,7 @@ class CaptainManager {
     private certbotManager: CertbotManager
     private loadBalancerManager: LoadBalancerManager
     private domainResolveChecker: DomainResolveChecker
+    private diskCleanupManager: DiskCleanupManager
     private dockerRegistry: SelfHostedDockerRegistry
     private backupManager: BackupManager
     private myNodeId: string | undefined
@@ -68,6 +70,7 @@ class CaptainManager {
             this.loadBalancerManager,
             this.certbotManager
         )
+        this.diskCleanupManager = new DiskCleanupManager(this.dataStore)
         this.myNodeId = undefined
         this.inited = false
         this.waitUntilRestarted = false
@@ -250,6 +253,9 @@ class CaptainManager {
                         return self.ensureAllAppsInited()
                     }
                 )
+            })
+            .then(function () {
+                return self.diskCleanupManager.init()
             })
             .then(function () {
                 self.inited = true
@@ -454,6 +460,10 @@ class CaptainManager {
 
     getCertbotManager() {
         return this.certbotManager
+    }
+
+    getDiskCleanupManager() {
+        return this.diskCleanupManager
     }
 
     isInitialized() {

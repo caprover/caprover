@@ -3,6 +3,10 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import {
+    AutomatedCleanupConfigsCleaner,
+    IAutomatedCleanupConfigs,
+} from '../models/AutomatedCleanupConfigs'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import AppsDataStore from './AppsDataStore'
@@ -22,6 +26,7 @@ const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
+const AUTOMATED_CLEANUP = 'AUTOMATED_CLEANUP'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
@@ -104,6 +109,30 @@ class DataStore {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.get(HASHED_PASSWORD)
+        })
+    }
+
+    setDiskCleanupConfigs(configs: IAutomatedCleanupConfigs) {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.set(
+                AUTOMATED_CLEANUP,
+                AutomatedCleanupConfigsCleaner.cleanup(configs)
+            )
+        })
+    }
+
+    getDiskCleanupConfigs(): Promise<IAutomatedCleanupConfigs> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return (
+                self.data.get(AUTOMATED_CLEANUP) ||
+                AutomatedCleanupConfigsCleaner.cleanup({
+                    mostRecentLimit: 0,
+                    cronSchedule: '',
+                    timezone: '',
+                })
+            )
         })
     }
 
