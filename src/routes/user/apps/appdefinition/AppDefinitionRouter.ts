@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { CaptainError } from '../../../../models/OtherTypes'
+import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
@@ -18,13 +19,12 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
-    const serviceManager =
-        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
-
     Promise.resolve()
         .then(function () {
             const mostRecentLimit = Number(req.query.mostRecentLimit || '0')
-            return serviceManager.getUnusedImages(mostRecentLimit)
+            return CaptainManager.get()
+                .getDiskCleanupManager()
+                .getUnusedImages(mostRecentLimit)
         })
         .then(function (unusedImages) {
             const baseApi = new BaseApi(
@@ -41,13 +41,13 @@ router.get('/unusedImages', function (req, res, next) {
 
 // delete images
 router.post('/deleteImages', function (req, res, next) {
-    const serviceManager =
-        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
     const imageIds = req.body.imageIds || []
 
     Promise.resolve()
         .then(function () {
-            return serviceManager.deleteImages(imageIds)
+            return CaptainManager.get()
+                .getDiskCleanupManager()
+                .deleteImages(imageIds)
         })
         .then(function () {
             const baseApi = new BaseApi(
