@@ -13,7 +13,11 @@ export default class DiskCleanupManager {
     }
 
     init() {
-        return this.resetScheduledTasks()
+        return this.resetScheduledTasks() //
+            .catch((e) => {
+                Logger.e('Disk cleanup manager failed to start.')
+                Logger.e(e)
+            })
     }
 
     onCleanupCalled(mostRecentLimit: number) {
@@ -151,6 +155,36 @@ export default class DiskCleanupManager {
         const self = this
 
         return Promise.resolve()
+            .then(() => {
+                if (configs.mostRecentLimit < 0) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'Most Recent Limit cannot be negative'
+                    )
+                }
+
+                if (!configs.cronSchedule) {
+                    return // no need to validate cron schedule
+                }
+
+                try {
+                    const testJob = new CronJob(
+                        configs.cronSchedule, // cronTime
+                        function () {
+                            // nothing
+                        }, // onTick
+                        null, // onComplete
+                        false, // start
+                        configs.timezone // timezone
+                    )
+                    testJob.stop()
+                } catch (e) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'Invalid cron schedule'
+                    )
+                }
+            })
             .then(() => {
                 return self.dataStore.setDiskCleanupConfigs(configs)
             })
