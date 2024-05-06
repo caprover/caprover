@@ -156,6 +156,7 @@ export default class DiskCleanupManager {
 
         return Promise.resolve()
             .then(() => {
+                configs.cronSchedule = (configs.cronSchedule || '').trim()
                 if (configs.mostRecentLimit < 0) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_PARAMETER,
@@ -186,6 +187,11 @@ export default class DiskCleanupManager {
                 }
             })
             .then(() => {
+                if (!configs.cronSchedule) {
+                    configs.timezone = ''
+                    configs.mostRecentLimit = 1
+                }
+
                 return self.dataStore.setDiskCleanupConfigs(configs)
             })
             .then(() => {
