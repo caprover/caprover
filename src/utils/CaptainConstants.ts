@@ -57,7 +57,7 @@ const configs = {
 
     certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
 
-    certbotCertCommand: undefined as CertbotCertCommandRule[] | undefined,
+    certbotCertCommandRules: undefined as CertbotCertCommandRule[] | undefined,
 }
 
 export interface CertbotCertCommandRule {
@@ -66,9 +66,9 @@ export interface CertbotCertCommandRule {
      */
     domain: string;
     /**
-     * The Certbot command to execute, in Docker exec form, uses `${domain}` as the placeholder for the actual domain name
+     * The Certbot command to execute, will be parsed using `shell-quote`, available variables are `${domainName}` and `${subdomain}`
      */
-    command?: string[];
+    command?: string;
 }
 
 const data = {
