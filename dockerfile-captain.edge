@@ -1,21 +1,17 @@
 FROM node:18-alpine
-RUN apk update && apk upgrade --no-cache && apk add --update --no-cache make gcc g++ git curl openssl openssh
+RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
 
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-
+COPY . ./
 
 # Build backend code
-
-COPY . /usr/src/app
-
 RUN npm ci && \
-     npm cache clean --force && \
      npm run build && \
+     npm ci --omit=dev && \
+     npm cache clean --force && \
      mv ./edge-override.json ./config-override.json
 
-
- # This quick hack invalidates the cache.
+# This quick hack invalidates the cache.
 ADD https://www.google.com /time.now
 
 ENV NODE_ENV production
