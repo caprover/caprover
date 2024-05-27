@@ -1,0 +1,91 @@
+heat_template_version: 2018-08-31
+
+description: OpenStack Heat template to deploy a single VM running CapRover.
+
+parameters:
+  image_id:
+    type: string
+    label: Image ID
+    description: Image to be used for compute instance. Ubuntu is recommended.
+  instance_type:
+    type: string
+    label: Instance Type
+    description: Type of instance (flavor) to be used
+  network:
+    type: string
+    label: Network
+    description: Network for the instance
+
+resources:
+  inbound_ssh_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: inbound_ssh_security_group
+      description: Security Group for allowing SSH access
+      rules:
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+          remote_ip_prefix: 0.0.0.0/0  # Allows ingress from any IP address
+  inbound_http_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: inbound_http_security_group
+      description: Security Group for allowing HTTP access
+      rules:
+        - protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+          remote_ip_prefix: 0.0.0.0/0  # Allows ingress from any IP address
+  inbound_https_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: inbound_https_security_group
+      description: Security Group for allowing HTTPS access
+      rules:
+        - protocol: tcp
+          port_range_min: 443
+          port_range_max: 443
+          remote_ip_prefix: 0.0.0.0/0  # Allows ingress from any IP address
+  inbound_caprover_install_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: inbound_caprover_install_security_group
+      description: Security Group for allowing access to port 3000, which is used for CapRover setup.
+      rules:
+        - protocol: tcp
+          port_range_min: 3000
+          port_range_max: 3000
+          remote_ip_prefix: 0.0.0.0/0  # Allows ingress from any IP address
+  caprover_manager:
+    type: OS::Nova::Server
+    properties:
+      key_name: caprover
+      image: { get_param: image_id }
+      flavor: { get_param: instance_type }
+      networks:
+        - network: { get_param: network }
+      security_groups:
+        - default
+        - get_resource: inbound_ssh_security_group
+        - get_resource: inbound_http_security_group
+        - get_resource: inbound_https_security_group
+        - get_resource: inbound_caprover_install_security_group
+      user_data: |
+        #!/bin/sh
+        echo "Installing Docker with commands copied from https://docs.docker.com/engine/install/ubuntu/"
+        # Add Docker's official GPG key:
+        apt-get update
+        apt-get install -y ca-certificates curl
+        install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        chmod a+r /etc/apt/keyrings/docker.asc
+        # Add the repository to Apt sources:
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > etc/apt/sources.list.d/docker.list
+        apt-get update
+        apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        docker run hello-world
+        echo "Installing CapRover with command copied from https://caprover.com/docs/get-started.html"
+        docker run -p 80:80 -p 443:443 -p 3000:3000 -e ACCEPTED_TERMS=true -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover
