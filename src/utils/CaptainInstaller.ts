@@ -279,7 +279,7 @@ export function install() {
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
-            const imageName = CaptainConstants.certbotImageName
+            const imageName = CaptainConstants.configs.certbotImageName
             console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
