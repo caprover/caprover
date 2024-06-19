@@ -64,11 +64,11 @@ export interface CertbotCertCommandRule {
     /**
      * Matches both *.<domain> and <domain>, use '*' to match all domains
      */
-    domain: string;
+    domain: string
     /**
      * The Certbot command to execute, will be parsed using `shell-quote`, available variables are `${domainName}` and `${subdomain}`
      */
-    command?: string;
+    command?: string
 }
 
 const data = {

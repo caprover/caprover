@@ -1,6 +1,8 @@
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
-import CaptainConstants, { type CertbotCertCommandRule } from '../../utils/CaptainConstants'
+import CaptainConstants, {
+    CertbotCertCommandRule,
+} from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import fs = require('fs-extra')
@@ -17,7 +19,7 @@ function isCertCommandSuccess(output: string) {
     // https://github.com/certbot/certbot/blob/099c6c8b240400b928d6b349e023e5e8414611e6/certbot/certbot/_internal/main.py#L516
     if (
         output.indexOf(
-            'Congratulations! Your certificate and chain have been saved',
+            'Congratulations! Your certificate and chain have been saved'
         ) >= 0
     ) {
         return true
@@ -31,7 +33,7 @@ function isCertCommandSuccess(output: string) {
     // https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/main.py#L1596
     if (
         output.indexOf(
-            'Certificate not yet due for renewal; no action taken',
+            'Certificate not yet due for renewal; no action taken'
         ) >= 0
     ) {
         return true
@@ -42,7 +44,10 @@ function isCertCommandSuccess(output: string) {
 
 class CertbotManager {
     private isOperationInProcess: boolean
-    private certCommandGenerator = new CertCommandGenerator(CaptainConstants.configs.certbotCertCommandRules ?? [], 'certbot certonly --webroot -w ${webroot} -d ${domainName}')
+    private certCommandGenerator = new CertCommandGenerator(
+        CaptainConstants.configs.certbotCertCommandRules ?? [],
+        'certbot certonly --webroot -w ${webroot} -d ${domainName}'
+    )
 
     constructor(private dockerApi: DockerApi) {
         this.dockerApi = dockerApi
@@ -86,7 +91,10 @@ class CertbotManager {
                 return self.ensureDomainHasDirectory(domainName)
             })
             .then(function () {
-                const cmd = self.certCommandGenerator.getCertbotCertCommand(domainName, WEBROOT_PATH_IN_CERTBOT + '/' + domainName);
+                const cmd = self.certCommandGenerator.getCertbotCertCommand(
+                    domainName,
+                    WEBROOT_PATH_IN_CERTBOT + '/' + domainName
+                )
 
                 if (shouldUseStaging) {
                     cmd.push('--staging')
@@ -420,32 +428,35 @@ class CertbotManager {
 export default CertbotManager
 
 export class CertCommandGenerator {
-    constructor(private rules: CertbotCertCommandRule[], private defaultCommand: string) {
-    }
+    constructor(
+        private rules: CertbotCertCommandRule[],
+        private defaultCommand: string
+    ) {}
 
     private getCertbotCertCommandTemplate(domainName: string): string {
         for (const rule of this.rules) {
-            if (rule.domain === '*'
-                || domainName === rule.domain
-                || domainName.endsWith('.' + rule.domain)
+            if (
+                rule.domain === '*' ||
+                domainName === rule.domain ||
+                domainName.endsWith('.' + rule.domain)
             ) {
                 return rule.command ?? this.defaultCommand
             }
         }
         return this.defaultCommand
     }
-    getCertbotCertCommand(domainName: string, webroot:string): string[] {
+    getCertbotCertCommand(domainName: string, webroot: string): string[] {
         const variables: Record<string, string> = {
             domainName,
             webroot,
         }
         const command = this.getCertbotCertCommandTemplate(domainName)
-        const parsed = ShellQuote.parse(command, (key: string)=> {
+        const parsed = ShellQuote.parse(command, (key: string) => {
             return variables[key] ?? `\${${key}}`
         })
-        if (parsed.some(x => typeof x !== 'string')) {
+        if (parsed.some((x) => typeof x !== 'string')) {
             throw new Error(`Invalid command: ${command}`)
         }
-        return parsed as string[];
+        return parsed as string[]
     }
 }
