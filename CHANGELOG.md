@@ -2,6 +2,7 @@
 
 -   New: Ability to delete multiple apps at once
 -   New: Ability to setup automated disk cleanup
+-   New: Support for custom Certbot commands allowing support for DNS challenges [Issue-1761](https://github.com/caprover/caprover/issues/1761)
 -   Improved: Now the redirects include the path
 -   Improved: SSH key handling to avoid human mistakes
 
