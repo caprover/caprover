@@ -33,7 +33,7 @@ const configs = {
 
     registrySubDomainPort: 996,
 
-    dockerApiVersion: 'v1.40',
+    dockerApiVersion: 'v1.43',
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
