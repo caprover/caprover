@@ -1,9 +1,12 @@
 ## [Next Version - available as `edge`]
 
+**IMPORTANT**: this version bumps the minimum Docker API to 1.43. Please run `docker version | grep API` before upgrading your CapRover installation.
+
 -   New: Ability to delete multiple apps at once
 -   New: Ability to setup automated disk cleanup
 -   New: Support for custom Certbot commands allowing support for DNS challenges [Issue-1761](https://github.com/caprover/caprover/issues/1761)
 -   New: Ability to search app logs on the web [Issue-149](https://github.com/caprover/caprover-frontend/issues/149)
+-   New: Added support for Docker capabilities (enabling VPN one click apps etc)
 -   Improved: Now the redirects include the path
 -   Improved: SSH key handling to avoid human mistakes
 
