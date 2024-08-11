@@ -780,12 +780,47 @@ class CaptainManager {
 
     setNginxConfig(baseConfig: string, captainConfig: string) {
         const self = this
+        let existingConfigs: {
+            baseConfig: {
+                byDefault: string
+                customValue: any
+            }
+            captainConfig: {
+                byDefault: string
+                customValue: any
+            }
+        }
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getNginxConfig()
+            })
+            .then(function (configs) {
+                existingConfigs = configs
                 return self.dataStore.setNginxConfig(baseConfig, captainConfig)
             })
             .then(function () {
-                self.resetSelf()
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
+            })
+            .catch(function (error) {
+                if (
+                    error &&
+                    error.captainErrorType ===
+                        ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
+                ) {
+                    Logger.d(
+                        "Nginx validation failed. Reverting changes in system's nginx configs..."
+                    )
+                    self.dataStore
+                        .setNginxConfig(
+                            existingConfigs.baseConfig.customValue,
+                            existingConfigs.captainConfig.customValue
+                        )
+
+                        .then(function () {
+                            return self.loadBalancerManager.rePopulateNginxConfigFile()
+                        })
+                }
+                throw error
             })
     }
 
