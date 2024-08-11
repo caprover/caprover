@@ -731,9 +731,7 @@ class CaptainManager {
             })
             .then(function () {
                 Logger.d('Updating Load Balancer - CaptainManager.enableSsl')
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 
@@ -861,9 +859,7 @@ class CaptainManager {
                 Logger.d(
                     'Updating Load Balancer - CaptainManager.changeCaptainRootDomain'
                 )
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 

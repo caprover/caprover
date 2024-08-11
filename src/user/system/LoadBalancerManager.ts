@@ -45,9 +45,8 @@ const DH_PARAMS_FILE_PATH_ON_NGINX = path.join(
 class LoadBalancerManager {
     private reloadInProcess: boolean
     private requestedReloadPromises: {
-        dataStore: DataStore
-        resolve: VoidFunction
-        reject: (reason: any) => void
+        resolveFunc: VoidFunction
+        rejectFunc: (reason: any) => void
     }[]
     private captainPublicRandomKey: string
 
@@ -63,26 +62,17 @@ class LoadBalancerManager {
 
     /**
      * Reloads the configuation for NGINX.
-     * NOTE that this can return synchronously with UNDEFINED if there is already a process in the background.
-     * @param dataStoreToQueue
      * @returns {Promise.<>}
      */
-    rePopulateNginxConfigFile(dataStoreToQueue: DataStore, noReload?: boolean) {
+    rePopulateNginxConfigFile() {
         const self = this
 
         return new Promise<void>(function (res, rej) {
             self.requestedReloadPromises.push({
-                dataStore: dataStoreToQueue,
-                resolve: res,
-                reject: rej,
+                resolveFunc: res,
+                rejectFunc: rej,
             })
             self.consumeQueueIfAnyInNginxReloadQueue()
-        }).then(function () {
-            if (noReload) return
-            Logger.d('sendReloadSignal...')
-            return self.dockerApi.sendSingleContainerKillHUP(
-                CaptainConstants.nginxServiceName
-            )
         })
     }
 
@@ -104,12 +94,10 @@ class LoadBalancerManager {
 
         self.reloadInProcess = true
 
-        const dataStore = q.dataStore
-
         // This will resolve to something like: /captain/nginx/conf.d/captain
         const configFilePathBase = `${
             CaptainConstants.perAppNginxConfigPathBase
-        }/${dataStore.getNameSpace()}`
+        }/${self.dataStore.getNameSpace()}`
 
         const FUTURE = configFilePathBase + '.fut'
         const BACKUP = configFilePathBase + '.bak'
@@ -122,7 +110,7 @@ class LoadBalancerManager {
                 return fs.remove(FUTURE)
             })
             .then(function () {
-                return self.getServerList(dataStore)
+                return self.getServerList()
             })
             .then(function (servers) {
                 const promises: Promise<void>[] = []
@@ -193,25 +181,33 @@ class LoadBalancerManager {
                 return self.ensureBaseNginxConf()
             })
             .then(function () {
-                return self.createRootConfFile(dataStore)
+                return self.createRootConfFile()
+            })
+            .then(function () {
+                Logger.d('sendReloadSignal...')
+                return self.dockerApi.sendSingleContainerKillHUP(
+                    CaptainConstants.nginxServiceName
+                )
             })
             .then(function () {
                 Logger.d('SUCCESS: UNLocking NGINX configuration reloading...')
                 self.reloadInProcess = false
-                q.resolve()
+                q.resolveFunc()
                 self.consumeQueueIfAnyInNginxReloadQueue()
             })
             .catch(function (error: AnyError) {
                 Logger.e(error)
                 Logger.d('Error: UNLocking NGINX configuration reloading...')
                 self.reloadInProcess = false
-                q.reject(error)
+                q.rejectFunc(error)
                 self.consumeQueueIfAnyInNginxReloadQueue()
             })
     }
 
-    getServerList(dataStore: DataStore) {
+    getServerList() {
         const self = this
+
+        const dataStore = self.dataStore
 
         let hasRootSsl: boolean
         let rootDomain: string
@@ -398,8 +394,9 @@ class LoadBalancerManager {
         })
     }
 
-    createRootConfFile(dataStore: DataStore) {
+    createRootConfFile() {
         const self = this
+        const dataStore = self.dataStore
 
         const captainDomain = `${
             CaptainConstants.configs.captainSubDomain
@@ -519,7 +516,7 @@ class LoadBalancerManager {
             })
     }
 
-    ensureDhParamFileExists(dataStore: DataStore) {
+    ensureDhParamFileExists() {
         const self = this
         return fs
             .pathExists(DH_PARAMS_FILE_PATH_ON_HOST) //
@@ -558,7 +555,7 @@ class LoadBalancerManager {
                     `openssl dhparam -out ${DH_PARAMS_FILE_PATH_ON_HOST} 2048`
                 ).then(function () {
                     Logger.d('Updating Load Balancer - ensureDhParamFileExists')
-                    return self.rePopulateNginxConfigFile(dataStore)
+                    return self.rePopulateNginxConfigFile()
                 })
             })
             .catch((err) => Logger.e(err))
@@ -681,16 +678,16 @@ class LoadBalancerManager {
                 )
             })
             .then(function () {
-                Logger.d(
-                    'Updating Load Balancer - Setting up NGINX conf file...'
-                )
-                return self.rePopulateNginxConfigFile(dataStore, true)
-            })
-            .then(function () {
                 return fs.ensureDir(CaptainConstants.letsEncryptEtcPath)
             })
             .then(function () {
                 return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost)
+            })
+            .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - Setting up NGINX conf file...'
+                )
+                return self.rePopulateNginxConfigFile()
             })
             .then(function () {
                 return dockerApi.isServiceRunningByName(
@@ -801,9 +798,9 @@ class LoadBalancerManager {
                 // Ensure DH Params exists
                 // First attempt to renew certs in
                 setTimeout(function () {
-                    self.ensureDhParamFileExists(dataStore) //
+                    self.ensureDhParamFileExists() //
                         .then(function () {
-                            return self.renewAllCertsAndReload(dataStore)
+                            return self.renewAllCertsAndReload()
                         })
                         .catch((err) => {
                             Logger.e(err)
@@ -812,7 +809,7 @@ class LoadBalancerManager {
             })
     }
 
-    renewAllCertsAndReload(dataStore: DataStore) {
+    renewAllCertsAndReload() {
         const self = this
 
         // before doing renewal, let's schedule the next one in 20.3 hours!
@@ -820,7 +817,7 @@ class LoadBalancerManager {
         // the day in case if that's our super high traffic time
 
         setTimeout(function () {
-            self.renewAllCertsAndReload(dataStore) //
+            self.renewAllCertsAndReload() //
                 .catch((err) => {
                     Logger.e(err)
                 })
@@ -830,7 +827,7 @@ class LoadBalancerManager {
             .renewAllCerts() //
             .then(function () {
                 Logger.d('Updating Load Balancer - renewAllCerts')
-                return self.rePopulateNginxConfigFile(dataStore)
+                return self.rePopulateNginxConfigFile()
             })
     }
 }
