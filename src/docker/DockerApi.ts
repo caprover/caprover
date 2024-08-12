@@ -1,6 +1,7 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
 import { v4 as uuid } from 'uuid'
+import ApiStatusCodes from '../api/ApiStatusCodes'
 import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,
@@ -55,14 +56,24 @@ export abstract class IDockerUpdateOrders {
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
 
+const versionValidated: 'unknown' | 'good' | 'too old' = 'unknown'
+
 class DockerApi {
     private dockerode: Docker
+
+    public dockerNeedsUpdate = false
 
     constructor(connectionParams: Docker.DockerOptions) {
         this.dockerode = new Docker(connectionParams)
     }
 
     static get() {
+        if (versionValidated === 'too old') {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                'Docker version is too old. Please upgrade Docker to use Captain.'
+            )
+        }
         return dockerApiInstance
     }
 
@@ -1695,7 +1706,38 @@ const connectionParams: Docker.DockerOptions =
           }
 
 connectionParams.version = CaptainConstants.configs.dockerApiVersion
-
 const dockerApiInstance = new DockerApi(connectionParams)
+
+const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
+lowVersionDocker.version = 'v1.38'
+
+new Docker(lowVersionDocker)
+    .version()
+    .then((data) => {
+        Logger.d('Docker API Version on host: ' + data.ApiVersion)
+
+        const majorSupported = Number(data.ApiVersion.split('.')[0])
+        const minorSupported = Number(data.ApiVersion.split('.')[1])
+        const majorNeeded = Number(
+            CaptainConstants.configs.dockerApiVersion
+                .replace('v', '')
+                .split('.')[0]
+        )
+        const minorNeeded = Number(
+            CaptainConstants.configs.dockerApiVersion
+                .replace('v', '')
+                .split('.')[1]
+        )
+
+        if (
+            majorSupported < majorNeeded ||
+            (majorSupported === majorNeeded && minorSupported < minorNeeded)
+        ) {
+            dockerApiInstance.dockerNeedsUpdate = true
+        }
+    })
+    .catch((error) => {
+        Logger.e('Docker API Version Error: ' + error)
+    })
 
 export default DockerApi
