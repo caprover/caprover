@@ -1,7 +1,6 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
 import { v4 as uuid } from 'uuid'
-import ApiStatusCodes from '../api/ApiStatusCodes'
 import DockerService from '../models/DockerService'
 import {
     IDockerApiPort,
@@ -56,8 +55,6 @@ export abstract class IDockerUpdateOrders {
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
 
-const versionValidated: 'unknown' | 'good' | 'too old' = 'unknown'
-
 class DockerApi {
     private dockerode: Docker
 
@@ -68,12 +65,6 @@ class DockerApi {
     }
 
     static get() {
-        if (versionValidated === 'too old') {
-            throw ApiStatusCodes.createError(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                'Docker version is too old. Please upgrade Docker to use Captain.'
-            )
-        }
         return dockerApiInstance
     }
 
