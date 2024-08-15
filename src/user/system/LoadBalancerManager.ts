@@ -184,38 +184,7 @@ class LoadBalancerManager {
                 return self.createRootConfFile()
             })
             .then(function () {
-                return self.dockerApi
-                    .executeCommand(CaptainConstants.nginxServiceName, [
-                        'nginx',
-                        '-t',
-                    ])
-                    .then(function (result) {
-                        // nginx:1.24
-                        // Failed example:
-                        //
-                        // 2024/08/11 22:32:59 [emerg] 28#28: unknown directive "eventsxxx" in /etc/nginx/nginx.conf:8
-                        // nginx: [emerg] unknown directive "eventsxxx" in /etc/nginx/nginx.conf:8
-                        // nginx: configuration file /etc/nginx/nginx.conf test failed
-
-                        // Successful example:
-                        //
-                        // nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-                        // nginx: configuration file /etc/nginx/nginx.conf test is successful
-
-                        if (result.indexOf('test is successful') < 0) {
-                            throw ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED,
-                                result
-                            )
-                        }
-                    })
-            })
-
-            .then(function () {
-                Logger.d('sendReloadSignal...')
-                return self.dockerApi.sendSingleContainerKillHUP(
-                    CaptainConstants.nginxServiceName
-                )
+                return self.validateNginxConfigAndReload()
             })
             .then(function () {
                 Logger.d('SUCCESS: UNLocking NGINX configuration reloading...')
@@ -229,6 +198,43 @@ class LoadBalancerManager {
                 self.reloadInProcess = false
                 q.rejectFunc(error)
                 self.consumeQueueIfAnyInNginxReloadQueue()
+            })
+    }
+
+    validateNginxConfigAndReload() {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerApi.executeCommand(
+                    CaptainConstants.nginxServiceName,
+                    ['nginx', '-t']
+                )
+            })
+            .then(function (result) {
+                // nginx:1.24
+                // Failed example:
+                //
+                // 2024/08/11 22:32:59 [emerg] 28#28: unknown directive "eventsxxx" in /etc/nginx/nginx.conf:8
+                // nginx: [emerg] unknown directive "eventsxxx" in /etc/nginx/nginx.conf:8
+                // nginx: configuration file /etc/nginx/nginx.conf test failed
+
+                // Successful example:
+                //
+                // nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+                // nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+                if (result.indexOf('test is successful') < 0) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED,
+                        result
+                    )
+                }
+            })
+            .then(function () {
+                Logger.d('sendReloadSignal...')
+                return self.dockerApi.sendSingleContainerKillHUP(
+                    CaptainConstants.nginxServiceName
+                )
             })
     }
 
@@ -712,12 +718,6 @@ class LoadBalancerManager {
                 return fs.ensureDir(CaptainConstants.nginxSharedPathOnHost)
             })
             .then(function () {
-                Logger.d(
-                    'Updating Load Balancer - Setting up NGINX conf file...'
-                )
-                return self.rePopulateNginxConfigFile()
-            })
-            .then(function () {
                 return dockerApi.isServiceRunningByName(
                     CaptainConstants.nginxServiceName
                 )
@@ -754,6 +754,12 @@ class LoadBalancerManager {
                 } else {
                     return true
                 }
+            })
+            .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - Setting up NGINX conf file...'
+                )
+                return self.rePopulateNginxConfigFile()
             })
             .then(function () {
                 Logger.d('Updating NGINX service...')
