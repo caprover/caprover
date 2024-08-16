@@ -55,7 +55,7 @@ const configs = {
 
     analyticsDomain: 'https://analytics-v1.caprover.com',
 
-    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
+    certbotImageName: 'caprover/certbot-sleeping:v2.11.0',
 
     certbotCertCommandRules: undefined as CertbotCertCommandRule[] | undefined,
 }
