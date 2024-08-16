@@ -141,9 +141,10 @@ class CertbotManager {
             })
             .then(function (registerOutput) {
                 if (
-                    registerOutput.indexOf(
+                    registerOutput.includes(
                         'Your account credentials have been saved in your Certbot'
-                    ) >= 0
+                    ) ||
+                    registerOutput.includes('Account registered.')
                 ) {
                     return true
                 }
