@@ -9,6 +9,8 @@
 -   New: Added support for Docker capabilities (enabling VPN one click apps etc)
 -   Improved: Now the redirects include the path
 -   Improved: SSH key handling to avoid human mistakes
+-   Security: Updated npm dependencies security update
+-   Security: Updated Certbot image (2.11.0)
 
 ## [1.11.1] - 2023-09-16
 
