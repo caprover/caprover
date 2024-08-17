@@ -1,6 +1,6 @@
 ## [Next Version - available as `edge`]
 
--   N/A
+-   Fixed: the app log box is resizable again [issue-2112](https://github.com/caprover/caprover/issues/2112)
 
 ## [1.12.0] - 2024-08-17
 
