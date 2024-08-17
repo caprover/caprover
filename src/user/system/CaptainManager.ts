@@ -19,6 +19,7 @@ import {
 import ProManager from '../pro/ProManager'
 import BackupManager from './BackupManager'
 import CertbotManager from './CertbotManager'
+import DiskCleanupManager from './DiskCleanupManager'
 import DomainResolveChecker from './DomainResolveChecker'
 import LoadBalancerManager from './LoadBalancerManager'
 import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
@@ -41,6 +42,7 @@ class CaptainManager {
     private certbotManager: CertbotManager
     private loadBalancerManager: LoadBalancerManager
     private domainResolveChecker: DomainResolveChecker
+    private diskCleanupManager: DiskCleanupManager
     private dockerRegistry: SelfHostedDockerRegistry
     private backupManager: BackupManager
     private myNodeId: string | undefined
@@ -67,6 +69,10 @@ class CaptainManager {
         this.domainResolveChecker = new DomainResolveChecker(
             this.loadBalancerManager,
             this.certbotManager
+        )
+        this.diskCleanupManager = new DiskCleanupManager(
+            this.dataStore,
+            dockerApi
         )
         this.myNodeId = undefined
         this.inited = false
@@ -250,6 +256,9 @@ class CaptainManager {
                         return self.ensureAllAppsInited()
                     }
                 )
+            })
+            .then(function () {
+                return self.diskCleanupManager.init()
             })
             .then(function () {
                 self.inited = true
@@ -454,6 +463,10 @@ class CaptainManager {
 
     getCertbotManager() {
         return this.certbotManager
+    }
+
+    getDiskCleanupManager() {
+        return this.diskCleanupManager
     }
 
     isInitialized() {
@@ -718,9 +731,7 @@ class CaptainManager {
             })
             .then(function () {
                 Logger.d('Updating Load Balancer - CaptainManager.enableSsl')
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 
@@ -769,12 +780,47 @@ class CaptainManager {
 
     setNginxConfig(baseConfig: string, captainConfig: string) {
         const self = this
+        let existingConfigs: {
+            baseConfig: {
+                byDefault: string
+                customValue: any
+            }
+            captainConfig: {
+                byDefault: string
+                customValue: any
+            }
+        }
         return Promise.resolve()
             .then(function () {
+                return self.dataStore.getNginxConfig()
+            })
+            .then(function (configs) {
+                existingConfigs = configs
                 return self.dataStore.setNginxConfig(baseConfig, captainConfig)
             })
             .then(function () {
-                self.resetSelf()
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
+            })
+            .catch(function (error) {
+                if (
+                    error &&
+                    error.captainErrorType ===
+                        ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
+                ) {
+                    Logger.d(
+                        "Nginx validation failed. Reverting changes in system's nginx configs..."
+                    )
+                    self.dataStore
+                        .setNginxConfig(
+                            existingConfigs.baseConfig.customValue,
+                            existingConfigs.captainConfig.customValue
+                        )
+
+                        .then(function () {
+                            return self.loadBalancerManager.rePopulateNginxConfigFile()
+                        })
+                }
+                throw error
             })
     }
 
@@ -848,9 +894,7 @@ class CaptainManager {
                 Logger.d(
                     'Updating Load Balancer - CaptainManager.changeCaptainRootDomain'
                 )
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 

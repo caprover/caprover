@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { CaptainError } from '../../../../models/OtherTypes'
+import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
@@ -18,13 +19,12 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
-    const serviceManager =
-        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
-
     Promise.resolve()
         .then(function () {
             const mostRecentLimit = Number(req.query.mostRecentLimit || '0')
-            return serviceManager.getUnusedImages(mostRecentLimit)
+            return CaptainManager.get()
+                .getDiskCleanupManager()
+                .getUnusedImages(mostRecentLimit)
         })
         .then(function (unusedImages) {
             const baseApi = new BaseApi(
@@ -41,13 +41,13 @@ router.get('/unusedImages', function (req, res, next) {
 
 // delete images
 router.post('/deleteImages', function (req, res, next) {
-    const serviceManager =
-        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
     const imageIds = req.body.imageIds || []
 
     Promise.resolve()
         .then(function () {
-            return serviceManager.deleteImages(imageIds)
+            return CaptainManager.get()
+                .getDiskCleanupManager()
+                .deleteImages(imageIds)
         })
         .then(function () {
             const baseApi = new BaseApi(
@@ -249,14 +249,24 @@ router.post('/delete/', function (req, res, next) {
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
-    const appName = req.body.appName
-    const volumes = req.body.volumes || []
+    const appName: string = req.body.appName
+    const volumes: string[] = req.body.volumes || []
+    const appNames: string[] = req.body.appNames || []
+    const appsToDelete: string[] = appNames.length ? appNames : [appName]
 
     Logger.d(`Deleting app started: ${appName}`)
 
     Promise.resolve()
         .then(function () {
-            return serviceManager.removeApp(appName)
+            if (appNames.length > 0 && appName) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_OPERATION,
+                    'Either appName or appNames should be provided'
+                )
+            }
+        })
+        .then(function () {
+            return serviceManager.removeApps(appsToDelete)
         })
         .then(function () {
             return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
@@ -265,7 +275,7 @@ router.post('/delete/', function (req, res, next) {
             return serviceManager.removeVolsSafe(volumes)
         })
         .then(function (failedVolsToRemoved) {
-            Logger.d(`AppName is deleted: ${appName}`)
+            Logger.d(`Successfully deleted: ${appsToDelete.join(', ')}`)
 
             if (failedVolsToRemoved.length) {
                 const returnVal = new BaseApi(
@@ -379,6 +389,15 @@ router.post('/update/', function (req, res, next) {
             )
         )
         return
+    }
+
+    if (
+        repoInfo &&
+        repoInfo.sshKey &&
+        repoInfo.sshKey.indexOf('END OPENSSH PRIVATE KEY-----') > 0
+    ) {
+        repoInfo.sshKey = repoInfo.sshKey.trim()
+        repoInfo.sshKey = repoInfo.sshKey + '\n'
     }
 
     Logger.d(`Updating app started: ${appName}`)

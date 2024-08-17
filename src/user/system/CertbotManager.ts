@@ -1,9 +1,12 @@
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
-import CaptainConstants from '../../utils/CaptainConstants'
+import CaptainConstants, {
+    CertbotCertCommandRule,
+} from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import fs = require('fs-extra')
+import ShellQuote = require('shell-quote')
 
 const WEBROOT_PATH_IN_CERTBOT = '/captain-webroot'
 const WEBROOT_PATH_IN_CAPTAIN =
@@ -12,8 +15,39 @@ const WEBROOT_PATH_IN_CAPTAIN =
 
 const shouldUseStaging = false // CaptainConstants.isDebug;
 
+function isCertCommandSuccess(output: string) {
+    // https://github.com/certbot/certbot/blob/099c6c8b240400b928d6b349e023e5e8414611e6/certbot/certbot/_internal/main.py#L516
+    if (
+        output.indexOf(
+            'Congratulations! Your certificate and chain have been saved'
+        ) >= 0
+    ) {
+        return true
+    }
+
+    // https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/main.py#L632
+    if (output.indexOf('Successfully received certificate') >= 0) {
+        return true
+    }
+
+    // https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/main.py#L1596
+    if (
+        output.indexOf(
+            'Certificate not yet due for renewal; no action taken'
+        ) >= 0
+    ) {
+        return true
+    }
+
+    return false
+}
+
 class CertbotManager {
     private isOperationInProcess: boolean
+    private certCommandGenerator = new CertCommandGenerator(
+        CaptainConstants.configs.certbotCertCommandRules ?? [],
+        'certbot certonly --webroot -w ${webroot} -d ${domainName}'
+    )
 
     constructor(private dockerApi: DockerApi) {
         this.dockerApi = dockerApi
@@ -46,7 +80,6 @@ class CertbotManager {
 
         return `/live/${domainName}/privkey.pem`
     }
-
     enableSsl(domainName: string) {
         const self = this
 
@@ -58,15 +91,10 @@ class CertbotManager {
                 return self.ensureDomainHasDirectory(domainName)
             })
             .then(function () {
-                const cmd = [
-                    'certbot',
-                    'certonly',
-                    '--webroot',
-                    '-w',
-                    `${WEBROOT_PATH_IN_CERTBOT}/${domainName}`,
-                    '-d',
+                const cmd = self.certCommandGenerator.getCertbotCertCommand(
                     domainName,
-                ]
+                    WEBROOT_PATH_IN_CERTBOT + '/' + domainName
+                )
 
                 if (shouldUseStaging) {
                     cmd.push('--staging')
@@ -75,19 +103,7 @@ class CertbotManager {
                 return self.runCommand(cmd).then(function (output) {
                     Logger.d(output)
 
-                    if (
-                        output.indexOf(
-                            'Congratulations! Your certificate and chain have been saved'
-                        ) >= 0
-                    ) {
-                        return true
-                    }
-
-                    if (
-                        output.indexOf(
-                            'Certificate not yet due for renewal; no action taken'
-                        ) >= 0
-                    ) {
+                    if (isCertCommandSuccess(output)) {
                         return true
                     }
 
@@ -125,9 +141,10 @@ class CertbotManager {
             })
             .then(function (registerOutput) {
                 if (
-                    registerOutput.indexOf(
+                    registerOutput.includes(
                         'Your account credentials have been saved in your Certbot'
-                    ) >= 0
+                    ) ||
+                    registerOutput.includes('Account registered.')
                 ) {
                     return true
                 }
@@ -295,7 +312,7 @@ class CertbotManager {
 
             return dockerApi
                 .createServiceOnNodeId(
-                    CaptainConstants.certbotImageName,
+                    CaptainConstants.configs.certbotImageName,
                     CaptainConstants.certbotServiceName,
                     undefined,
                     nodeId,
@@ -373,7 +390,7 @@ class CertbotManager {
 
                 return dockerApi.updateService(
                     CaptainConstants.certbotServiceName,
-                    CaptainConstants.certbotImageName,
+                    CaptainConstants.configs.certbotImageName,
                     [
                         {
                             hostPath: CaptainConstants.letsEncryptEtcPath,
@@ -410,3 +427,37 @@ class CertbotManager {
 }
 
 export default CertbotManager
+
+export class CertCommandGenerator {
+    constructor(
+        private rules: CertbotCertCommandRule[],
+        private defaultCommand: string
+    ) {}
+
+    private getCertbotCertCommandTemplate(domainName: string): string {
+        for (const rule of this.rules) {
+            if (
+                rule.domain === '*' ||
+                domainName === rule.domain ||
+                domainName.endsWith('.' + rule.domain)
+            ) {
+                return rule.command ?? this.defaultCommand
+            }
+        }
+        return this.defaultCommand
+    }
+    getCertbotCertCommand(domainName: string, webroot: string): string[] {
+        const variables: Record<string, string> = {
+            domainName,
+            webroot,
+        }
+        const command = this.getCertbotCertCommandTemplate(domainName)
+        const parsed = ShellQuote.parse(command, (key: string) => {
+            return variables[key] ?? `\${${key}}`
+        })
+        if (parsed.some((x) => typeof x !== 'string')) {
+            throw new Error(`Invalid command: ${command}`)
+        }
+        return parsed as string[]
+    }
+}

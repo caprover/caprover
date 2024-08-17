@@ -2,7 +2,7 @@ import fs = require('fs-extra')
 import path = require('path')
 import EnvVars from './EnvVars'
 
-const CAPTAIN_BASE_DIRECTORY = '/captain'
+const CAPTAIN_BASE_DIRECTORY = EnvVars.CAPTAIN_BASE_DIRECTORY || '/captain'
 const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
 const CAPTAIN_ROOT_DIRECTORY_GENERATED = CAPTAIN_BASE_DIRECTORY + '/generated'
@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.11.1',
+    version: '1.12.0',
 
     defaultMaxLogSize: '512m',
 
@@ -33,7 +33,7 @@ const configs = {
 
     registrySubDomainPort: 996,
 
-    dockerApiVersion: 'v1.40',
+    dockerApiVersion: 'v1.43',
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
@@ -54,6 +54,21 @@ const configs = {
     proApiDomains: ['https://pro.caprover.com'],
 
     analyticsDomain: 'https://analytics-v1.caprover.com',
+
+    certbotImageName: 'caprover/certbot-sleeping:v2.11.0',
+
+    certbotCertCommandRules: undefined as CertbotCertCommandRule[] | undefined,
+}
+
+export interface CertbotCertCommandRule {
+    /**
+     * Matches both *.<domain> and <domain>, use '*' to match all domains
+     */
+    domain: string
+    /**
+     * The Certbot command to execute, will be parsed using `shell-quote`, available variables are `${domainName}` and `${subdomain}`
+     */
+    command?: string
 }
 
 const data = {
@@ -133,8 +148,6 @@ const data = {
 
     // ********************* Local Docker Constants  ************************
 
-    certbotImageName: 'caprover/certbot-sleeping:v1.6.0',
-
     captainSaltSecretKey: 'captain-salt',
 
     nginxServiceName: 'captain-nginx',
@@ -179,7 +192,7 @@ const data = {
     gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }
 
-function overrideFromFile(fileName: string) {
+function overrideConfigFromFile(fileName: string) {
     const overridingValuesConfigs = fs.readJsonSync(fileName, {
         throws: false,
     })
@@ -198,9 +211,9 @@ function overrideFromFile(fileName: string) {
     }
 }
 
-overrideFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
+overrideConfigFromFile(CONSTANT_FILE_OVERRIDE_BUILD)
 
-overrideFromFile(CONSTANT_FILE_OVERRIDE_USER)
+overrideConfigFromFile(CONSTANT_FILE_OVERRIDE_USER)
 
 if (data.isDebug) {
     const devDirectoryOnLocalMachine = fs

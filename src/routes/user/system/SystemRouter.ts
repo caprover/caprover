@@ -5,6 +5,7 @@ import BaseApi from '../../../api/BaseApi'
 import DockerApi from '../../../docker/DockerApi'
 import DockerUtils from '../../../docker/DockerUtils'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import { AutomatedCleanupConfigsCleaner } from '../../../models/AutomatedCleanupConfigs'
 import CaptainManager from '../../../user/system/CaptainManager'
 import VersionManager from '../../../user/system/VersionManager'
 import CaptainConstants from '../../../utils/CaptainConstants'
@@ -197,6 +198,44 @@ router.post('/versionInfo/', function (req, res, next) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'Captain update process has started...'
+            )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/diskcleanup/', function (req, res, next) {
+    return Promise.resolve()
+        .then(function () {
+            return CaptainManager.get().getDiskCleanupManager().getConfigs()
+        })
+        .then(function (data) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Disk cleanup configs retrieved'
+            )
+            baseApi.data = data
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.post('/diskcleanup/', function (req, res, next) {
+    const configs = AutomatedCleanupConfigsCleaner.cleanup({
+        mostRecentLimit: req.body.mostRecentLimit,
+        cronSchedule: req.body.cronSchedule,
+        timezone: req.body.timezone,
+    })
+    return Promise.resolve()
+        .then(function () {
+            return CaptainManager.get()
+                .getDiskCleanupManager()
+                .setConfig(configs)
+        })
+        .then(function () {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Disk cleanup configs updated'
             )
             res.send(baseApi)
         })

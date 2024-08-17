@@ -2,7 +2,7 @@
 
 _In future versions, this will be added to the installation_
 
-CapRover core is a free and open-source program developed collectively by tens of developers across the world. Use CapRover at your own risk.
+CapRover core is a free and source-available program developed collectively by tens of developers across the world. Use CapRover at your own risk.
 
 Developers of CapRover do their best to prevent bugs and issues through rigorous testing processes and clean code principles. CapRover is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the [License](https://github.com/caprover/caprover/blob/master/LICENSE).

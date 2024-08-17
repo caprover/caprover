@@ -47,9 +47,9 @@ class SelfHostedDockerRegistry {
                 Logger.d(
                     'Updating Load Balancer - SelfHostedDockerRegistry.enableRegistrySsl'
                 )
-                return self.loadBalancerManager.rePopulateNginxConfigFile(
-                    self.dataStore
-                )
+
+                // no return - ignore the returned promise
+                self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 

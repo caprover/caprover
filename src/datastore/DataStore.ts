@@ -3,6 +3,10 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import {
+    AutomatedCleanupConfigsCleaner,
+    IAutomatedCleanupConfigs,
+} from '../models/AutomatedCleanupConfigs'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import AppsDataStore from './AppsDataStore'
@@ -22,6 +26,7 @@ const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
+const AUTOMATED_CLEANUP = 'automatedCleanup'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
@@ -35,9 +40,11 @@ const DEFAULT_NGINX_CAPTAIN_CONFIG = fs
 let DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
     __dirname + '/../../template/server-block-conf.ejs'
 
-if (fs.pathExistsSync('/captain/data/server-block-conf-override.ejs')) {
-    DEFAULT_NGINX_CONFIG_FOR_APP_PATH =
-        '/captain/data/server-block-conf-override.ejs'
+const SERVER_BLOCK_CONF_OVERRIDE_PATH =
+    CaptainConstants.captainDataDirectory + '/server-block-conf-override.ejs'
+
+if (fs.pathExistsSync(SERVER_BLOCK_CONF_OVERRIDE_PATH)) {
+    DEFAULT_NGINX_CONFIG_FOR_APP_PATH = SERVER_BLOCK_CONF_OVERRIDE_PATH
 }
 
 const DEFAULT_NGINX_CONFIG_FOR_APP = fs
@@ -102,6 +109,30 @@ class DataStore {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.get(HASHED_PASSWORD)
+        })
+    }
+
+    setDiskCleanupConfigs(configs: IAutomatedCleanupConfigs) {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.set(
+                AUTOMATED_CLEANUP,
+                AutomatedCleanupConfigsCleaner.cleanup(configs)
+            )
+        })
+    }
+
+    getDiskCleanupConfigs(): Promise<IAutomatedCleanupConfigs> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return (
+                self.data.get(AUTOMATED_CLEANUP) ||
+                AutomatedCleanupConfigsCleaner.cleanup({
+                    mostRecentLimit: 0,
+                    cronSchedule: '',
+                    timezone: '',
+                })
+            )
         })
     }
 

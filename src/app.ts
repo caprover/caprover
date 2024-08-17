@@ -9,6 +9,7 @@ import httpProxyImport = require('http-proxy')
 import * as http from 'http'
 import ApiStatusCodes from './api/ApiStatusCodes'
 import BaseApi from './api/BaseApi'
+import DockerApi from './docker/DockerApi'
 import InjectionExtractor from './injection/InjectionExtractor'
 import * as Injector from './injection/Injector'
 import DownloadRouter from './routes/download/DownloadRouter'
@@ -191,6 +192,15 @@ app.use(API_PREFIX + ':apiVersionFromRequest/', function (req, res, next) {
         const response = new BaseApi(
             ApiStatusCodes.STATUS_ERROR_CAPTAIN_NOT_INITIALIZED,
             'Captain is not ready yet...'
+        )
+        res.send(response)
+        return
+    }
+
+    if (DockerApi.get().dockerNeedsUpdate) {
+        const response = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'Docker version is too old. Please update Docker to use CapRover.'
         )
         res.send(response)
         return

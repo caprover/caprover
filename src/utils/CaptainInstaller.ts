@@ -51,14 +51,6 @@ function checkSystemReq() {
                 console.log('   Ubuntu detected.')
             }
 
-            if (output.Architecture.toLowerCase().indexOf('x86') < 0) {
-                console.log(
-                    '******* Warning *******    Default CapRover is compiled for X86 CPU. To use CapRover on other CPUs you can build from the source code'
-                )
-            } else {
-                console.log('   X86 CPU detected.')
-            }
-
             const totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0)
 
             if (totalMemInMb < 1000) {
@@ -287,7 +279,7 @@ export function install() {
             return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
-            const imageName = CaptainConstants.certbotImageName
+            const imageName = CaptainConstants.configs.certbotImageName
             console.log(`Pulling: ${imageName}`)
             return DockerApi.get().pullImage(imageName, undefined)
         })
@@ -337,6 +329,13 @@ export function install() {
                 volumeToMount.push({
                     hostPath: CaptainConstants.dockerSocketPath,
                     containerPath: CaptainConstants.dockerSocketPath,
+                })
+            }
+
+            if (EnvVar.CAPTAIN_BASE_DIRECTORY) {
+                env.push({
+                    key: EnvVar.keys.CAPTAIN_BASE_DIRECTORY,
+                    value: EnvVar.CAPTAIN_BASE_DIRECTORY,
                 })
             }
 

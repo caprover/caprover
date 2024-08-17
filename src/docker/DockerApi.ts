@@ -58,6 +58,8 @@ export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
 class DockerApi {
     private dockerode: Docker
 
+    public dockerNeedsUpdate = false
+
     constructor(connectionParams: Docker.DockerOptions) {
         this.dockerode = new Docker(connectionParams)
     }
@@ -1695,7 +1697,38 @@ const connectionParams: Docker.DockerOptions =
           }
 
 connectionParams.version = CaptainConstants.configs.dockerApiVersion
-
 const dockerApiInstance = new DockerApi(connectionParams)
+
+const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
+lowVersionDocker.version = 'v1.38'
+
+new Docker(lowVersionDocker)
+    .version()
+    .then((data) => {
+        Logger.d('Docker API Version on host: ' + data.ApiVersion)
+
+        const majorSupported = Number(data.ApiVersion.split('.')[0])
+        const minorSupported = Number(data.ApiVersion.split('.')[1])
+        const majorNeeded = Number(
+            CaptainConstants.configs.dockerApiVersion
+                .replace('v', '')
+                .split('.')[0]
+        )
+        const minorNeeded = Number(
+            CaptainConstants.configs.dockerApiVersion
+                .replace('v', '')
+                .split('.')[1]
+        )
+
+        if (
+            majorSupported < majorNeeded ||
+            (majorSupported === majorNeeded && minorSupported < minorNeeded)
+        ) {
+            dockerApiInstance.dockerNeedsUpdate = true
+        }
+    })
+    .catch((error) => {
+        Logger.e('Docker API Version Error: ' + error)
+    })
 
 export default DockerApi

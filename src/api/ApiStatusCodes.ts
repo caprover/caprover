@@ -48,6 +48,7 @@ class ApiStatusCodes {
     static readonly STATUS_PASSWORD_BACK_OFF = 1113
     static readonly STATUS_ERROR_OTP_REQUIRED = 1114
     static readonly STATUS_ERROR_PRO_API_KEY_INVALIDATED = 1115
+    static readonly STATUS_ERROR_NGINX_VALIDATION_FAILED = 1116
 }
 
 export default ApiStatusCodes
