@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+-   N/A
+
+## [1.12.0] - 2024-08-17
+
 **IMPORTANT**: this version bumps the minimum Docker API to 1.43. Please run `docker version | grep API` before upgrading your CapRover installation.
 
 -   New: Ability to delete multiple apps at once
