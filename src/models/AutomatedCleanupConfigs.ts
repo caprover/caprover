@@ -5,7 +5,7 @@ export interface IAutomatedCleanupConfigs {
 }
 
 export class AutomatedCleanupConfigsCleaner {
-    static cleanup(instance: IAutomatedCleanupConfigs) {
+    static sanitizeInput(instance: IAutomatedCleanupConfigs) {
         return {
             mostRecentLimit:
                 Number(instance.mostRecentLimit) > 0

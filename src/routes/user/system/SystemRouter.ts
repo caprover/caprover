@@ -221,13 +221,13 @@ router.get('/diskcleanup/', function (req, res, next) {
 })
 
 router.post('/diskcleanup/', function (req, res, next) {
-    const configs = AutomatedCleanupConfigsCleaner.cleanup({
-        mostRecentLimit: req.body.mostRecentLimit,
-        cronSchedule: req.body.cronSchedule,
-        timezone: req.body.timezone,
-    })
     return Promise.resolve()
         .then(function () {
+            const configs = AutomatedCleanupConfigsCleaner.sanitizeInput({
+                mostRecentLimit: req.body.mostRecentLimit,
+                cronSchedule: req.body.cronSchedule,
+                timezone: req.body.timezone,
+            })
             return CaptainManager.get()
                 .getDiskCleanupManager()
                 .setConfig(configs)

@@ -117,7 +117,7 @@ class DataStore {
         return Promise.resolve().then(function () {
             return self.data.set(
                 AUTOMATED_CLEANUP,
-                AutomatedCleanupConfigsCleaner.cleanup(configs)
+                AutomatedCleanupConfigsCleaner.sanitizeInput(configs)
             )
         })
     }
@@ -127,7 +127,7 @@ class DataStore {
         return Promise.resolve().then(function () {
             return (
                 self.data.get(AUTOMATED_CLEANUP) ||
-                AutomatedCleanupConfigsCleaner.cleanup({
+                AutomatedCleanupConfigsCleaner.sanitizeInput({
                     mostRecentLimit: 0,
                     cronSchedule: '',
                     timezone: '',

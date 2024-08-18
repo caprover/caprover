@@ -1,6 +1,7 @@
 ## [Next Version - available as `edge`]
 
 -   Fixed: the app log box is resizable again [issue-2112](https://github.com/caprover/caprover/issues/2112)
+-   Fixed: showing the missing timezones due to daylight saving time[issue-2110](https://github.com/caprover/caprover/issues/2110)
 
 ## [1.12.0] - 2024-08-17
 
