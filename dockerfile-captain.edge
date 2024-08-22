@@ -4,6 +4,7 @@ RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
 WORKDIR /usr/src/app
 COPY . ./
 
+
 # Build backend code
 RUN npm ci && \
      npm run build && \
