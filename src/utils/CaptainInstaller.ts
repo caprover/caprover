@@ -226,7 +226,19 @@ export function install() {
                 return EnvVar.MAIN_NODE_IP_ADDRESS
             }
 
-            return externalIp.v4()
+            try {
+                const externalIpFetched = externalIp.v4()
+                if (externalIpFetched) {
+                    return externalIpFetched
+                }
+            } catch (error) {
+                console.error(
+                    'Defaulting to 127.0.0.1 - Error retrieving IP address:',
+                    error
+                )
+            }
+
+            return '127.0.0.1'
         })
         .then(function (ip4) {
             if (!ip4) {
