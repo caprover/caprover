@@ -11,7 +11,8 @@ router.post('/register/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    const projectName = req.body.projectName as string
+    const projectName = `${req.body.projectName || ''}`.trim()
+    const parentProjectId = `${req.body.parentProjectId || ''}`.trim()
 
     Promise.resolve()
         .then(function () {
@@ -19,6 +20,7 @@ router.post('/register/', function (req, res, next) {
             return dataStore.getProjectsDataStore().saveProject(projectId, {
                 id: projectId,
                 name: projectName,
+                parentProjectId: parentProjectId,
                 description: '',
             })
         })
@@ -69,6 +71,9 @@ router.post('/update/', function (req, res, next) {
 
             projectDefinition.id = `${projectDefinition.id || ''}`
             projectDefinition.name = `${projectDefinition.name || ''}`
+            projectDefinition.parentProjectId = `${
+                projectDefinition.parentProjectId || ''
+            }`
             projectDefinition.description = `${
                 projectDefinition.description || ''
             }`
@@ -85,6 +90,7 @@ router.post('/update/', function (req, res, next) {
                 .saveProject(projectDefinition.id, {
                     id: projectDefinition.id,
                     name: projectDefinition.name,
+                    parentProjectId: projectDefinition.parentProjectId,
                     description: projectDefinition.description,
                 })
         })

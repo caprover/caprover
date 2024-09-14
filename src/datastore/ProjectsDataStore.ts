@@ -15,10 +15,10 @@ function isNameAllowed(name: string) {
     return isNameFormattingOk && ['captain', 'root'].indexOf(name) < 0
 }
 
-function isValidUUID(uuid: string): boolean {
+function isValidUUID(uuid: string | undefined): boolean {
     const uuidRegex =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    return uuidRegex.test(uuid)
+    return !!uuid && uuidRegex.test(uuid)
 }
 
 class ProjectsDataStore {
@@ -31,43 +31,79 @@ class ProjectsDataStore {
         const self = this
         projectId = `${projectId || ''}`.trim()
 
-        return Promise.resolve().then(function () {
-            project.name = `${project.name || ''}`.trim()
-            project.id = `${project.id || ''}`.trim()
-            project.description = `${project.description || ''}`.trim()
+        return Promise.resolve()
 
-            if (!isNameAllowed(project.name)) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Project name is not allowed'
+            .then(function () {
+                return self.getAllProjects()
+            })
+            .then(function (allProjects) {
+                project.name = `${project.name || ''}`.trim()
+                project.id = `${project.id || ''}`.trim()
+                project.description = `${project.description || ''}`.trim()
+                project.parentProjectId = `${
+                    project.parentProjectId || ''
+                }`.trim()
+
+                if (!isNameAllowed(project.name)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Project name is not allowed'
+                    )
+                }
+
+                if (project.id !== projectId) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Project ID does not match'
+                    )
+                }
+
+                if (!isValidUUID(project.id)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Project ID is not a valid UUID'
+                    )
+                }
+
+                if (project.parentProjectId) {
+                    if (project.parentProjectId === project.id) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Parent Project ID cannot be the same as the project ID'
+                        )
+                    }
+
+                    if (!isValidUUID(project.parentProjectId)) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Parent Project ID is not a valid UUID'
+                        )
+                    }
+
+                    if (
+                        !allProjects.some(
+                            (p) => p.id === project.parentProjectId
+                        )
+                    ) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Parent Project ID does not exist'
+                        )
+                    }
+                }
+
+                const projectToSave: ProjectDefinition = {
+                    id: project.id,
+                    name: project.name,
+                    parentProjectId: project.parentProjectId,
+                    description: project.description,
+                }
+
+                return self.data.set(
+                    `${PROJECTS_DEFINITIONS}.${projectId}`,
+                    projectToSave
                 )
-            }
-
-            if (project.id !== projectId) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Project ID does not match'
-                )
-            }
-
-            if (!isValidUUID(project.id)) {
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Project ID is not a valid UUID'
-                )
-            }
-
-            const projectToSave: ProjectDefinition = {
-                id: project.id,
-                name: project.name,
-                description: project.description,
-            }
-
-            return self.data.set(
-                `${PROJECTS_DEFINITIONS}.${projectId}`,
-                projectToSave
-            )
-        })
+            })
     }
 
     getAllProjects(): Promise<ProjectDefinition[]> {
