@@ -25,9 +25,12 @@ router.post('/register/', function (req, res, next) {
             })
         })
         .then(function () {
-            Logger.d(`Project is saved: ${projectName}`)
+            Logger.d(`Project created: ${projectName}`)
             res.send(
-                new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
+                new BaseApi(
+                    ApiStatusCodes.STATUS_OK,
+                    'Project created: ${projectName}'
+                )
             )
         })
         .catch(ApiStatusCodes.createCatcher(res))
