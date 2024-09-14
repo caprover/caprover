@@ -29,7 +29,7 @@ router.post('/register/', function (req, res, next) {
             res.send(
                 new BaseApi(
                     ApiStatusCodes.STATUS_OK,
-                    'Project created: ${projectName}'
+                    `Project created: ${projectName}`
                 )
             )
         })
