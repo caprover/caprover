@@ -82,14 +82,24 @@ class ProjectsDataStore {
             })
     }
 
-    getProject(projectId: string) {
+    getProject(projectId: string): Promise<ProjectDefinition> {
         const self = this
         projectId = `${projectId || ''}`.trim()
-        return Promise.resolve().then(function () {
-            return self.data.get(
-                `${PROJECTS_DEFINITIONS}.${projectId}`
-            ) as ProjectDefinition | undefined
-        })
+        return Promise.resolve()
+            .then(function () {
+                return self.data.get(
+                    `${PROJECTS_DEFINITIONS}.${projectId}`
+                ) as ProjectDefinition | undefined
+            })
+            .then(function (project) {
+                if (!project) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Project not found'
+                    )
+                }
+                return project
+            })
     }
 
     deleteProject(projectId: string) {
@@ -102,14 +112,8 @@ class ProjectsDataStore {
                 return self.getProject(projectId)
             })
             .then(function (project) {
-                if (!project) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.ILLEGAL_OPERATION,
-                        'Project not found'
-                    )
-                }
-            })
-            .then(function () {
+                // project is not empty
+
                 return self.appsDataStore.getAppDefinitions()
             })
             .then(function (appsAll) {

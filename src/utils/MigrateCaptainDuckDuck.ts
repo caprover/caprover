@@ -206,6 +206,7 @@ export default class MigrateCaptainDuckDuck {
                         .then(function () {
                             return appStore.registerAppDefinition(
                                 appName,
+                                '',
                                 !!app.hasPersistentData
                             )
                         })
@@ -321,6 +322,7 @@ export default class MigrateCaptainDuckDuck {
                                 .then(function () {
                                     return appStore.updateAppDefinitionInDb(
                                         appName,
+                                        '',
                                         '',
                                         Number(app.instanceCount),
                                         CaptainConstants.defaultCaptainDefinitionPath,
