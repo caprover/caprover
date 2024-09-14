@@ -67,6 +67,12 @@ router.post('/update/', function (req, res, next) {
                 )
             }
 
+            projectDefinition.id = `${projectDefinition.id || ''}`
+            projectDefinition.name = `${projectDefinition.name || ''}`
+            projectDefinition.description = `${
+                projectDefinition.description || ''
+            }`
+
             if (!projectDefinition.id) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_OPERATION,
@@ -78,8 +84,8 @@ router.post('/update/', function (req, res, next) {
                 .getProjectsDataStore()
                 .saveProject(projectDefinition.id, {
                     id: projectDefinition.id,
-                    name: `${projectDefinition.name || ''}`,
-                    description: `${projectDefinition.description || ''}`,
+                    name: projectDefinition.name,
+                    description: projectDefinition.description,
                 })
         })
         .then(function () {
