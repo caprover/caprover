@@ -148,7 +148,7 @@ class ProjectsDataStore {
                 return self.getProject(projectId)
             })
             .then(function (project) {
-                // project is not empty
+                // project exists
 
                 return self.appsDataStore.getAppDefinitions()
             })
@@ -158,7 +158,18 @@ class ProjectsDataStore {
                 if (apps.some((app) => app.projectId === projectId)) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
-                        'Project not empty'
+                        'Project not empty (has apps)'
+                    )
+                }
+            })
+            .then(function () {
+                return self.getAllProjects()
+            })
+            .then(function (allProjects) {
+                if (allProjects.some((p) => p.parentProjectId === projectId)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_OPERATION,
+                        'Project not empty (has sub projects)'
                     )
                 }
 
