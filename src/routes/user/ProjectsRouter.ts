@@ -11,8 +11,9 @@ router.post('/register/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    const projectName = `${req.body.projectName || ''}`.trim()
+    const projectName = `${req.body.name || ''}`.trim()
     const parentProjectId = `${req.body.parentProjectId || ''}`.trim()
+    const description = `${req.body.description || ''}`.trim()
 
     Promise.resolve()
         .then(function () {
@@ -21,7 +22,7 @@ router.post('/register/', function (req, res, next) {
                 id: projectId,
                 name: projectName,
                 parentProjectId: parentProjectId,
-                description: '',
+                description: description,
             })
         })
         .then(function () {
