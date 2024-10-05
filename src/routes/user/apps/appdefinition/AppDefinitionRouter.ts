@@ -191,6 +191,7 @@ router.post('/register/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName as string
+    const projectId = `${req.body.projectId || ''}`
     const hasPersistentData = !!req.body.hasPersistentData
     const isDetachedBuild = !!req.query.detached
 
@@ -198,9 +199,18 @@ router.post('/register/', function (req, res, next) {
 
     Logger.d(`Registering app started: ${appName}`)
 
-    dataStore
-        .getAppsDataStore()
-        .registerAppDefinition(appName, hasPersistentData)
+    return Promise.resolve()
+        .then(function () {
+            if (projectId) {
+                return dataStore.getProjectsDataStore().getProject(projectId)
+                // if project is not found, it will throw an error
+            }
+        })
+        .then(function () {
+            return dataStore
+                .getAppsDataStore()
+                .registerAppDefinition(appName, projectId, hasPersistentData)
+        })
         .then(function () {
             appCreated = true
         })
@@ -322,6 +332,7 @@ router.post('/update/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName
+    const projectId = req.body.projectId
     const nodeId = req.body.nodeId
     const captainDefinitionRelativeFilePath =
         req.body.captainDefinitionRelativeFilePath
@@ -405,6 +416,7 @@ router.post('/update/', function (req, res, next) {
     serviceManager
         .updateAppDefinition(
             appName,
+            projectId,
             description,
             Number(instanceCount),
             captainDefinitionRelativeFilePath,

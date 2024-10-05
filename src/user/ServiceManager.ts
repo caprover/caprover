@@ -587,6 +587,7 @@ class ServiceManager {
 
     updateAppDefinition(
         appName: string,
+        projectId: string,
         description: string,
         instanceCount: number,
         captainDefinitionRelativeFilePath: string,
@@ -631,6 +632,16 @@ class ServiceManager {
         }
 
         return Promise.resolve()
+            .then(function () {
+                projectId = `${projectId || ''}`.trim()
+                if (projectId) {
+                    return dataStore
+                        .getProjectsDataStore()
+                        .getProject(projectId)
+
+                    // if project is not found, it will throw an error
+                }
+            })
             .then(function () {
                 return self.ensureNotBuilding(appName)
             })
@@ -715,6 +726,7 @@ class ServiceManager {
                     .getAppsDataStore()
                     .updateAppDefinitionInDb(
                         appName,
+                        projectId,
                         description,
                         instanceCount,
                         captainDefinitionRelativeFilePath,
@@ -755,6 +767,7 @@ class ServiceManager {
                             .getAppsDataStore()
                             .updateAppDefinitionInDb(
                                 appName,
+                                existingAppDefinition.projectId,
                                 existingAppDefinition.description,
                                 existingAppDefinition.instanceCount,
                                 existingAppDefinition.captainDefinitionRelativeFilePath,
