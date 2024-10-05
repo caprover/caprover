@@ -41,16 +41,18 @@ router.post('/delete/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    const projectId = req.body.projectId
+    const projectIds = (req.body.projectIds || []).map((id: string) =>
+        `${id}`.trim()
+    )
 
     Promise.resolve()
         .then(function () {
             return dataStore //
                 .getProjectsDataStore()
-                .deleteProject(projectId)
+                .deleteProjects(projectIds)
         })
         .then(function () {
-            Logger.d(`Project is deleted: ${projectId}`)
+            Logger.d(`Projects are deleted: ${projectIds}`)
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, 'Project deleted'))
         })
         .catch(ApiStatusCodes.createCatcher(res))

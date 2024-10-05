@@ -138,6 +138,63 @@ class ProjectsDataStore {
             })
     }
 
+    organizeFromTheLeafsToRoot(input: ProjectDefinition[]) {
+        const projectMap = new Map<string, ProjectDefinition>()
+        input.forEach((project) => projectMap.set(project.id, project))
+
+        // Function to recursively organize projects
+        const organizeProjects = (projectId: string): ProjectDefinition[] => {
+            const project = projectMap.get(projectId)
+            if (!project) return []
+
+            const children = Array.from(projectMap.values())
+                .filter((p) => p.parentProjectId === projectId)
+                // just to make this deterministic for testing!
+                .sort((a, b) => b.id.localeCompare(a.id))
+
+            const organizedChildren = children
+                .map((child) => organizeProjects(child.id))
+                .flat()
+
+            return [project, ...organizedChildren]
+        }
+
+        const rootProjects = input
+            .filter((project) => !project.parentProjectId)
+            // just to make this deterministic for testing!
+            .sort((a, b) => b.id.localeCompare(a.id))
+
+        return rootProjects
+            .flatMap((root) => organizeProjects(root.id))
+            .reverse()
+    }
+
+    deleteProjects(projectIds: string[]) {
+        const self = this
+
+        projectIds = projectIds || []
+        projectIds = projectIds.map((it) => it.trim()).filter((it) => !!it)
+
+        return Promise.resolve()
+            .then(function () {
+                return self.getAllProjects()
+            })
+            .then(function (allProjects) {
+                allProjects = self.organizeFromTheLeafsToRoot(allProjects)
+                allProjects = allProjects.filter((project) =>
+                    projectIds.includes(project.id)
+                )
+
+                const promises: Promise<any>[] = projectIds.map((projectId) =>
+                    self.deleteProject(projectId)
+                )
+
+                return promises.reduce((accumulatedPromise, currentPromise) => {
+                    return accumulatedPromise.then(() => currentPromise)
+                }, Promise.resolve())
+            })
+    }
+
     deleteProject(projectId: string) {
         const self = this
 
