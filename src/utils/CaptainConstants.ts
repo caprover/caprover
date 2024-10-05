@@ -58,6 +58,9 @@ const configs = {
     certbotImageName: 'caprover/certbot-sleeping:v2.11.0',
 
     certbotCertCommandRules: undefined as CertbotCertCommandRule[] | undefined,
+
+    // this is added in 1.13 just as a safety - remove this after 1.14
+    disableEncryptedCheck: false,
 }
 
 export interface CertbotCertCommandRule {

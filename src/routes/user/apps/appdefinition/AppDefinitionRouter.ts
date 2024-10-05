@@ -395,8 +395,23 @@ router.post('/update/', function (req, res, next) {
     ) {
         res.send(
             new BaseApi(
-                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                ApiStatusCodes.ILLEGAL_PARAMETER,
                 'Missing required Github/BitBucket/Gitlab field'
+            )
+        )
+        return
+    }
+
+    if (
+        repoInfo &&
+        repoInfo.sshKey &&
+        repoInfo.sshKey.indexOf('ENCRYPTED') > 0 &&
+        !CaptainConstants.configs.disableEncryptedCheck
+    ) {
+        res.send(
+            new BaseApi(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                'You cannot use encrypted SSH keys'
             )
         )
         return
