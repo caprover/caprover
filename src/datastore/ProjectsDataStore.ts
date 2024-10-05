@@ -1,5 +1,6 @@
 import configstore = require('configstore')
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
 
 const PROJECTS_DEFINITIONS = 'projectsDefinitions'
@@ -185,8 +186,8 @@ class ProjectsDataStore {
                     projectIds.includes(project.id)
                 )
 
-                const promises: Promise<any>[] = projectIds.map((projectId) =>
-                    self.deleteProject(projectId)
+                const promises: Promise<any>[] = allProjects.map((p) =>
+                    self.deleteProject(p.id)
                 )
 
                 return promises.reduce((accumulatedPromise, currentPromise) => {
@@ -201,6 +202,10 @@ class ProjectsDataStore {
         projectId = `${projectId || ''}`.trim()
 
         return Promise.resolve()
+            .then(function () {
+                // dumb configstore needs some time to store the file!!!
+                return Utils.getDelayedPromise(500)
+            })
             .then(function () {
                 return self.getProject(projectId)
             })
