@@ -204,6 +204,7 @@ class ProjectsDataStore {
         return Promise.resolve()
             .then(function () {
                 // dumb configstore needs some time to store the file!!!
+                // otherwise (in case multiple deletes), the child deletion is not committed yet
                 return Utils.getDelayedPromise(500)
             })
             .then(function () {
