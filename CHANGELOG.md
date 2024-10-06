@@ -2,6 +2,7 @@
 
 -   New: The app log box is resizable again [issue-158](https://github.com/caprover/caprover-frontend/pull/158)
 -   New: Added automatic IP fallback on installation [ca196e5](https://github.com/caprover/caprover/commit/ca196e51be2df80836ff027a99bb92dde83c4f7f)
+-   New: Added translations in multiple languages [issue-159](https://github.com/caprover/caprover-frontend/pull/159)
 -   Fixed: Disallow passphrase protected SSH keys [issue-2153](https://github.com/caprover/caprover/issues/2153)
 -   Fixed: Deploy time now uses the proper locale [issue-157](https://github.com/caprover/caprover-frontend/issues/157)
 -   Fixed: The app log box is resizable again [issue-2112](https://github.com/caprover/caprover/issues/2112)
