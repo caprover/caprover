@@ -221,7 +221,7 @@ class ProjectsDataStore {
                 if (apps.some((app) => app.projectId === projectId)) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
-                        'Project not empty (has apps)'
+                        'Project is not empty (has apps)'
                     )
                 }
             })
@@ -232,7 +232,7 @@ class ProjectsDataStore {
                 if (allProjects.some((p) => p.parentProjectId === projectId)) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
-                        'Project not empty (has sub projects)'
+                        'Project is not empty (has sub projects)'
                     )
                 }
 
