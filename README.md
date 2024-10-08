@@ -14,8 +14,6 @@ Easiest app/database deployment platform and webserver package for your NodeJS, 
 
 No Docker, nginx knowledge required!
 
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcaprover%2Fcaprover&via=cap_rover&text=I%20found%20the%20easiest%20webserver%20package%20for%20NodeJS%2C%20PHP%2C%20MySQL%2C%20WordPress%20and%20everything%21&hashtags=CapRover%2Cnodejs%2Cdocker%2Cnginx%2Cwebdev)
-
 <a href="https://youtu.be/VPHEXPfsvyQ" target="_blank" title="YouTube">
 <img src="https://raw.githubusercontent.com/caprover/caprover-website/master/graphics/screenshots-video-small.png" alt="YouTube"/>
 </a>
