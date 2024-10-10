@@ -21,7 +21,7 @@ No Docker, nginx knowledge required!
 
 ## What's this?
 
-CapRover is an extremely easy to use app/database deployment & web server manager for your **NodeJS, Python, PHP, ASP.NET, Ruby, MySQL, MongoDB, Postgres, WordPress (and etc...)** applications!
+CapRover is an extremely easy to use app/database deployment & web server manager for your **NodeJS, Python, PHP, ASP.NET, Ruby, MariaDB, MySQL, MongoDB, Postgres, WordPress (and etc...)** applications!
 
 It's blazingly fast and very robust as it uses Docker, nginx, LetsEncrypt and NetData under the hood behind its simple-to-use interface.
 
@@ -42,7 +42,7 @@ It's blazingly fast and very robust as it uses Docker, nginx, LetsEncrypt and Ne
 -   A [web] developer who does not like spending hours and days setting up a server, build tools, sending code to server, build it, get an SSL certificate, install it, update nginx over and over again.
 -   A developer who uses expensive services like Heroku, Microsoft Azure and etc. And is interested in reducing their cost by 50x (Heroku charges 250USD/month for their 2gb instance, the same server is 5$ on Hetzner!!)
 -   Someone who prefers to write more of `showResults(getUserList())` and not much of `$ apt-get install libstdc++6 > /dev/null`
--   A developer who likes installing MySQL, MongoDB and etc on their server by selecting from a dropdown and clicking on install!
+-   A developer who likes installing MariaDB, MySQL, MongoDB and etc on their server by selecting from a dropdown and clicking on install!
 -   How much server/docker/linux knowledge is required to set up a CapRover server? Answer: Knowledge of Copy & Paste!! Head over to "Getting Started" for information on what to copy & paste ;-)
 
 ## Learn More!
