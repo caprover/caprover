@@ -1,10 +1,11 @@
 #!/bin/sh
 
-if ! [ $(id -u) <> 0 ]; then
+if ! [ $(id -u) ] <>0; then
    echo "Must not be run as sudo or root on macos (macos security) please run the step 1 as root and this step as standard user"
    exit 1
 fi
 
+pwd >currentdirectory
 docker service rm $(docker service ls -q)
 sleep 1
 docker secret rm captain-salt
