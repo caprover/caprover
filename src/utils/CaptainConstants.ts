@@ -155,9 +155,13 @@ const data = {
 
     nginxServiceName: 'captain-nginx',
 
+    nginxLogsVolumeName: 'caprover-logs',
+
     captainServiceName: 'captain-captain',
 
     certbotServiceName: 'captain-certbot',
+
+    goAccessContainerName: 'captain-goaccess-container',
 
     netDataContainerName: 'captain-netdata-container',
 

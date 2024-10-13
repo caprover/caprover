@@ -6,7 +6,6 @@ import {
     IDockerApiPort,
     IDockerContainerResource,
     PreDeployFunction,
-    VolumesTypes,
 } from '../models/OtherTypes'
 import BuildLog from '../user/BuildLog'
 import CaptainConstants from '../utils/CaptainConstants'
@@ -493,7 +492,7 @@ class DockerApi {
     }
 
     /**
-     * Creates a volume thar restarts unless stopped
+     * Creates a volume that restarts unless stopped
      * @param containerName
      * @param imageName
      * @param volumes     an array, hostPath & containerPath, mode
@@ -802,6 +801,17 @@ class DockerApi {
     removeServiceByName(serviceName: string) {
         const self = this
         return self.dockerode.getService(serviceName).remove()
+    }
+
+    getSharedVol(name: string) {
+        return this.dockerode.getVolume(name)
+    }
+
+    createSharedVol(name: string) {
+        return this.dockerode.createVolume({ Name: name }).catch((err) => {
+            Logger.d(err)
+            throw err
+        })
     }
 
     deleteVols(vols: string[]) {

@@ -392,7 +392,8 @@ class LoadBalancerManager {
     }
 
     getLogPath(domainName: string) {
-        return `/var/log/${domainName.replace(/\./g, '')}.log`
+        // The shared volume path plus a filesafe name
+        return `/var/log/nginx-shared/${domainName.replace(/\./g, '')}.log`
     }
 
     getInfo() {
@@ -807,6 +808,10 @@ class LoadBalancerManager {
                             containerPath:
                                 CaptainConstants.nginxSharedPathOnNginx,
                             hostPath: CaptainConstants.nginxSharedPathOnHost,
+                        },
+                        {
+                            volumeName: CaptainConstants.nginxLogsVolumeName,
+                            containerPath: '/var/log/nginx-shared',
                         },
                     ],
                     [CaptainConstants.captainNetworkName],

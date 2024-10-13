@@ -5,6 +5,11 @@ interface IAppEnvVar {
     value: string
 }
 
+const enum VolumesTypes {
+    BIND = 'bind',
+    VOLUME = 'volume',
+}
+
 interface IAppVolume {
     containerPath: string
     volumeName?: string
