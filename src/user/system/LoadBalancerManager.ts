@@ -278,11 +278,14 @@ class LoadBalancerManager {
         rootDomain: string
     ) {
         const servers: IServerBlockDetails[] = []
+        const self = this
 
         return dataStore
             .getAppsDataStore()
             .getAppDefinitions()
             .then(function (apps) {
+                const logAccess = dataStore.getGoAccessInfo().isEnabled
+
                 Object.keys(apps).forEach(function (appName) {
                     const webApp = apps[appName]
                     const httpBasicAuth =
@@ -314,6 +317,9 @@ class LoadBalancerManager {
                     serverWithSubDomain.nginxConfigTemplate =
                         nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
+                    serverWithSubDomain.logAccessPath = logAccess
+                        ? self.getLogPath(serverWithSubDomain.publicDomain)
+                        : undefined
 
                     if (
                         webApp.redirectDomain &&
@@ -345,6 +351,9 @@ class LoadBalancerManager {
                                 staticWebRoot: '',
                                 customErrorPagesDirectory: '',
                                 httpBasicAuth: httpBasicAuth,
+                                logAccessPath: logAccess
+                                    ? self.getLogPath(d.publicDomain)
+                                    : undefined,
                             }
                             if (
                                 webApp.redirectDomain &&
@@ -380,6 +389,10 @@ class LoadBalancerManager {
             CaptainConstants.letsEncryptEtcPathOnNginx +
             self.certbotManager.getKeyRelativePathForDomain(domainName)
         )
+    }
+
+    getLogPath(domainName: string) {
+        return `/var/log/${domainName.replace(/\./g, '')}.log`
     }
 
     getInfo() {

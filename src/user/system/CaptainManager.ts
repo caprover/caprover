@@ -683,6 +683,22 @@ class CaptainManager {
             })
     }
 
+    updateGoAccessInfo(goAccessInfo: GoAccessInfo) {
+        const self = this
+        // const dockerApi = this.dockerApi
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.setGoAccessInfo(goAccessInfo)
+            })
+            .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - CaptainManager.updateGoAccess'
+                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
+            })
+    }
+
     getNodesInfo() {
         const dockerApi = this.dockerApi
 

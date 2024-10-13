@@ -23,6 +23,7 @@ const FORCE_ROOT_SSL = 'forceRootSsl'
 const HAS_REGISTRY_SSL = 'hasRegistrySsl'
 const EMAIL_ADDRESS = 'emailAddress'
 const NET_DATA_INFO = 'netDataInfo'
+const GOACCESS_INFO = 'goAccessInfo'
 const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
@@ -186,6 +187,22 @@ class DataStore {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.set(NET_DATA_INFO, netDataInfo)
+        })
+    }
+
+    getGoAccessInfo() {
+        const self = this
+        const goAccessInfo = (self.data.get(GOACCESS_INFO) ||
+            {}) as GoAccessInfo
+        goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
+        goAccessInfo.data = goAccessInfo.data || {}
+        return goAccessInfo
+    }
+
+    setGoAccessInfo(goAccessInfo: GoAccessInfo) {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.set(GOACCESS_INFO, goAccessInfo)
         })
     }
 

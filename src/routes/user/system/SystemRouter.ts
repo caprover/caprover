@@ -285,6 +285,49 @@ router.post('/netdata/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+router.get('/goaccess/', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+
+    return Promise.resolve()
+        .then(function () {
+            return dataStore.getGoAccessInfo()
+        })
+        .then(function (data) {
+            // data.netDataUrl = `${
+            //     CaptainConstants.configs.captainSubDomain
+            // }.${dataStore.getRootDomain()}${
+            //     CaptainConstants.netDataRelativePath
+            // }`
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info retrieved'
+            )
+            baseApi.data = data
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.post('/goaccess/', function (req, res, next) {
+    const goAccessInfo = req.body.goAccessInfo
+    // goAccessInfo.netDataUrl = undefined // Frontend app returns this value, but we really don't wanna save this.
+    // // root address is subject to change.
+
+    return Promise.resolve()
+        .then(function () {
+            return CaptainManager.get().updateGoAccessInfo(goAccessInfo)
+        })
+        .then(function () {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info is updated'
+            )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
 router.get('/nginxconfig/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
