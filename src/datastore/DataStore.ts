@@ -3,12 +3,15 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import ApiStatusCodes from '../api/ApiStatusCodes'
 import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
 } from '../models/AutomatedCleanupConfigs'
+import CapRoverTheme from '../models/CapRoverTheme'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
+import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
@@ -28,6 +31,8 @@ const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
 const AUTOMATED_CLEANUP = 'automatedCleanup'
+const THEMES = 'themes'
+const CURRENT_THEME = 'currentTheme'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
@@ -102,6 +107,115 @@ class DataStore {
         return Promise.resolve().then(function () {
             return self.data.set(FEATURE_FLAGS, featureFlags)
         })
+    }
+
+    getThemes(): Promise<CapRoverTheme[]> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.get(THEMES) || []
+        })
+    }
+
+    deleteTheme(themeName: string) {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return Promise.all([self.getThemes(), self.getCurrentTheme()])
+            })
+            .then(function ([themesFetched, currentTheme]) {
+                const themes = Utils.copyObject(themesFetched)
+                const newThemes = [] as CapRoverTheme[]
+                themes.forEach((it) => {
+                    if (it.name !== themeName) {
+                        newThemes.push(it)
+                    }
+                })
+
+                if (themes.length === newThemes.length) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'Theme not found'
+                    )
+                }
+
+                self.data.set(THEMES, newThemes)
+
+                if (currentTheme && currentTheme.name === themeName) {
+                    self.data.set(CURRENT_THEME, '')
+                }
+            })
+    }
+
+    saveTheme(oldName: string, theme: CapRoverTheme) {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return self.getThemes()
+            })
+            .then(function (themesFetched) {
+                const themes = Utils.copyObject(themesFetched)
+                const idx = themes.findIndex((t) => t.name === oldName)
+                if (!oldName) {
+                    // new theme
+
+                    if (themes.some((t) => t.name === theme.name)) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_PARAMETER,
+                            'Wanted to store a new theme, but it already exists with the same name'
+                        )
+                    }
+
+                    themes.push(theme)
+                } else if (idx >= 0) {
+                    // replacing existing theme
+                    themes[idx] = theme
+                } else {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'Theme not found'
+                    )
+                }
+
+                self.data.set(THEMES, themes)
+                self.data.set(CURRENT_THEME, theme.name || '')
+            })
+    }
+
+    setCurrentTheme(themeName: string) {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return self.getThemes()
+            })
+            .then(function (themes) {
+                if (!themeName || themes.some((it) => it.name === themeName))
+                    return self.data.set(CURRENT_THEME, themeName || '')
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Theme not found'
+                )
+            })
+    }
+
+    getCurrentTheme(): Promise<CapRoverTheme | undefined> {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return self.data.get(CURRENT_THEME)
+            })
+            .then(function (themeName) {
+                if (!themeName) return undefined // default theme
+
+                return self.getThemes().then(function (themes) {
+                    const t = themes.find((it) => it.name === themeName)
+                    if (!t)
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_PARAMETER,
+                            'Theme not found'
+                        )
+                    return t
+                })
+            })
     }
 
     setHashedPassword(newHashedPassword: string) {
