@@ -66,7 +66,17 @@ function populateBuiltInThemes() {
     const themesDirectory = __dirname + '/../../template/themes'
     const rawContent = [] as string[]
 
-    fs.readdirSync(themesDirectory) //
+    const files = fs.readdirSync(themesDirectory).map((it) => {
+        return {
+            fileName: it,
+            number: parseInt(it.split('-')[0]),
+        }
+    })
+
+    files.sort((a, b) => a.number - b.number)
+
+    files
+        .map((it) => it.fileName)
         .forEach((file) => {
             const content = fs.readFileSync(
                 `${themesDirectory}/${file}`,
