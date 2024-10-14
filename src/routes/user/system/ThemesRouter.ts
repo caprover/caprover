@@ -16,7 +16,7 @@ router.post('/setcurrent/', function (req, res, next) {
 
     return Promise.resolve()
         .then(function () {
-            new ThemeManager(dataStore).setCurrent(themeName)
+            return new ThemeManager(dataStore).setCurrent(themeName)
         })
         .then(function () {
             const msg = 'Current theme is stored.'
