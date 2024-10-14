@@ -146,7 +146,7 @@ class DataStore {
             })
     }
 
-    getCurrentThemeName(): Promise<CapRoverTheme | undefined> {
+    getCurrentThemeName(): Promise<string | undefined> {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.get(CURRENT_THEME)

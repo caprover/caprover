@@ -3,6 +3,7 @@ import DataStore from '../datastore/DataStore'
 import DataStoreProvider from '../datastore/DataStoreProvider'
 import CapRoverTheme from '../models/CapRoverTheme'
 import CaptainConstants from '../utils/CaptainConstants'
+import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import fs = require('fs-extra')
 
@@ -79,14 +80,12 @@ function populateBuiltInThemes() {
         builtInThemes.push({
             name: parsedTheme.name,
             content: parsedTheme.content,
+            builtIn: true,
         })
     })
 }
 
 populateBuiltInThemes()
-
-console.log(JSON.stringify(builtInThemes, null, 2))
-console.log(builtInThemes)
 
 export class ThemeManager {
     constructor(private dataStore: DataStore) {}
@@ -99,10 +98,8 @@ export class ThemeManager {
                 return self.dataStore.getThemes()
             })
             .then(function (themes) {
-                themes.forEach((it) => (it.customized = true))
-                return themes
+                return [...builtInThemes, ...themes]
             })
-        // TODO combine with built in themes
     }
 
     deleteTheme(themeName: string) {
@@ -120,6 +117,11 @@ export class ThemeManager {
                 themes.forEach((it) => {
                     if (it.name !== themeName) {
                         newThemes.push(it)
+                    } else if (it.builtIn) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_PARAMETER,
+                            'Cannot delete a built-in theme'
+                        )
                     }
                 })
 
@@ -142,6 +144,7 @@ export class ThemeManager {
         const self = this
         return Promise.resolve()
             .then(function () {
+                theme.builtIn = false
                 return self.getAllThemes()
             })
             .then(function (themesFetched) {
@@ -168,9 +171,11 @@ export class ThemeManager {
                     )
                 }
 
-                return self.dataStore.saveThemes(themes).then(() => {
-                    return self.dataStore.setCurrentTheme(theme.name)
-                })
+                return self.dataStore
+                    .saveThemes(themes) //
+                    .then(() => {
+                        return self.dataStore.setCurrentTheme(theme.name)
+                    })
             })
     }
 
@@ -191,17 +196,45 @@ export class ThemeManager {
                 )
             })
     }
+
+    getCurrentTheme(): Promise<CapRoverTheme | undefined> {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                return Promise.all([
+                    self.getAllThemes(),
+                    self.dataStore.getCurrentThemeName(),
+                ])
+            })
+            .then(function ([themes, themeName]) {
+                if (!themeName) return undefined
+
+                const theme = themes.find((it) => it.name === themeName)
+
+                if (!theme) {
+                    Logger.e(
+                        new Error(
+                            'Theme name was provided but could not be found: ' +
+                                themeName
+                        )
+                    )
+                }
+
+                return theme
+            })
+    }
 }
 
 export class ThemeManagerPublic {
-    private static dataStore = DataStoreProvider.getDataStore(
-        CaptainConstants.rootNameSpace
+    private static themeManagerPublic = new ThemeManager(
+        DataStoreProvider.getDataStore(CaptainConstants.rootNameSpace)
     )
 
     getCurrentTheme() {
         return Promise.resolve() //
             .then(function () {
-                return ThemeManagerPublic.dataStore.getCurrentThemeName()
+                return ThemeManagerPublic.themeManagerPublic.getCurrentTheme()
             })
     }
 }
