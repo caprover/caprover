@@ -132,11 +132,15 @@ export class ThemeManager {
                     )
                 }
 
-                if (currentTheme && currentTheme.name === themeName) {
-                    self.dataStore.setCurrentTheme('')
-                }
-
-                return self.dataStore.deleteTheme(themeName)
+                return Promise.resolve()
+                    .then(function () {
+                        if (currentTheme && currentTheme === themeName) {
+                            return self.dataStore.setCurrentTheme('')
+                        }
+                    })
+                    .then(function () {
+                        return self.dataStore.deleteTheme(themeName)
+                    })
             })
     }
 
