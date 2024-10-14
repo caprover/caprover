@@ -167,6 +167,14 @@ export class ThemeManager {
                     themes.push(theme)
                 } else if (idx >= 0) {
                     // replacing existing theme
+
+                    if (themes[idx].builtIn) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_PARAMETER,
+                            'Cannot edit a built-in theme'
+                        )
+                    }
+
                     themes[idx] = theme
                 } else {
                     throw ApiStatusCodes.createError(

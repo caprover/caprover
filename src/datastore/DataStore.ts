@@ -134,7 +134,10 @@ class DataStore {
     saveThemes(themes: CapRoverTheme[]) {
         const self = this
         return Promise.resolve().then(function () {
-            self.data.set(THEMES, themes || [])
+            self.data.set(
+                THEMES,
+                (themes || []).filter((it) => !it.builtIn)
+            )
         })
     }
 
