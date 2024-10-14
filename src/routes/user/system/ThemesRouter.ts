@@ -3,17 +3,20 @@ import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
 import CapRoverTheme from '../../../models/CapRoverTheme'
+import { ThemeManager } from '../../../user/ThemeManager'
 import Logger from '../../../utils/Logger'
 
 const router = express.Router()
 
 router.post('/setcurrent/', function (req, res, next) {
-    const user = InjectionExtractor.extractUserFromInjected(res).user
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+
     const themeName = req.body.themeName || ''
 
     return Promise.resolve()
         .then(function () {
-            return user.dataStore.setCurrentTheme(themeName)
+            new ThemeManager(dataStore).setCurrent(themeName)
         })
         .then(function () {
             const msg = 'Current theme is stored.'
@@ -24,18 +27,17 @@ router.post('/setcurrent/', function (req, res, next) {
 })
 
 router.post('/update/', function (req, res, next) {
-    const user = InjectionExtractor.extractUserFromInjected(res).user
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const oldName = req.body.oldName || ''
     const theme: CapRoverTheme = {
         name: req.body.name || '',
         content: req.body.content || '',
     }
 
-    // TODO add injectToHead
-
     return Promise.resolve()
         .then(function () {
-            return user.dataStore.saveTheme(oldName, theme)
+            return new ThemeManager(dataStore).updateTheme(oldName, theme)
         })
         .then(function () {
             const msg = 'Theme is stored.'
@@ -46,12 +48,13 @@ router.post('/update/', function (req, res, next) {
 })
 
 router.post('/delete/', function (req, res, next) {
-    const user = InjectionExtractor.extractUserFromInjected(res).user
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const themeName = req.body.themeName || ''
 
     return Promise.resolve()
         .then(function () {
-            return user.dataStore.deleteTheme(themeName)
+            return new ThemeManager(dataStore).deleteTheme(themeName)
         })
         .then(function () {
             const msg = 'Theme is deleted.'
@@ -62,11 +65,12 @@ router.post('/delete/', function (req, res, next) {
 })
 
 router.get('/all/', function (req, res, next) {
-    const user = InjectionExtractor.extractUserFromInjected(res).user
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     return Promise.resolve()
         .then(function () {
-            return user.dataStore.getThemes()
+            return new ThemeManager(dataStore).getAllThemes()
         })
         .then(function (themes) {
             const baseApi = new BaseApi(

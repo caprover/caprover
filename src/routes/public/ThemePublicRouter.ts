@@ -1,17 +1,14 @@
 import express = require('express')
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import BaseApi from '../../api/BaseApi'
-import DataStoreProvider from '../../datastore/DataStoreProvider'
-import CaptainConstants from '../../utils/CaptainConstants'
+import { ThemeManagerPublic } from '../../user/ThemeManager'
 
 const router = express.Router()
 
 router.get('/current', function (req, res, next) {
     return Promise.resolve()
         .then(function () {
-            return DataStoreProvider.getDataStore(
-                CaptainConstants.rootNameSpace
-            ).getCurrentTheme()
+            return new ThemeManagerPublic().getCurrentTheme()
         })
         .then(function (t) {
             const baseApi = new BaseApi(

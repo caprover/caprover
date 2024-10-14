@@ -3,7 +3,6 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
-import ApiStatusCodes from '../api/ApiStatusCodes'
 import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
@@ -120,102 +119,38 @@ class DataStore {
         const self = this
         return Promise.resolve()
             .then(function () {
-                return Promise.all([self.getThemes(), self.getCurrentTheme()])
-            })
-            .then(function ([themesFetched, currentTheme]) {
-                const themes = Utils.copyObject(themesFetched)
-                const newThemes = [] as CapRoverTheme[]
-                themes.forEach((it) => {
-                    if (it.name !== themeName) {
-                        newThemes.push(it)
-                    }
-                })
-
-                if (themes.length === newThemes.length) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.ILLEGAL_PARAMETER,
-                        'Theme not found'
-                    )
-                }
-
-                self.data.set(THEMES, newThemes)
-
-                if (currentTheme && currentTheme.name === themeName) {
-                    self.data.set(CURRENT_THEME, '')
-                }
-            })
-    }
-
-    saveTheme(oldName: string, theme: CapRoverTheme) {
-        const self = this
-        return Promise.resolve()
-            .then(function () {
                 return self.getThemes()
             })
             .then(function (themesFetched) {
-                const themes = Utils.copyObject(themesFetched)
-                const idx = themes.findIndex((t) => t.name === oldName)
-                if (!oldName) {
-                    // new theme
-
-                    if (themes.some((t) => t.name === theme.name)) {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.ILLEGAL_PARAMETER,
-                            'Wanted to store a new theme, but it already exists with the same name'
-                        )
-                    }
-
-                    themes.push(theme)
-                } else if (idx >= 0) {
-                    // replacing existing theme
-                    themes[idx] = theme
-                } else {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.ILLEGAL_PARAMETER,
-                        'Theme not found'
+                self.data.set(
+                    THEMES,
+                    Utils.copyObject(themesFetched).filter(
+                        (it) => it.name !== themeName
                     )
-                }
-
-                self.data.set(THEMES, themes)
-                self.data.set(CURRENT_THEME, theme.name || '')
-            })
-    }
-
-    setCurrentTheme(themeName: string) {
-        const self = this
-        return Promise.resolve()
-            .then(function () {
-                return self.getThemes()
-            })
-            .then(function (themes) {
-                if (!themeName || themes.some((it) => it.name === themeName))
-                    return self.data.set(CURRENT_THEME, themeName || '')
-                throw ApiStatusCodes.createError(
-                    ApiStatusCodes.ILLEGAL_PARAMETER,
-                    'Theme not found'
                 )
             })
     }
 
-    getCurrentTheme(): Promise<CapRoverTheme | undefined> {
+    saveThemes(themes: CapRoverTheme[]) {
         const self = this
-        return Promise.resolve()
-            .then(function () {
-                return self.data.get(CURRENT_THEME)
-            })
-            .then(function (themeName) {
-                if (!themeName) return undefined // default theme
+        return Promise.resolve().then(function () {
+            self.data.set(THEMES, themes || [])
+        })
+    }
 
-                return self.getThemes().then(function (themes) {
-                    const t = themes.find((it) => it.name === themeName)
-                    if (!t)
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.ILLEGAL_PARAMETER,
-                            'Theme not found'
-                        )
-                    return t
-                })
+    setCurrentTheme(themeName: string | undefined) {
+        const self = this
+        return Promise.resolve() //
+            .then(function () {
+                return self.data.set(CURRENT_THEME, themeName || '')
             })
+    }
+
+    getCurrentThemeName(): Promise<CapRoverTheme | undefined> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.get(CURRENT_THEME)
+        })
     }
 
     setHashedPassword(newHashedPassword: string) {
