@@ -20,5 +20,5 @@ fontFamily: `QuickSand, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 <link href="https://fonts.googleapis.com/css?family=Quicksand:300,500" rel="stylesheet" />
 
 
-###CapRoverTheme.CapRoverExtra:
+###CapRoverTheme.extra:
 {siderTheme:'dark'}

@@ -33,6 +33,8 @@ router.post('/update/', function (req, res, next) {
     const theme: CapRoverTheme = {
         name: req.body.name || '',
         content: req.body.content || '',
+        extra: req.body.extra || '',
+        headEmbed: req.body.headEmbed || '',
     }
 
     return Promise.resolve()

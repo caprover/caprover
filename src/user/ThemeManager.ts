@@ -78,20 +78,19 @@ function populateBuiltInThemes() {
     files
         .map((it) => it.fileName)
         .forEach((file) => {
-            const content = fs.readFileSync(
+            const fileContent = fs.readFileSync(
                 `${themesDirectory}/${file}`,
                 'utf8'
             )
-            rawContent.push(content)
+            rawContent.push(fileContent)
         })
 
     rawContent.forEach((it) => {
-        const parsedTheme = parseCapRoverTheme(it)
-        builtInThemes.push({
-            name: parsedTheme.name,
-            content: parsedTheme.content,
+        const parsedTheme = {
+            ...parseCapRoverTheme(it),
             builtIn: true,
-        })
+        } as CapRoverTheme
+        builtInThemes.push(parsedTheme)
     })
 }
 
