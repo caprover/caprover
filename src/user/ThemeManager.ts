@@ -40,10 +40,7 @@ function parseCapRoverTheme(input: string) {
         if (line.startsWith('###CapRoverTheme.')) {
             // Calculate the start position for the field name and remove the prefix '###CapRoverTheme.'
             const start = line.indexOf('.') + 1
-            currentField = line
-                .substring(start, line.length - 1)
-                .trim()
-                .toLowerCase()
+            currentField = line.substring(start, line.length - 1).trim()
             result[currentField] = ''
         } else if (currentField) {
             // Check if we already have content for the current field to add a newline
