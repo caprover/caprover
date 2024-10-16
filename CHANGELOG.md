@@ -1,10 +1,10 @@
 ## [Next Version - available as `edge`]
 
--   New: The app log box is resizable again [issue-158](https://github.com/caprover/caprover-frontend/pull/158)
--   New: Added automatic IP fallback on installation [ca196e5](https://github.com/caprover/caprover/commit/ca196e51be2df80836ff027a99bb92dde83c4f7f)
+-   New: Added project structure [issue-158](https://github.com/caprover/caprover-frontend/pull/158)
 -   New: Added translations in multiple languages [issue-159](https://github.com/caprover/caprover-frontend/pull/159)
--   New: Added themes! Now you can pick your favorite theme or build a new one!
--   Fixed: Disallow passphrase protected SSH keys [issue-2153](https://github.com/caprover/caprover/issues/2153)
+-   New: Added themes! Now you can pick your favorite theme or build a new one! [issue-160](https://github.com/caprover/caprover-frontend/pull/160)
+-   New: Added automatic IP fallback on installation [ca196e5](https://github.com/caprover/caprover/commit/ca196e51be2df80836ff027a99bb92dde83c4f7f)
+-   New: Disallow passphrase protected SSH keys [issue-2153](https://github.com/caprover/caprover/issues/2153)
 -   Fixed: Deploy time now uses the proper locale [issue-157](https://github.com/caprover/caprover-frontend/issues/157)
 -   Fixed: The app log box is resizable again [issue-2112](https://github.com/caprover/caprover/issues/2112)
 -   Fixed: Showing the missing timezones due to daylight saving time [issue-2110](https://github.com/caprover/caprover/issues/2110)
