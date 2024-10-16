@@ -16,5 +16,9 @@
     "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"],
     "[shellscript]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[plaintext]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": null
     }
 }
