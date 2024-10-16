@@ -20,5 +20,8 @@
     "[plaintext]": {
         "editor.formatOnSave": false,
         "editor.defaultFormatter": null
+    },
+    "files.associations": {
+        "*.theme": "plaintext"
     }
 }
