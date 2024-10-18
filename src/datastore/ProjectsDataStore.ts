@@ -125,9 +125,9 @@ class ProjectsDataStore {
         projectId = `${projectId || ''}`.trim()
         return Promise.resolve()
             .then(function () {
-                return self.data.get(
-                    `${PROJECTS_DEFINITIONS}.${projectId}`
-                ) as ProjectDefinition | undefined
+                return self.data.get(`${PROJECTS_DEFINITIONS}.${projectId}`) as
+                    | ProjectDefinition
+                    | undefined
             })
             .then(function (project) {
                 if (!project) {

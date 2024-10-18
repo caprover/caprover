@@ -15,7 +15,10 @@ import BuildLog from './BuildLog'
 
 class DockerRegistryHelper {
     private registriesDataStore: RegistriesDataStore
-    constructor(dataStore: DataStore, private dockerApi: DockerApi) {
+    constructor(
+        dataStore: DataStore,
+        private dockerApi: DockerApi
+    ) {
         this.registriesDataStore = dataStore.getRegistriesDataStore()
     }
 

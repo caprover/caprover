@@ -851,12 +851,15 @@ class LoadBalancerManager {
         // this random schedule helps to avoid retrying at the same time of
         // the day in case if that's our super high traffic time
 
-        setTimeout(function () {
-            self.renewAllCertsAndReload() //
-                .catch((err) => {
-                    Logger.e(err)
-                })
-        }, 1000 * 3600 * 20.3)
+        setTimeout(
+            function () {
+                self.renewAllCertsAndReload() //
+                    .catch((err) => {
+                        Logger.e(err)
+                    })
+            },
+            1000 * 3600 * 20.3
+        )
 
         return self.certbotManager
             .renewAllCerts() //

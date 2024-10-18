@@ -720,13 +720,16 @@ export default class BackupManager {
                         )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
-                        setTimeout(() => {
-                            try {
-                                fs.removeSync(newName)
-                            } catch (err) {
-                                // nom nom
-                            }
-                        }, 1000 * 3600 * 2)
+                        setTimeout(
+                            () => {
+                                try {
+                                    fs.removeSync(newName)
+                                } catch (err) {
+                                    // nom nom
+                                }
+                            },
+                            1000 * 3600 * 2
+                        )
 
                         return Authenticator.getAuthenticator(
                             namespace

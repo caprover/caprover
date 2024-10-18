@@ -1698,14 +1698,14 @@ const connectionParams: Docker.DockerOptions =
               socketPath: CaptainConstants.dockerSocketPath,
           }
         : dockerApiAddressSplited.length === 2
-        ? {
-              host: dockerApiAddressSplited[0],
-              port: Number(dockerApiAddressSplited[1]),
-          }
-        : {
-              host: `${dockerApiAddressSplited[0]}:${dockerApiAddressSplited[1]}`,
-              port: Number(dockerApiAddressSplited[2]),
-          }
+          ? {
+                host: dockerApiAddressSplited[0],
+                port: Number(dockerApiAddressSplited[1]),
+            }
+          : {
+                host: `${dockerApiAddressSplited[0]}:${dockerApiAddressSplited[1]}`,
+                port: Number(dockerApiAddressSplited[2]),
+            }
 
 connectionParams.version = CaptainConstants.configs.dockerApiVersion
 const dockerApiInstance = new DockerApi(connectionParams)

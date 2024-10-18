@@ -57,9 +57,12 @@ export default class FeatureFlags {
                 Logger.e(error)
             })
             .then(function () {
-                setTimeout(() => {
-                    self.refreshFeatureFlags()
-                }, 1000 * 3600 * 19.3) // some random hour to avoid constant traffic
+                setTimeout(
+                    () => {
+                        self.refreshFeatureFlags()
+                    },
+                    1000 * 3600 * 19.3
+                ) // some random hour to avoid constant traffic
             })
     }
 }
