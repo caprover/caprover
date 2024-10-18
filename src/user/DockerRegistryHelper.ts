@@ -2,6 +2,7 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import RegistriesDataStore from '../datastore/RegistriesDataStore'
 import DockerApi from '../docker/DockerApi'
+import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
 import {
     IRegistryInfo,
     IRegistryType,

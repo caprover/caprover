@@ -1,4 +1,4 @@
-interface ServerDockerInfo {
+export interface ServerDockerInfo {
     nodeId: string
     type: 'manager' | 'worker'
     isLeader: boolean

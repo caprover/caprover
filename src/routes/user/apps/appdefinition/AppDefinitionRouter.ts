@@ -7,6 +7,7 @@ import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
+import { IAppDef, AppDeployTokenConfig } from '../../../../models/AppDefinition'
 
 const router = express.Router()
 

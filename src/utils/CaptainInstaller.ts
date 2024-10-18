@@ -1,5 +1,5 @@
-import externalIp = require('public-ip')
 import DockerApi from '../docker/DockerApi'
+import { IAppEnvVar, IAppPort } from '../models/AppDefinition'
 import BackupManager from '../user/system/BackupManager'
 import CaptainConstants from './CaptainConstants'
 import EnvVar from './EnvVars'
@@ -198,6 +198,11 @@ function printTroubleShootingUrl() {
 
 let myIp4: string
 
+async function initializeExternalIp() {
+    const externalIp = await import('public-ip')
+    return externalIp
+}
+
 export function install() {
     const backupManger = new BackupManager()
 
@@ -222,12 +227,15 @@ export function install() {
             return checkSystemReq()
         })
         .then(function () {
+            return initializeExternalIp()
+        })
+        .then(function (externalIp) {
             if (EnvVar.MAIN_NODE_IP_ADDRESS) {
                 return EnvVar.MAIN_NODE_IP_ADDRESS
             }
 
             try {
-                const externalIpFetched = externalIp.v4()
+                const externalIpFetched = externalIp.publicIpv4()
                 if (externalIpFetched) {
                     return externalIpFetched
                 }

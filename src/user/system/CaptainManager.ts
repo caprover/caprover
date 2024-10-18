@@ -25,6 +25,7 @@ import LoadBalancerManager from './LoadBalancerManager'
 import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
 import request = require('request')
 import fs = require('fs-extra')
+import { NetDataInfo } from '../../models/NetDataInfo'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 

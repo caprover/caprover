@@ -1,6 +1,19 @@
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
+import {
+    AppDeployTokenConfig,
+    IAppDef,
+    IAppEnvVar,
+    IAppPort,
+    IAppTag,
+    IAppVolume,
+    IHttpAuth,
+    RepoInfo,
+} from '../models/AppDefinition'
+import { DockerAuthObj } from '../models/DockerAuthObj'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
+import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'

@@ -2,6 +2,7 @@ import configstore = require('configstore')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
+import { ProjectDefinition } from '../models/ProjectDefinition'
 
 const PROJECTS_DEFINITIONS = 'projectsDefinitions'
 

@@ -1,7 +1,7 @@
 import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import * as git from 'simple-git/promise'
+import git from 'simple-git'
 import * as util from 'util'
 import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
@@ -10,22 +10,6 @@ import Utils from './Utils'
 const exec = util.promisify(childProcess.exec)
 
 export default class GitHelper {
-    private static SSH_PATH_RE = new RegExp(
-        [
-            /^\s*/,
-            /(?:(?<proto>[a-z]+):\/\/)?/,
-            /(?:(?<user>[a-z_][a-z0-9_-]+)@)?/,
-            /(?<domain>[^\s\/\?#:]+)/,
-            /(?::(?<port>[0-9]{1,5}))?/,
-            /(?:[\/:](?<owner>[^\s\/\?#:]+))?/,
-            /(?:[\/:](?<repo>(?:[^\s\?#:.]|\.(?!git\/?\s*$))+))/,
-            /(?:.git)?\/?\s*$/,
-        ]
-            .map((r) => r.source)
-            .join(''),
-        'i'
-    )
-
     static getLastHash(directory: string) {
         return git(directory) //
             .silent(true) //
@@ -134,21 +118,23 @@ export default class GitHelper {
 
     // It returns a string like this "ssh://git@github.com:22/caprover/caprover-cli.git"
     static sanitizeRepoPathSsh(input: string) {
-        const found = input.match(GitHelper.SSH_PATH_RE)
+        const SSH_PATH_RE =
+            /(?:^\s*|(?::\/\/)?)(?:([a-z_][a-z0-9_-]+)@)?(?:([^\/\s\?#:]+))(?:\:([0-9]{1,5}))?(?:\/:)?(?:([^\/\s\?#:]+))?\/(?:([^\/\s\?#:]+))?(?:\.git)?\/?\s*$/i
+        const found = input.match(SSH_PATH_RE)
         if (!found) {
             throw new Error(`Malformatted SSH path: ${input}`)
         }
 
         return {
-            user: found.groups?.user ?? 'git',
-            domain: found.groups?.domain,
-            port: Number(found.groups?.port ?? 22),
-            owner: found.groups?.owner ?? '',
-            repo: found.groups?.repo,
+            user: found[1] || 'git',
+            domain: found[2],
+            port: parseInt(found[3], 10) || 22,
+            owner: found[4] || '',
+            repo: found[5],
             get repoPath() {
                 return `ssh://${this.user}@${this.domain}:${this.port}/${
                     this.owner
-                }${this.owner && '/'}${this.repo}.git`
+                }${this.owner ? '/' : ''}${this.repo}.git`
             },
         }
     }

@@ -1,3 +1,5 @@
+import { ServerDockerInfo } from './ServerDockerInfo'
+
 export interface RestoringNode {
     oldIp: string
     newIp: string

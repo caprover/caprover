@@ -1,20 +1,30 @@
 import Base64Provider = require('js-base64')
 import Docker = require('dockerode')
 import { v4 as uuid } from 'uuid'
+import {
+    IAppDef,
+    IAppEnvVar,
+    IAppPort,
+    IAppVolume,
+} from '../models/AppDefinition'
+import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
+import { DockerSecret } from '../models/DockerSecret'
 import DockerService from '../models/DockerService'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
 import {
     IDockerApiPort,
     IDockerContainerResource,
     PreDeployFunction,
     VolumesTypes,
 } from '../models/OtherTypes'
+import { ServerDockerInfo } from '../models/ServerDockerInfo'
 import BuildLog from '../user/BuildLog'
 import CaptainConstants from '../utils/CaptainConstants'
 import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Dockerode = require('dockerode')
-// @ts-ignore
+// @ts-expect-error "TODO"
 import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
@@ -1425,11 +1435,11 @@ class DockerApi {
 
                     switch (updateOrder) {
                         case IDockerUpdateOrders.AUTO:
-                            const existingVols =
-                                updatedData.TaskTemplate.ContainerSpec.Mounts ||
-                                []
                             updatedData.UpdateConfig.Order =
-                                existingVols.length > 0
+                                (
+                                    updatedData.TaskTemplate.ContainerSpec
+                                        .Mounts || []
+                                ).length > 0
                                     ? 'stop-first'
                                     : 'start-first'
                             break
@@ -1440,6 +1450,7 @@ class DockerApi {
                             updatedData.UpdateConfig.Order = 'stop-first'
                             break
                         default:
+                            // eslint-disable-next-line
                             const neverHappens: never = updateOrder
                             throw new Error(
                                 `Unknown update order! ${updateOrder}${neverHappens}`

@@ -1,5 +1,6 @@
 import request = require('request')
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { ITemplate } from '../models/OtherTypes'
 import Logger from './Logger'
 

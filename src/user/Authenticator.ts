@@ -6,6 +6,7 @@ import CaptainConstants from '../utils/CaptainConstants'
 import EnvVar from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import bcrypt = require('bcryptjs')
+import { IHashMapGeneric } from '../models/ICacheGeneric'
 
 const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
 
