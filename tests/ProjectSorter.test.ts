@@ -1,6 +1,7 @@
-import * as configstore from 'configstore'
+import configstore from 'configstore'
 import AppsDataStore from '../src/datastore/AppsDataStore'
 import ProjectsDataStore from '../src/datastore/ProjectsDataStore'
+import { ProjectDefinition } from '../src/models/ProjectDefinition'
 
 describe('ProjectsDataStore', () => {
     let projectsDataStore: ProjectsDataStore

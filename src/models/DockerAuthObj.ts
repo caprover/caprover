@@ -1,4 +1,4 @@
-interface DockerAuthObj {
+export interface DockerAuthObj {
     serveraddress: string
     username: string
     password: string
@@ -17,7 +17,7 @@ interface DockerAuthObj {
   }
 }
 */
-interface DockerRegistryConfig {
+export interface DockerRegistryConfig {
     [serveraddress: string]: {
         username: string
         password: string

@@ -2,6 +2,7 @@ import configstore = require('configstore')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
+import { ProjectDefinition } from '../models/ProjectDefinition'
 
 const PROJECTS_DEFINITIONS = 'projectsDefinitions'
 
@@ -124,9 +125,9 @@ class ProjectsDataStore {
         projectId = `${projectId || ''}`.trim()
         return Promise.resolve()
             .then(function () {
-                return self.data.get(
-                    `${PROJECTS_DEFINITIONS}.${projectId}`
-                ) as ProjectDefinition | undefined
+                return self.data.get(`${PROJECTS_DEFINITIONS}.${projectId}`) as
+                    | ProjectDefinition
+                    | undefined
             })
             .then(function (project) {
                 if (!project) {

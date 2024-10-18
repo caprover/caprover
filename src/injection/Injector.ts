@@ -13,6 +13,7 @@ import { UserManagerProvider } from '../user/UserManagerProvider'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
 import InjectionExtractor from './InjectionExtractor'
+import { IAppDef } from '../models/AppDefinition'
 
 const dockerApi = DockerApiProvider.get()
 

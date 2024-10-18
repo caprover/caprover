@@ -15,6 +15,7 @@ import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
+import { NetDataInfo } from '../models/NetDataInfo'
 
 // keys:
 const NAMESPACE = 'namespace'

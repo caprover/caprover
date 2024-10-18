@@ -1,4 +1,4 @@
-import * as moment from 'moment'
+import moment from 'moment'
 import { AnyError } from '../models/OtherTypes'
 import CaptainConstants from './CaptainConstants'
 

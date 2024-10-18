@@ -208,7 +208,7 @@ function overrideConfigFromFile(fileName: string) {
             }
 
             console.log(`Overriding ${prop} from ${fileName}`)
-            // @ts-ignore
+            // @ts-expect-error "this actually works"
             configs[prop] = overridingValuesConfigs[prop]
         }
     }

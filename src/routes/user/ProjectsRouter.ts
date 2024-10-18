@@ -4,6 +4,7 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import BaseApi from '../../api/BaseApi'
 import InjectionExtractor from '../../injection/InjectionExtractor'
 import Logger from '../../utils/Logger'
+import { ProjectDefinition } from '../../models/ProjectDefinition'
 
 const router = express.Router()
 

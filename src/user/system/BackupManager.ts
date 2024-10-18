@@ -1,13 +1,16 @@
 import SshClientImport = require('ssh2')
 import { exec } from 'child_process'
 import * as fs from 'fs-extra'
-import * as moment from 'moment'
+import moment from 'moment'
 import * as path from 'path'
 import * as tar from 'tar'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import DockerUtils from '../../docker/DockerUtils'
+import { IAppDefSaved } from '../../models/AppDefinition'
 import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
+import { IHashMapGeneric } from '../../models/ICacheGeneric'
+import { ServerDockerInfo } from '../../models/ServerDockerInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
@@ -717,13 +720,16 @@ export default class BackupManager {
                         )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
-                        setTimeout(() => {
-                            try {
-                                fs.removeSync(newName)
-                            } catch (err) {
-                                // nom nom
-                            }
-                        }, 1000 * 3600 * 2)
+                        setTimeout(
+                            () => {
+                                try {
+                                    fs.removeSync(newName)
+                                } catch (err) {
+                                    // nom nom
+                                }
+                            },
+                            1000 * 3600 * 2
+                        )
 
                         return Authenticator.getAuthenticator(
                             namespace
