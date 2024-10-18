@@ -1,8 +1,8 @@
 import configstore = require('configstore')
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import { ProjectDefinition } from '../models/ProjectDefinition'
 import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
-import { ProjectDefinition } from '../models/ProjectDefinition'
 
 const PROJECTS_DEFINITIONS = 'projectsDefinitions'
 
@@ -101,10 +101,12 @@ class ProjectsDataStore {
                     description: project.description,
                 }
 
-                return self.data.set(
+                self.data.set(
                     `${PROJECTS_DEFINITIONS}.${projectId}`,
                     projectToSave
                 )
+
+                return projectToSave
             })
     }
 
