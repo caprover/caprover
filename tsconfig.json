@@ -8,7 +8,7 @@
         "sourceMap": true,
         "allowJs": true,
         "noUnusedLocals": true,
-        "target": "ES6"
+        "target": "ES2018"
     },
     "include": ["./src/**/*"]
 }
