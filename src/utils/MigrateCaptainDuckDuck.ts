@@ -2,6 +2,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import DataStore from '../datastore/DataStore'
 import DockerApi from '../docker/DockerApi'
+import { IAppVersion } from '../models/AppDefinition'
 import { IRegistryTypes } from '../models/IRegistryInfo'
 import Authenticator from '../user/Authenticator'
 import CaptainConstants from './CaptainConstants'
@@ -206,6 +207,7 @@ export default class MigrateCaptainDuckDuck {
                         .then(function () {
                             return appStore.registerAppDefinition(
                                 appName,
+                                '',
                                 !!app.hasPersistentData
                             )
                         })
@@ -321,6 +323,7 @@ export default class MigrateCaptainDuckDuck {
                                 .then(function () {
                                     return appStore.updateAppDefinitionInDb(
                                         appName,
+                                        '',
                                         '',
                                         Number(app.instanceCount),
                                         CaptainConstants.defaultCaptainDefinitionPath,

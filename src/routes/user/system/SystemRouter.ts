@@ -12,10 +12,12 @@ import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 import Utils from '../../../utils/Utils'
 import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
+import ThemesRouter from './ThemesRouter'
 
 const router = express.Router()
 
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
+router.use('/themes/', ThemesRouter)
 
 router.post('/createbackup/', function (req, res, next) {
     const backupManager = CaptainManager.get().getBackupManager()
@@ -221,13 +223,13 @@ router.get('/diskcleanup/', function (req, res, next) {
 })
 
 router.post('/diskcleanup/', function (req, res, next) {
-    const configs = AutomatedCleanupConfigsCleaner.cleanup({
-        mostRecentLimit: req.body.mostRecentLimit,
-        cronSchedule: req.body.cronSchedule,
-        timezone: req.body.timezone,
-    })
     return Promise.resolve()
         .then(function () {
+            const configs = AutomatedCleanupConfigsCleaner.sanitizeInput({
+                mostRecentLimit: req.body.mostRecentLimit,
+                cronSchedule: req.body.cronSchedule,
+                timezone: req.body.timezone,
+            })
             return CaptainManager.get()
                 .getDiskCleanupManager()
                 .setConfig(configs)

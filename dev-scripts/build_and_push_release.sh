@@ -44,7 +44,7 @@ echo $IMAGE_NAME:$CAPROVER_VERSION
 echo "**************************************"
 echo "**************************************"
 
-FRONTEND_COMMIT_HASH=89516709d5462c38554cae5b62845432adf3f88a
+FRONTEND_COMMIT_HASH=9f6c377137088c10b5582c4c9cd8285a9bd450d9
 
 ## Building frontend app
 ORIG_DIR=$(pwd)
@@ -62,9 +62,12 @@ echo "Building finished"
 cd $ORIG_DIR
 mv $FRONTEND_DIR/caprover-frontend/build ./dist-frontend
 
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-export DOCKER_CLI_EXPERIMENTAL=enabled
+sudo apt-get update && sudo apt-get install qemu-user-static
+# docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+docker run --rm --privileged tonistiigi/binfmt --install all
+# export DOCKER_CLI_EXPERIMENTAL=enabled
 docker buildx ls
+docker buildx rm mybuilder || echo "mybuilder not found"
 docker buildx create --name mybuilder
 docker buildx use mybuilder
 

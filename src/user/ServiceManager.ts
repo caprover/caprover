@@ -1,6 +1,19 @@
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
+import {
+    AppDeployTokenConfig,
+    IAppDef,
+    IAppEnvVar,
+    IAppPort,
+    IAppTag,
+    IAppVolume,
+    IHttpAuth,
+    RepoInfo,
+} from '../models/AppDefinition'
+import { DockerAuthObj } from '../models/DockerAuthObj'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
+import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
 import Logger from '../utils/Logger'
@@ -587,6 +600,7 @@ class ServiceManager {
 
     updateAppDefinition(
         appName: string,
+        projectId: string,
         description: string,
         instanceCount: number,
         captainDefinitionRelativeFilePath: string,
@@ -631,6 +645,16 @@ class ServiceManager {
         }
 
         return Promise.resolve()
+            .then(function () {
+                projectId = `${projectId || ''}`.trim()
+                if (projectId) {
+                    return dataStore
+                        .getProjectsDataStore()
+                        .getProject(projectId)
+
+                    // if project is not found, it will throw an error
+                }
+            })
             .then(function () {
                 return self.ensureNotBuilding(appName)
             })
@@ -715,6 +739,7 @@ class ServiceManager {
                     .getAppsDataStore()
                     .updateAppDefinitionInDb(
                         appName,
+                        projectId,
                         description,
                         instanceCount,
                         captainDefinitionRelativeFilePath,
@@ -755,6 +780,7 @@ class ServiceManager {
                             .getAppsDataStore()
                             .updateAppDefinitionInDb(
                                 appName,
+                                existingAppDefinition.projectId,
                                 existingAppDefinition.description,
                                 existingAppDefinition.instanceCount,
                                 existingAppDefinition.captainDefinitionRelativeFilePath,

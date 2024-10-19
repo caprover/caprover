@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.12.0',
+    version: '1.13.0',
 
     defaultMaxLogSize: '512m',
 
@@ -58,6 +58,9 @@ const configs = {
     certbotImageName: 'caprover/certbot-sleeping:v2.11.0',
 
     certbotCertCommandRules: undefined as CertbotCertCommandRule[] | undefined,
+
+    // this is added in 1.13 just as a safety - remove this after 1.14
+    disableEncryptedCheck: false,
 }
 
 export interface CertbotCertCommandRule {
@@ -205,7 +208,7 @@ function overrideConfigFromFile(fileName: string) {
             }
 
             console.log(`Overriding ${prop} from ${fileName}`)
-            // @ts-ignore
+            // @ts-expect-error "this actually works"
             configs[prop] = overridingValuesConfigs[prop]
         }
     }

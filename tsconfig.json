@@ -1,16 +1,15 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
+        "module": "Node16",
+        "moduleResolution": "Node16",
         "strictNullChecks": true,
         "outDir": "./built",
         "noImplicitAny": true,
         "sourceMap": true,
         "allowJs": true,
+        "esModuleInterop": true,
         "noUnusedLocals": true,
-        "target": "es6"
+        "target": "ES2018"
     },
-    "include": [
-        "./src/**/*"
-    ]
+    "include": ["./src/**/*"]
 }

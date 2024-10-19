@@ -1,4 +1,4 @@
-interface IServerBlockDetails {
+export interface IServerBlockDetails {
     hasSsl: boolean
     forceSsl: boolean
     websocketSupport: boolean

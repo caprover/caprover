@@ -1,5 +1,18 @@
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import {
+    AppDeployTokenConfig,
+    IAllAppDefinitions,
+    IAppDef,
+    IAppDefSaved,
+    IAppEnvVar,
+    IAppPort,
+    IAppTag,
+    IAppVersion,
+    IAppVolume,
+    IHttpAuth,
+    RepoInfo,
+} from '../models/AppDefinition'
 import { IBuiltImage } from '../models/IBuiltImage'
 import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
@@ -31,7 +44,10 @@ function isPortValid(portNumber: number) {
 class AppsDataStore {
     private encryptor: CaptainEncryptor
 
-    constructor(private data: configstore, private namepace: string) {}
+    constructor(
+        private data: configstore,
+        private namepace: string
+    ) {}
 
     setEncryptor(encryptor: CaptainEncryptor) {
         this.encryptor = encryptor
@@ -611,6 +627,7 @@ class AppsDataStore {
 
     updateAppDefinitionInDb(
         appName: string,
+        projectId: string | undefined,
         description: string,
         instanceCount: number,
         captainDefinitionRelativeFilePath: string,
@@ -705,6 +722,7 @@ class AppsDataStore {
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description
+                appObj.projectId = projectId
                 appObj.tags = tags
 
                 appObj.appDeployTokenConfig = {
@@ -860,7 +878,11 @@ class AppsDataStore {
      * @param hasPersistentData         whether the app has persistent data, you can only run one instance of the app.
      * @returns {Promise}
      */
-    registerAppDefinition(appName: string, hasPersistentData: boolean) {
+    registerAppDefinition(
+        appName: string,
+        projectId: string | undefined,
+        hasPersistentData: boolean
+    ) {
         const self = this
 
         return new Promise<IAppDef>(function (resolve, reject) {
@@ -886,6 +908,7 @@ class AppsDataStore {
 
             const defaultAppDefinition: IAppDef = {
                 hasPersistentData: !!hasPersistentData,
+                projectId: projectId,
                 description: '',
                 instanceCount: 1,
                 captainDefinitionRelativeFilePath:

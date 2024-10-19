@@ -8,7 +8,10 @@ import Logger from '../../utils/Logger'
 
 export default class DiskCleanupManager {
     private job: CronJob | undefined
-    constructor(private dataStore: DataStore, private dockerApi: DockerApi) {
+    constructor(
+        private dataStore: DataStore,
+        private dockerApi: DockerApi
+    ) {
         //
     }
 
