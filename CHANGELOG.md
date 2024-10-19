@@ -2,6 +2,10 @@
 
 -   N/A
 
+## [1.13.1] - 2024-10-19
+
+-   Fixed an auth issue on frontend [cd916c](https://github.com/caprover/caprover-frontend/commit/cd916c53c4b15ec3f71863075dc4d2a729e2266e)
+
 ## [1.13.0] - 2024-10-19
 
 -   New: Added project structure [issue-158](https://github.com/caprover/caprover-frontend/pull/158)
