@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+-   N/A
+
+## [1.13.0] - 2024-10-19
+
 -   New: Added project structure [issue-158](https://github.com/caprover/caprover-frontend/pull/158)
 -   New: Added translations in multiple languages [issue-159](https://github.com/caprover/caprover-frontend/pull/159)
 -   New: Added themes! Now you can pick your favorite theme or build a new one! [issue-160](https://github.com/caprover/caprover-frontend/pull/160)
