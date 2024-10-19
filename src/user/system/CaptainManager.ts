@@ -685,11 +685,39 @@ class CaptainManager {
 
     updateGoAccessInfo(goAccessInfo: GoAccessInfo) {
         const self = this
-        // const dockerApi = this.dockerApi
+        const dockerApi = this.dockerApi
+        const enabled = goAccessInfo.isEnabled
 
         return Promise.resolve()
             .then(function () {
                 return self.dataStore.setGoAccessInfo(goAccessInfo)
+            })
+            .then(function () {
+                if (enabled) {
+                    return dockerApi.createStickyContainer(
+                        CaptainConstants.goAccessContainerName,
+                        CaptainConstants.configs.goAccessImageName,
+                        [
+                            {
+                                hostPath: CaptainConstants.nginxLogsVolumeName,
+                                volumeName:
+                                    CaptainConstants.nginxLogsVolumeName,
+                                containerPath: '/var/www/logs',
+                                mode: 'rw',
+                            },
+                        ],
+                        CaptainConstants.captainNetworkName,
+                        [],
+                        [],
+                        ['apparmor:unconfined'],
+                        undefined
+                    )
+                } else {
+                    return dockerApi.ensureContainerStoppedAndRemoved(
+                        CaptainConstants.goAccessContainerName,
+                        CaptainConstants.captainNetworkName
+                    )
+                }
             })
             .then(function () {
                 Logger.d(
