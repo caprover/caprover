@@ -1,0 +1,34 @@
+name: Build and push the edge image
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    run-pre-checks:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - run: |
+                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
+                  npm ci
+                  npm run build
+                  npm run lint
+                  npm run formatter
+                  npm run test
+    build-publish-docker-hub:
+        needs: run-pre-checks
+        runs-on: ubuntu-latest
+        steps:
+            - uses: azure/docker-login@v1
+              with:
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
+            - uses: actions/checkout@v1
+            - name: Build and Push Edge to DockerHub
+              shell: bash
+              run: ./test_build.sh
