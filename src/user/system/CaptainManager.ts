@@ -4,9 +4,9 @@ import DataStore from '../../datastore/DataStore'
 import DataStoreProvider from '../../datastore/DataStoreProvider'
 import DockerApi from '../../docker/DockerApi'
 import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
+import { NetDataInfo } from '../../models/NetDataInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
 import FeatureFlags from '../FeatureFlags'
@@ -25,7 +25,6 @@ import LoadBalancerManager from './LoadBalancerManager'
 import SelfHostedDockerRegistry from './SelfHostedDockerRegistry'
 import request = require('request')
 import fs = require('fs-extra')
-import { NetDataInfo } from '../../models/NetDataInfo'
 
 const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 
@@ -212,18 +211,6 @@ class CaptainManager {
             })
             .then(function () {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
-            })
-            .then(function () {
-                return new MigrateCaptainDuckDuck(
-                    dataStore,
-                    Authenticator.getAuthenticator(dataStore.getNameSpace())
-                )
-                    .migrateIfNeeded()
-                    .then(function (migrationPerformed) {
-                        if (migrationPerformed) {
-                            return self.resetSelf()
-                        }
-                    })
             })
             .then(function () {
                 return loadBalancerManager.init(myNodeId, dataStore)
