@@ -107,6 +107,8 @@ const data = {
 
     nginxDefaultHtmlDir: '/default',
 
+    nginxSharedLogsPath: '/var/log/nginx-shared',
+
     letsEncryptEtcPathOnNginx: '/letencrypt/etc',
 
     nginxDomainSpecificHtmlDir: '/domains',

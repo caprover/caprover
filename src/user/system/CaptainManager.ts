@@ -702,7 +702,8 @@ class CaptainManager {
                                 hostPath: CaptainConstants.nginxLogsVolumeName,
                                 volumeName:
                                     CaptainConstants.nginxLogsVolumeName,
-                                containerPath: '/var/www/logs',
+                                containerPath:
+                                    CaptainConstants.nginxSharedLogsPath,
                                 mode: 'rw',
                             },
                         ],

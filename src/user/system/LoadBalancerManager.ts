@@ -393,7 +393,7 @@ class LoadBalancerManager {
 
     getLogPath(domainName: string) {
         // The shared volume path plus a filesafe name
-        return `/var/log/nginx-shared/${domainName}/access.log`
+        return `${CaptainConstants.nginxSharedLogsPath}/${domainName}-access.log`
     }
 
     getInfo() {
@@ -452,6 +452,7 @@ class LoadBalancerManager {
         const registryDomain = `${
             CaptainConstants.registrySubDomain
         }.${dataStore.getRootDomain()}`
+        const logAccess = dataStore.getGoAccessInfo().isEnabled
 
         let hasRootSsl = false
 
@@ -503,6 +504,9 @@ class LoadBalancerManager {
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDomainSpecificHtmlDir
                         }/${captainDomain}`,
+                        logAccessPath: logAccess
+                            ? CaptainConstants.nginxSharedLogsPath
+                            : undefined,
                     },
                     registry: {
                         crtPath: self.getSslCertPath(registryDomain),
@@ -811,7 +815,7 @@ class LoadBalancerManager {
                         },
                         {
                             volumeName: CaptainConstants.nginxLogsVolumeName,
-                            containerPath: '/var/log/nginx-shared',
+                            containerPath: CaptainConstants.nginxSharedLogsPath,
                         },
                     ],
                     [CaptainConstants.captainNetworkName],

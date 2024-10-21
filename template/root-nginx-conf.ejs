@@ -108,6 +108,18 @@
             proxy_read_timeout 120s;
         }
 
+
+        <%
+        if (captain.logAccessPath) {
+        %>
+        location /goaccess {
+            alias <%-captain.logAccessPath%>; 
+            autoindex on;
+        }
+        <%
+        }
+        %>
+
         # Used by Lets Encrypt
         location /.well-known/acme-challenge/ {
             root <%-captain.staticWebRoot%>;
