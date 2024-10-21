@@ -10,6 +10,7 @@ COPY ./dockerfiles/goaccess-files/crontab.txt /var/spool/cron/crontabs/root
 
 ENTRYPOINT ["/entrypoint.sh"]
 
+# https://blog.thesparktree.com/cron-in-docker
 # source: `docker run --rm -it alpine  crond -h`
 # -f | Foreground
 # -l N | Set log level. Most verbose 0, default 8

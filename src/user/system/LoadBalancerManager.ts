@@ -393,7 +393,7 @@ class LoadBalancerManager {
 
     getLogPath(domainName: string) {
         // The shared volume path plus a filesafe name
-        return `/var/log/nginx-shared/${domainName.replace(/\./g, '')}.log`
+        return `/var/log/nginx-shared/${domainName}/access.log`
     }
 
     getInfo() {
