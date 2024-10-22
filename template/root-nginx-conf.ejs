@@ -26,6 +26,26 @@
             deny all;
         }
 
+        <%
+        if (captain.logAccessPath) {
+        %>
+        location /goaccess {
+            alias <%-captain.logAccessPath%>; 
+            autoindex on;
+
+            # This can be improved by adding authentication as well.
+            # CIDR Range IPs:
+            allow 172.16.0.0/12;
+            allow 10.0.0.0/8;
+            allow 192.168.0.0/16;
+            
+            deny all;
+        }
+        <%
+        }
+        %>
+
+
         location / {
             root   <%-captain.defaultHtmlDir%>;
             index  index.html index.htm;
@@ -107,18 +127,6 @@
 
             proxy_read_timeout 120s;
         }
-
-
-        <%
-        if (captain.logAccessPath) {
-        %>
-        location /goaccess {
-            alias <%-captain.logAccessPath%>; 
-            autoindex on;
-        }
-        <%
-        }
-        %>
 
         # Used by Lets Encrypt
         location /.well-known/acme-challenge/ {

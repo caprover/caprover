@@ -1,4 +1,5 @@
 import express = require('express')
+import request = require('request')
 import validator from 'validator'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
@@ -289,21 +290,15 @@ router.get('/goaccess/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
+    const goAccessInfo = dataStore.getGoAccessInfo()
+
     return Promise.resolve()
         .then(function () {
-            return dataStore.getGoAccessInfo()
-        })
-        .then(function (data) {
-            // data.netDataUrl = `${
-            //     CaptainConstants.configs.captainSubDomain
-            // }.${dataStore.getRootDomain()}${
-            //     CaptainConstants.netDataRelativePath
-            // }`
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info retrieved'
             )
-            baseApi.data = data
+            baseApi.data = goAccessInfo
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
@@ -323,6 +318,104 @@ router.post('/goaccess/', function (req, res, next) {
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info is updated'
             )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/goaccess/:appName/files', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+
+    const goAccessInfo = dataStore.getGoAccessInfo()
+
+    const appName = req.params.appName
+
+    if (!appName) {
+        const baseApi = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'Invalid appName'
+        )
+        baseApi.data = []
+        res.send(baseApi)
+        return
+    }
+
+    if (!goAccessInfo.isEnabled) {
+        const baseApi = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'GoAccess not enabled'
+        )
+        baseApi.data = []
+        res.send(baseApi)
+        return
+    }
+
+    let appDefinition: IAppDef
+
+    return Promise.resolve()
+        .then(function () {
+            // Ensure a valid appName parameter
+            return dataStore.getAppsDataStore().getAppDefinition(appName)
+        })
+        .then(function (resolvedAppDefinition) {
+            appDefinition = resolvedAppDefinition
+
+            // Request the autoindex file that has all the generated reports
+            const url = `http://${CaptainConstants.nginxServiceName}/goaccess`
+
+            return new Promise<string[]>(function (resolve, reject) {
+                request(url, function (error, response, body) {
+                    if (error || !body) {
+                        Logger.e(`Error        ${error}`)
+                        reject(
+                            ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Request to list goaccess files Failed.'
+                            )
+                        )
+                        return
+                    }
+
+                    const lines = body.split('\n')
+                    const linkRegex = /\<a href=\"(.*?)\"/g
+
+                    const data = []
+
+                    for (const line of lines) {
+                        const match = linkRegex.exec(line)
+                        if (match) {
+                            data.push(match[1])
+                        }
+                    }
+
+                    resolve(data)
+                })
+            })
+        })
+        .then(function (linkData) {
+            //Filter to just the generated files for the particular app
+            const customDomains = appDefinition.customDomain.map(
+                (d) => d.publicDomain
+            )
+            console.log('Filtering link data', {
+                linkData,
+                appName,
+                customDomains,
+            })
+            return linkData.filter(
+                (l) =>
+                    (l.startsWith(appName) ||
+                        customDomains.some((d) => l.startsWith(d))) &&
+                    l.endsWith('.html')
+            )
+        })
+        .then(function (linkData) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info retrieved'
+            )
+            baseApi.data = linkData
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
