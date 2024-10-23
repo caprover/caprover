@@ -61,6 +61,10 @@ const configs = {
 
     // this is added in 1.13 just as a safety - remove this after 1.14
     disableEncryptedCheck: false,
+
+    nginxPortNumber80: 80,
+
+    nginxPortNumber443: 443,
 }
 
 export interface CertbotCertCommandRule {
@@ -169,8 +173,6 @@ const data = {
 
     // ********************* HTTP Related Constants  ************************
 
-    nginxPortNumber: 80,
-
     netDataRelativePath: '/net-data-monitor',
 
     healthCheckEndPoint: '/checkhealth',
@@ -232,7 +234,7 @@ if (data.isDebug) {
 
     data.debugSourceDirectory = devDirectoryOnLocalMachine
     data.configs.publishedNameOnDockerHub = 'captain-debug'
-    data.nginxPortNumber = 80
+    data.configs.nginxPortNumber80 = 80
 }
 
 export default data

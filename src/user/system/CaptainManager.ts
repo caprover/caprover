@@ -818,7 +818,7 @@ class CaptainManager {
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
         const url = `${uuid()}.${requestedCustomDomain}:${
-            CaptainConstants.nginxPortNumber
+            CaptainConstants.configs.nginxPortNumber80
         }`
 
         return self.domainResolveChecker

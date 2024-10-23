@@ -614,13 +614,15 @@ class LoadBalancerManager {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 80,
-                            hostPort: CaptainConstants.nginxPortNumber,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber80,
                         },
                         {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 443,
-                            hostPort: 443,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
                         },
                     ],
                     nodeId,
