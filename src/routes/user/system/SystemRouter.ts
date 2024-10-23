@@ -351,20 +351,16 @@ router.get('/goaccess/:appName/files', function (req, res, next) {
         return
     }
 
-    let appDefinition: IAppDef
-
     return Promise.resolve()
         .then(function () {
             // Ensure a valid appName parameter
             return dataStore.getAppsDataStore().getAppDefinition(appName)
         })
-        .then(function (resolvedAppDefinition) {
-            appDefinition = resolvedAppDefinition
+        .then(function () {
+            // Request the autoindex json that has all the generated reports
+            const url = `http://${CaptainConstants.nginxServiceName}/goaccess/${appName}`
 
-            // Request the autoindex file that has all the generated reports
-            const url = `http://${CaptainConstants.nginxServiceName}/goaccess`
-
-            return new Promise<string[]>(function (resolve, reject) {
+            return new Promise<any[]>(function (resolve, reject) {
                 request(url, function (error, response, body) {
                     if (error || !body) {
                         Logger.e(`Error        ${error}`)
@@ -377,45 +373,32 @@ router.get('/goaccess/:appName/files', function (req, res, next) {
                         return
                     }
 
-                    const lines = body.split('\n')
-                    const linkRegex = /\<a href=\"(.*?)\"/g
-
-                    const data = []
-
-                    for (const line of lines) {
-                        const match = linkRegex.exec(line)
-                        if (match) {
-                            data.push(match[1])
-                        }
+                    try {
+                        resolve(JSON.parse(body))
+                    } catch (e) {
+                        console.error('what', { url, body })
+                        Logger.e(`Error parsing    ${e}`)
+                        reject(
+                            ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Request to list goaccess files Failed.'
+                            )
+                        )
                     }
-
-                    resolve(data)
                 })
             })
-        })
-        .then(function (linkData) {
-            //Filter to just the generated files for the particular app
-            const customDomains = appDefinition.customDomain.map(
-                (d) => d.publicDomain
-            )
-            console.log('Filtering link data', {
-                linkData,
-                appName,
-                customDomains,
-            })
-            return linkData.filter(
-                (l) =>
-                    (l.startsWith(appName) ||
-                        customDomains.some((d) => l.startsWith(d))) &&
-                    l.endsWith('.html')
-            )
         })
         .then(function (linkData) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info retrieved'
             )
-            baseApi.data = linkData
+            baseApi.data = linkData.map((d) => ({
+                ...d,
+                url: `http://${
+                    CaptainConstants.configs.captainSubDomain
+                }.${dataStore.getRootDomain()}/goaccess/${appName}/${d.name}`,
+            }))
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))

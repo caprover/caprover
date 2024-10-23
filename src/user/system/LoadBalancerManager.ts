@@ -318,7 +318,10 @@ class LoadBalancerManager {
                         nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
                     serverWithSubDomain.logAccessPath = logAccess
-                        ? self.getLogPath(serverWithSubDomain.publicDomain)
+                        ? self.getLogPath(
+                              appName,
+                              serverWithSubDomain.publicDomain
+                          )
                         : undefined
 
                     if (
@@ -352,7 +355,7 @@ class LoadBalancerManager {
                                 customErrorPagesDirectory: '',
                                 httpBasicAuth: httpBasicAuth,
                                 logAccessPath: logAccess
-                                    ? self.getLogPath(d.publicDomain)
+                                    ? self.getLogPath(appName, d.publicDomain)
                                     : undefined,
                             }
                             if (
@@ -391,9 +394,8 @@ class LoadBalancerManager {
         )
     }
 
-    getLogPath(domainName: string) {
-        // The shared volume path plus a filesafe name
-        return `${CaptainConstants.nginxSharedLogsPath}/${domainName}-access.log`
+    getLogPath(appName: string, domainName: string) {
+        return `${CaptainConstants.nginxSharedLogsPath}/${appName}--${domainName}--access.log`
     }
 
     getInfo() {
