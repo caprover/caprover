@@ -3,10 +3,11 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DataStoreProvider from '../../datastore/DataStoreProvider'
 import DockerApi from '../../docker/DockerApi'
+import { GoAccessInfo } from '../../models/GoAccessInfo'
 import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
+import { NetDataInfo } from '../../models/NetDataInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
 import Logger from '../../utils/Logger'
-import MigrateCaptainDuckDuck from '../../utils/MigrateCaptainDuckDuck'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
 import FeatureFlags from '../FeatureFlags'
@@ -211,18 +212,6 @@ class CaptainManager {
             })
             .then(function () {
                 return dataStore.setEncryptionSalt(self.getCaptainSalt())
-            })
-            .then(function () {
-                return new MigrateCaptainDuckDuck(
-                    dataStore,
-                    Authenticator.getAuthenticator(dataStore.getNameSpace())
-                )
-                    .migrateIfNeeded()
-                    .then(function (migrationPerformed) {
-                        if (migrationPerformed) {
-                            return self.resetSelf()
-                        }
-                    })
             })
             .then(function () {
                 return loadBalancerManager.init(myNodeId, dataStore)
@@ -875,7 +864,7 @@ class CaptainManager {
         // We still allow users to specify the domains in their DNS settings individually
         // SubDomains that need to be added are "captain." "registry." "app-name."
         const url = `${uuid()}.${requestedCustomDomain}:${
-            CaptainConstants.nginxPortNumber
+            CaptainConstants.configs.nginxPortNumber80
         }`
 
         return self.domainResolveChecker

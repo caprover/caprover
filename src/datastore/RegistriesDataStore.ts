@@ -15,7 +15,10 @@ const DEFAULT_DOCKER_REGISTRY_ID = 'defaultDockerRegId'
 class RegistriesDataStore {
     private encryptor: CaptainEncryptor
 
-    constructor(private data: configstore, public namepace: string) {}
+    constructor(
+        private data: configstore,
+        public namepace: string
+    ) {}
 
     setEncryptor(encryptor: CaptainEncryptor) {
         this.encryptor = encryptor

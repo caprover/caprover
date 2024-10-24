@@ -1,3 +1,6 @@
+# NodeJS v20 freezes when building for multiarch
+# https://github.com/nodejs/docker-node/issues/2155
+
 FROM node:18-alpine
 RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
 

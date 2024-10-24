@@ -4,6 +4,10 @@ import * as yaml from 'yaml'
 import Logger from './Logger'
 
 export default class Utils {
+    static copyObject<T>(obj: T): T {
+        return JSON.parse(JSON.stringify(obj)) as T
+    }
+
     static removeHttpHttps(input: string) {
         input = input.trim()
         input = input.replace(/^(?:http?:\/\/)?/i, '')

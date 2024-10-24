@@ -7,8 +7,12 @@ import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
 } from '../models/AutomatedCleanupConfigs'
+import CapRoverTheme from '../models/CapRoverTheme'
+import { GoAccessInfo } from '../models/GoAccessInfo'
+import { NetDataInfo } from '../models/NetDataInfo'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
+import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
@@ -29,6 +33,8 @@ const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
 const FEATURE_FLAGS = 'featureFlags'
 const AUTOMATED_CLEANUP = 'automatedCleanup'
+const THEMES = 'themes'
+const CURRENT_THEME = 'currentTheme'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
@@ -102,6 +108,54 @@ class DataStore {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.set(FEATURE_FLAGS, featureFlags)
+        })
+    }
+
+    getThemes(): Promise<CapRoverTheme[]> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.get(THEMES) || []
+        })
+    }
+
+    deleteTheme(themeName: string) {
+        const self = this
+        return Promise.resolve()
+            .then(function () {
+                return self.getThemes()
+            })
+            .then(function (themesFetched) {
+                self.data.set(
+                    THEMES,
+                    Utils.copyObject(themesFetched).filter(
+                        (it) => it.name !== themeName
+                    )
+                )
+            })
+    }
+
+    saveThemes(themes: CapRoverTheme[]) {
+        const self = this
+        return Promise.resolve().then(function () {
+            self.data.set(
+                THEMES,
+                (themes || []).filter((it) => !it.builtIn)
+            )
+        })
+    }
+
+    setCurrentTheme(themeName: string | undefined) {
+        const self = this
+        return Promise.resolve() //
+            .then(function () {
+                return self.data.set(CURRENT_THEME, themeName || '')
+            })
+    }
+
+    getCurrentThemeName(): Promise<string | undefined> {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.get(CURRENT_THEME)
         })
     }
 

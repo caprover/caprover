@@ -14,6 +14,7 @@ import InjectionExtractor from './injection/InjectionExtractor'
 import * as Injector from './injection/Injector'
 import DownloadRouter from './routes/download/DownloadRouter'
 import LoginRouter from './routes/login/LoginRouter'
+import ThemePublicRouter from './routes/public/ThemePublicRouter'
 import UserRouter from './routes/user/UserRouter'
 import CaptainManager from './user/system/CaptainManager'
 import CaptainConstants from './utils/CaptainConstants'
@@ -215,6 +216,7 @@ app.use(
     API_PREFIX + CaptainConstants.apiVersion + '/downloads/',
     DownloadRouter
 )
+app.use(API_PREFIX + CaptainConstants.apiVersion + '/theme/', ThemePublicRouter)
 
 // secured end points
 app.use(API_PREFIX + CaptainConstants.apiVersion + '/user/', UserRouter)

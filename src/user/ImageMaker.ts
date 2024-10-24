@@ -40,7 +40,11 @@ import tar = require('tar')
 import path = require('path')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import DockerApi from '../docker/DockerApi'
+import { IAppEnvVar } from '../models/AppDefinition'
 import { IBuiltImage } from '../models/IBuiltImage'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
+import { ICaptainDefinition } from '../models/ICaptainDefinition'
+import { IImageSource } from '../models/IImageSource'
 import { AnyError } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
 import GitHelper from '../utils/GitHelper'

@@ -3,6 +3,7 @@
  */
 
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
 import CaptainConstants from '../utils/CaptainConstants'
 import DataStore from './DataStore'
 

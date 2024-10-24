@@ -9,12 +9,20 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit",
-        "source.fixAll.eslint": "explicit"
+        "source.fixAll.eslint": "explicit",
+        "source.addMissingImports": "explicit"
     },
     "typescript.referencesCodeLens.enabled": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "cSpell.words": ["csrf", "definitelytyped", "dockerode", "promisified"],
     "[shellscript]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[plaintext]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": null
+    },
+    "files.associations": {
+        "*.theme": "plaintext"
     }
 }

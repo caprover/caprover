@@ -13,10 +13,12 @@ import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 import Utils from '../../../utils/Utils'
 import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
+import ThemesRouter from './ThemesRouter'
 
 const router = express.Router()
 
 router.use('/selfhostregistry/', SystemRouteSelfHostRegistry)
+router.use('/themes/', ThemesRouter)
 
 router.post('/createbackup/', function (req, res, next) {
     const backupManager = CaptainManager.get().getBackupManager()

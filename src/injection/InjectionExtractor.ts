@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { UserInjected } from '../models/InjectionInterfaces'
 import { UserManager } from '../user/UserManager'
+import { IAppDef } from '../models/AppDefinition'
 
 class InjectionExtractor {
     static extractUserFromInjected(res: Response) {

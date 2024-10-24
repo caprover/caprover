@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DockerApi from '../../docker/DockerApi'
+import { IServerBlockDetails } from '../../models/IServerBlockDetails'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
 import CaptainConstants from '../../utils/CaptainConstants'
@@ -633,13 +634,15 @@ class LoadBalancerManager {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 80,
-                            hostPort: CaptainConstants.nginxPortNumber,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber80,
                         },
                         {
                             protocol: 'tcp',
                             publishMode: 'host',
                             containerPort: 443,
-                            hostPort: 443,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
                         },
                     ],
                     nodeId,
@@ -874,12 +877,15 @@ class LoadBalancerManager {
         // this random schedule helps to avoid retrying at the same time of
         // the day in case if that's our super high traffic time
 
-        setTimeout(function () {
-            self.renewAllCertsAndReload() //
-                .catch((err) => {
-                    Logger.e(err)
-                })
-        }, 1000 * 3600 * 20.3)
+        setTimeout(
+            function () {
+                self.renewAllCertsAndReload() //
+                    .catch((err) => {
+                        Logger.e(err)
+                    })
+            },
+            1000 * 3600 * 20.3
+        )
 
         return self.certbotManager
             .renewAllCerts() //

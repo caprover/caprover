@@ -1,4 +1,4 @@
-class NetDataInfo {
+export class NetDataInfo {
     public isEnabled: boolean
     public data: {
         smtp: {

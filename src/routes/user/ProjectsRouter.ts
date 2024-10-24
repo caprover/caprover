@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import BaseApi from '../../api/BaseApi'
 import InjectionExtractor from '../../injection/InjectionExtractor'
+import { ProjectDefinition } from '../../models/ProjectDefinition'
 import Logger from '../../utils/Logger'
 
 const router = express.Router()
@@ -25,14 +26,14 @@ router.post('/register/', function (req, res, next) {
                 description: description,
             })
         })
-        .then(function () {
+        .then(function (project) {
             Logger.d(`Project created: ${projectName}`)
-            res.send(
-                new BaseApi(
-                    ApiStatusCodes.STATUS_OK,
-                    `Project created: ${projectName}`
-                )
+            const resp = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                `Project created: ${projectName}`
             )
+            resp.data = project
+            res.send(resp)
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })

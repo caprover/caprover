@@ -13,6 +13,7 @@ import ProjectsRouter from './ProjectsRouter'
 import RegistriesRouter from './registeries/RegistriesRouter'
 import SystemRouter from './system/SystemRouter'
 import onFinished = require('on-finished')
+import { IHashMapGeneric } from '../../models/ICacheGeneric'
 
 const router = express.Router()
 

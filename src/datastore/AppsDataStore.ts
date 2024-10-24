@@ -1,5 +1,18 @@
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import {
+    AppDeployTokenConfig,
+    IAllAppDefinitions,
+    IAppDef,
+    IAppDefSaved,
+    IAppEnvVar,
+    IAppPort,
+    IAppTag,
+    IAppVersion,
+    IAppVolume,
+    IHttpAuth,
+    RepoInfo,
+} from '../models/AppDefinition'
 import { IBuiltImage } from '../models/IBuiltImage'
 import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
@@ -31,7 +44,10 @@ function isPortValid(portNumber: number) {
 class AppsDataStore {
     private encryptor: CaptainEncryptor
 
-    constructor(private data: configstore, private namepace: string) {}
+    constructor(
+        private data: configstore,
+        private namepace: string
+    ) {}
 
     setEncryptor(encryptor: CaptainEncryptor) {
         this.encryptor = encryptor
