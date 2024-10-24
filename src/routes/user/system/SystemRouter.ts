@@ -376,7 +376,6 @@ router.get('/goaccess/:appName/files', function (req, res, next) {
                     try {
                         resolve(JSON.parse(body))
                     } catch (e) {
-                        console.error('what', { url, body })
                         Logger.e(`Error parsing    ${e}`)
                         reject(
                             ApiStatusCodes.createError(
@@ -393,12 +392,23 @@ router.get('/goaccess/:appName/files', function (req, res, next) {
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info retrieved'
             )
-            baseApi.data = linkData.map((d) => ({
-                ...d,
-                url: `http://${
-                    CaptainConstants.configs.captainSubDomain
-                }.${dataStore.getRootDomain()}/goaccess/${appName}/${d.name}`,
-            }))
+            baseApi.data = linkData.map((d) => {
+                const splitName = d.name.split('--')
+                const name =
+                    splitName.length > 3
+                        ? `${splitName[3].replace('.html', '')}`
+                        : d.name
+                return {
+                    domainName: splitName[1],
+                    name,
+                    lastModifiedTime: d.mtime,
+                    url: `http://${
+                        CaptainConstants.configs.captainSubDomain
+                    }.${dataStore.getRootDomain()}/goaccess/${appName}/${
+                        d.name
+                    }`,
+                }
+            })
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
