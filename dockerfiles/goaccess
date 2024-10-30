@@ -5,6 +5,7 @@ RUN which crond && \
     rm -rf /etc/periodic
 
 COPY ./dockerfiles/goaccess-files/entrypoint.sh /entrypoint.sh
+COPY ./dockerfiles/goaccess-files/catchupLog.sh /catchupLog.sh
 COPY ./dockerfiles/goaccess-files/processLogs.sh /processLogs.sh
 COPY ./dockerfiles/goaccess-files/crontab.txt /var/spool/cron/crontabs/root
 

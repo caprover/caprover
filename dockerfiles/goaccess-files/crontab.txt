@@ -1,2 +1,2 @@
-
-* * * * * /processLogs.sh
+* * * * * /catchupLog.sh
+*/5 * * * * /processLogs.sh
