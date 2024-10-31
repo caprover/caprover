@@ -1,6 +1,8 @@
 export class GoAccessInfo {
     public isEnabled: boolean
     public data: {
-        temp: boolean
+        rotationFrequencyCron: string
+        catchupFrequencyCron: string
+        logRetentionDays?: number
     }
 }

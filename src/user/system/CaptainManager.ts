@@ -682,7 +682,15 @@ class CaptainManager {
                 return self.dataStore.setGoAccessInfo(goAccessInfo)
             })
             .then(function () {
+                return dockerApi.ensureContainerStoppedAndRemoved(
+                    CaptainConstants.goAccessContainerName,
+                    CaptainConstants.captainNetworkName
+                )
+            })
+            .then(function () {
                 if (enabled) {
+                    // const crontab = self.generateGoAccessCrontab(goAccessInfo);
+
                     return dockerApi.createStickyContainer(
                         CaptainConstants.goAccessContainerName,
                         CaptainConstants.configs.goAccessImageName,
@@ -702,11 +710,6 @@ class CaptainManager {
                         ['apparmor:unconfined'],
                         undefined
                     )
-                } else {
-                    return dockerApi.ensureContainerStoppedAndRemoved(
-                        CaptainConstants.goAccessContainerName,
-                        CaptainConstants.captainNetworkName
-                    )
                 }
             })
             .then(function () {
@@ -715,6 +718,13 @@ class CaptainManager {
                 )
                 return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
+    }
+
+    generateGoAccessCrontab(goAccessInfo: GoAccessInfo): string {
+        return [
+            '* * * * * /realtimeLog.sh',
+            '*/5 * * * * /processLogs.sh',
+        ].join('\n')
     }
 
     getNodesInfo() {

@@ -249,7 +249,10 @@ class DataStore {
         const goAccessInfo = (self.data.get(GOACCESS_INFO) ||
             {}) as GoAccessInfo
         goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
-        goAccessInfo.data = goAccessInfo.data || {}
+        goAccessInfo.data.rotationFrequencyCron =
+            goAccessInfo.data.rotationFrequencyCron ?? '0 0 1 * *' // monthly
+        goAccessInfo.data.catchupFrequencyCron =
+            goAccessInfo.data.catchupFrequencyCron ?? '*/10 * * * *' // every 10 minutes
         return goAccessInfo
     }
 
