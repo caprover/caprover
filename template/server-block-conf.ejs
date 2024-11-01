@@ -36,7 +36,11 @@ server {
     }
     if (s.hasSsl) {
     %>
-        listen              443 ssl http2;
+        http2 on;
+        listen 443 ssl;
+        http3 on;
+        listen 443 quic;
+        add_header Alt-Svc 'h3=":443"; ma=86400';
         ssl_certificate     <%-s.crtPath%>;
         ssl_certificate_key <%-s.keyPath%>;
     <%
