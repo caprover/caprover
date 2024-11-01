@@ -676,10 +676,19 @@ class CaptainManager {
         const self = this
         const dockerApi = this.dockerApi
         const enabled = goAccessInfo.isEnabled
+        const crontabFilePath = `${
+            CaptainConstants.goaccessConfigPathBase
+        }/crontab.txt`
 
         return Promise.resolve()
             .then(function () {
                 return self.dataStore.setGoAccessInfo(goAccessInfo)
+            })
+            .then(function () {
+                return fs.outputFile(
+                    crontabFilePath,
+                    self.generateGoAccessCrontab(goAccessInfo)
+                )
             })
             .then(function () {
                 return dockerApi.ensureContainerStoppedAndRemoved(
@@ -703,9 +712,22 @@ class CaptainManager {
                                     CaptainConstants.nginxSharedLogsPath,
                                 mode: 'rw',
                             },
+                            {
+                                hostPath: crontabFilePath,
+                                containerPath:
+                                    CaptainConstants.goAccessCrontabPath,
+                                mode: 'ro',
+                            },
                         ],
                         CaptainConstants.captainNetworkName,
-                        [],
+                        [
+                            {
+                                key: 'LOG_RETENTION_DAYS',
+                                value: (
+                                    goAccessInfo.data.logRetentionDays ?? -1
+                                ).toString(),
+                            },
+                        ],
                         [],
                         ['apparmor:unconfined'],
                         undefined
@@ -722,8 +744,8 @@ class CaptainManager {
 
     generateGoAccessCrontab(goAccessInfo: GoAccessInfo): string {
         return [
-            '* * * * * /realtimeLog.sh',
-            '*/5 * * * * /processLogs.sh',
+            `${goAccessInfo.data.catchupFrequencyCron} /catchupLog.sh`,
+            `${goAccessInfo.data.rotationFrequencyCron} /processLogs.sh`,
         ].join('\n')
     }
 
