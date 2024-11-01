@@ -676,6 +676,18 @@ class CaptainManager {
         const self = this
         const dockerApi = this.dockerApi
         const enabled = goAccessInfo.isEnabled
+
+        // Validate cron schedules
+        if (
+            !Utils.validateCron(goAccessInfo.data.catchupFrequencyCron) ||
+            !Utils.validateCron(goAccessInfo.data.rotationFrequencyCron)
+        ) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                'Invalid cron schedule'
+            )
+        }
+
         const crontabFilePath = `${
             CaptainConstants.goaccessConfigPathBase
         }/crontab.txt`
@@ -698,8 +710,6 @@ class CaptainManager {
             })
             .then(function () {
                 if (enabled) {
-                    // const crontab = self.generateGoAccessCrontab(goAccessInfo);
-
                     return dockerApi.createStickyContainer(
                         CaptainConstants.goAccessContainerName,
                         CaptainConstants.configs.goAccessImageName,

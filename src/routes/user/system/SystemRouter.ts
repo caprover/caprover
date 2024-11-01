@@ -12,8 +12,8 @@ import VersionManager from '../../../user/system/VersionManager'
 import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 import Utils from '../../../utils/Utils'
-import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
 import ThemesRouter from './ThemesRouter'
+import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
 
 const router = express.Router()
 
@@ -308,8 +308,6 @@ router.get('/goaccess/', function (req, res, next) {
 
 router.post('/goaccess/', function (req, res, next) {
     const goAccessInfo = req.body.goAccessInfo
-    // goAccessInfo.netDataUrl = undefined // Frontend app returns this value, but we really don't wanna save this.
-    // // root address is subject to change.
 
     return Promise.resolve()
         .then(function () {
