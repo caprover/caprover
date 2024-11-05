@@ -394,14 +394,12 @@ router.get('/goaccess/:appName/files', async function (req, res, next) {
                 'GoAccess info retrieved'
             )
             baseApi.data = linkData.map((d) => {
-                const splitName = d.name.split('--')
-                const name =
-                    splitName.length > 3
-                        ? `${splitName[3].replace('.html', '')}`
-                        : d.name
+                const { domainName, fileName } = CaptainManager.get()
+                    .getLoadBalanceManager()
+                    .parseLogPath(d.name)
                 return {
-                    domainName: splitName[1],
-                    name,
+                    domainName,
+                    name: fileName,
                     lastModifiedTime: d.mtime,
                     url: `http://${
                         CaptainConstants.configs.captainSubDomain

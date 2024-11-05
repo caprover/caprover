@@ -407,6 +407,23 @@ class LoadBalancerManager {
         return `${CaptainConstants.nginxSharedLogsPath}/${appName}--${domainName}--access.log`
     }
 
+    // Parses out the app and domain name from the log path original constructed in getLogPath
+    // then updated when processing the logs into file names that have timestamps that look like
+    // appname--some-alias.localhost--access.log--2024-10-30T01:50.html
+    // or appname--speed4.captain.localhost--access.log--Current.html
+    parseLogPath(logPath: string): { domainName: string; fileName: string } {
+        const splitName = logPath.split('--')
+        const fileName =
+            splitName.length > 3
+                ? `${splitName[3].replace('.html', '')}`
+                : logPath
+
+        return {
+            domainName: splitName[1],
+            fileName,
+        }
+    }
+
     getInfo() {
         return new Promise<LoadBalancerInfo>(function (resolve, reject) {
             const url = `http://${CaptainConstants.nginxServiceName}/nginx_status`
