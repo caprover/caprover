@@ -250,6 +250,13 @@ class CaptainManager {
                 return self.diskCleanupManager.init()
             })
             .then(function () {
+                return self.dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                // Ensure GoAccess container restart
+                return self.updateGoAccessInfo(goAccessInfo)
+            })
+            .then(function () {
                 self.inited = true
 
                 self.performHealthCheck()
@@ -697,10 +704,12 @@ class CaptainManager {
                 return self.dataStore.setGoAccessInfo(goAccessInfo)
             })
             .then(function () {
-                return fs.outputFile(
-                    crontabFilePath,
-                    self.generateGoAccessCrontab(goAccessInfo)
-                )
+                const cronFile = [
+                    `${goAccessInfo.data.catchupFrequencyCron} /catchupLog.sh`,
+                    `${goAccessInfo.data.rotationFrequencyCron} /processLogs.sh`,
+                ].join('\n')
+
+                return fs.outputFile(crontabFilePath, cronFile)
             })
             .then(function () {
                 return dockerApi.ensureContainerStoppedAndRemoved(
@@ -750,13 +759,6 @@ class CaptainManager {
                 )
                 return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
-    }
-
-    generateGoAccessCrontab(goAccessInfo: GoAccessInfo): string {
-        return [
-            `${goAccessInfo.data.catchupFrequencyCron} /catchupLog.sh`,
-            `${goAccessInfo.data.rotationFrequencyCron} /processLogs.sh`,
-        ].join('\n')
     }
 
     getNodesInfo() {

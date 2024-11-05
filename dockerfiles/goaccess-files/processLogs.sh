@@ -1,4 +1,22 @@
+#!/bin/sh
+
 currentDateTime=$(date +"%Y-%m-%dT%H:%M")
+
+# This script does a few things to process the nginx logs into GoAccess reports
+# First it loops through all the non empty .log files in the shared volume
+# (there should only be one per app/domain combo)
+# For each one it:
+# - Creates a directory for all the app reports if it doesn't exist
+# - Copies the live log file into a temporary $rotateLog
+# - Empties the original log file
+# - Creates a new GoAccess report with the temp log file
+# - Then gzip's the temp log to archive it and so it won't be picked up by the loop
+# The reason for doing the copy then truncate is to avoid needing to send the
+# "kill -USR1 `cat /var/run/nginx.pid`" signal to NGINX to have it pick up a new log file
+# because this container doesn't have access to the NGINX of course.
+
+# After creating the reports, this also checks to see if there are any logs and reports older
+# than the days specified by the $LOG_RETENTION_DAYS environment variable and deletes them if so
 
 echo "Checking logs to process"
 for logFile in /var/log/nginx-shared/*.log; do

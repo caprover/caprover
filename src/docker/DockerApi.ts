@@ -815,17 +815,6 @@ class DockerApi {
         return self.dockerode.getService(serviceName).remove()
     }
 
-    getSharedVol(name: string) {
-        return this.dockerode.getVolume(name)
-    }
-
-    createSharedVol(name: string) {
-        return this.dockerode.createVolume({ Name: name }).catch((err) => {
-            Logger.d(err)
-            throw err
-        })
-    }
-
     deleteVols(vols: string[]) {
         const self = this
 

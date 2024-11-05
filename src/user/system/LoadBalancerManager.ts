@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DockerApi from '../../docker/DockerApi'
+import { IAllAppDefinitions } from '../../models/AppDefinition'
 import { IServerBlockDetails } from '../../models/IServerBlockDetails'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
@@ -280,12 +281,19 @@ class LoadBalancerManager {
     ) {
         const servers: IServerBlockDetails[] = []
         const self = this
+        let apps: IAllAppDefinitions
 
         return dataStore
             .getAppsDataStore()
             .getAppDefinitions()
-            .then(function (apps) {
-                const logAccess = dataStore.getGoAccessInfo().isEnabled
+            .then(function (loadedApps) {
+                apps = loadedApps
+            })
+            .then(function () {
+                return dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                const logAccess = goAccessInfo.isEnabled
 
                 Object.keys(apps).forEach(function (appName) {
                     const webApp = apps[appName]
@@ -455,7 +463,7 @@ class LoadBalancerManager {
         const registryDomain = `${
             CaptainConstants.registrySubDomain
         }.${dataStore.getRootDomain()}`
-        const logAccess = dataStore.getGoAccessInfo().isEnabled
+        let logAccess = false
 
         let hasRootSsl = false
 
@@ -467,6 +475,10 @@ class LoadBalancerManager {
 
         return Promise.resolve()
             .then(function () {
+                return dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                logAccess = goAccessInfo.isEnabled
                 return dataStore.getNginxConfig()
             })
             .then(function (nginxConfig) {

@@ -292,10 +292,11 @@ router.get('/goaccess/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    const goAccessInfo = dataStore.getGoAccessInfo()
-
     return Promise.resolve()
         .then(function () {
+            return dataStore.getGoAccessInfo()
+        })
+        .then(function (goAccessInfo) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info retrieved'
@@ -323,11 +324,11 @@ router.post('/goaccess/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
-router.get('/goaccess/:appName/files', function (req, res, next) {
+router.get('/goaccess/:appName/files', async function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    const goAccessInfo = dataStore.getGoAccessInfo()
+    const goAccessInfo = await dataStore.getGoAccessInfo()
 
     const appName = req.params.appName
 
