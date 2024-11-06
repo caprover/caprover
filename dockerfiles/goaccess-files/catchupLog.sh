@@ -17,6 +17,9 @@ for logFile in /var/log/nginx-shared/*.log; do
     appName=${filename%%--*}
     appPath="/var/log/nginx-shared/$appName"
 
+    # Make directory for all the reports to live in
+    mkdir -p $appPath
+
     report="$appPath/$filename--Current.html"
 
     echo "Processing catchup $report"

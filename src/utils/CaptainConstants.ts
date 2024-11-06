@@ -159,6 +159,8 @@ const data = {
 
     nginxSharedPathOnHost: CAPTAIN_DATA_DIRECTORY + '/nginx-shared',
 
+    nginxSharedLogsPathOnHost: CAPTAIN_DATA_DIRECTORY + '/shared-logs',
+
     debugSourceDirectory: '', // Only used in debug mode
 
     // ********************* Local Docker Constants  ************************
@@ -166,8 +168,6 @@ const data = {
     captainSaltSecretKey: 'captain-salt',
 
     nginxServiceName: 'captain-nginx',
-
-    nginxLogsVolumeName: 'caprover-logs',
 
     captainServiceName: 'captain-captain',
 

@@ -848,7 +848,8 @@ class LoadBalancerManager {
                             hostPath: CaptainConstants.nginxSharedPathOnHost,
                         },
                         {
-                            volumeName: CaptainConstants.nginxLogsVolumeName,
+                            hostPath:
+                                CaptainConstants.nginxSharedLogsPathOnHost,
                             containerPath: CaptainConstants.nginxSharedLogsPath,
                         },
                     ],

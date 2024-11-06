@@ -1,5 +1,6 @@
 import express = require('express')
-import request = require('request')
+import fs from 'fs/promises'
+import path from 'path'
 import validator from 'validator'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
@@ -352,65 +353,61 @@ router.get('/goaccess/:appName/files', async function (req, res, next) {
         return
     }
 
+    const directoryPath = path.join(
+        CaptainConstants.nginxSharedLogsPathOnHost,
+        appName
+    )
+
     return Promise.resolve()
         .then(function () {
             // Ensure a valid appName parameter
             return dataStore.getAppsDataStore().getAppDefinition(appName)
         })
         .then(function () {
-            // Request the autoindex json that has all the generated reports
-            const url = `http://${CaptainConstants.nginxServiceName}/goaccess/${appName}`
-
-            return new Promise<any[]>(function (resolve, reject) {
-                request(url, function (error, response, body) {
-                    if (error || !body) {
-                        Logger.e(`Error        ${error}`)
-                        reject(
-                            ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Request to list goaccess files Failed.'
-                            )
-                        )
-                        return
-                    }
-
-                    try {
-                        resolve(JSON.parse(body))
-                    } catch (e) {
-                        Logger.e(`Error parsing    ${e}`)
-                        reject(
-                            ApiStatusCodes.createError(
-                                ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                'Request to list goaccess files Failed.'
-                            )
-                        )
-                    }
+            return fs.readdir(directoryPath)
+        })
+        .then(function (files) {
+            return Promise.all(
+                files.map((file) => {
+                    return fs
+                        .stat(path.join(directoryPath, file))
+                        .then(function (fileStats) {
+                            return {
+                                name: file,
+                                time: fileStats.mtime,
+                            }
+                        })
                 })
-            })
+            )
         })
         .then(function (linkData) {
+            const baseUrl = `/user/system/goaccess/`
+
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
                 'GoAccess info retrieved'
             )
-            baseApi.data = linkData.map((d) => {
-                const { domainName, fileName } = CaptainManager.get()
-                    .getLoadBalanceManager()
-                    .parseLogPath(d.name)
-                return {
-                    domainName,
-                    name: fileName,
-                    lastModifiedTime: d.mtime,
-                    url: `http://${
-                        CaptainConstants.configs.captainSubDomain
-                    }.${dataStore.getRootDomain()}/goaccess/${appName}/${
-                        d.name
-                    }`,
-                }
-            })
+            baseApi.data = linkData
+                .sort((a, b) => b.time.getTime() - a.time.getTime())
+                .map((d) => {
+                    const { domainName, fileName } = CaptainManager.get()
+                        .getLoadBalanceManager()
+                        .parseLogPath(d.name)
+                    return {
+                        domainName,
+                        name: fileName,
+                        lastModifiedTime: d.time,
+                        url: baseUrl + `${appName}/files/${d.name}`,
+                    }
+                })
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/goaccess/:appName/files/:file', function (req, res, next) {
+    const path = `${req.params.appName}/${req.params.file}`
+    res.sendFile(path, { root: CaptainConstants.nginxSharedLogsPathOnHost })
 })
 
 router.get('/nginxconfig/', function (req, res, next) {

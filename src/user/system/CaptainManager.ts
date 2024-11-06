@@ -724,9 +724,8 @@ class CaptainManager {
                         CaptainConstants.configs.goAccessImageName,
                         [
                             {
-                                hostPath: CaptainConstants.nginxLogsVolumeName,
-                                volumeName:
-                                    CaptainConstants.nginxLogsVolumeName,
+                                hostPath:
+                                    CaptainConstants.nginxSharedLogsPathOnHost,
                                 containerPath:
                                     CaptainConstants.nginxSharedLogsPath,
                                 mode: 'rw',
