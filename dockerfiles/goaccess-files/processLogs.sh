@@ -27,6 +27,7 @@ for logFile in /var/log/nginx-shared/*.log; do
     filename=$(basename "$logFile")
     appName=${filename%%--*}
     appPath="/var/log/nginx-shared/$appName"
+    dbPath="$appPath/$filename-db"
 
     # Make directory for all the reports to live in
     mkdir -p $appPath
@@ -42,6 +43,9 @@ for logFile in /var/log/nginx-shared/*.log; do
       # Manually rotate the log files
       cp $logFile $rotatedLog
       truncate -s 0 $logFile
+
+      # Remove the GoAccess cache db files for the catchup processing now that the log is reset
+      rm -rf $dbPath
 
       goaccess $rotatedLog -a -o "$report" --log-format=COMBINED
 

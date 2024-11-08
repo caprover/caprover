@@ -404,7 +404,11 @@ class LoadBalancerManager {
     }
 
     getLogPath(appName: string, domainName: string) {
-        return `${CaptainConstants.nginxSharedLogsPath}/${appName}--${domainName}--access.log`
+        return `${CaptainConstants.nginxSharedLogsPath}/${this.getLogName(appName, domainName)}`
+    }
+
+    getLogName(appName: string, domainName: string) {
+        return `${appName}--${domainName}--access.log`
     }
 
     // Parses out the app and domain name from the log path original constructed in getLogPath

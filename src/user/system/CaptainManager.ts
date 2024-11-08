@@ -705,7 +705,6 @@ class CaptainManager {
             })
             .then(function () {
                 const cronFile = [
-                    `${goAccessInfo.data.catchupFrequencyCron} /catchupLog.sh`,
                     `${goAccessInfo.data.rotationFrequencyCron} /processLogs.sh`,
                 ].join('\n')
 

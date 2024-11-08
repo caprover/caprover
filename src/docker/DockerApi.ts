@@ -24,7 +24,6 @@ import EnvVars from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import Dockerode = require('dockerode')
-// @ts-ignore
 // @ts-expect-error "TODO"
 import dockerodeUtils = require('dockerode/lib/util')
 
@@ -65,6 +64,37 @@ export abstract class IDockerUpdateOrders {
     public static readonly START_FIRST = 'startFirst'
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
+
+export interface CreateContainerParams {
+    containerName?: string
+    imageName: string
+
+    /** Override command to run the container with */
+    command?: string[]
+
+    /** an array, hostPath & containerPath, mode */
+    volumes: IAppVolume[]
+    network: string
+
+    /**
+     *
+     * [
+     *    {
+     *        key: 'somekey'
+     *        value: 'some value'
+     *    }
+     * ]
+     */
+    arrayOfEnvKeyAndValue: IAppEnvVar[]
+    addedCapabilities?: string[]
+    addedSecOptions?: string[]
+    authObj?: DockerAuthObj
+    /** If true, have the container always restart,
+     * If false act as a one off job runner that cleans up after itself */
+    sticky: boolean
+    /** If set true, waits for the container to exit before returning */
+    wait?: boolean
+}
 
 class DockerApi {
     private dockerode: Docker
@@ -504,7 +534,7 @@ class DockerApi {
     }
 
     /**
-     * Creates a volume that restarts unless stopped
+     * Creates a container that restarts unless stopped
      * @param containerName
      * @param imageName
      * @param volumes     an array, hostPath & containerPath, mode
@@ -529,9 +559,40 @@ class DockerApi {
         addedSecOptions: string[],
         authObj: DockerAuthObj | undefined
     ) {
+        return this.createContainer({
+            containerName,
+            imageName,
+            volumes,
+            network,
+            arrayOfEnvKeyAndValue,
+            addedCapabilities,
+            addedSecOptions,
+            authObj,
+            sticky: true,
+        })
+    }
+
+    /**
+     * Creates a docker container
+     */
+    createContainer({
+        containerName,
+        imageName,
+        command,
+        volumes,
+        network,
+        arrayOfEnvKeyAndValue,
+        addedCapabilities,
+        addedSecOptions,
+        authObj,
+        sticky,
+        wait = false,
+    }: CreateContainerParams) {
         const self = this
 
-        Logger.d(`Creating Sticky Container: ${imageName}`)
+        Logger.d(
+            `Creating ${sticky ? 'Sticky' : 'Ephemeral'} Container: ${imageName}`
+        )
 
         const volumesMapped: string[] = []
         volumes = volumes || []
@@ -549,6 +610,8 @@ class DockerApi {
             envs.push(`${e.key}=${e.value}`)
         }
 
+        let container: Docker.Container | undefined = undefined
+
         return Promise.resolve()
             .then(function () {
                 return self.pullImage(imageName, authObj)
@@ -558,6 +621,7 @@ class DockerApi {
                     name: containerName,
                     Image: imageName,
                     Env: envs,
+                    Cmd: command,
                     HostConfig: {
                         Binds: volumesMapped,
                         CapAdd: addedCapabilities,
@@ -570,14 +634,26 @@ class DockerApi {
                                     CaptainConstants.configs.defaultMaxLogSize,
                             },
                         },
-                        RestartPolicy: {
-                            Name: 'always',
-                        },
+                        ...(sticky
+                            ? {
+                                  RestartPolicy: {
+                                      Name: 'always',
+                                  },
+                              }
+                            : {}),
+                        AutoRemove: !CaptainConstants.isDebug && !sticky,
                     },
                 })
             })
             .then(function (data) {
+                container = data
                 return data.start()
+            })
+            .then(function (startInfo) {
+                if (wait && container) {
+                    return container.wait()
+                }
+                return startInfo
             })
     }
 
