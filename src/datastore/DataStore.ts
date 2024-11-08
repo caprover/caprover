@@ -251,8 +251,6 @@ class DataStore {
         goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
         goAccessInfo.data.rotationFrequencyCron =
             goAccessInfo.data.rotationFrequencyCron ?? '0 0 1 * *' // monthly
-        goAccessInfo.data.catchupFrequencyCron =
-            goAccessInfo.data.catchupFrequencyCron ?? '*/10 * * * *' // every 10 minutes
         return Promise.resolve(goAccessInfo)
     }
 

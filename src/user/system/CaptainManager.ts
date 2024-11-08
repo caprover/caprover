@@ -685,10 +685,7 @@ class CaptainManager {
         const enabled = goAccessInfo.isEnabled
 
         // Validate cron schedules
-        if (
-            !Utils.validateCron(goAccessInfo.data.catchupFrequencyCron) ||
-            !Utils.validateCron(goAccessInfo.data.rotationFrequencyCron)
-        ) {
+        if (!Utils.validateCron(goAccessInfo.data.rotationFrequencyCron)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.ILLEGAL_PARAMETER,
                 'Invalid cron schedule'
