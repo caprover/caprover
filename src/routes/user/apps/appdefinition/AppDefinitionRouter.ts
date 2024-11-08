@@ -2,12 +2,12 @@ import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
+import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
 import { CaptainError } from '../../../../models/OtherTypes'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
-import { IAppDef, AppDeployTokenConfig } from '../../../../models/AppDefinition'
 
 const router = express.Router()
 
@@ -216,16 +216,17 @@ router.post('/register/', function (req, res, next) {
             appCreated = true
         })
         .then(function () {
-            const promiseToIgnore = serviceManager.scheduleDeployNewVersion(
-                appName,
-                {
+            const promiseToIgnore = serviceManager
+                .scheduleDeployNewVersion(appName, {
                     captainDefinitionContentSource: {
                         captainDefinitionContent:
                             DEFAULT_APP_CAPTAIN_DEFINITION,
                         gitHash: '',
                     },
-                }
-            )
+                })
+                .catch(function (error) {
+                    Logger.e(error)
+                })
 
             if (!isDetachedBuild) return promiseToIgnore
         })
