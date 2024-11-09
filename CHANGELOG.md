@@ -1,5 +1,9 @@
 ## [Next Version - available as `edge`]
 
+-   Added UDP port mapping for nginx to allow http/3
+
+## [1.13.2] - 2024-11-09
+
 -   Fixed crash on private registry without push auth [ca9831](https://github.com/caprover/caprover/commit/ca9831399e05de9144cfd1fb63c9f88790a4cad2)
 -   Fixed local timestamp issue [PR-169](https://github.com/caprover/caprover-frontend/pull/169)
 -   Fixed line wrap issue with Firefox [issue-2179](https://github.com/caprover/caprover/issues/2179)
