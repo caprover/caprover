@@ -113,7 +113,7 @@ router.get('/', function (req, res, next) {
     const dataStore =
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
-    dataStore
+    return dataStore
         .getProjectsDataStore()
         .getAllProjects()
         .then(function (projects) {

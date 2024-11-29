@@ -60,7 +60,7 @@ router.post('/:appName/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const appName = req.params.appName
 
-    dataStore
+    return dataStore
         .getAppsDataStore()
         .getAppDefinition(appName)
         .then(function (app) {
@@ -94,7 +94,7 @@ router.post(
             return
         }
 
-        Promise.resolve().then(function () {
+        return Promise.resolve().then(function () {
             const promiseToDeployNewVer =
                 serviceManager.scheduleDeployNewVersion(appName, {
                     uploadedTarPathSource: tarballSourceFilePath
