@@ -2,7 +2,7 @@
 
 -   TBD
 
-## [1.13.3] - 2024-11-09
+## [1.13.3] - 2024-12-01
 
 -   Critical security patches
 -   Added UDP port mapping for nginx to allow http/3
