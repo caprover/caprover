@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.13.2',
+    version: '1.13.3',
 
     defaultMaxLogSize: '512m',
 
@@ -41,7 +41,7 @@ const configs = {
 
     appPlaceholderImageName: 'caprover/caprover-placeholder-app:latest',
 
-    nginxImageName: 'nginx:1.24',
+    nginxImageName: 'nginx:1.27.2',
 
     defaultEmail: 'runner@caprover.com',
 

@@ -208,7 +208,8 @@ export default class BackupManager {
             .then(function () {
                 return fs.move(
                     CaptainConstants.restoreDirectoryPath + '/data',
-                    CaptainConstants.captainDataDirectory
+                    CaptainConstants.captainDataDirectory,
+                    { overwrite: true }
                 )
             })
             .then(function () {

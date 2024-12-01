@@ -1,18 +1,40 @@
 import jwt = require('jsonwebtoken')
-import { v4 as uuid } from 'uuid'
+import { randomBytes } from 'crypto'
 import ApiStatusCodes from '../api/ApiStatusCodes'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { UserJwt } from '../models/UserJwt'
 import CaptainConstants from '../utils/CaptainConstants'
 import EnvVar from '../utils/EnvVars'
 import Logger from '../utils/Logger'
 import bcrypt = require('bcryptjs')
-import { IHashMapGeneric } from '../models/ICacheGeneric'
 
-const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD || 'captain42'
+const captainDefaultPassword = EnvVar.DEFAULT_PASSWORD ?? 'captain42'
 
 const COOKIE_AUTH_SUFFIX = 'cookie-'
 const WEBHOOK_APP_PUSH_SUFFIX = '-webhook-app-push'
 const DOWNLOAD_TOKEN = '-download-token'
+
+function generateSecureRandomString(length: number): string {
+    if (length <= 0) {
+        throw new Error('Length must be a positive integer.')
+    }
+
+    const charset =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charsetLength = charset.length
+
+    // Generate random bytes
+    const randomValues = randomBytes(length)
+
+    // Map the random bytes to characters in the charset
+    let result = ''
+    for (let i = 0; i < length; i++) {
+        const randomIndex = randomValues[i] % charsetLength
+        result += charset[randomIndex]
+    }
+
+    return result
+}
 
 export interface OtpConfig {
     otpToken: string
@@ -30,14 +52,16 @@ class Authenticator {
     constructor(secret: string, namespace: string) {
         this.encryptionKey = secret + namespace // making encryption key unique per namespace!
         this.namespace = namespace
-        this.tokenVersion = CaptainConstants.isDebug ? 'test' : uuid()
+        this.tokenVersion = CaptainConstants.isDebug
+            ? 'test'
+            : generateSecureRandomString(64)
     }
 
     changepass(oldPass: string, newPass: string, savedHashedPassword: string) {
         const self = this
 
-        oldPass = oldPass || ''
-        newPass = newPass || ''
+        oldPass = oldPass ?? ''
+        newPass = newPass ?? ''
 
         return Promise.resolve()
             .then(function () {
@@ -58,7 +82,7 @@ class Authenticator {
                     )
                 }
 
-                self.tokenVersion = uuid()
+                self.tokenVersion = generateSecureRandomString(64)
 
                 const hashed = bcrypt.hashSync(
                     self.encryptionKey + newPass,
@@ -73,10 +97,14 @@ class Authenticator {
         const self = this
 
         return Promise.resolve().then(function () {
-            password = password || ''
+            password = `${password ?? ''}`
 
             if (!savedHashedPassword) {
                 return captainDefaultPassword === password
+            }
+
+            if (!self.encryptionKey) {
+                throw new Error('Encryption key is not set!')
             }
 
             return bcrypt.compareSync(
@@ -157,7 +185,7 @@ class Authenticator {
 
         return new Promise<UserJwt>(function (resolve, reject) {
             jwt.verify(
-                token,
+                `${token}`,
                 self.encryptionKey + (keySuffix ? keySuffix : ''),
                 function (err, rawDecoded: { data: UserJwt }) {
                     if (err) {
@@ -258,10 +286,10 @@ class Authenticator {
                 {
                     data: obj,
                 },
-                self.encryptionKey + (keySuffix ? keySuffix : ''),
+                self.encryptionKey + (keySuffix ?? ''),
                 expiresIn
                     ? {
-                          expiresIn: expiresIn,
+                          expiresIn: `${expiresIn || ''}`,
                       }
                     : undefined
             )
@@ -273,8 +301,8 @@ class Authenticator {
 
         return new Promise<any>(function (resolve, reject) {
             jwt.verify(
-                token,
-                self.encryptionKey + (keySuffix ? keySuffix : ''),
+                `${token}`,
+                self.encryptionKey + (keySuffix ?? ''),
                 function (err, rawDecoded: { data: any }) {
                     if (err) {
                         Logger.e(err)
@@ -311,7 +339,8 @@ class Authenticator {
 
     static setMainSalt(salt: string) {
         if (Authenticator.mainSalt) throw new Error('Salt is already set!!')
-        Authenticator.mainSalt = salt
+        if (!salt) throw new Error('Empty salt!!')
+        Authenticator.mainSalt = `${salt}`
     }
 
     static getAuthenticator(namespace: string): Authenticator {
@@ -320,6 +349,13 @@ class Authenticator {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
                 'Empty namespace'
+            )
+        }
+
+        if (namespace !== CaptainConstants.rootNameSpace) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                'Invalid namespace'
             )
         }
 

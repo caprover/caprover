@@ -20,7 +20,7 @@ const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
-    Promise.resolve()
+    return Promise.resolve()
         .then(function () {
             const mostRecentLimit = Number(req.query.mostRecentLimit || '0')
             return CaptainManager.get()
@@ -44,7 +44,7 @@ router.get('/unusedImages', function (req, res, next) {
 router.post('/deleteImages', function (req, res, next) {
     const imageIds = req.body.imageIds || []
 
-    Promise.resolve()
+    return Promise.resolve()
         .then(function () {
             return CaptainManager.get()
                 .getDiskCleanupManager()
@@ -68,7 +68,7 @@ router.get('/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
     const appsArray: IAppDef[] = []
 
-    dataStore
+    return dataStore
         .getAppsDataStore()
         .getAppDefinitions()
         .then(function (apps) {
@@ -268,7 +268,7 @@ router.post('/delete/', function (req, res, next) {
 
     Logger.d(`Deleting app started: ${appName}`)
 
-    Promise.resolve()
+    return Promise.resolve()
         .then(function () {
             if (appNames.length > 0 && appName) {
                 throw ApiStatusCodes.createError(
@@ -316,7 +316,7 @@ router.post('/rename/', function (req, res, next) {
 
     Logger.d(`Renaming app started: From ${oldAppName} To ${newAppName} `)
 
-    Promise.resolve()
+    return Promise.resolve()
         .then(function () {
             return serviceManager.renameApp(oldAppName, newAppName)
         })
@@ -430,7 +430,7 @@ router.post('/update/', function (req, res, next) {
 
     Logger.d(`Updating app started: ${appName}`)
 
-    serviceManager
+    return serviceManager
         .updateAppDefinition(
             appName,
             projectId,

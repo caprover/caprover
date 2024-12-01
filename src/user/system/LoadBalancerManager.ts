@@ -624,6 +624,12 @@ class LoadBalancerManager {
                             hostPort:
                                 CaptainConstants.configs.nginxPortNumber443,
                         },
+                        {
+                            protocol: 'udp',
+                            publishMode: 'host',
+                            containerPort: 443,
+                            hostPort: 443,
+                        },
                     ],
                     nodeId,
                     undefined,
