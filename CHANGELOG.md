@@ -1,5 +1,10 @@
 ## [Next Version - available as `edge`]
 
+-   TBD
+
+## [1.13.3] - 2024-11-09
+
+-   Critical security patches
 -   Added UDP port mapping for nginx to allow http/3
 
 ## [1.13.2] - 2024-11-09
