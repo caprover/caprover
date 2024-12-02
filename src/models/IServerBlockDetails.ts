@@ -14,4 +14,5 @@ export interface IServerBlockDetails {
     customErrorPagesDirectory: string
     staticWebRoot: string
     redirectToPath?: string
+    logAccessPath?: string
 }

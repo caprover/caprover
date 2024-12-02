@@ -41,6 +41,11 @@ server {
         ssl_certificate_key <%-s.keyPath%>;
     <%
     }
+    if (s.logAccessPath) {
+    %>
+        access_log <%-s.logAccessPath%>;
+    <%
+    }
     %>
 
         client_max_body_size 500m;

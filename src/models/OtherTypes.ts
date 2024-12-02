@@ -5,11 +5,6 @@ export type CaptainError = {
     apiMessage: string
 }
 
-export abstract class VolumesTypes {
-    public static readonly BIND = 'bind'
-    public static readonly VOLUME = 'volume'
-}
-
 export type AnyError = any
 
 export type PreDeployFunction = (

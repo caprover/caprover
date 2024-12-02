@@ -1,3 +1,4 @@
+import { CronJob } from 'cron'
 import * as crypto from 'crypto'
 import { remove } from 'fs-extra'
 import * as yaml from 'yaml'
@@ -161,5 +162,22 @@ export default class Utils {
         ) {
             throw 'Domain name is not accepted. Custom domain cannot be subdomain of root domain.'
         }
+    }
+
+    static validateCron(schedule: string) {
+        try {
+            const testJob = new CronJob(
+                schedule, // cronTime
+                function () {}, // onTick
+                null, // onComplete
+                false, // start
+                'UTC' // timezone
+            )
+            testJob.stop()
+        } catch (e) {
+            return false
+        }
+
+        return true
     }
 }

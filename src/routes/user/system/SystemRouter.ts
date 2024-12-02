@@ -1,18 +1,21 @@
 import express = require('express')
+import fs from 'fs/promises'
+import path from 'path'
 import validator from 'validator'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import DockerApi from '../../../docker/DockerApi'
 import DockerUtils from '../../../docker/DockerUtils'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import { IAppDef } from '../../../models/AppDefinition'
 import { AutomatedCleanupConfigsCleaner } from '../../../models/AutomatedCleanupConfigs'
 import CaptainManager from '../../../user/system/CaptainManager'
 import VersionManager from '../../../user/system/VersionManager'
 import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 import Utils from '../../../utils/Utils'
-import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
 import ThemesRouter from './ThemesRouter'
+import SystemRouteSelfHostRegistry from './selfhostregistry/SystemRouteSelfHostRegistry'
 
 const router = express.Router()
 
@@ -285,6 +288,200 @@ router.post('/netdata/', function (req, res, next) {
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/goaccess/', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+
+    return Promise.resolve()
+        .then(function () {
+            return dataStore.getGoAccessInfo()
+        })
+        .then(function (goAccessInfo) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info retrieved'
+            )
+            baseApi.data = goAccessInfo
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.post('/goaccess/', function (req, res, next) {
+    const goAccessInfo = req.body.goAccessInfo
+
+    return Promise.resolve()
+        .then(function () {
+            return CaptainManager.get().updateGoAccessInfo(goAccessInfo)
+        })
+        .then(function () {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info is updated'
+            )
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/goaccess/:appName/files', async function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+
+    const goAccessInfo = await dataStore.getGoAccessInfo()
+    const loadBalanceManager = CaptainManager.get().getLoadBalanceManager()
+
+    const appName = req.params.appName
+
+    if (!appName) {
+        const baseApi = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'Invalid appName'
+        )
+        baseApi.data = []
+        res.send(baseApi)
+        return
+    }
+
+    if (!goAccessInfo.isEnabled) {
+        const baseApi = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'GoAccess not enabled'
+        )
+        baseApi.data = []
+        res.send(baseApi)
+        return
+    }
+
+    const directoryPath = path.join(
+        CaptainConstants.nginxSharedLogsPathOnHost,
+        appName
+    )
+
+    let appDefinition: IAppDef | undefined = undefined
+
+    return Promise.resolve()
+        .then(function () {
+            // Ensure a valid appName parameter
+            return dataStore.getAppsDataStore().getAppDefinition(appName)
+        })
+        .then(function (data) {
+            appDefinition = data
+            return fs.readdir(directoryPath)
+        })
+        .then(function (files) {
+            return Promise.all(
+                files
+                    // Make sure to only return the generated reports and not folders or the live report
+                    // That will be added back later
+                    .filter(
+                        (f) => f.endsWith('.html') && !f.endsWith('Live.html')
+                    )
+                    .map((file) => {
+                        return fs
+                            .stat(path.join(directoryPath, file))
+                            .then(function (fileStats) {
+                                return {
+                                    name: file,
+                                    time: fileStats.mtime,
+                                }
+                            })
+                    })
+            )
+        })
+        .then(function (linkData) {
+            const baseUrl = `/user/system/goaccess/`
+
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess info retrieved'
+            )
+            const linkList = linkData.map((d) => {
+                const { domainName, fileName } =
+                    loadBalanceManager.parseLogPath(d.name)
+                return {
+                    domainName,
+                    name: fileName,
+                    lastModifiedTime: d.time,
+                    url: baseUrl + `${appName}/files/${d.name}`,
+                }
+            })
+
+            // Add in the live report for all sites even if it might not exist yet since they're dynamic
+            const allDomains = [
+                `${appName}.${dataStore.getRootDomain()}`,
+                ...appDefinition!.customDomain.map((d) => d.publicDomain),
+            ]
+            for (const domain of allDomains) {
+                const name =
+                    loadBalanceManager.getLogName(appName, domain) +
+                    '--Live.html'
+                linkList.push({
+                    domainName: domain,
+                    name,
+                    lastModifiedTime: new Date(),
+                    url: baseUrl + `${appName}/files/${name}`,
+                })
+            }
+
+            linkList.sort(
+                (a, b) =>
+                    b.lastModifiedTime.getTime() - a.lastModifiedTime.getTime()
+            )
+
+            baseApi.data = linkList
+
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/goaccess/:appName/files/:file', async function (req, res, next) {
+    const { appName, file } = req.params
+    const { domainName, fileName } = CaptainManager.get()
+        .getLoadBalanceManager()
+        .parseLogPath(file)
+    if (fileName.includes('Live')) {
+        // Dynamically update the live reports by running the catchup script for the particular domain
+        await DockerApi.get().createContainer({
+            imageName: CaptainConstants.configs.goAccessImageName,
+            command: ['./catchupLog.sh'],
+            volumes: [
+                {
+                    hostPath: CaptainConstants.nginxSharedLogsPathOnHost,
+                    containerPath: CaptainConstants.nginxSharedLogsPath,
+                    mode: 'rw',
+                },
+            ],
+            network: CaptainConstants.captainNetworkName,
+            arrayOfEnvKeyAndValue: [
+                {
+                    key: 'FILE_PREFIX',
+                    value: `${appName}--${domainName}`,
+                },
+            ],
+            sticky: false,
+            wait: true,
+        })
+    }
+
+    const path = `${appName}/${file}`
+    res.sendFile(
+        path,
+        { root: CaptainConstants.nginxSharedLogsPathOnHost },
+        function (error) {
+            if (error !== undefined) {
+                Logger.e(error, 'Error getting GoAccess report ' + path)
+                const baseApi = new BaseApi(
+                    ApiStatusCodes.NOT_FOUND,
+                    'Report not found'
+                )
+                res.send(baseApi)
+            }
+        }
+    )
 })
 
 router.get('/nginxconfig/', function (req, res, next) {

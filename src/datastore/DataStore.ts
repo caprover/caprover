@@ -8,6 +8,8 @@ import {
     IAutomatedCleanupConfigs,
 } from '../models/AutomatedCleanupConfigs'
 import CapRoverTheme from '../models/CapRoverTheme'
+import { GoAccessInfo } from '../models/GoAccessInfo'
+import { NetDataInfo } from '../models/NetDataInfo'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import Utils from '../utils/Utils'
@@ -15,7 +17,6 @@ import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
-import { NetDataInfo } from '../models/NetDataInfo'
 
 // keys:
 const NAMESPACE = 'namespace'
@@ -26,6 +27,7 @@ const FORCE_ROOT_SSL = 'forceRootSsl'
 const HAS_REGISTRY_SSL = 'hasRegistrySsl'
 const EMAIL_ADDRESS = 'emailAddress'
 const NET_DATA_INFO = 'netDataInfo'
+const GOACCESS_INFO = 'goAccessInfo'
 const NGINX_BASE_CONFIG = 'nginxBaseConfig'
 const NGINX_CAPTAIN_CONFIG = 'nginxCaptainConfig'
 const CUSTOM_ONE_CLICK_APP_URLS = 'oneClickAppUrls'
@@ -239,6 +241,23 @@ class DataStore {
         const self = this
         return Promise.resolve().then(function () {
             return self.data.set(NET_DATA_INFO, netDataInfo)
+        })
+    }
+
+    getGoAccessInfo() {
+        const self = this
+        const goAccessInfo = (self.data.get(GOACCESS_INFO) ||
+            {}) as GoAccessInfo
+        goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
+        goAccessInfo.data.rotationFrequencyCron =
+            goAccessInfo.data.rotationFrequencyCron ?? '0 0 1 * *' // monthly
+        return Promise.resolve(goAccessInfo)
+    }
+
+    setGoAccessInfo(goAccessInfo: GoAccessInfo) {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.data.set(GOACCESS_INFO, goAccessInfo)
         })
     }
 

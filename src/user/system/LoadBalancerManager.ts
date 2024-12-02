@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DockerApi from '../../docker/DockerApi'
+import { IAllAppDefinitions } from '../../models/AppDefinition'
 import { IServerBlockDetails } from '../../models/IServerBlockDetails'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
@@ -279,11 +280,21 @@ class LoadBalancerManager {
         rootDomain: string
     ) {
         const servers: IServerBlockDetails[] = []
+        const self = this
+        let apps: IAllAppDefinitions
 
         return dataStore
             .getAppsDataStore()
             .getAppDefinitions()
-            .then(function (apps) {
+            .then(function (loadedApps) {
+                apps = loadedApps
+            })
+            .then(function () {
+                return dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                const logAccess = goAccessInfo.isEnabled
+
                 Object.keys(apps).forEach(function (appName) {
                     const webApp = apps[appName]
                     const httpBasicAuth =
@@ -315,6 +326,12 @@ class LoadBalancerManager {
                     serverWithSubDomain.nginxConfigTemplate =
                         nginxConfigTemplate
                     serverWithSubDomain.httpBasicAuth = httpBasicAuth
+                    serverWithSubDomain.logAccessPath = logAccess
+                        ? self.getLogPath(
+                              appName,
+                              serverWithSubDomain.publicDomain
+                          )
+                        : undefined
 
                     if (
                         webApp.redirectDomain &&
@@ -346,6 +363,9 @@ class LoadBalancerManager {
                                 staticWebRoot: '',
                                 customErrorPagesDirectory: '',
                                 httpBasicAuth: httpBasicAuth,
+                                logAccessPath: logAccess
+                                    ? self.getLogPath(appName, d.publicDomain)
+                                    : undefined,
                             }
                             if (
                                 webApp.redirectDomain &&
@@ -381,6 +401,31 @@ class LoadBalancerManager {
             CaptainConstants.letsEncryptEtcPathOnNginx +
             self.certbotManager.getKeyRelativePathForDomain(domainName)
         )
+    }
+
+    getLogPath(appName: string, domainName: string) {
+        return `${CaptainConstants.nginxSharedLogsPath}/${this.getLogName(appName, domainName)}`
+    }
+
+    getLogName(appName: string, domainName: string) {
+        return `${appName}--${domainName}--access.log`
+    }
+
+    // Parses out the app and domain name from the log path original constructed in getLogPath
+    // then updated when processing the logs into file names that have timestamps that look like
+    // appname--some-alias.localhost--access.log--2024-10-30T01:50.html
+    // or appname--speed4.captain.localhost--access.log--Current.html
+    parseLogPath(logPath: string): { domainName: string; fileName: string } {
+        const splitName = logPath.split('--')
+        const fileName =
+            splitName.length > 3
+                ? `${splitName[3].replace('.html', '')}`
+                : logPath
+
+        return {
+            domainName: splitName[1],
+            fileName,
+        }
     }
 
     getInfo() {
@@ -439,6 +484,7 @@ class LoadBalancerManager {
         const registryDomain = `${
             CaptainConstants.registrySubDomain
         }.${dataStore.getRootDomain()}`
+        let logAccess = false
 
         let hasRootSsl = false
 
@@ -450,6 +496,10 @@ class LoadBalancerManager {
 
         return Promise.resolve()
             .then(function () {
+                return dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                logAccess = goAccessInfo.isEnabled
                 return dataStore.getNginxConfig()
             })
             .then(function (nginxConfig) {
@@ -490,6 +540,9 @@ class LoadBalancerManager {
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDomainSpecificHtmlDir
                         }/${captainDomain}`,
+                        logAccessPath: logAccess
+                            ? CaptainConstants.nginxSharedLogsPath
+                            : undefined,
                     },
                     registry: {
                         crtPath: self.getSslCertPath(registryDomain),
@@ -803,6 +856,11 @@ class LoadBalancerManager {
                             containerPath:
                                 CaptainConstants.nginxSharedPathOnNginx,
                             hostPath: CaptainConstants.nginxSharedPathOnHost,
+                        },
+                        {
+                            hostPath:
+                                CaptainConstants.nginxSharedLogsPathOnHost,
+                            containerPath: CaptainConstants.nginxSharedLogsPath,
                         },
                     ],
                     [CaptainConstants.captainNetworkName],
