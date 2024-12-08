@@ -10,6 +10,7 @@ import { IServerBlockDetails } from '../../models/IServerBlockDetails'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
 import CaptainConstants from '../../utils/CaptainConstants'
+import EnvVars from '../../utils/EnvVars'
 import Logger from '../../utils/Logger'
 import CertbotManager from './CertbotManager'
 import fs = require('fs-extra')
@@ -385,7 +386,7 @@ class LoadBalancerManager {
 
     getInfo() {
         return new Promise<LoadBalancerInfo>(function (resolve, reject) {
-            const url = `http://${CaptainConstants.nginxServiceName}/nginx_status`
+            const url = `http://${CaptainConstants.nginxServiceName}:${EnvVars.CAPTAIN_CONTAINER_HTTP_PORT}/nginx_status`
 
             request(url, function (error, response, body) {
                 if (error || !body) {
@@ -482,7 +483,11 @@ class LoadBalancerManager {
                         serviceName: CaptainConstants.captainServiceName,
                         domain: captainDomain,
                         serviceExposedPort:
-                            CaptainConstants.captainServiceExposedPort,
+                            EnvVars.CAPTAIN_CONTAINER_ADMIN_PORT,
+                        containerHttpsPort:
+                            EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
+                        containerHttpPort:
+                            EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
@@ -613,22 +618,30 @@ class LoadBalancerManager {
                         {
                             protocol: 'tcp',
                             publishMode: 'host',
-                            containerPort: 80,
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
                             hostPort:
                                 CaptainConstants.configs.nginxPortNumber80,
                         },
                         {
                             protocol: 'tcp',
                             publishMode: 'host',
-                            containerPort: 443,
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
                             hostPort:
                                 CaptainConstants.configs.nginxPortNumber443,
                         },
                         {
                             protocol: 'udp',
                             publishMode: 'host',
-                            containerPort: 443,
-                            hostPort: 443,
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
+                        },
+                        {
+                            protocol: 'udp',
+                            publishMode: 'host',
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber80,
                         },
                     ],
                     nodeId,
@@ -740,6 +753,7 @@ class LoadBalancerManager {
                         0
                     )
                 } else {
+                    Logger.d('Captain Nginx is NOT running.. ')
                     return createNginxServiceOnNode(myNodeId).then(function () {
                         return myNodeId
                     })
