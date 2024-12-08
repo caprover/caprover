@@ -15,8 +15,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
     CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
-    publishedNameOnDockerHub:
-        EnvVars.CAPROVER_IMAGE ?? (EnvVars.CAPTAIN_IS_DEBUG ? 'captain-debug' : 'caprover/caprover'),
+    publishedNameOnDockerHub: 'caprover/caprover',
 
     version: '1.13.3',
 
@@ -50,7 +49,7 @@ const configs = {
 
     overlayNetworkOverride: {},
 
-    useExistingSwarm: EnvVars.USE_EXISTING_SWARM,
+    useExistingSwarm: false,
 
     proApiDomains: ['https://pro.caprover.com'],
 
