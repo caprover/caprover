@@ -3,10 +3,10 @@
     server {
 
         # Catch all HTTP
-        listen       80;
+        listen       <%-captain.containerHttpPort%>;
 
         # Catch all HTTPS
-        listen              443 ssl;
+        listen              <%-captain.containerHttpsPort%> ssl;
         ssl_certificate     <%-fake.crtPath%>;
         ssl_certificate_key <%-fake.keyPath%>;
 
@@ -39,7 +39,7 @@
 # Captain dashboard at captain.captainroot.domain.com
     server {
 
-	listen       80;
+	listen       <%-captain.containerHttpPort%>;
 	client_max_body_size 300m;
 
 	gzip on;
@@ -72,7 +72,7 @@
     <%
         if (captain.hasRootSsl) {
     %>
-        listen              443 ssl;
+        listen              <%-captain.containerHttpsPort%> ssl;
         ssl_certificate     <%-captain.crtPath%>;
         ssl_certificate_key <%-captain.keyPath%>;
 
@@ -127,13 +127,13 @@
 # But the Registry engine runs on port 996
     server {
 
-        listen       80;
+        listen       <%-captain.containerHttpPort%>;
         client_max_body_size 500m;
 
     <%
         if (registry.hasRootSsl) {
     %>
-        listen              443 ssl;
+        listen              <%-captain.containerHttpsPort%> ssl;
         ssl_certificate     <%-registry.crtPath%>;
         ssl_certificate_key <%-registry.keyPath%>;
     <%
