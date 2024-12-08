@@ -15,7 +15,8 @@ const CONSTANT_FILE_OVERRIDE_USER =
     CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
-    publishedNameOnDockerHub: 'caprover/caprover',
+    publishedNameOnDockerHub:
+        EnvVars.CAPROVER_IMAGE ?? (EnvVars.CAPTAIN_IS_DEBUG ? 'captain-debug' : 'caprover/caprover'),
 
     version: '1.13.3',
 
@@ -51,7 +52,7 @@ const configs = {
 
     overlayNetworkOverride: {},
 
-    useExistingSwarm: false,
+    useExistingSwarm: EnvVars.USE_EXISTING_SWARM,
 
     proApiDomains: ['https://pro.caprover.com'],
 
@@ -64,9 +65,12 @@ const configs = {
     // this is added in 1.13 just as a safety - remove this after 1.14
     disableEncryptedCheck: false,
 
-    nginxPortNumber80: 80,
-
-    nginxPortNumber443: 443,
+    // The port can be overridden via env variable CAPTAIN_HOST_HTTP_PORT
+    nginxPortNumber80: EnvVars.CAPTAIN_HOST_HTTP_PORT,
+    // The port can be overridden via env variable CAPTAIN_HOST_HTTPS_PORT
+    nginxPortNumber443: EnvVars.CAPTAIN_HOST_HTTPS_PORT,
+    // The port can be overridden via env variable CAPTAIN_HOST_ADMIN_PORT
+    adminPortNumber3000: EnvVars.CAPTAIN_HOST_ADMIN_PORT,
 }
 
 export interface CertbotCertCommandRule {
@@ -89,7 +93,7 @@ const data = {
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
-    captainServiceExposedPort: 3000,
+    captainServiceExposedPort: configs.adminPortNumber3000,
 
     rootNameSpace: 'captain',
 
@@ -204,7 +208,7 @@ const data = {
     // *********************     ETC       ************************
 
     disableFirewallCommand:
-        'ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
+    'ufw allow ' + configs.nginxPortNumber80 + ',' + configs.nginxPortNumber443 + ',' + configs.adminPortNumber3000 + ',996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
 
     gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }

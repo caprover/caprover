@@ -30,7 +30,7 @@ function startServer() {
      * Get port from environment and store in Express.
      */
 
-    const port = normalizePort(process.env.PORT || '3000')
+    const port = EnvVars.CAPTAIN_CONTAINER_ADMIN_PORT
     app.set('port', port)
 
     /**
@@ -47,25 +47,6 @@ function startServer() {
     server.on('error', onError)
     server.on('listening', onListening)
 
-    /**
-     * Normalize a port into a number, string, or false.
-     */
-
-    function normalizePort(val: string) {
-        const port = parseInt(val, 10)
-
-        if (isNaN(port)) {
-            // named pipe
-            return val
-        }
-
-        if (port >= 0) {
-            // port number
-            return port
-        }
-
-        return false
-    }
 
     /**
      * Event listener for HTTP server "error" event.
