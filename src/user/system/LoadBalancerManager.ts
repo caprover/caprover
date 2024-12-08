@@ -16,7 +16,6 @@ import Logger from '../../utils/Logger'
 import CertbotManager from './CertbotManager'
 import fs = require('fs-extra')
 import request = require('request')
-import { IAppPort } from '../../models/AppDefinition'
 const exec = util.promisify(chileProcess.exec)
 
 const defaultPageTemplate = fs
@@ -99,7 +98,8 @@ class LoadBalancerManager {
         self.reloadInProcess = true
 
         // This will resolve to something like: /captain/nginx/conf.d/captain
-        const configFilePathBase = `${CaptainConstants.perAppNginxConfigPathBase
+        const configFilePathBase = `${
+            CaptainConstants.perAppNginxConfigPathBase
         }/${self.dataStore.getNameSpace()}`
 
         const FUTURE = configFilePathBase + '.fut'
@@ -126,7 +126,8 @@ class LoadBalancerManager {
                             s.keyPath = self.getSslKeyPath(s.publicDomain)
                         }
 
-                        s.staticWebRoot = `${CaptainConstants.nginxStaticRootDir +
+                        s.staticWebRoot = `${
+                            CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDomainSpecificHtmlDir
                         }/${s.publicDomain}`
 
@@ -478,9 +479,11 @@ class LoadBalancerManager {
         const self = this
         const dataStore = self.dataStore
 
-        const captainDomain = `${CaptainConstants.configs.captainSubDomain
+        const captainDomain = `${
+            CaptainConstants.configs.captainSubDomain
         }.${dataStore.getRootDomain()}`
-        const registryDomain = `${CaptainConstants.registrySubDomain
+        const registryDomain = `${
+            CaptainConstants.registrySubDomain
         }.${dataStore.getRootDomain()}`
         let logAccess = false
 
@@ -531,8 +534,6 @@ class LoadBalancerManager {
                         domain: captainDomain,
                         serviceExposedPort:
                             EnvVars.CAPTAIN_CONTAINER_ADMIN_PORT,
-                        //proposed name for serviceExposedPort: containerAdminPort:
-                        //    EnvVars.CAPTAIN_CONTAINER_ADMIN_PORT,
                         containerHttpsPort:
                             EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
                         containerHttpPort:
@@ -661,38 +662,41 @@ class LoadBalancerManager {
             Logger.d(
                 'No Captain Nginx service is running. Creating one on captain node...'
             )
-            const portsToMap:IAppPort[] = [
-                        {
-                            protocol: 'tcp',
-                            publishMode: 'host',
-                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
-                            hostPort: CaptainConstants.configs.nginxPortNumber80,
-                        },
-                        {
-                            protocol: 'udp',
-                            publishMode: 'host',
-                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
-                            hostPort: CaptainConstants.configs.nginxPortNumber80,
-                        },
-                        {
-                            protocol: 'tcp',
-                            publishMode: 'host',
-                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
-                            hostPort: CaptainConstants.configs.nginxPortNumber443,
-                        },
-                        {
-                            protocol: 'udp',
-                            publishMode: 'host',
-                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
-                            hostPort: CaptainConstants.configs.nginxPortNumber443,
-                        },
-            ]
-            Logger.d('Creating Captain Nginx service with ports' +portsToMap)
+
             return dockerApi
                 .createServiceOnNodeId(
                     CaptainConstants.configs.nginxImageName,
                     CaptainConstants.nginxServiceName,
-                    portsToMap,
+                    [
+                        {
+                            protocol: 'tcp',
+                            publishMode: 'host',
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber80,
+                        },
+                        {
+                            protocol: 'tcp',
+                            publishMode: 'host',
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
+                        },
+                        {
+                            protocol: 'udp',
+                            publishMode: 'host',
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTPS_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
+                        },
+                        {
+                            protocol: 'udp',
+                            publishMode: 'host',
+                            containerPort: EnvVars.CAPTAIN_CONTAINER_HTTP_PORT,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber80,
+                        },
+                    ],
                     nodeId,
                     undefined,
                     undefined,
