@@ -18,7 +18,6 @@ import ThemePublicRouter from './routes/public/ThemePublicRouter'
 import UserRouter from './routes/user/UserRouter'
 import CaptainManager from './user/system/CaptainManager'
 import CaptainConstants from './utils/CaptainConstants'
-import EnvVars from './utils/EnvVars'
 import Logger from './utils/Logger'
 import Utils from './utils/Utils'
 
@@ -85,7 +84,7 @@ app.use(function (req, res, next) {
             req.secure || req.get('X-Forwarded-Proto') === 'https'
 
         if (!isRequestSsl) {
-            const newUrl = `https://${req.hostname}:${EnvVars.CAPTAIN_HOST_HTTPS_PORT}${req.originalUrl}`
+            const newUrl = `https://${req.hostname}:${CaptainConstants.configs.nginxPortNumber80}${req.originalUrl}`
             res.redirect(302, newUrl)
             return
         }

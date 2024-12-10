@@ -30,7 +30,7 @@ function startServer() {
      * Get port from environment and store in Express.
      */
 
-    const port = EnvVars.CAPTAIN_CONTAINER_ADMIN_PORT
+    const port = 3000
     app.set('port', port)
 
     /**
