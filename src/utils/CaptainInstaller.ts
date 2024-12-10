@@ -280,13 +280,13 @@ export function install() {
             return startServerOnPort_80_443_3000()
         })
         .then(function () {
-            return checkPortOrThrow(myIp4, 80)
+      return checkPortOrThrow(myIp4, CaptainConstants.configs.nginxPortNumber80 as any)
         })
         .then(function () {
-            return checkPortOrThrow(myIp4, 443)
+      return checkPortOrThrow(myIp4, CaptainConstants.configs.nginxPortNumber443 as any)
         })
         .then(function () {
-            return checkPortOrThrow(myIp4, 3000)
+      return checkPortOrThrow(myIp4, CaptainConstants.configs.adminPortNumber3000 as any)
         })
         .then(function () {
             const imageName = CaptainConstants.configs.nginxImageName
@@ -301,7 +301,10 @@ export function install() {
         .then(function () {
             const imageName = CaptainConstants.configs.certbotImageName
             console.log(`Pulling: ${imageName}`)
-            return DockerApi.get().pullImage(imageName, undefined)
+            return DockerApi.get().pullImage(imageName, undefined).catch(function (onrejected) {
+                console.log(`Continnuing failed pull, maybe image already exists: ${imageName}.`, onrejected)
+                return Promise.resolve()
+            })
         })
         .then(function () {
             return backupManger.checkAndPrepareRestoration()
@@ -331,6 +334,18 @@ export function install() {
             env.push({
                 key: EnvVar.keys.IS_CAPTAIN_INSTANCE,
                 value: '1',
+            })
+            env.push({
+              key: EnvVar.keys.CAPTAIN_HOST_ADMIN_PORT,
+              value: CaptainConstants.configs.adminPortNumber3000 + '',
+            })
+            env.push({
+              key: EnvVar.keys.CAPTAIN_HOST_HTTP_PORT,
+              value: CaptainConstants.configs.nginxPortNumber80 + '',
+            })
+            env.push({
+              key: EnvVar.keys.CAPTAIN_HOST_HTTPS_PORT,
+              value: CaptainConstants.configs.nginxPortNumber443 + '',
             })
 
             if (EnvVar.DEFAULT_PASSWORD) {
@@ -386,8 +401,8 @@ export function install() {
             ports.push({
                 protocol: 'tcp',
                 publishMode: 'host',
-                containerPort: CaptainConstants.captainServiceExposedPort,
-                hostPort: CaptainConstants.captainServiceExposedPort,
+                containerPort: 3000,
+                hostPort: CaptainConstants.configs.adminPortNumber3000,
             })
 
             return DockerApi.get().createServiceOnNodeId(
