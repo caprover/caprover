@@ -6,7 +6,6 @@ import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
 import { CaptainError } from '../../../../models/OtherTypes'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
-import EnvVars from '../../../../utils/EnvVars'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
@@ -354,7 +353,7 @@ router.post('/update/', function (req, res, next) {
     const redirectDomain = req.body.redirectDomain || ''
     const preDeployFunction = req.body.preDeployFunction || ''
     const serviceUpdateOverride = req.body.serviceUpdateOverride || ''
-    const containerHttpPort = Number(req.body.containerHttpPort) || EnvVars.CAPTAIN_CONTAINER_HTTP_PORT
+    const containerHttpPort = Number(req.body.containerHttpPort) || 80
     const httpAuth = req.body.httpAuth
     let appDeployTokenConfig = req.body.appDeployTokenConfig as
         | AppDeployTokenConfig

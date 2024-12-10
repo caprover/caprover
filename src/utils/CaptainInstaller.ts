@@ -83,7 +83,7 @@ function startServerOnPort_80_443_3000() {
             })
             res.write(FIREWALL_PASSED)
             res.end()
-    }).listen(EnvVar.CAPTAIN_CONTAINER_HTTP_PORT)
+        }).listen(80)
 
         http.createServer(function (req, res) {
             res.writeHead(200, {
@@ -91,7 +91,7 @@ function startServerOnPort_80_443_3000() {
             })
             res.write(FIREWALL_PASSED)
             res.end()
-    }).listen(EnvVar.CAPTAIN_CONTAINER_HTTPS_PORT)
+        }).listen(443)
 
         http.createServer(function (req, res) {
             res.writeHead(200, {
@@ -99,7 +99,7 @@ function startServerOnPort_80_443_3000() {
             })
             res.write(FIREWALL_PASSED)
             res.end()
-    }).listen(EnvVar.CAPTAIN_CONTAINER_ADMIN_PORT)
+        }).listen(3000)
 
         return new Promise<void>(function (resolve) {
             setTimeout(function () {
@@ -255,7 +255,7 @@ export function install() {
                 )
             }
 
-            if (CaptainConstants.isDebug && !CaptainConstants.configs.useExistingSwarm) {
+            if (CaptainConstants.isDebug) {
                 return new Promise<string>(function (resolve, reject) {
                     DockerApi.get()
                         .swarmLeave(true)
@@ -401,7 +401,7 @@ export function install() {
             ports.push({
                 protocol: 'tcp',
                 publishMode: 'host',
-                containerPort: EnvVar.CAPTAIN_CONTAINER_ADMIN_PORT,
+                containerPort: 3000,
                 hostPort: CaptainConstants.configs.adminPortNumber3000,
             })
 
