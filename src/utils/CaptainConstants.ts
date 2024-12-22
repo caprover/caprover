@@ -37,7 +37,7 @@ const configs = {
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
-    goAccessImageName: 'dshook/goaccess',
+    goAccessImageName: 'caprover/goaccess:1.9.3',
 
     registryImageName: 'registry:2',
 
