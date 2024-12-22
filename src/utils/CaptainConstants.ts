@@ -37,6 +37,8 @@ const configs = {
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
+    goAccessImageName: 'dshook/goaccess',
+
     registryImageName: 'registry:2',
 
     appPlaceholderImageName: 'caprover/caprover-placeholder-app:latest',
@@ -109,6 +111,10 @@ const data = {
 
     nginxDefaultHtmlDir: '/default',
 
+    nginxSharedLogsPath: '/var/log/nginx-shared',
+
+    goAccessCrontabPath: '/var/spool/cron/crontabs/root',
+
     letsEncryptEtcPathOnNginx: '/letencrypt/etc',
 
     nginxDomainSpecificHtmlDir: '/domains',
@@ -141,6 +147,8 @@ const data = {
     perAppNginxConfigPathBase:
         CAPTAIN_ROOT_DIRECTORY_GENERATED + '/nginx/conf.d',
 
+    goaccessConfigPathBase: CAPTAIN_ROOT_DIRECTORY_GENERATED + '/goaccess',
+
     captainDataDirectory: CAPTAIN_DATA_DIRECTORY,
 
     letsEncryptLibPath: CAPTAIN_DATA_DIRECTORY + '/letencrypt/lib',
@@ -150,6 +158,8 @@ const data = {
     registryPathOnHost: CAPTAIN_DATA_DIRECTORY + '/registry',
 
     nginxSharedPathOnHost: CAPTAIN_DATA_DIRECTORY + '/nginx-shared',
+
+    nginxSharedLogsPathOnHost: CAPTAIN_DATA_DIRECTORY + '/shared-logs',
 
     debugSourceDirectory: '', // Only used in debug mode
 
@@ -162,6 +172,8 @@ const data = {
     captainServiceName: 'captain-captain',
 
     certbotServiceName: 'captain-certbot',
+
+    goAccessContainerName: 'captain-goaccess-container',
 
     netDataContainerName: 'captain-netdata-container',
 

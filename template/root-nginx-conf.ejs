@@ -22,7 +22,7 @@
             allow 172.16.0.0/12;
             allow 10.0.0.0/8;
             allow 192.168.0.0/16;
-            
+
             deny all;
         }
 
@@ -112,11 +112,12 @@
         location /.well-known/acme-challenge/ {
             root <%-captain.staticWebRoot%>;
         }
-        
+
         # Used by CapRover for health check
         location /.well-known/captain-identifier {
             root <%-captain.staticWebRoot%>;
         }
+
     }
 
 
