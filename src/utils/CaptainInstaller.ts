@@ -301,10 +301,7 @@ export function install() {
         .then(function () {
             const imageName = CaptainConstants.configs.certbotImageName
             console.log(`Pulling: ${imageName}`)
-            return DockerApi.get().pullImage(imageName, undefined).catch(function (onrejected) {
-                console.log(`Continnuing failed pull, maybe image already exists: ${imageName}.`, onrejected)
-                return Promise.resolve()
-            })
+            return DockerApi.get().pullImage(imageName, undefined)
         })
         .then(function () {
             return backupManger.checkAndPrepareRestoration()

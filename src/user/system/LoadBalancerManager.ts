@@ -532,7 +532,7 @@ class LoadBalancerManager {
                         serviceName: CaptainConstants.captainServiceName,
                         domain: captainDomain,
                         serviceExposedPort:
-                            CaptainConstants.captainServiceExposedPort,
+                            CaptainConstants.configs.adminPortNumber3000,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
@@ -683,13 +683,6 @@ class LoadBalancerManager {
                             containerPort: 443,
                             hostPort:
                                 CaptainConstants.configs.nginxPortNumber443,
-                        },
-                        {
-                            protocol: 'udp',
-                            publishMode: 'host',
-                            containerPort: 80,
-                            hostPort:
-                                CaptainConstants.configs.nginxPortNumber80,
                         },
                     ],
                     nodeId,
