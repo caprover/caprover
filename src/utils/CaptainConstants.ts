@@ -247,7 +247,7 @@ if (data.isDebug) {
 
     data.debugSourceDirectory = devDirectoryOnLocalMachine
     data.configs.publishedNameOnDockerHub = 'captain-debug'
-    data.configs.nginxPortNumber80 = 80
+    // data.configs.nginxPortNumber80 = 80
 }
 
 export default data

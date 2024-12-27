@@ -4,8 +4,8 @@
 import Configstore = require('configstore')
 import fs = require('fs-extra')
 import {
-    AutomatedCleanupConfigsCleaner,
-    IAutomatedCleanupConfigs,
+  AutomatedCleanupConfigsCleaner,
+  IAutomatedCleanupConfigs,
 } from '../models/AutomatedCleanupConfigs'
 import CapRoverTheme from '../models/CapRoverTheme'
 import { GoAccessInfo } from '../models/GoAccessInfo'
@@ -249,8 +249,11 @@ class DataStore {
         const goAccessInfo = (self.data.get(GOACCESS_INFO) ||
             {}) as GoAccessInfo
         goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
-        goAccessInfo.data.rotationFrequencyCron =
-            goAccessInfo.data.rotationFrequencyCron ?? '0 0 1 * *' // monthly
+        if(!goAccessInfo.data) {
+          goAccessInfo.data = {
+            rotationFrequencyCron:'0 0 1 * *' // monthly
+          }
+        }
         return Promise.resolve(goAccessInfo)
     }
 
