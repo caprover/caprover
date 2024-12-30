@@ -113,8 +113,11 @@ app.use(CaptainConstants.netDataRelativePath, function (req, res, next) {
 
         const newUrl =
             (isRequestSsl ? 'https://' : 'http://') +
-            req.hostname + ':' +
-            (isRequestSsl ? CaptainConstants.configs.nginxPortNumber443 : CaptainConstants.configs.nginxPortNumber80) +
+            req.hostname +
+            ':' +
+            (isRequestSsl
+                ? CaptainConstants.configs.nginxPortNumber443
+                : CaptainConstants.configs.nginxPortNumber80) +
             CaptainConstants.netDataRelativePath +
             '/'
         res.redirect(302, newUrl)

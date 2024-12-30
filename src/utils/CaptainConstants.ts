@@ -205,7 +205,13 @@ const data = {
     // *********************     ETC       ************************
 
     disableFirewallCommand:
-    'ufw allow ' + configs.nginxPortNumber80 + ',' + configs.nginxPortNumber443 + ',' + configs.adminPortNumber3000 + ',996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
+        'ufw allow ' +
+        configs.nginxPortNumber80 +
+        ',' +
+        configs.nginxPortNumber443 +
+        ',' +
+        configs.adminPortNumber3000 +
+        ',996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
 
     gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }

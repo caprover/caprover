@@ -280,13 +280,22 @@ export function install() {
             return startServerOnPort_80_443_3000()
         })
         .then(function () {
-      return checkPortOrThrow(myIp4, CaptainConstants.configs.nginxPortNumber80 as any)
+            return checkPortOrThrow(
+                myIp4,
+                CaptainConstants.configs.nginxPortNumber80 as any
+            )
         })
         .then(function () {
-      return checkPortOrThrow(myIp4, CaptainConstants.configs.nginxPortNumber443 as any)
+            return checkPortOrThrow(
+                myIp4,
+                CaptainConstants.configs.nginxPortNumber443 as any
+            )
         })
         .then(function () {
-      return checkPortOrThrow(myIp4, CaptainConstants.configs.adminPortNumber3000 as any)
+            return checkPortOrThrow(
+                myIp4,
+                CaptainConstants.configs.adminPortNumber3000 as any
+            )
         })
         .then(function () {
             const imageName = CaptainConstants.configs.nginxImageName
@@ -333,16 +342,16 @@ export function install() {
                 value: '1',
             })
             env.push({
-              key: EnvVar.keys.CAPTAIN_HOST_ADMIN_PORT,
-              value: CaptainConstants.configs.adminPortNumber3000 + '',
+                key: EnvVar.keys.CAPTAIN_HOST_ADMIN_PORT,
+                value: CaptainConstants.configs.adminPortNumber3000 + '',
             })
             env.push({
-              key: EnvVar.keys.CAPTAIN_HOST_HTTP_PORT,
-              value: CaptainConstants.configs.nginxPortNumber80 + '',
+                key: EnvVar.keys.CAPTAIN_HOST_HTTP_PORT,
+                value: CaptainConstants.configs.nginxPortNumber80 + '',
             })
             env.push({
-              key: EnvVar.keys.CAPTAIN_HOST_HTTPS_PORT,
-              value: CaptainConstants.configs.nginxPortNumber443 + '',
+                key: EnvVar.keys.CAPTAIN_HOST_HTTPS_PORT,
+                value: CaptainConstants.configs.nginxPortNumber443 + '',
             })
 
             if (EnvVar.DEFAULT_PASSWORD) {

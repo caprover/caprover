@@ -794,7 +794,7 @@ class LoadBalancerManager {
                         0
                     )
                 } else {
-                  Logger.d('Captain Nginx is NOT running.. ')
+                    Logger.d('Captain Nginx is NOT running.. ')
                     return createNginxServiceOnNode(myNodeId).then(function () {
                         return myNodeId
                     })
