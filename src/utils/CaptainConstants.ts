@@ -64,9 +64,12 @@ const configs = {
     // this is added in 1.13 just as a safety - remove this after 1.14
     disableEncryptedCheck: false,
 
-    nginxPortNumber80: 80,
-
-    nginxPortNumber443: 443,
+    // The port can be overridden via env variable CAPTAIN_HOST_HTTP_PORT
+    nginxPortNumber80: EnvVars.CAPTAIN_HOST_HTTP_PORT,
+    // The port can be overridden via env variable CAPTAIN_HOST_HTTPS_PORT
+    nginxPortNumber443: EnvVars.CAPTAIN_HOST_HTTPS_PORT,
+    // The port can be overridden via env variable CAPTAIN_HOST_ADMIN_PORT
+    adminPortNumber3000: EnvVars.CAPTAIN_HOST_ADMIN_PORT,
 }
 
 export interface CertbotCertCommandRule {
@@ -88,8 +91,6 @@ const data = {
     apiVersion: 'v2',
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
-
-    captainServiceExposedPort: 3000,
 
     rootNameSpace: 'captain',
 
@@ -204,7 +205,7 @@ const data = {
     // *********************     ETC       ************************
 
     disableFirewallCommand:
-        'ufw allow 80,443,3000,996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
+    'ufw allow ' + configs.nginxPortNumber80 + ',' + configs.nginxPortNumber443 + ',' + configs.adminPortNumber3000 + ',996,7946,4789,2377/tcp; ufw allow 7946,4789,2377/udp; ',
 
     gitShaEnvVarKey: 'CAPROVER_GIT_COMMIT_SHA',
 }
@@ -246,7 +247,7 @@ if (data.isDebug) {
 
     data.debugSourceDirectory = devDirectoryOnLocalMachine
     data.configs.publishedNameOnDockerHub = 'captain-debug'
-    data.configs.nginxPortNumber80 = 80
+    // data.configs.nginxPortNumber80 = 80
 }
 
 export default data

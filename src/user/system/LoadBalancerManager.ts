@@ -532,7 +532,7 @@ class LoadBalancerManager {
                         serviceName: CaptainConstants.captainServiceName,
                         domain: captainDomain,
                         serviceExposedPort:
-                            CaptainConstants.captainServiceExposedPort,
+                            CaptainConstants.configs.adminPortNumber3000,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
@@ -681,7 +681,8 @@ class LoadBalancerManager {
                             protocol: 'udp',
                             publishMode: 'host',
                             containerPort: 443,
-                            hostPort: 443,
+                            hostPort:
+                                CaptainConstants.configs.nginxPortNumber443,
                         },
                     ],
                     nodeId,
@@ -793,6 +794,7 @@ class LoadBalancerManager {
                         0
                     )
                 } else {
+                  Logger.d('Captain Nginx is NOT running.. ')
                     return createNginxServiceOnNode(myNodeId).then(function () {
                         return myNodeId
                     })
