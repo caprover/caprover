@@ -7,7 +7,6 @@ import BaseApi from '../../../api/BaseApi'
 import DockerApi from '../../../docker/DockerApi'
 import DockerUtils from '../../../docker/DockerUtils'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
-import { IAppDef } from '../../../models/AppDefinition'
 import { AutomatedCleanupConfigsCleaner } from '../../../models/AutomatedCleanupConfigs'
 import CaptainManager from '../../../user/system/CaptainManager'
 import VersionManager from '../../../user/system/VersionManager'
@@ -360,82 +359,81 @@ router.get('/goaccess/:appName/files', async function (req, res, next) {
         appName
     )
 
-    let appDefinition: IAppDef | undefined = undefined
+    try {
+        const appDefinition = await dataStore
+            .getAppsDataStore()
+            .getAppDefinition(appName)
 
-    return Promise.resolve()
-        .then(function () {
-            // Ensure a valid appName parameter
-            return dataStore.getAppsDataStore().getAppDefinition(appName)
-        })
-        .then(function (data) {
-            appDefinition = data
-            return fs.readdir(directoryPath)
-        })
-        .then(function (files) {
-            return Promise.all(
-                files
-                    // Make sure to only return the generated reports and not folders or the live report
-                    // That will be added back later
-                    .filter(
-                        (f) => f.endsWith('.html') && !f.endsWith('Live.html')
-                    )
-                    .map((file) => {
-                        return fs
-                            .stat(path.join(directoryPath, file))
-                            .then(function (fileStats) {
-                                return {
-                                    name: file,
-                                    time: fileStats.mtime,
-                                }
-                            })
-                    })
-            )
-        })
-        .then(function (linkData) {
-            const baseUrl = `/user/system/goaccess/`
+        let files: string[] = []
 
-            const baseApi = new BaseApi(
-                ApiStatusCodes.STATUS_OK,
-                'GoAccess info retrieved'
-            )
-            const linkList = linkData.map((d) => {
-                const { domainName, fileName } =
-                    loadBalanceManager.parseLogPath(d.name)
-                return {
-                    domainName,
-                    name: fileName,
-                    lastModifiedTime: d.time,
-                    url: baseUrl + `${appName}/files/${d.name}`,
-                }
-            })
+        try {
+            files = await fs.readdir(directoryPath)
+        } catch {
+            Logger.d('No goaccess logs found')
+        }
 
-            // Add in the live report for all sites even if it might not exist yet since they're dynamic
-            const allDomains = [
-                `${appName}.${dataStore.getRootDomain()}`,
-                ...appDefinition!.customDomain.map((d) => d.publicDomain),
-            ]
-            for (const domain of allDomains) {
-                const name =
-                    loadBalanceManager.getLogName(appName, domain) +
-                    '--Live.html'
-                linkList.push({
-                    domainName: domain,
-                    name,
-                    lastModifiedTime: new Date(),
-                    url: baseUrl + `${appName}/files/${name}`,
+        const linkData = await Promise.all(
+            files
+                // Make sure to only return the generated reports and not folders or the live report
+                // That will be added back later
+                .filter((f) => f.endsWith('.html') && !f.endsWith('Live.html'))
+                .map((file) => {
+                    return fs
+                        .stat(path.join(directoryPath, file))
+                        .then(function (fileStats) {
+                            return {
+                                name: file,
+                                time: fileStats.mtime,
+                            }
+                        })
                 })
-            }
+        )
 
-            linkList.sort(
-                (a, b) =>
-                    b.lastModifiedTime.getTime() - a.lastModifiedTime.getTime()
+        const baseUrl = `/user/system/goaccess/`
+
+        const baseApi = new BaseApi(
+            ApiStatusCodes.STATUS_OK,
+            'GoAccess info retrieved'
+        )
+        const linkList = linkData.map((d) => {
+            const { domainName, fileName } = loadBalanceManager.parseLogPath(
+                d.name
             )
-
-            baseApi.data = linkList
-
-            res.send(baseApi)
+            return {
+                domainName,
+                name: fileName,
+                lastModifiedTime: d.time,
+                url: baseUrl + `${appName}/files/${d.name}`,
+            }
         })
-        .catch(ApiStatusCodes.createCatcher(res))
+
+        // Add in the live report for all sites even if it might not exist yet since they're dynamic
+        const allDomains = [
+            `${appName}.${dataStore.getRootDomain()}`,
+            ...appDefinition!.customDomain.map((d) => d.publicDomain),
+        ]
+        for (const domain of allDomains) {
+            const name =
+                loadBalanceManager.getLogName(appName, domain) + '--Live.html'
+            linkList.push({
+                domainName: domain,
+                name,
+                lastModifiedTime: new Date(),
+                url: baseUrl + `${appName}/files/${name}`,
+            })
+        }
+
+        linkList.sort(
+            (a, b) =>
+                b.lastModifiedTime.getTime() - a.lastModifiedTime.getTime()
+        )
+
+        baseApi.data = linkList
+
+        res.send(baseApi)
+    } catch (e) {
+        ApiStatusCodes.createCatcher(res)(e)
+    }
 })
 
 router.get('/goaccess/:appName/files/:file', async function (req, res, next) {
