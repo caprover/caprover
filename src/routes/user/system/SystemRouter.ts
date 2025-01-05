@@ -438,7 +438,7 @@ router.get('/goaccess/:appName/files', async function (req, res, next) {
 
             res.send(baseApi)
         })
-        .catch((e) => ApiStatusCodes.createCatcher(res)(e))
+        .catch(ApiStatusCodes.createCatcher(res))
 })
 
 router.get('/goaccess/:appName/files/:file', async function (req, res, next) {
