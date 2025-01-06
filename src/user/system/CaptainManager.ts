@@ -146,6 +146,9 @@ class CaptainManager {
                 return fs.ensureFile(CaptainConstants.baseNginxConfigPath)
             })
             .then(function () {
+                return fs.ensureDir(CaptainConstants.nginxSharedLogsPathOnHost)
+            })
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.registryPathOnHost)
             })
             .then(function () {

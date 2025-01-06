@@ -369,7 +369,10 @@ router.get('/goaccess/:appName/files', async function (req, res, next) {
         })
         .then(function (data) {
             appDefinition = data
-            return fs.readdir(directoryPath)
+            return fs.readdir(directoryPath).catch((e) => {
+                Logger.d('No goaccess logs found')
+                return []
+            })
         })
         .then(function (files) {
             return Promise.all(
