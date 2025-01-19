@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
+import { ICaptainDefinition } from '../../../../models/ICaptainDefinition'
 import { CaptainError } from '../../../../models/OtherTypes'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
@@ -10,13 +11,6 @@ import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
-
-const DEFAULT_APP_CAPTAIN_DEFINITION = JSON.stringify({
-    schemaVersion: 2,
-    dockerfileLines: [
-        `FROM ${CaptainConstants.configs.appPlaceholderImageName}`,
-    ],
-})
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
@@ -216,11 +210,17 @@ router.post('/register/', function (req, res, next) {
             appCreated = true
         })
         .then(function () {
+            const captainDefinitionContent: ICaptainDefinition = {
+                schemaVersion: 2,
+                imageName: CaptainConstants.configs.appPlaceholderImageName,
+            }
+
             const promiseToIgnore = serviceManager
                 .scheduleDeployNewVersion(appName, {
                     captainDefinitionContentSource: {
-                        captainDefinitionContent:
-                            DEFAULT_APP_CAPTAIN_DEFINITION,
+                        captainDefinitionContent: JSON.stringify(
+                            captainDefinitionContent
+                        ),
                         gitHash: '',
                     },
                 })
