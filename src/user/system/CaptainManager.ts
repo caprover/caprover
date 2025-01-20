@@ -348,6 +348,10 @@ class CaptainManager {
                     }
                     callbackCalled = true
 
+                    console.log(`--- Health Check body ---`)
+                    console.log(body)
+                    console.log(`--- Health Check response ---`)
+                    console.log(response)
                     if (error || !body || body !== self.getHealthCheckUuid()) {
                         callback(false)
                     } else {
