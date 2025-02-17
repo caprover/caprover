@@ -24,5 +24,6 @@ docker run \
 # -e "CAPTAIN_HOST_HTTP_PORT=10083" \
 # -e "CAPTAIN_HOST_HTTPS_PORT=10443" \
 # -e "CAPTAIN_HOST_ADMIN_PORT=13000" \
+
 sleep 2s
 docker service logs captain-captain --follow
