@@ -575,6 +575,10 @@ class CaptainManager {
 
                     if (netDataInfo.data.smtp) {
                         envVars.push({
+                            key: 'SMTP_FROM',
+                            value: netDataInfo.data.smtp.to,
+                        })
+                        envVars.push({
                             key: 'SSMTP_TO',
                             value: netDataInfo.data.smtp.to,
                         })
@@ -596,8 +600,8 @@ class CaptainManager {
                         envVars.push({
                             key: 'SSMTP_TLS',
                             value: netDataInfo.data.smtp.allowNonTls
-                                ? 'NO'
-                                : 'YES',
+                                ? 'off'
+                                : 'on',
                         })
 
                         envVars.push({
