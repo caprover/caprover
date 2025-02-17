@@ -1,6 +1,8 @@
 ## [Next Version - available as `edge`]
 
--   TBD
+-   Added functionality for custom ports [issue-2220](https://github.com/caprover/caprover/pull/2220)
+-   Added GoAccess as a built-in statistics engine [issue-2182](https://github.com/caprover/caprover/pull/2182)
+-   Fixed other bugs and issues
 
 ## [1.13.3] - 2024-12-01
 
