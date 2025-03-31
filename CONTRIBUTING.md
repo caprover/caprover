@@ -17,7 +17,7 @@ The goal is to make the common use-cases exposed via simple controls on UI while
    variables, exposed ports, useful file locations and container parameters.
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
-4. Please avoid making opinion-based changes if it's just a code-style change - this includes, but not limited to, changes to how we work with promises, class inheritence and etc.
+4. Please avoid making opinion-based changes if it's just a code-style change - this includes, but not limited to, changes to how we work with promises, class inheritance and etc.
 5. To keep the process simple with just a few contributors, development happens directly on the master branch
    and releases will be deployed on the same branch.
 6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
@@ -60,7 +60,7 @@ Link this folder to the root folder (Apple does not allow to create folder on th
 ##### Prepare your docker (for all macOs User)
 
 > You need to add `/captain` to shared paths.  
-> To do so, click on the Docker icon -> Preferences -> Ressources -> File Sharing and add `/captain`
+> To do so, click on the Docker icon -> Preferences -> Resources -> File Sharing and add `/captain`
 
 #####
 

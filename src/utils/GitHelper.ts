@@ -15,11 +15,11 @@ export default class GitHelper {
             /^\s*/,
             /(?:(?<proto>[a-z]+):\/\/)?/,
             /(?:(?<user>[a-z_][a-z0-9_-]+)@)?/,
-            /(?<domain>[^\s\/\?#:]+)/,
-            /(?::(?<port>[0-9]{1,5}))?/,
-            /(?:[\/:](?<owner>[^\s\/\?#:]+))?/,
-            /(?:[\/:](?<repo>(?:[^\s\?#:.]|\.(?!git\/?\s*$))+))/,
-            /(?:.git)?\/?\s*$/,
+            /(?<domain>[^\s/?#:]+)/,
+            /(?::(?<port>[0-9]{1,5}):?)?/,
+            /(?:[/:](?<owner>[^\s/?#:]+))?/,
+            /(?:[/:](?<repo>(?:[^\s?#:.]|\.(?!git\/?\s*$))+))/,
+            /(?:(?<suffix>.git))?\/?\s*$/,
         ]
             .map((r) => r.source)
             .join(''),
@@ -145,10 +145,10 @@ export default class GitHelper {
             port: Number(found.groups?.port ?? 22),
             owner: found.groups?.owner ?? '',
             repo: found.groups?.repo,
+            suffix: found.groups?.suffix ?? '',
             get repoPath() {
-                return `ssh://${this.user}@${this.domain}:${this.port}/${
-                    this.owner
-                }${this.owner && '/'}${this.repo}.git`
+                return `ssh://${this.user}@${this.domain}:${this.port}/${this.owner
+                    }${this.owner && '/'}${this.repo}${this.suffix}`
             },
         }
     }
