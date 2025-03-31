@@ -147,8 +147,9 @@ export default class GitHelper {
             repo: found.groups?.repo,
             suffix: found.groups?.suffix ?? '',
             get repoPath() {
-                return `ssh://${this.user}@${this.domain}:${this.port}/${this.owner
-                    }${this.owner && '/'}${this.repo}${this.suffix}`
+                return `ssh://${this.user}@${this.domain}:${this.port}/${
+                    this.owner
+                }${this.owner && '/'}${this.repo}${this.suffix}`
             },
         }
     }
