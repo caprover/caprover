@@ -2,6 +2,7 @@
 
 -   Added functionality for custom ports [issue-2220](https://github.com/caprover/caprover/pull/2220)
 -   Added GoAccess as a built-in statistics engine [issue-2182](https://github.com/caprover/caprover/pull/2182)
+-   Enhanced URL parsing for git repositories to address some uncommon but valid URL patterns [issue-2182](https://github.com/caprover/caprover/pull/2286)
 -   Fixed other bugs and issues
 
 ## [1.13.3] - 2024-12-01
