@@ -249,9 +249,10 @@ class DataStore {
         const goAccessInfo = (self.data.get(GOACCESS_INFO) ||
             {}) as GoAccessInfo
         goAccessInfo.isEnabled = goAccessInfo.isEnabled || false
-        if (!goAccessInfo.data) {
+        if (!goAccessInfo.data || !goAccessInfo.isEnabled) {
             goAccessInfo.data = {
                 rotationFrequencyCron: '0 0 1 * *', // monthly
+                logRetentionDays: 180,
             }
         }
         return Promise.resolve(goAccessInfo)

@@ -745,7 +745,7 @@ class CaptainManager {
                             {
                                 key: 'LOG_RETENTION_DAYS',
                                 value: (
-                                    goAccessInfo.data.logRetentionDays ?? -1
+                                    goAccessInfo.data.logRetentionDays ?? 180
                                 ).toString(),
                             },
                         ],
