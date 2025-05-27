@@ -281,19 +281,16 @@ class Authenticator {
         const self = this
         obj.namespace = self.namespace
 
-        return Promise.resolve().then(function () {
-            return jwt.sign(
-                {
-                    data: obj,
-                },
-                self.encryptionKey + (keySuffix ?? ''),
-                expiresIn
-                    ? {
-                          expiresIn: `${expiresIn || ''}`,
-                      }
-                    : undefined
-            )
-        })
+        return Promise.resolve() //
+            .then(function () {
+                return jwt.sign(
+                    {
+                        data: obj,
+                    },
+                    self.encryptionKey + (keySuffix ?? ''),
+                    expiresIn ? { expiresIn: expiresIn as any } : undefined
+                )
+            })
     }
 
     decodeGenericToken(token: string, keySuffix: string) {
