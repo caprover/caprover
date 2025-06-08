@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DataStoreProvider from '../../datastore/DataStoreProvider'
 import DockerApi from '../../docker/DockerApi'
+import { GoAccessInfo } from '../../models/GoAccessInfo'
 import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
 import { NetDataInfo } from '../../models/NetDataInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
@@ -145,6 +146,9 @@ class CaptainManager {
                 return fs.ensureFile(CaptainConstants.baseNginxConfigPath)
             })
             .then(function () {
+                return fs.ensureDir(CaptainConstants.nginxSharedLogsPathOnHost)
+            })
+            .then(function () {
                 return fs.ensureDir(CaptainConstants.registryPathOnHost)
             })
             .then(function () {
@@ -247,6 +251,13 @@ class CaptainManager {
             })
             .then(function () {
                 return self.diskCleanupManager.init()
+            })
+            .then(function () {
+                return self.dataStore.getGoAccessInfo()
+            })
+            .then(function (goAccessInfo) {
+                // Ensure GoAccess container restart
+                return self.updateGoAccessInfo(goAccessInfo)
             })
             .then(function () {
                 self.inited = true
@@ -564,6 +575,10 @@ class CaptainManager {
 
                     if (netDataInfo.data.smtp) {
                         envVars.push({
+                            key: 'SMTP_FROM',
+                            value: netDataInfo.data.smtp.to,
+                        })
+                        envVars.push({
                             key: 'SSMTP_TO',
                             value: netDataInfo.data.smtp.to,
                         })
@@ -585,8 +600,8 @@ class CaptainManager {
                         envVars.push({
                             key: 'SSMTP_TLS',
                             value: netDataInfo.data.smtp.allowNonTls
-                                ? 'NO'
-                                : 'YES',
+                                ? 'off'
+                                : 'on',
                         })
 
                         envVars.push({
@@ -668,6 +683,83 @@ class CaptainManager {
             })
             .then(function () {
                 return self.dataStore.setNetDataInfo(netDataInfo)
+            })
+    }
+
+    updateGoAccessInfo(goAccessInfo: GoAccessInfo) {
+        const self = this
+        const dockerApi = this.dockerApi
+        const enabled = goAccessInfo.isEnabled
+
+        // Validate cron schedules
+        if (!Utils.validateCron(goAccessInfo.data.rotationFrequencyCron)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                'Invalid cron schedule'
+            )
+        }
+
+        const crontabFilePath = `${
+            CaptainConstants.goaccessConfigPathBase
+        }/crontab.txt`
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.setGoAccessInfo(goAccessInfo)
+            })
+            .then(function () {
+                const cronFile = [
+                    `${goAccessInfo.data.rotationFrequencyCron} /processLogs.sh`,
+                ].join('\n')
+
+                return fs.outputFile(crontabFilePath, cronFile)
+            })
+            .then(function () {
+                return dockerApi.ensureContainerStoppedAndRemoved(
+                    CaptainConstants.goAccessContainerName,
+                    CaptainConstants.captainNetworkName
+                )
+            })
+            .then(function () {
+                if (enabled) {
+                    return dockerApi.createStickyContainer(
+                        CaptainConstants.goAccessContainerName,
+                        CaptainConstants.configs.goAccessImageName,
+                        [
+                            {
+                                hostPath:
+                                    CaptainConstants.nginxSharedLogsPathOnHost,
+                                containerPath:
+                                    CaptainConstants.nginxSharedLogsPath,
+                                mode: 'rw',
+                            },
+                            {
+                                hostPath: crontabFilePath,
+                                containerPath:
+                                    CaptainConstants.goAccessCrontabPath,
+                                mode: 'ro',
+                            },
+                        ],
+                        CaptainConstants.captainNetworkName,
+                        [
+                            {
+                                key: 'LOG_RETENTION_DAYS',
+                                value: (
+                                    goAccessInfo.data.logRetentionDays ?? 180
+                                ).toString(),
+                            },
+                        ],
+                        [],
+                        ['apparmor:unconfined'],
+                        undefined
+                    )
+                }
+            })
+            .then(function () {
+                Logger.d(
+                    'Updating Load Balancer - CaptainManager.updateGoAccess'
+                )
+                return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
     }
 

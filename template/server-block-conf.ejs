@@ -36,9 +36,15 @@ server {
     }
     if (s.hasSsl) {
     %>
-        listen              443 ssl http2;
+        listen              443 ssl;
+        http2               on;
         ssl_certificate     <%-s.crtPath%>;
         ssl_certificate_key <%-s.keyPath%>;
+    <%
+    }
+    if (s.logAccessPath) {
+    %>
+        access_log <%-s.logAccessPath%>;
     <%
     }
     %>

@@ -28,6 +28,16 @@ router.post('/', function (req, res, next) {
         return
     }
 
+    // if password is more than 29 characters, return error
+    if (password.length > 29) {
+        const response = new BaseApi(
+            ApiStatusCodes.STATUS_ERROR_GENERIC,
+            'password is too long - maximum 29 characters. If you had previously set a password longer than 29 characters, please use the first 29 characters.'
+        )
+        res.send(response)
+        return
+    }
+
     let authToken: string
 
     const namespace =

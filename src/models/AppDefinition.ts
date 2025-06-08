@@ -7,6 +7,11 @@ export interface IAppEnvVar {
     value: string
 }
 
+export const enum VolumesTypes {
+    BIND = 'bind',
+    VOLUME = 'volume',
+}
+
 export interface IAppVolume {
     containerPath: string
     volumeName?: string
