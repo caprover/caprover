@@ -531,8 +531,8 @@ class LoadBalancerManager {
                         hasRootSsl: hasRootSsl,
                         serviceName: CaptainConstants.captainServiceName,
                         domain: captainDomain,
-                        serviceExposedPort:
-                            CaptainConstants.configs.adminPortNumber3000,
+                        serviceContainerPort3000:
+                            CaptainConstants.serviceContainerPort3000,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
