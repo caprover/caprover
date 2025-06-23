@@ -3,10 +3,10 @@ name: Run build
 on:
     push:
         branches:
-            - master
+            - alifsyahmi98
     pull_request:
         branches:
-            - master
+            - alifsyahmi98
 
 jobs:
     build:
@@ -21,3 +21,114 @@ jobs:
                   npm ci 
                   npm run build 
                   npm run test
+
+            
+  dengan:- name: Close Stale Issues
+  uses: actions/stale@v9.1.0
+    # Token untuk repositori. Boleh dihantar menggunakan `{{ secrets.GITHUB_TOKEN }}`.
+    repo-token: # pilihan, lalai ialah ${{ github.token }}
+    # Mesej untuk disiarkan tentang isu semasa menandakannya. Jika tiada yang disediakan, isu tidak akan menandakan basi.
+    basi-isu-mesej: # pilihan
+    # Mesej untuk disiarkan pada permintaan tarik apabila menandakannya. Jika tiada yang disediakan, permintaan tarik tidak akan menandakan basi.
+    stale-pr-message: # pilihan
+    # Mesej untuk menyiarkan isu semasa menutupnya. Jika tiada yang diberikan, tidak akan mengulas semasa menutup isu.
+    mesej tutup isu: # pilihan
+    # Mesej untuk disiarkan pada permintaan tarik apabila menutupnya. Jika tiada yang disediakan, tidak akan mengulas semasa menutup permintaan tarik.
+    close-pr-message: # pilihan
+    # Bilangan hari isu atau permintaan tarik boleh menjadi sebelum menandakan ia basi. Tetapkan kepada -1 untuk tidak menandai isu atau menarik permintaan sebagai basi secara automatik.
+    hari-sebelum-lapuk: # pilihan, lalai ialah 60
+    # Bilangan hari lama sesuatu isu boleh menjadi sebelum menandakan ia basi. Tetapkan kepada -1 untuk tidak menandai isu sebagai basi secara automatik. Gantikan pilihan "hari-sebelum-lapuk" berkenaan isu sahaja.
+    hari-sebelum-isu-lapuk: # pilihan
+    # Bilangan hari lama permintaan tarik boleh sebelum menandakan ia basi. Tetapkan kepada -1 untuk tidak menandai permintaan tarik sebagai basi secara automatik. Gantikan pilihan "hari-sebelum-lapuk" mengenai hanya permintaan tarik.
+    hari-sebelum-pr-lapuk: # pilihan
+    # Bilangan hari untuk menunggu untuk menutup isu atau permintaan tarik selepas ia ditanda basi. Tetapkan kepada -1 untuk tidak menutup isu lapuk atau menarik permintaan.
+    hari-sebelum-tutup: # pilihan, lalai ialah 7
+    # Bilangan hari untuk menunggu untuk menutup isu selepas ia ditandakan sebagai basi. Tetapkan kepada -1 untuk tidak menutup isu lapuk. Gantikan pilihan "hari-sebelum-tutup" berkenaan isu sahaja.
+    hari-sebelum-isu-tutup: # pilihan
+    # Bilangan hari untuk menunggu untuk menutup permintaan tarik selepas ia ditanda basi. Tetapkan kepada -1 untuk tidak menutup permintaan tarik basi. Gantikan pilihan "hari-sebelum-tutup" mengenai hanya permintaan tarik.
+    hari-sebelum-pr-tutup: # pilihan
+    # Label untuk digunakan apabila isu lapuk.
+    stale-issue-label: # pilihan, lalai adalah Stale
+    # Label untuk digunakan apabila isu ditutup.
+    label isu tutup: # pilihan
+    # Label yang bermaksud isu dikecualikan daripada ditanda basi. Pisahkan berbilang label dengan koma (cth. "label1,label2").
+    label-isu-terkecuali: # pilihan, lalai ialah
+    # Sebab untuk digunakan semasa menutup isu.
+    sebab tutup isu: # pilihan, lalai tidak_dirancang
+    # Label untuk digunakan apabila permintaan tarik adalah basi.
+    stale-pr-label: # pilihan, lalai ialah Stale
+    # Label untuk digunakan apabila permintaan tarik ditutup.
+    close-pr-label: # pilihan
+    # Label yang bermaksud permintaan tarik dikecualikan daripada ditandai sebagai basi. Pisahkan berbilang label dengan koma (cth. "label1,label2").
+    exempt-pr-labels: # pilihan, lalai ialah
+    # Pencapaian yang bermakna isu atau permintaan tarik dikecualikan daripada ditandai sebagai basi. Asingkan berbilang peristiwa penting dengan koma (cth. "milestone1,milestone2").
+    exempt-milestones: # pilihan, lalai ialah
+    # Pencapaian yang bermakna sesuatu isu dikecualikan daripada ditandai sebagai basi. Asingkan berbilang peristiwa penting dengan koma (cth. "milestone1,milestone2"). Gantikan pilihan "pencapaian terkecuali" berkenaan isu sahaja.
+    pencapaian-isu-terkecuali: # pilihan, lalai ialah
+    # Pencapaian yang bermaksud permintaan tarik dikecualikan daripada ditandai sebagai basi. Asingkan berbilang peristiwa penting dengan koma (cth. "milestone1,milestone2"). Gantikan pilihan "pencapaian terkecuali" mengenai hanya permintaan tarik.
+    exempt-pr-milestones: # pilihan, lalai ialah
+    # Kecualikan semua isu dan tarik permintaan dengan pencapaian daripada ditandakan sebagai basi. Lalai kepada palsu.
+    exempt-all-milestones: # pilihan, lalai adalah palsu
+    # Kecualikan semua isu dengan pencapaian daripada ditandakan sebagai basi. Gantikan pilihan "dikecualikan-semua-pencapaian" berkenaan isu sahaja.
+    exempt-all-issue-milestones: # pilihan, lalai ialah
+    # Kecualikan semua permintaan tarik dengan pencapaian daripada ditanda sebagai basi. Gantikan pilihan "dikecualikan-semua-pencapaian" mengenai hanya permintaan tarik.
+    exempt-all-pr-milestones: # pilihan, lalai ialah
+    # Hanya isu atau permintaan tarik dengan semua label ini diperiksa jika basi. Lalai kepada `` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma.
+    only-labels: # pilihan, lalai ialah
+    # Hanya isu atau permintaan tarik dengan sekurang-kurangnya satu daripada label ini diperiksa jika basi. Lalai kepada `` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma.
+    mana-mana label: # pilihan, lalai ialah
+    # Hanya isu dengan sekurang-kurangnya satu daripada label ini diperiksa jika basi. Lalai kepada `` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma. Gantikan pilihan "mana-mana label" berkenaan isu sahaja.
+    sebarang-label-isu: # pilihan, lalai ialah
+    # Hanya permintaan tarik dengan sekurang-kurangnya satu daripada label ini ditandakan jika basi. Lalai kepada `` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma. Gantikan pilihan "mana-mana label" mengenai hanya permintaan tarik.
+    any-of-pr-labels: # pilihan, lalai ialah
+    # Hanya isu dengan semua label ini diperiksa jika basi. Lalai kepada `[]` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma. Gantikan pilihan "label sahaja" berkenaan isu sahaja.
+    only-issue-labels: # pilihan, lalai ialah
+    # Hanya permintaan tarik dengan semua label ini ditandakan jika basi. Lalai kepada `[]` (dilumpuhkan) dan boleh menjadi senarai label yang dipisahkan koma. Gantikan pilihan "label sahaja" mengenai permintaan tarik sahaja.
+    only-pr-labels: # pilihan, lalai ialah
+    # Bilangan maksimum operasi setiap larian, digunakan untuk mengawal pengehadan kadar (berkaitan CRUD API GitHub).
+    operations-per-run: # pilihan, lalai ialah 30
+    # Alih keluar label lapuk daripada isu dan tarik permintaan apabila ia dikemas kini atau diulas.
+    remove-stale-when-updated: # pilihan, lalai adalah benar
+    # Alih keluar label lapuk daripada isu apabila ia dikemas kini atau diulas. Gantikan pilihan "buang-basi-apabila-kemas kini" berkenaan isu sahaja.
+    remove-issue-stale-when-updated: # pilihan, lalai ialah
+    # Alih keluar label lapuk daripada permintaan tarik apabila ia dikemas kini atau diulas. Gantikan pilihan "buang-basi-apabila-kemas kini" hanya mengenai permintaan tarik.
+    remove-pr-stale-when-updated: # pilihan, lalai ialah
+    # Jalankan pemproses dalam mod nyahpepijat tanpa benar-benar melakukan sebarang operasi pada isu langsung.
+    nyahpepijat sahaja: # pilihan, lalai adalah palsu
+    # Perintah untuk mendapatkan isu atau permintaan tarik. Lalai kepada palsu, iaitu menurun.
+    menaik: # pilihan, lalai adalah palsu
+    # Padamkan cawangan git selepas menutup permintaan tarik lapuk.
+    delete-branch: # pilihan, lalai adalah palsu
+    # Tarikh yang digunakan untuk melangkau tindakan lapuk pada permintaan isu/tarik yang dibuat sebelum itu (ISO 8601 atau RFC 2822).
+    tarikh mula: # pilihan, lalai ialah
+    # Pemegang serah hak yang mengecualikan isu atau permintaan tarik daripada ditanda sebagai basi. Asingkan berbilang penerima tugasan dengan koma (cth. "pengguna1,pengguna2").
+    penerima dikecualikan: # pilihan, lalai ialah
+    # Pemegang serah hak yang mengecualikan isu daripada ditanda sebagai basi. Asingkan berbilang penerima tugasan dengan koma (cth. "pengguna1,pengguna2"). Gantikan pilihan "pemegang serah hak dikecualikan" mengenai isu sahaja.
+    exempt-issue-assignees: # pilihan, lalai ialah
+    # Pemegang serah hak yang mengecualikan permintaan tarik daripada ditanda sebagai basi. Asingkan berbilang penerima tugasan dengan koma (cth. "pengguna1,pengguna2"). Gantikan pilihan "pemegang serah hak dikecualikan" mengenai hanya permintaan tarik.
+    exempt-pr-assignees: # pilihan, lalai ialah
+    # Kecualikan semua isu dan tarik permintaan dengan penerima serah hak daripada ditanda sebagai basi. Lalai kepada palsu.
+    exempt-all-assignees: # pilihan, lalai adalah palsu
+    # Kecualikan semua isu dengan penerima serah hak daripada ditandakan sebagai basi. Gantikan pilihan "exempt-all-assignees" berkenaan isu sahaja.
+    exempt-all-issue-assignees: # pilihan, lalai ialah
+    # Kecualikan semua permintaan tarik dengan penerima serah hak daripada ditanda sebagai basi. Gantikan pilihan "exempt-all-assignees" mengenai hanya permintaan tarik.
+    exempt-all-pr-assignees: # pilihan, lalai ialah
+    # Mengecualikan permintaan tarik draf daripada ditanda sebagai basi. Lalai kepada palsu.
+    exempt-draft-pr: # pilihan, lalai adalah palsu
+    # Paparkan beberapa statistik pada penghujung mengenai aliran kerja lapuk (hanya apabila log didayakan).
+    enable-statistics: # pilihan, lalai adalah benar
+    # Senarai label yang dibataskan koma untuk ditambahkan apabila isu atau permintaan tarik menjadi tidak lapuk.
+    labels-to-add-when-unstale: # pilihan, lalai ialah
+    # Senarai label yang dibataskan koma untuk dialih keluar apabila isu atau permintaan tarik menjadi lapuk.
+    labels-to-remove-when-stale: # pilihan, lalai ialah
+    # Senarai label yang dibataskan koma untuk dialih keluar apabila isu atau permintaan tarik menjadi tidak lapuk.
+    labels-to-remove-when-unstale: # pilihan, lalai ialah
+    # Sebarang kemas kini (kemas kini/ulasan) boleh menetapkan semula masa terbiar yang lapuk pada isu dan permintaan tarik.
+    abaikan-kemas kini: # pilihan, lalai adalah palsu
+    # Sebarang kemas kini (kemas kini/ulasan) boleh menetapkan semula masa terbiar yang lapuk pada isu tersebut. Gantikan pilihan "abaikan kemas kini" mengenai isu sahaja.
+    ignore-issue-updates: # pilihan, lalai ialah
+    # Sebarang kemas kini (kemas kini/ulasan) boleh menetapkan semula masa melahu yang lapuk pada permintaan tarik. Gantikan pilihan "abaikan kemas kini" mengenai hanya permintaan tarik.
+    ignore-pr-updates: # pilihan, lalai ialah
+    # Hanya isu atau permintaan tarik dengan penerima serah hak akan ditandakan sebagai basi secara automatik.
+    include-only-assigned: # pilihan, lalai adalah palsu
+          
