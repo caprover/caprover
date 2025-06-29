@@ -99,7 +99,7 @@ function startServerOnPort_80_443_3000() {
             })
             res.write(FIREWALL_PASSED)
             res.end()
-        }).listen(3000)
+        }).listen(CaptainConstants.serviceContainerPort3000)
 
         return new Promise<void>(function (resolve) {
             setTimeout(function () {
@@ -407,7 +407,7 @@ export function install() {
             ports.push({
                 protocol: 'tcp',
                 publishMode: 'host',
-                containerPort: 3000,
+                containerPort: CaptainConstants.serviceContainerPort3000,
                 hostPort: CaptainConstants.configs.adminPortNumber3000,
             })
 

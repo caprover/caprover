@@ -86,7 +86,7 @@
         # https://docs.docker.com/engine/userguide/networking/configure-dns/
         # https://github.com/moby/moby/issues/20026
         resolver 127.0.0.11 valid=10s;
-        set $upstream http://<%-captain.serviceName%>:<%-captain.serviceExposedPort%>;
+        set $upstream http://<%-captain.serviceName%>:<%-captain.serviceContainerPort3000%>;
 
         # IMPORTANT!! Except proxy_read_timeout, this block should be same as location /api/v2/user/apps/appData
         location / {

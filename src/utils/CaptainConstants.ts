@@ -92,6 +92,8 @@ const data = {
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
 
+    serviceContainerPort3000: 3000,
+
     rootNameSpace: 'captain',
 
     // *********************** Disk Paths ************************
