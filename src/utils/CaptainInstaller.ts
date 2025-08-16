@@ -43,12 +43,92 @@ function checkSystemReq() {
             return DockerApi.get().getDockerInfo()
         })
         .then(function (output) {
-            if (output.OperatingSystem.toLowerCase().indexOf('ubuntu') < 0) {
+            // Check for known incompatible hosts
+            if (
+                output.KernelVersion &&
+                output.KernelVersion.toLowerCase().includes('-pve')
+            ) {
+                console.log(' ')
+                console.log('******* ERROR *******')
                 console.log(
-                    '******* Warning *******    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.'
+                    'CapRover may not work properly on this host (Proxmox LXC containers).'
                 )
-            } else {
-                console.log('   Ubuntu detected.')
+                console.log(
+                    'Proxmox containers are known to break Docker swarm networking.'
+                )
+                console.log(
+                    'Consider using a different virtualization platform.'
+                )
+
+                throw new Error('Host is not compatible with CapRover.')
+            } else if (
+                output.KernelVersion &&
+                !output.KernelVersion.toLowerCase().includes('-generic')
+            ) {
+                console.log('   Kernel version:', output.KernelVersion)
+                console.log(
+                    '   Warning: Non-generic kernel detected. CapRover compatibility may vary.'
+                )
+            }
+
+            // Check operating system
+            if (output.OperatingSystem) {
+                const osLower = output.OperatingSystem.toLowerCase()
+                if (osLower.indexOf('ubuntu') >= 0) {
+                    // Check for Ubuntu 22+ specifically
+                    const ubuntuMatch = osLower.match(/ubuntu\s+(\d+)/)
+                    if (ubuntuMatch) {
+                        const version = parseInt(ubuntuMatch[1])
+                        if (version < 22) {
+                            console.log(
+                                '   Ubuntu detected but version is below 22.'
+                            )
+                            console.log(
+                                '   Warning: Ubuntu 22+ is recommended for best compatibility.'
+                            )
+                        }
+                    } else {
+                        console.log(
+                            'WARNING: Ubuntu detected, but version not found.'
+                        )
+                    }
+                } else {
+                    console.log(
+                        '******* Warning *******    CapRover and Docker work best on Ubuntu - specially when it comes to storage drivers.'
+                    )
+                }
+            }
+
+            // Check backing filesystem
+            if (output.DriverStatus) {
+                const backingFsMatch = output.DriverStatus.find(
+                    (item: any) => item[0] === 'Backing Filesystem'
+                )
+                if (backingFsMatch) {
+                    const backingFs = backingFsMatch[1]
+                    if (backingFs != 'extfs') {
+                        console.log('   Backing filesystem:', backingFs)
+                        console.log(
+                            '   WARNING: extfs is recommended for best compatibility.'
+                        )
+                    }
+                }
+            }
+
+            // Check userxattr
+            if (output.DriverStatus) {
+                const userxattrMatch = output.DriverStatus.find(
+                    (item: any) => item[0] === 'userxattr'
+                )
+                if (userxattrMatch) {
+                    const userxattr = userxattrMatch[1]
+                    if (userxattr) {
+                        console.log('   userxattr:', userxattr)
+                        console.log(
+                            '   Warning: userxattr should be false for best compatibility.'
+                        )
+                    }
+                }
             }
 
             const totalMemInMb = Math.round(output.MemTotal / 1000.0 / 1000.0)
