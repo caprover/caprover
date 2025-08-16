@@ -1,5 +1,7 @@
 ## [Next Version - available as `edge`]
 
+- Descriptive error on installations on incompatible systems (e.g. Proxmox LXC) [issues-2326](https://github.com/caprover/caprover/issues/2326)
+
 ## [1.14.0] - 2025-06-07
 
 - Added functionality for custom ports [issue-2220](https://github.com/caprover/caprover/pull/2220)
