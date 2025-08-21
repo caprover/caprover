@@ -277,10 +277,6 @@ class AppsDataStore {
         return `${appName}`
     }
 
-    getVolumeName(volumeName: string) {
-        return `${this.namepace}--${volumeName}`
-    }
-
     getAppDefinitions() {
         const self = this
         return new Promise<IAllAppDefinitions>(function (resolve, reject) {

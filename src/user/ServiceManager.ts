@@ -522,7 +522,7 @@ class ServiceManager {
         return Promise.all(promises)
     }
 
-    removeVolsSafe(volumes: string[]) {
+    removeVolsSafe(volumes: string[], legacyVolumes: IHashMapGeneric<boolean>) {
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
@@ -552,7 +552,7 @@ class ServiceManager {
                 volumes.forEach((v) => {
                     if (!volsFailedToDelete[v]) {
                         volumesTryToDelete.push(
-                            dataStore.getAppsDataStore().getVolumeName(v)
+                            legacyVolumes[v] ? `captain--${v}` : v
                         )
                     }
                 })
