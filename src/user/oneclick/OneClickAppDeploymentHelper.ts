@@ -6,6 +6,10 @@ import DockerComposeToServiceOverride from '../../utils/DockerComposeToServiceOv
 import Utils from '../../utils/Utils'
 
 // TODO - Replace with actual API implementation
+// Step 1- find the endpoint using the mapping here:
+// https://github.com/caprover/caprover-api/blob/master/src/api/ApiManager.ts
+// Step 2- Lookup the implementation based on the path found above
+// Step 3- Replace the mock implementation below with the implementation found in step 2
 
 class ApiManager {
     registerNewApp(
