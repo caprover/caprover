@@ -2,6 +2,7 @@ import DataStore from '../../datastore/DataStore'
 import {
     getAllAppDefinitions,
     registerAppDefinition,
+    updateAppDefinition,
 } from '../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import { registerProject } from '../../handlers/users/ProjectHandler'
 import { IAppDef } from '../../models/AppDefinition'
@@ -50,8 +51,7 @@ class ApiManager {
         return getAllAppDefinitions(this.dataStore, this.serviceManager)
     }
     updateConfigAndSave(appName: string, appDef: IAppDef): Promise<any> {
-        // Mock implementation
-        return Promise.resolve({ success: true })
+        return updateAppDefinition({ appName, ...appDef }, this.serviceManager)
     }
     uploadCaptainDefinitionContent(
         appName: string,
