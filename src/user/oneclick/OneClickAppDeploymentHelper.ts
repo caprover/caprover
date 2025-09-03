@@ -1,5 +1,6 @@
 import DataStore from '../../datastore/DataStore'
 import { registerAppDefinition } from '../../handlers/users/apps/appdefinition/AppDefinitionHandler'
+import { registerProject } from '../../handlers/users/ProjectHandler'
 import { IAppDef } from '../../models/AppDefinition'
 import { ICaptainDefinition } from '../../models/ICaptainDefinition'
 import { IDockerComposeService } from '../../models/IOneClickAppModels'
@@ -40,8 +41,7 @@ class ApiManager {
     }
 
     registerProject(projectDef: ProjectDefinition): Promise<any> {
-        // Mock implementation
-        return Promise.resolve({ id: 'mock-project-id' })
+        return registerProject(projectDef, this.dataStore)
     }
     getAllApps(): Promise<any> {
         // Mock implementation

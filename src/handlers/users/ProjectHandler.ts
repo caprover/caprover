@@ -6,7 +6,7 @@ import { BaseHandlerResult } from '../BaseHandlerResult'
 
 export interface RegisterProjectParams {
     name: string
-    parentProjectId: string
+    parentProjectId?: string
     description: string
 }
 
