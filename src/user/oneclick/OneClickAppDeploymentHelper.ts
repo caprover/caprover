@@ -1,5 +1,8 @@
 import DataStore from '../../datastore/DataStore'
-import { registerAppDefinition } from '../../handlers/users/apps/appdefinition/AppDefinitionHandler'
+import {
+    getAllAppDefinitions,
+    registerAppDefinition,
+} from '../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import { registerProject } from '../../handlers/users/ProjectHandler'
 import { IAppDef } from '../../models/AppDefinition'
 import { ICaptainDefinition } from '../../models/ICaptainDefinition'
@@ -44,8 +47,7 @@ class ApiManager {
         return registerProject(projectDef, this.dataStore)
     }
     getAllApps(): Promise<any> {
-        // Mock implementation
-        return Promise.resolve({ appDefinitions: [] })
+        return getAllAppDefinitions(this.dataStore, this.serviceManager)
     }
     updateConfigAndSave(appName: string, appDef: IAppDef): Promise<any> {
         // Mock implementation

@@ -82,3 +82,49 @@ export async function registerAppDefinition(
         throw error
     }
 }
+
+export interface GetAllAppDefinitionsResult extends BaseHandlerResult {
+    data: {
+        appDefinitions: any[]
+        rootDomain: string
+        captainSubDomain: string
+        defaultNginxConfig: any
+    }
+}
+
+export async function getAllAppDefinitions(
+    dataStore: DataStore,
+    serviceManager: ServiceManager
+): Promise<GetAllAppDefinitionsResult> {
+    Logger.d('Getting all app definitions started')
+
+    try {
+        const apps = await dataStore.getAppsDataStore().getAppDefinitions()
+        const appsArray: any[] = []
+
+        Object.keys(apps).forEach(function (key) {
+            const app = apps[key]
+            app.appName = key
+            app.isAppBuilding = serviceManager.isAppBuilding(key)
+            app.appPushWebhook = app.appPushWebhook || undefined
+            appsArray.push(app)
+        })
+
+        const defaultNginxConfig = await dataStore.getDefaultAppNginxConfig()
+
+        Logger.d(`App definitions retrieved: ${appsArray.length} apps`)
+
+        return {
+            message: 'App definitions are retrieved.',
+            data: {
+                appDefinitions: appsArray,
+                rootDomain: dataStore.getRootDomain(),
+                captainSubDomain: CaptainConstants.configs.captainSubDomain,
+                defaultNginxConfig: defaultNginxConfig,
+            },
+        }
+    } catch (error: any) {
+        Logger.e(`Failed to get app definitions: ${error}`)
+        throw error
+    }
+}

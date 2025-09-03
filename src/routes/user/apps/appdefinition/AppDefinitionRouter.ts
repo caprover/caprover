@@ -1,9 +1,12 @@
 import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
-import { registerAppDefinition } from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
+import {
+    getAllAppDefinitions,
+    registerAppDefinition,
+} from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
+import { AppDeployTokenConfig } from '../../../../models/AppDefinition'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
@@ -59,39 +62,14 @@ router.get('/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
-    const appsArray: IAppDef[] = []
 
-    return dataStore
-        .getAppsDataStore()
-        .getAppDefinitions()
-        .then(function (apps) {
-            const promises: Promise<void>[] = []
-
-            Object.keys(apps).forEach(function (key, index) {
-                const app = apps[key]
-                app.appName = key
-                app.isAppBuilding = serviceManager.isAppBuilding(key)
-                app.appPushWebhook = app.appPushWebhook || undefined
-                appsArray.push(app)
-            })
-
-            return Promise.all(promises)
-        })
-        .then(function () {
-            return dataStore.getDefaultAppNginxConfig()
-        })
-        .then(function (defaultNginxConfig) {
+    return getAllAppDefinitions(dataStore, serviceManager)
+        .then(function (result) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'App definitions are retrieved.'
+                result.message
             )
-            baseApi.data = {
-                appDefinitions: appsArray,
-                rootDomain: dataStore.getRootDomain(),
-                captainSubDomain: CaptainConstants.configs.captainSubDomain,
-                defaultNginxConfig: defaultNginxConfig,
-            }
-
+            baseApi.data = result.data
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
