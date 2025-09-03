@@ -1,7 +1,8 @@
 import { v4 as uuid } from 'uuid'
-import DataStore from '../../../datastore/DataStore'
-import { ProjectDefinition } from '../../../models/ProjectDefinition'
-import Logger from '../../../utils/Logger'
+import DataStore from '../../datastore/DataStore'
+import { ProjectDefinition } from '../../models/ProjectDefinition'
+import Logger from '../../utils/Logger'
+import { BaseHandlerResult } from '../BaseHandlerResult'
 
 export interface RegisterProjectParams {
     name: string
@@ -9,12 +10,8 @@ export interface RegisterProjectParams {
     description: string
 }
 
-export interface BaseHandlerResult {
-    message: string
-}
-
 export interface RegisterProjectResult extends BaseHandlerResult {
-    data?: ProjectDefinition
+    data: ProjectDefinition
 }
 
 export async function registerProject(

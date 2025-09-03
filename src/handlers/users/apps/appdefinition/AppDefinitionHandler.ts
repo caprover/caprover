@@ -4,15 +4,13 @@ import ServiceManager from '../../../../user/ServiceManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 
+import { BaseHandlerResult } from '../../../BaseHandlerResult'
+
 export interface RegisterAppDefinitionParams {
     appName: string
     projectId: string
     hasPersistentData: boolean
     isDetachedBuild: boolean
-}
-
-export interface BaseHandlerResult {
-    message: string
 }
 
 export async function registerAppDefinition(
