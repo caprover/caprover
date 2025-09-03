@@ -1,8 +1,8 @@
 import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
+import { uploadCaptainDefinitionContent as uploadCaptainDefinitionContentHandler } from '../../../../handlers/users/apps/appdata/AppDataHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import Logger from '../../../../utils/Logger'
 import multer = require('multer')
 
 const TEMP_UPLOAD = 'temp_upload/'
@@ -70,6 +70,7 @@ router.post('/:appName/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+// uploadCaptainDefinitionContent
 router.post(
     '/:appName/',
     upload.single('sourceFile'),
@@ -79,63 +80,27 @@ router.post(
 
         const appName = req.params.appName
         const isDetachedBuild = !!req.query.detached
-        const captainDefinitionContent =
-            (req.body.captainDefinitionContent || '') + ''
-        const gitHash = (req.body.gitHash || '') + ''
+        const captainDefinitionContent = `${req.body.captainDefinitionContent || ''}`
+        const gitHash = `${req.body.gitHash || ''}`
         const tarballSourceFilePath: string = req.file ? req.file.path : ''
 
-        if (!!tarballSourceFilePath === !!captainDefinitionContent) {
-            res.send(
-                new BaseApi(
-                    ApiStatusCodes.ILLEGAL_OPERATION,
-                    'Either tarballfile or captainDefinitionContent should be present.'
-                )
-            )
-            return
-        }
-
-        return Promise.resolve().then(function () {
-            const promiseToDeployNewVer =
-                serviceManager.scheduleDeployNewVersion(appName, {
-                    uploadedTarPathSource: tarballSourceFilePath
-                        ? {
-                              uploadedTarPath: tarballSourceFilePath,
-                              gitHash,
-                          }
-                        : undefined,
-                    captainDefinitionContentSource: captainDefinitionContent
-                        ? {
-                              captainDefinitionContent,
-                              gitHash,
-                          }
-                        : undefined,
-                })
-
-            if (isDetachedBuild) {
-                res.send(
-                    new BaseApi(
-                        ApiStatusCodes.STATUS_OK_DEPLOY_STARTED,
-                        'Deploy is started'
-                    )
-                )
-
-                // To avoid unhandled promise error
-                promiseToDeployNewVer.catch(function (err) {
-                    Logger.e(err)
-                })
-            } else {
-                promiseToDeployNewVer
-                    .then(function () {
-                        res.send(
-                            new BaseApi(
-                                ApiStatusCodes.STATUS_OK,
-                                'Deploy is done'
-                            )
-                        )
-                    })
-                    .catch(ApiStatusCodes.createCatcher(res))
-            }
-        })
+        return uploadCaptainDefinitionContentHandler(
+            {
+                appName,
+                isDetachedBuild,
+                captainDefinitionContent: captainDefinitionContent || undefined,
+                gitHash: gitHash || undefined,
+                uploadedTarPathSource: tarballSourceFilePath || undefined,
+            },
+            serviceManager
+        )
+            .then(function (result) {
+                const status = isDetachedBuild
+                    ? ApiStatusCodes.STATUS_OK_DEPLOY_STARTED
+                    : ApiStatusCodes.STATUS_OK
+                res.send(new BaseApi(status, result.message))
+            })
+            .catch(ApiStatusCodes.createCatcher(res))
     }
 )
 

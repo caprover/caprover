@@ -1,4 +1,5 @@
 import DataStore from '../../datastore/DataStore'
+import { uploadCaptainDefinitionContent as uploadCaptainDefinitionContentHandler } from '../../handlers/users/apps/appdata/AppDataHandler'
 import {
     getAllAppDefinitions,
     registerAppDefinition,
@@ -12,12 +13,6 @@ import { ProjectDefinition } from '../../models/ProjectDefinition'
 import DockerComposeToServiceOverride from '../../utils/DockerComposeToServiceOverride'
 import Utils from '../../utils/Utils'
 import ServiceManager from '../ServiceManager'
-
-// TODO - Replace with actual API implementation
-// Step 1- find the endpoint using the mapping here:
-// https://github.com/caprover/caprover-api/blob/master/src/api/ApiManager.ts
-// Step 2- Lookup the implementation based on the path found above
-// Step 3- Replace the mock implementation below with the implementation found in step 2
 
 class ApiManager {
     constructor(
@@ -56,11 +51,20 @@ class ApiManager {
     uploadCaptainDefinitionContent(
         appName: string,
         captainDefinition: ICaptainDefinition,
-        tarFileBase64: string,
-        skipIfExists: boolean
+        gitHash: string,
+        isDetachedBuild: boolean
     ): Promise<any> {
-        // Mock implementation
-        return Promise.resolve({ success: true })
+        const captainDefinitionContent = JSON.stringify(captainDefinition)
+
+        return uploadCaptainDefinitionContentHandler(
+            {
+                appName,
+                isDetachedBuild,
+                captainDefinitionContent,
+                gitHash,
+            },
+            this.serviceManager
+        )
     }
 }
 
