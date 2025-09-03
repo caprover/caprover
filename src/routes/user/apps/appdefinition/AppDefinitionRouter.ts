@@ -1,10 +1,9 @@
 import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
+import { registerAppDefinition } from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
-import { ICaptainDefinition } from '../../../../models/ICaptainDefinition'
-import { CaptainError } from '../../../../models/OtherTypes'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
@@ -190,69 +189,13 @@ router.post('/register/', function (req, res, next) {
     const hasPersistentData = !!req.body.hasPersistentData
     const isDetachedBuild = !!req.query.detached
 
-    let appCreated = false
-
-    Logger.d(`Registering app started: ${appName}`)
-
-    return Promise.resolve()
-        .then(function () {
-            if (projectId) {
-                return dataStore.getProjectsDataStore().getProject(projectId)
-                // if project is not found, it will throw an error
-            }
-        })
-        .then(function () {
-            return dataStore
-                .getAppsDataStore()
-                .registerAppDefinition(appName, projectId, hasPersistentData)
-        })
-        .then(function () {
-            appCreated = true
-        })
-        .then(function () {
-            const captainDefinitionContent: ICaptainDefinition = {
-                schemaVersion: 2,
-                imageName: CaptainConstants.configs.appPlaceholderImageName,
-            }
-
-            const promiseToIgnore = serviceManager
-                .scheduleDeployNewVersion(appName, {
-                    captainDefinitionContentSource: {
-                        captainDefinitionContent: JSON.stringify(
-                            captainDefinitionContent
-                        ),
-                        gitHash: '',
-                    },
-                })
-                .catch(function (error) {
-                    Logger.e(error)
-                })
-
-            if (!isDetachedBuild) return promiseToIgnore
-        })
-        .then(function () {
-            Logger.d(`AppName is saved: ${appName}`)
-            res.send(
-                new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
-            )
-        })
-        .catch(function (error: CaptainError) {
-            function createRejectionPromise() {
-                return new Promise<void>(function (resolve, reject) {
-                    reject(error)
-                })
-            }
-
-            if (appCreated) {
-                return dataStore
-                    .getAppsDataStore()
-                    .deleteAppDefinition(appName)
-                    .then(function () {
-                        return createRejectionPromise()
-                    })
-            } else {
-                return createRejectionPromise()
-            }
+    return registerAppDefinition(
+        { appName, projectId, hasPersistentData, isDetachedBuild },
+        dataStore,
+        serviceManager
+    )
+        .then(function (result) {
+            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, result.message))
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })

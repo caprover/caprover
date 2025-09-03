@@ -1,9 +1,11 @@
+import DataStore from '../../datastore/DataStore'
 import { IHashMapGeneric } from '../../models/ICacheGeneric'
 import {
     IDockerComposeService,
     IOneClickTemplate,
 } from '../../models/IOneClickAppModels'
 import Utils from '../../utils/Utils'
+import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
 
@@ -28,15 +30,19 @@ function replaceWith(
 }
 
 export default class OneClickAppDeployManager {
-    private deploymentHelper: OneClickAppDeploymentHelper =
-        new OneClickAppDeploymentHelper()
+    private deploymentHelper: OneClickAppDeploymentHelper
     private template: IOneClickTemplate | undefined
     constructor(
+        dataStore: DataStore,
+        serviceManager: ServiceManager,
         private onDeploymentStateChanged: (
             deploymentState: IDeploymentState
         ) => void
     ) {
-        //
+        this.deploymentHelper = new OneClickAppDeploymentHelper(
+            dataStore,
+            serviceManager
+        )
     }
 
     startDeployProcess(

@@ -272,6 +272,11 @@ router.get('/template/app', function (req, res, next) {
 })
 
 router.post('/deploy', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+
     const template = req.body.template
     const values = req.body.values
     const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
@@ -291,13 +296,20 @@ router.post('/deploy', function (req, res, next) {
             Logger.dev(`Template: ${JSON.stringify(template, null, 2)}`)
             Logger.dev(`Values: ${JSON.stringify(values, null, 2)}`)
 
-            new OneClickAppDeployManager((deploymentState) => {
-                deploymentJobRegistry.updateJobProgress(jobId, deploymentState)
-                Logger.dev(`Deployment state updated for jobId: ${jobId}`)
-                Logger.dev(
-                    `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
-                )
-            }).startDeployProcess(template, values)
+            new OneClickAppDeployManager(
+                dataStore,
+                serviceManager,
+                (deploymentState) => {
+                    deploymentJobRegistry.updateJobProgress(
+                        jobId,
+                        deploymentState
+                    )
+                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
+                    Logger.dev(
+                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                    )
+                }
+            ).startDeployProcess(template, values)
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,

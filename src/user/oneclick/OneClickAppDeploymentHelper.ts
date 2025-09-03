@@ -1,9 +1,12 @@
+import DataStore from '../../datastore/DataStore'
+import { registerAppDefinition } from '../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import { IAppDef } from '../../models/AppDefinition'
 import { ICaptainDefinition } from '../../models/ICaptainDefinition'
 import { IDockerComposeService } from '../../models/IOneClickAppModels'
 import { ProjectDefinition } from '../../models/ProjectDefinition'
 import DockerComposeToServiceOverride from '../../utils/DockerComposeToServiceOverride'
 import Utils from '../../utils/Utils'
+import ServiceManager from '../ServiceManager'
 
 // TODO - Replace with actual API implementation
 // Step 1- find the endpoint using the mapping here:
@@ -12,14 +15,28 @@ import Utils from '../../utils/Utils'
 // Step 3- Replace the mock implementation below with the implementation found in step 2
 
 class ApiManager {
+    constructor(
+        private dataStore: DataStore,
+        private serviceManager: ServiceManager
+    ) {
+        // Initialize if needed
+    }
     registerNewApp(
         appName: string,
         projectId: string,
-        hasVolume: boolean,
-        skipIfExists: boolean
+        hasPersistentData: boolean,
+        isDetachedBuild: boolean
     ): Promise<any> {
-        // Mock implementation
-        return Promise.resolve({ success: true })
+        return registerAppDefinition(
+            {
+                appName,
+                projectId,
+                hasPersistentData,
+                isDetachedBuild,
+            },
+            this.dataStore,
+            this.serviceManager
+        )
     }
 
     registerProject(projectDef: ProjectDefinition): Promise<any> {
@@ -46,7 +63,11 @@ class ApiManager {
 }
 
 export default class OneClickAppDeploymentHelper {
-    private apiManager: ApiManager = new ApiManager()
+    private apiManager: ApiManager
+
+    constructor(dataStore: DataStore, serviceManager: ServiceManager) {
+        this.apiManager = new ApiManager(dataStore, serviceManager)
+    }
 
     createRegisterPromise(
         appName: string,
