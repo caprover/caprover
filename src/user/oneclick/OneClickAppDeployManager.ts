@@ -11,7 +11,7 @@ export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
 
 interface IDeploymentStep {
     stepName: string
-    stepPromise: () => Promise<void>
+    stepPromise: () => Promise<any>
 }
 
 export interface IDeploymentState {

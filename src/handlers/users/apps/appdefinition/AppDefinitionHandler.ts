@@ -194,7 +194,7 @@ export async function updateAppDefinition(
     // Defaults & normalization
     const normalizedDescription = `${description || ''}`
     const instanceCountNum = Number(instanceCount ?? 0)
-    const containerHttpPortNum = Number(containerHttpPort ?? 80)
+    const containerHttpPortNum = Number(containerHttpPort) || 80
     const normalizedEnvVars = envVars || []
     const normalizedVolumes = volumes || []
     const normalizedTags = tags || []

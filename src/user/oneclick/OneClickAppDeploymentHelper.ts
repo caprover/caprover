@@ -39,13 +39,13 @@ class ApiManager {
         )
     }
 
-    registerProject(projectDef: ProjectDefinition): Promise<any> {
+    registerProject(projectDef: ProjectDefinition) {
         return registerProject(projectDef, this.dataStore)
     }
-    getAllApps(): Promise<any> {
+    getAllApps() {
         return getAllAppDefinitions(this.dataStore, this.serviceManager)
     }
-    updateConfigAndSave(appName: string, appDef: IAppDef): Promise<any> {
+    updateConfigAndSave(appName: string, appDef: IAppDef) {
         return updateAppDefinition({ appName, ...appDef }, this.serviceManager)
     }
     uploadCaptainDefinitionContent(
@@ -53,7 +53,7 @@ class ApiManager {
         captainDefinition: ICaptainDefinition,
         gitHash: string,
         isDetachedBuild: boolean
-    ): Promise<any> {
+    ) {
         const captainDefinitionContent = JSON.stringify(captainDefinition)
 
         return uploadCaptainDefinitionContentHandler(
@@ -105,8 +105,8 @@ export default class OneClickAppDeploymentHelper {
             // change backend to ensure this returns project ID
             return self.apiManager
                 .registerProject(projectDef)
-                .then(function (data) {
-                    projectMemoryCache.projectId = data.id
+                .then(function (result) {
+                    projectMemoryCache.projectId = result.data.id
                 })
         })
     }
@@ -120,8 +120,8 @@ export default class OneClickAppDeploymentHelper {
         return Promise.resolve().then(function () {
             return self.apiManager
                 .getAllApps()
-                .then(function (data) {
-                    const appDefs = data.appDefinitions as IAppDef[]
+                .then(function (result) {
+                    const appDefs = result.data.appDefinitions as IAppDef[]
                     for (let index = 0; index < appDefs.length; index++) {
                         const element = appDefs[index]
                         if (element.appName === appName) {

@@ -1,3 +1,4 @@
+import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import ServiceManager from '../../../../user/ServiceManager'
 import Logger from '../../../../utils/Logger'
 import { BaseHandlerResult } from '../../../BaseHandlerResult'
@@ -26,8 +27,9 @@ export async function uploadCaptainDefinitionContent(
     const hasCaptainDef = !!captainDefinitionContent
 
     if (hasTar === hasCaptainDef) {
-        throw new Error(
-            'Either tarballfile or captainDefinitionContent should be present.'
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_OPERATION,
+            'Either uploadedTarPathSource or captainDefinitionContent should be provided, but not both.'
         )
     }
 
