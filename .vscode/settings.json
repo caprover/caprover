@@ -19,7 +19,7 @@
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
     "[plaintext]": {
-        "editor.formatOnSave": false,
+        "editor.formatOnSave": true,
         "editor.defaultFormatter": null
     },
     "files.associations": {
