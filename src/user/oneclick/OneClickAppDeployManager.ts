@@ -4,6 +4,7 @@ import {
     IDockerComposeService,
     IOneClickTemplate,
 } from '../../models/IOneClickAppModels'
+import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
@@ -47,10 +48,27 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        values: IHashMapGeneric<string>
+        valuesArray: OneClickAppValuePair[]
     ) {
         const self = this
         let stringified = JSON.stringify(template)
+
+        const values: IHashMapGeneric<string> = {}
+        valuesArray.forEach(element => {
+            values[element.key] = element.value
+        })
+
+        if (
+            !values[ONE_CLICK_APP_NAME_VAR_NAME] ||
+            values[ONE_CLICK_APP_NAME_VAR_NAME].trim().length === 0
+        ) {
+            this.onDeploymentStateChanged({
+                steps: ['Parsing the template'],
+                error: `App name ($$cap_appname) is required.`,
+                currentStep: 0,
+            })
+            return
+        }
 
         for (
             let index = 0;
