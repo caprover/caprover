@@ -54,7 +54,7 @@ export default class OneClickAppDeployManager {
         let stringified = JSON.stringify(template)
 
         const values: IHashMapGeneric<string> = {}
-        valuesArray.forEach(element => {
+        valuesArray.forEach((element) => {
             values[element.key] = element.value
         })
 
