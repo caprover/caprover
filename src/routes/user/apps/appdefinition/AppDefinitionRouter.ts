@@ -1,12 +1,14 @@
 import express = require('express')
 import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
+import {
+    getAllAppDefinitions,
+    registerAppDefinition,
+    updateAppDefinition,
+} from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
-import { AppDeployTokenConfig, IAppDef } from '../../../../models/AppDefinition'
-import { ICaptainDefinition } from '../../../../models/ICaptainDefinition'
-import { CaptainError } from '../../../../models/OtherTypes'
+import { AppDeployTokenConfig } from '../../../../models/AppDefinition'
 import CaptainManager from '../../../../user/system/CaptainManager'
-import CaptainConstants from '../../../../utils/CaptainConstants'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
@@ -60,39 +62,14 @@ router.get('/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
-    const appsArray: IAppDef[] = []
 
-    return dataStore
-        .getAppsDataStore()
-        .getAppDefinitions()
-        .then(function (apps) {
-            const promises: Promise<void>[] = []
-
-            Object.keys(apps).forEach(function (key, index) {
-                const app = apps[key]
-                app.appName = key
-                app.isAppBuilding = serviceManager.isAppBuilding(key)
-                app.appPushWebhook = app.appPushWebhook || undefined
-                appsArray.push(app)
-            })
-
-            return Promise.all(promises)
-        })
-        .then(function () {
-            return dataStore.getDefaultAppNginxConfig()
-        })
-        .then(function (defaultNginxConfig) {
+    return getAllAppDefinitions(dataStore, serviceManager)
+        .then(function (result) {
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
-                'App definitions are retrieved.'
+                result.message
             )
-            baseApi.data = {
-                appDefinitions: appsArray,
-                rootDomain: dataStore.getRootDomain(),
-                captainSubDomain: CaptainConstants.configs.captainSubDomain,
-                defaultNginxConfig: defaultNginxConfig,
-            }
-
+            baseApi.data = result.data
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
@@ -190,69 +167,13 @@ router.post('/register/', function (req, res, next) {
     const hasPersistentData = !!req.body.hasPersistentData
     const isDetachedBuild = !!req.query.detached
 
-    let appCreated = false
-
-    Logger.d(`Registering app started: ${appName}`)
-
-    return Promise.resolve()
-        .then(function () {
-            if (projectId) {
-                return dataStore.getProjectsDataStore().getProject(projectId)
-                // if project is not found, it will throw an error
-            }
-        })
-        .then(function () {
-            return dataStore
-                .getAppsDataStore()
-                .registerAppDefinition(appName, projectId, hasPersistentData)
-        })
-        .then(function () {
-            appCreated = true
-        })
-        .then(function () {
-            const captainDefinitionContent: ICaptainDefinition = {
-                schemaVersion: 2,
-                imageName: CaptainConstants.configs.appPlaceholderImageName,
-            }
-
-            const promiseToIgnore = serviceManager
-                .scheduleDeployNewVersion(appName, {
-                    captainDefinitionContentSource: {
-                        captainDefinitionContent: JSON.stringify(
-                            captainDefinitionContent
-                        ),
-                        gitHash: '',
-                    },
-                })
-                .catch(function (error) {
-                    Logger.e(error)
-                })
-
-            if (!isDetachedBuild) return promiseToIgnore
-        })
-        .then(function () {
-            Logger.d(`AppName is saved: ${appName}`)
-            res.send(
-                new BaseApi(ApiStatusCodes.STATUS_OK, 'App Definition Saved')
-            )
-        })
-        .catch(function (error: CaptainError) {
-            function createRejectionPromise() {
-                return new Promise<void>(function (resolve, reject) {
-                    reject(error)
-                })
-            }
-
-            if (appCreated) {
-                return dataStore
-                    .getAppsDataStore()
-                    .deleteAppDefinition(appName)
-                    .then(function () {
-                        return createRejectionPromise()
-                    })
-            } else {
-                return createRejectionPromise()
-            }
+    return registerAppDefinition(
+        { appName, projectId, hasPersistentData, isDetachedBuild },
+        dataStore,
+        serviceManager
+    )
+        .then(function (result) {
+            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, result.message))
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
@@ -329,6 +250,7 @@ router.post('/rename/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+// Update app configs
 router.post('/update/', function (req, res, next) {
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
@@ -339,103 +261,33 @@ router.post('/update/', function (req, res, next) {
     const captainDefinitionRelativeFilePath =
         req.body.captainDefinitionRelativeFilePath
     const notExposeAsWebApp = req.body.notExposeAsWebApp
-    const tags = req.body.tags || []
+    const tags = req.body.tags
     const customNginxConfig = req.body.customNginxConfig
-    const forceSsl = !!req.body.forceSsl
-    const websocketSupport = !!req.body.websocketSupport
+    const forceSsl = req.body.forceSsl
+    const websocketSupport = req.body.websocketSupport
     const repoInfo = req.body.appPushWebhook
-        ? req.body.appPushWebhook.repoInfo || {}
-        : {}
-    const envVars = req.body.envVars || []
-    const volumes = req.body.volumes || []
-    const ports = req.body.ports || []
-    const instanceCount = req.body.instanceCount || '0'
-    const redirectDomain = req.body.redirectDomain || ''
-    const preDeployFunction = req.body.preDeployFunction || ''
-    const serviceUpdateOverride = req.body.serviceUpdateOverride || ''
-    const containerHttpPort = Number(req.body.containerHttpPort) || 80
+        ? req.body.appPushWebhook.repoInfo
+        : undefined
+    const envVars = req.body.envVars
+    const volumes = req.body.volumes
+    const ports = req.body.ports
+    const instanceCount = req.body.instanceCount
+    const redirectDomain = req.body.redirectDomain
+    const preDeployFunction = req.body.preDeployFunction
+    const serviceUpdateOverride = req.body.serviceUpdateOverride
+    const containerHttpPort = req.body.containerHttpPort
     const httpAuth = req.body.httpAuth
-    let appDeployTokenConfig = req.body.appDeployTokenConfig as
+    const appDeployTokenConfig = req.body.appDeployTokenConfig as
         | AppDeployTokenConfig
         | undefined
-    const description = req.body.description || ''
+    const description = req.body.description
 
-    if (!appDeployTokenConfig) {
-        appDeployTokenConfig = { enabled: false }
-    } else {
-        appDeployTokenConfig = {
-            enabled: !!appDeployTokenConfig.enabled,
-            appDeployToken: `${
-                appDeployTokenConfig.appDeployToken
-                    ? appDeployTokenConfig.appDeployToken
-                    : ''
-            }`.trim(),
-        }
-    }
-
-    if (repoInfo.user) {
-        repoInfo.user = repoInfo.user.trim()
-    }
-    if (repoInfo.repo) {
-        repoInfo.repo = repoInfo.repo.trim()
-    }
-    if (repoInfo.branch) {
-        repoInfo.branch = repoInfo.branch.trim()
-    }
-
-    if (
-        (repoInfo.branch ||
-            repoInfo.user ||
-            repoInfo.repo ||
-            repoInfo.password ||
-            repoInfo.sshKey) &&
-        (!repoInfo.branch ||
-            !repoInfo.repo ||
-            (!repoInfo.sshKey && !repoInfo.user && !repoInfo.password) ||
-            (repoInfo.password && !repoInfo.user) ||
-            (repoInfo.user && !repoInfo.password))
-    ) {
-        res.send(
-            new BaseApi(
-                ApiStatusCodes.ILLEGAL_PARAMETER,
-                'Missing required Github/BitBucket/Gitlab field'
-            )
-        )
-        return
-    }
-
-    if (
-        repoInfo &&
-        repoInfo.sshKey &&
-        repoInfo.sshKey.indexOf('ENCRYPTED') > 0 &&
-        !CaptainConstants.configs.disableEncryptedCheck
-    ) {
-        res.send(
-            new BaseApi(
-                ApiStatusCodes.ILLEGAL_PARAMETER,
-                'You cannot use encrypted SSH keys'
-            )
-        )
-        return
-    }
-
-    if (
-        repoInfo &&
-        repoInfo.sshKey &&
-        repoInfo.sshKey.indexOf('END OPENSSH PRIVATE KEY-----') > 0
-    ) {
-        repoInfo.sshKey = repoInfo.sshKey.trim()
-        repoInfo.sshKey = repoInfo.sshKey + '\n'
-    }
-
-    Logger.d(`Updating app started: ${appName}`)
-
-    return serviceManager
-        .updateAppDefinition(
+    return updateAppDefinition(
+        {
             appName,
             projectId,
             description,
-            Number(instanceCount),
+            instanceCount,
             captainDefinitionRelativeFilePath,
             envVars,
             volumes,
@@ -452,16 +304,12 @@ router.post('/update/', function (req, res, next) {
             preDeployFunction,
             serviceUpdateOverride,
             websocketSupport,
-            appDeployTokenConfig
-        )
-        .then(function () {
-            Logger.d(`AppName is updated: ${appName}`)
-            res.send(
-                new BaseApi(
-                    ApiStatusCodes.STATUS_OK,
-                    'Updated App Definition Saved'
-                )
-            )
+            appDeployTokenConfig,
+        },
+        serviceManager
+    )
+        .then(function (result) {
+            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, result.message))
         })
         .catch(ApiStatusCodes.createCatcher(res))
 })
