@@ -20,7 +20,6 @@ interface IJobInfo {
 export class OneClickDeploymentJobRegistry {
     private static instance: OneClickDeploymentJobRegistry
     private jobs: Map<string, IJobInfo> = new Map()
-    private cleanupInterval: NodeJS.Timeout | null = null
 
     private constructor() {
         this.startAutomaticCleanup()
@@ -135,7 +134,7 @@ export class OneClickDeploymentJobRegistry {
      */
     private startAutomaticCleanup(): void {
         // Clean up jobs older than 24 hours every 4 hours (4 * 60 * 60 * 1000 ms)
-        this.cleanupInterval = setInterval(
+        setInterval(
             () => {
                 const removedCount = this.cleanupOldJobs(24)
                 if (removedCount > 0) {
