@@ -1,3 +1,5 @@
+import Logger from '../../utils/Logger'
+
 export interface IDeploymentState {
     steps: string[]
     error: string
@@ -18,8 +20,11 @@ interface IJobInfo {
 export class OneClickDeploymentJobRegistry {
     private static instance: OneClickDeploymentJobRegistry
     private jobs: Map<string, IJobInfo> = new Map()
+    private cleanupInterval: NodeJS.Timeout | null = null
 
-    private constructor() {}
+    private constructor() {
+        this.startAutomaticCleanup()
+    }
 
     public static getInstance(): OneClickDeploymentJobRegistry {
         if (!OneClickDeploymentJobRegistry.instance) {
@@ -110,7 +115,7 @@ export class OneClickDeploymentJobRegistry {
     /**
      * Clean up old jobs (older than specified hours)
      */
-    public cleanupOldJobs(olderThanHours: number = 24): number {
+    cleanupOldJobs(olderThanHours: number = 24): number {
         const cutoffTime = new Date()
         cutoffTime.setHours(cutoffTime.getHours() - olderThanHours)
 
@@ -123,5 +128,23 @@ export class OneClickDeploymentJobRegistry {
         }
 
         return removedCount
+    }
+
+    /**
+     * Start automatic cleanup that runs every 4 hours
+     */
+    private startAutomaticCleanup(): void {
+        // Clean up jobs older than 24 hours every 4 hours (4 * 60 * 60 * 1000 ms)
+        this.cleanupInterval = setInterval(
+            () => {
+                const removedCount = this.cleanupOldJobs(24)
+                if (removedCount > 0) {
+                    Logger.d(
+                        `OneClick deployment cleanup: removed ${removedCount} old job(s)`
+                    )
+                }
+            },
+            4 * 60 * 60 * 1000
+        )
     }
 }
