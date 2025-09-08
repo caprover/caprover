@@ -15,5 +15,4 @@ ENV PORT 3000
 EXPOSE 3000
 
 CMD ["node" , "./built/server.js"]
-# Contributor: Added ko-KR locale (frontend translation)
-
+ 
