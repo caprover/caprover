@@ -6,7 +6,7 @@
         "**/built": true,
         "**/coverge": true
     },
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit",
         "source.fixAll.eslint": "explicit",
@@ -19,7 +19,7 @@
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
     "[plaintext]": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.defaultFormatter": null
     },
     "files.associations": {
