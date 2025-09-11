@@ -59,8 +59,11 @@ export default class OneClickAppDeployManager {
         })
 
         if (
-            !values[ONE_CLICK_APP_NAME_VAR_NAME] ||
-            values[ONE_CLICK_APP_NAME_VAR_NAME].trim().length === 0
+            template.caproverOneClickApp.variables.find(
+                (v) => v.id === ONE_CLICK_APP_NAME_VAR_NAME
+            ) &&
+            (!values[ONE_CLICK_APP_NAME_VAR_NAME] ||
+                values[ONE_CLICK_APP_NAME_VAR_NAME].trim().length === 0)
         ) {
             this.onDeploymentStateChanged({
                 steps: ['Parsing the template'],
