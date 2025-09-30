@@ -30,7 +30,7 @@ function isNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
-        /^[a-z]/.test(name) &&
+        /^[a-z0-9]/.test(name) &&
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
@@ -242,7 +242,7 @@ class AppsDataStore {
         if (!isNameAllowed(appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
             )
         }
 
@@ -873,7 +873,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
                     )
                 )
                 return
@@ -915,7 +915,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
                     )
                 )
                 return
