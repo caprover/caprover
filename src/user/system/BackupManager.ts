@@ -658,7 +658,7 @@ export default class BackupManager {
                         // https://github.com/jprichardson/node-fs-extra/issues/638
                         return new Promise(function (resolve, reject) {
                             const child = exec(
-                                `mkdir -p {dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest}`
+                                `mkdir -p ${dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest} && mkdir -p ${dest}/shared-logs && rm -rf ${dest}/shared-logs`
                             )
                             child.addListener('error', reject)
                             child.addListener('exit', resolve)

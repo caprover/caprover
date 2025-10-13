@@ -7,6 +7,8 @@ import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../../../user/events/ICapRoverEvent'
+import OneClickAppDeployManager from '../../../user/oneclick/OneClickAppDeployManager'
+import { OneClickDeploymentJobRegistry } from '../../../user/oneclick/OneClickDeploymentJobRegistry'
 import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 
@@ -264,6 +266,100 @@ router.get('/template/app', function (req, res, next) {
             )
             baseApi.data = {}
             baseApi.data.appTemplate = appTemplate
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.post('/deploy', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+
+    const template = req.body.template
+    const values = req.body.values
+    const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
+
+    return Promise.resolve() //
+        .then(function () {
+            if (!template) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Template is required'
+                )
+            }
+
+            const jobId = deploymentJobRegistry.createJob()
+
+            Logger.dev(`Starting one-click deployment with jobId: ${jobId}`)
+            Logger.dev(`Template: ${JSON.stringify(template, null, 2)}`)
+            Logger.dev(`Values: ${JSON.stringify(values, null, 2)}`)
+
+            new OneClickAppDeployManager(
+                dataStore,
+                serviceManager,
+                (deploymentState) => {
+                    deploymentJobRegistry.updateJobProgress(
+                        jobId,
+                        deploymentState
+                    )
+                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
+                    Logger.dev(
+                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                    )
+                }
+            ).startDeployProcess(template, values)
+
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'One-click deployment started'
+            )
+            baseApi.data = { jobId }
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/deploy/progress', function (req, res, next) {
+    const jobId = req.query.jobId as string
+    const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
+
+    return Promise.resolve() //
+        .then(function () {
+            // Validate input
+            if (!jobId) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Job ID is required'
+                )
+            }
+
+            // Check if job exists
+            if (!deploymentJobRegistry.jobExists(jobId)) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Job ID not found'
+                )
+            }
+
+            Logger.d(`Getting deployment progress for jobId: ${jobId}`)
+
+            // Get the current job state from deployment manager
+            const jobState = deploymentJobRegistry.getJobState(jobId)
+
+            if (!jobState) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'Unable to retrieve job state'
+                )
+            }
+
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Deployment progress retrieved'
+            )
+            baseApi.data = jobState
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
