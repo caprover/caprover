@@ -26,7 +26,7 @@
  * • Handles edge cases: null services, non-object entries, missing properties
  *
  * EVENT LOGGING:
- * • Creates a CapRoverEventType.OneClickAppDetailsFetched event
+ * • Creates a CapRoverEventType.OneClickAppDeployStarted event
  * • Event metadata includes: templateName (string) and unusedFields (string[])
  * • Uses CapRoverEventFactory to create events with proper structure
  * • Calls eventLogger.trackEvent() exactly once per deployment
@@ -48,7 +48,7 @@ jest.mock('../src/user/events/ICapRoverEvent', () => ({
         })),
     },
     CapRoverEventType: {
-        OneClickAppDetailsFetched: 'OneClickAppDetailsFetched',
+        OneClickAppDeployStarted: 'OneClickAppDeployStarted',
     },
 }))
 
@@ -328,7 +328,7 @@ describe('reportAnalyticsOnAppDeploy', () => {
             reportAnalyticsOnAppDeploy(templateName, template, mockEventLogger)
 
             expect(trackedEvents[0].eventType).toBe(
-                CapRoverEventType.OneClickAppDetailsFetched
+                CapRoverEventType.OneClickAppDeployStarted
             )
         })
 
@@ -437,7 +437,7 @@ describe('reportAnalyticsOnAppDeploy', () => {
             reportAnalyticsOnAppDeploy(templateName, template, mockEventLogger)
 
             expect(CapRoverEventFactory.create).toHaveBeenCalledWith(
-                CapRoverEventType.OneClickAppDetailsFetched,
+                CapRoverEventType.OneClickAppDeployStarted,
                 {
                     unusedFields: [],
                     templateName: 'TEMPLATE_ONE_CLICK',
