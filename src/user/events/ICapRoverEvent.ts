@@ -5,6 +5,7 @@ export enum CapRoverEventType {
     InstanceStarted = 'InstanceStarted',
     OneClickAppDetailsFetched = 'OneClickAppDetailsFetched',
     OneClickAppListFetched = 'OneClickAppListFetched',
+    OneClickAppDeployStarted = 'OneClickAppDeployStarted',
 }
 
 export interface ICapRoverEvent {

@@ -22,6 +22,7 @@ export class AnalyticsLogger extends IEventsEmitter {
             case CapRoverEventType.InstanceStarted:
             case CapRoverEventType.OneClickAppDetailsFetched:
             case CapRoverEventType.OneClickAppListFetched:
+            case CapRoverEventType.OneClickAppDeployStarted:
                 return true
         }
     }

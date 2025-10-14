@@ -3,6 +3,7 @@ import axios from 'axios'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import { EventLogger } from '../../../user/events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
@@ -276,9 +277,13 @@ router.post('/deploy', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const eventLogger =
+        InjectionExtractor.extractUserFromInjected(res).user.userManager
+            .eventLogger
 
     const template = req.body.template
     const values = req.body.values
+    const templateName = req.body.templateName
     const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
 
     return Promise.resolve() //
@@ -292,9 +297,7 @@ router.post('/deploy', function (req, res, next) {
 
             const jobId = deploymentJobRegistry.createJob()
 
-            Logger.dev(`Starting one-click deployment with jobId: ${jobId}`)
-            Logger.dev(`Template: ${JSON.stringify(template, null, 2)}`)
-            Logger.dev(`Values: ${JSON.stringify(values, null, 2)}`)
+            reportAnalyticsOnAppDeploy(templateName, template, eventLogger)
 
             new OneClickAppDeployManager(
                 dataStore,
@@ -366,3 +369,56 @@ router.get('/deploy/progress', function (req, res, next) {
 })
 
 export default router
+
+// This function analyzes the provided template to identify any unused fields in Docker service definitions.
+// It then logs an analytics event with the unused fields and the template name (if it's an official or known template).
+// This helps track which fields users are using and may inform future improvements to the one-click app templates.
+export function reportAnalyticsOnAppDeploy(
+    templateName: any,
+    template: any,
+    eventLogger: EventLogger
+) {
+    const unusedDockerServiceFieldNames: string[] = []
+    if (
+        templateName === 'TEMPLATE_ONE_CLICK' ||
+        templateName === 'DOCKER_COMPOSE'
+    ) {
+        if (template?.services) {
+            template.services.forEach((service: any) => {
+                if (service && typeof service === 'object') {
+                    Object.keys(service).forEach((key) => {
+                        if (
+                            !'image,environment,ports,volumes,depends_on,hostname,command,cap_add'
+                                .split(',')
+                                .includes(key)
+                        ) {
+                            // log the unused keys so that we can track what to add next
+                            if (!unusedDockerServiceFieldNames.includes(key)) {
+                                unusedDockerServiceFieldNames.push(key)
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    }
+
+    // we do not want to log private repos names
+    const templateNameToReport =
+        templateName === 'TEMPLATE_ONE_CLICK' ||
+        templateName === 'DOCKER_COMPOSE' ||
+        (typeof templateName === 'string' &&
+            templateName.startsWith('OFFICIAL_'))
+            ? templateName
+            : 'UNKNOWN'
+
+    eventLogger.trackEvent(
+        CapRoverEventFactory.create(
+            CapRoverEventType.OneClickAppDeployStarted,
+            {
+                unusedFields: unusedDockerServiceFieldNames,
+                templateName: templateNameToReport,
+            }
+        )
+    )
+}
