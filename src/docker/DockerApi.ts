@@ -1788,7 +1788,7 @@ connectionParams.version = CaptainConstants.configs.dockerApiVersion
 const dockerApiInstance = new DockerApi(connectionParams)
 
 const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
-lowVersionDocker.version = 'v1.38'
+lowVersionDocker.version = 'v1.44'
 
 new Docker(lowVersionDocker)
     .version()
