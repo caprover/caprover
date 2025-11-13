@@ -1438,8 +1438,9 @@ class DockerApi {
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
                                 Source:
-                                    (namespace ? namespace + '--' : '') +
-                                    v.volumeName,
+                                    (namespace && appObject?.isLegacyAppName
+                                        ? namespace + '--'
+                                        : '') + v.volumeName,
                                 Target: v.containerPath,
                                 Type: VolumesTypes.VOLUME,
                                 ReadOnly: false,
