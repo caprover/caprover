@@ -321,6 +321,7 @@ class DockerApi {
                 const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
+                    version: CaptainConstants.configs.defaultDockerBuildVersion,
                 }
 
                 if (Object.keys(registryConfig).length > 0) {

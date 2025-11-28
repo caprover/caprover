@@ -21,6 +21,8 @@ const configs = {
 
     defaultMaxLogSize: '512m',
 
+    defaultDockerBuildVersion: '2' as '1' | '2',
+
     buildLogSize: 50,
 
     appLogSize: 500,
