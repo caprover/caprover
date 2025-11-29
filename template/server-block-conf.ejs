@@ -53,6 +53,18 @@ server {
 
         server_name  <%-s.publicDomain%>;
 
+        <%
+        if (s.defaultGzipOn) {
+        %>
+        gzip on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 4;
+        gzip_types <%-s.gzipTypes%>;
+        <%
+        }
+        %>
+
         # 127.0.0.11 is DNS set up by Docker, see:
         # https://docs.docker.com/engine/userguide/networking/configure-dns/
         # https://github.com/moby/moby/issues/20026
@@ -76,7 +88,7 @@ server {
 		    if (s.httpBasicAuthPath) {
 		    %>
 			    auth_basic           "Restricted Access";
-			    auth_basic_user_file <%-s.httpBasicAuthPath%>; 
+			    auth_basic_user_file <%-s.httpBasicAuthPath%>;
 		    <%
 		    }
 		    %>
@@ -96,19 +108,19 @@ server {
 		    <%
 		    }
 		    %>
-    
-    
+
+
 	<%
 	}
 	%>
-	
+
         }
 
         # Used by Lets Encrypt
         location /.well-known/acme-challenge/ {
             root <%-s.staticWebRoot%>;
         }
-        
+
         # Used by CapRover for health check
         location /.well-known/captain-identifier {
             root <%-s.staticWebRoot%>;

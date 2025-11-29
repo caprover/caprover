@@ -341,6 +341,11 @@ class LoadBalancerManager {
                         serverWithSubDomain.redirectToPath = `http://${webApp.redirectDomain}`
                     }
 
+                    serverWithSubDomain.defaultGzipOn =
+                        CaptainConstants.configs.defaultGzipOn
+                    serverWithSubDomain.gzipTypes =
+                        CaptainConstants.configs.gzipTypes
+
                     servers.push(serverWithSubDomain)
 
                     // adding custom domains
@@ -366,6 +371,9 @@ class LoadBalancerManager {
                                 logAccessPath: logAccess
                                     ? self.getLogPath(appName, d.publicDomain)
                                     : undefined,
+                                defaultGzipOn:
+                                    CaptainConstants.configs.defaultGzipOn,
+                                gzipTypes: CaptainConstants.configs.gzipTypes,
                             }
                             if (
                                 webApp.redirectDomain &&
