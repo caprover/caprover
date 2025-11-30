@@ -54,7 +54,7 @@ server {
         server_name  <%-s.publicDomain%>;
 
         <%
-        if (s.defaultGzipOn) {
+        if (s.gzipOn) {
         %>
         gzip on;
         gzip_vary on;

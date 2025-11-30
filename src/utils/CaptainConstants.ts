@@ -75,7 +75,7 @@ const configs = {
 
     defaultGzipOn: true,
 
-    gzipTypes:
+    defaultGzipTypes:
         'application/atom+xml application/geo+json application/javascript application/x-javascript application/json application/ld+json application/manifest+json application/rdf+xml application/rss+xml application/xhtml+xml application/xml font/eot font/otf font/ttf font/woff2 image/svg+xml text/css text/html text/javascript text/plain text/xml',
 }
 

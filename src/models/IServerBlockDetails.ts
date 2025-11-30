@@ -15,6 +15,6 @@ export interface IServerBlockDetails {
     staticWebRoot: string
     redirectToPath?: string
     logAccessPath?: string
-    defaultGzipOn?: boolean
+    gzipOn?: boolean
     gzipTypes?: string
 }
