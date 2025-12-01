@@ -371,9 +371,8 @@ class LoadBalancerManager {
                                 logAccessPath: logAccess
                                     ? self.getLogPath(appName, d.publicDomain)
                                     : undefined,
-                                gzipOn: CaptainConstants.configs.defaultGzipOn,
-                                gzipTypes:
-                                    CaptainConstants.configs.defaultGzipTypes,
+                                gzipOn: serverWithSubDomain.gzipOn,
+                                gzipTypes: serverWithSubDomain.gzipTypes,
                             }
                             if (
                                 webApp.redirectDomain &&
