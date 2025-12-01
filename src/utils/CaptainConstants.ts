@@ -72,6 +72,11 @@ const configs = {
     nginxPortNumber443: EnvVars.CAPTAIN_HOST_HTTPS_PORT,
     // The port can be overridden via env variable CAPTAIN_HOST_ADMIN_PORT
     adminPortNumber3000: EnvVars.CAPTAIN_HOST_ADMIN_PORT,
+
+    defaultGzipOn: true,
+
+    defaultGzipTypes:
+        'application/atom+xml application/geo+json application/javascript application/x-javascript application/json application/ld+json application/manifest+json application/rdf+xml application/rss+xml application/xhtml+xml application/xml font/eot font/otf font/ttf font/woff2 image/svg+xml text/css text/html text/javascript text/plain text/xml',
 }
 
 export interface CertbotCertCommandRule {
