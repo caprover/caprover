@@ -748,6 +748,10 @@ class CaptainManager {
                                     goAccessInfo.data.logRetentionDays ?? 180
                                 ).toString(),
                             },
+                            {
+                                key: 'ANONYMIZE_IP',
+                                value: CaptainConstants.configs.goAccessAnonymizeIP.toString(),
+                            },
                         ],
                         [],
                         ['apparmor:unconfined'],
