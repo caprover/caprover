@@ -464,6 +464,10 @@ router.get('/goaccess/:appName/files/:file', async function (req, res, next) {
                     key: 'FILE_PREFIX',
                     value: `${appName}--${domainName}`,
                 },
+                {
+                    key: 'ANONYMIZE_IP',
+                    value: CaptainConstants.configs.goAccessAnonymizeIP.toString(),
+                },
             ],
             sticky: false,
             wait: true,

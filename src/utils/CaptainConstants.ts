@@ -39,7 +39,9 @@ const configs = {
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
-    goAccessImageName: 'caprover/goaccess:1.9.3',
+    goAccessImageName: 'caprover/goaccess:1.9.4',
+
+    goAccessAnonymizeIP: false,
 
     registryImageName: 'registry:2',
 
