@@ -3,6 +3,7 @@
 - New: Ability to deploy simplified Docker compose [PR-191](https://github.com/caprover/caprover-frontend/pull/191)
 - New: Defaulting to BuildKit [Issue-1582](https://github.com/caprover/caprover/issues/1582)
 - New: Defaulting to gzip on [PR-2360](https://github.com/caprover/caprover/pull/2360)
+- New: Ability to disable IP logging in GoAccess logs [PR-2362](https://github.com/caprover/caprover/pull/2362)
 - Improved: Descriptive error on installations on incompatible systems (e.g. Proxmox LXC) [issues-2326](https://github.com/caprover/caprover/issues/2326)
 - Improved: Moved one click app creation process to backend for more stability [PR-2334](https://github.com/caprover/caprover/pull/2334)
 - Improved: Reduced the Backup size by excluding the GoAccess logs [PR-2336](https://github.com/caprover/caprover/pull/2336)
