@@ -294,12 +294,12 @@ class AppsDataStore {
             })
     }
 
-    getServiceName(appName: string) {
-        return `srv-${this.namepace}--${appName}`
-    }
+    getServiceName(appName: string, isLegacyAppName: boolean) {
+        if (isLegacyAppName) {
+            return `srv-${this.namepace}--${appName}`
+        }
 
-    getVolumeName(volumeName: string) {
-        return `${this.namepace}--${volumeName}`
+        return `${appName}`
     }
 
     getAppDefinitions() {

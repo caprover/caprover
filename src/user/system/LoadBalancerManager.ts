@@ -308,7 +308,7 @@ class LoadBalancerManager {
 
                     const localDomain = dataStore
                         .getAppsDataStore()
-                        .getServiceName(appName)
+                        .getServiceName(appName, !!webApp.isLegacyAppName)
                     const forceSsl = !!webApp.forceSsl
                     const websocketSupport = !!webApp.websocketSupport
                     const nginxConfigTemplate =
