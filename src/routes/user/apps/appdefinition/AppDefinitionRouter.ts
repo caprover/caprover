@@ -3,6 +3,7 @@ import ApiStatusCodes from '../../../../api/ApiStatusCodes'
 import BaseApi from '../../../../api/BaseApi'
 import {
     getAllAppDefinitions,
+    patchAppDefinition,
     registerAppDefinition,
     updateAppDefinition,
 } from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
@@ -308,6 +309,32 @@ router.post('/update/', function (req, res, next) {
         },
         serviceManager
     )
+        .then(function (result) {
+            res.send(new BaseApi(ApiStatusCodes.STATUS_OK, result.message))
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+// Partial update - only provided fields are changed, omitted fields keep existing values
+router.patch('/update/', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+
+    const appName = req.body.appName
+
+    if (!appName) {
+        res.send(
+            new BaseApi(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                'appName is required'
+            )
+        )
+        return
+    }
+
+    return patchAppDefinition(appName, req.body, dataStore, serviceManager)
         .then(function (result) {
             res.send(new BaseApi(ApiStatusCodes.STATUS_OK, result.message))
         })

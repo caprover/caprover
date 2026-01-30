@@ -163,6 +163,121 @@ export interface UpdateAppDefinitionParams {
     appDeployTokenConfig?: AppDeployTokenConfig
 }
 
+/**
+ * Partially update an app definition by merging provided fields with existing values.
+ * Only fields explicitly included in the request body are updated;
+ * omitted fields retain their current values.
+ *
+ * This is safer than the full update (POST /update/) for operations like
+ * scaling instance count, where you don't want to accidentally reset
+ * env vars or other settings.
+ */
+export async function patchAppDefinition(
+    appName: string,
+    patch: Record<string, unknown>,
+    dataStore: DataStore,
+    serviceManager: ServiceManager
+): Promise<BaseHandlerResult> {
+    if (!appName) {
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_PARAMETER,
+            'appName is required'
+        )
+    }
+
+    // Fetch existing app definition to use as base
+    const existingApp = await dataStore
+        .getAppsDataStore()
+        .getAppDefinition(appName)
+
+    // Merge: use patch value if explicitly provided, otherwise keep existing
+    const merged: UpdateAppDefinitionParams = {
+        appName,
+        projectId:
+            patch.projectId !== undefined
+                ? `${patch.projectId}`
+                : existingApp.projectId,
+        description:
+            patch.description !== undefined
+                ? `${patch.description}`
+                : existingApp.description,
+        instanceCount:
+            patch.instanceCount !== undefined
+                ? patch.instanceCount as number | string
+                : existingApp.instanceCount,
+        captainDefinitionRelativeFilePath:
+            patch.captainDefinitionRelativeFilePath !== undefined
+                ? `${patch.captainDefinitionRelativeFilePath}`
+                : existingApp.captainDefinitionRelativeFilePath,
+        envVars:
+            patch.envVars !== undefined
+                ? (patch.envVars as IAppEnvVar[])
+                : existingApp.envVars,
+        volumes:
+            patch.volumes !== undefined
+                ? (patch.volumes as IAppVolume[])
+                : existingApp.volumes,
+        tags:
+            patch.tags !== undefined
+                ? (patch.tags as IAppTag[])
+                : existingApp.tags,
+        nodeId:
+            patch.nodeId !== undefined
+                ? `${patch.nodeId}`
+                : existingApp.nodeId,
+        notExposeAsWebApp:
+            patch.notExposeAsWebApp !== undefined
+                ? !!patch.notExposeAsWebApp
+                : existingApp.notExposeAsWebApp,
+        containerHttpPort:
+            patch.containerHttpPort !== undefined
+                ? (patch.containerHttpPort as number | string)
+                : existingApp.containerHttpPort,
+        httpAuth:
+            patch.httpAuth !== undefined
+                ? patch.httpAuth
+                : (existingApp as any).httpAuth,
+        forceSsl:
+            patch.forceSsl !== undefined
+                ? !!patch.forceSsl
+                : existingApp.forceSsl,
+        ports:
+            patch.ports !== undefined
+                ? (patch.ports as IAppPort[])
+                : existingApp.ports,
+        repoInfo:
+            patch.appPushWebhook !== undefined
+                ? (patch.appPushWebhook as any)?.repoInfo
+                : existingApp.appPushWebhook?.repoInfo,
+        customNginxConfig:
+            patch.customNginxConfig !== undefined
+                ? `${patch.customNginxConfig}`
+                : existingApp.customNginxConfig,
+        redirectDomain:
+            patch.redirectDomain !== undefined
+                ? `${patch.redirectDomain}`
+                : existingApp.redirectDomain,
+        preDeployFunction:
+            patch.preDeployFunction !== undefined
+                ? `${patch.preDeployFunction}`
+                : existingApp.preDeployFunction,
+        serviceUpdateOverride:
+            patch.serviceUpdateOverride !== undefined
+                ? `${patch.serviceUpdateOverride}`
+                : existingApp.serviceUpdateOverride,
+        websocketSupport:
+            patch.websocketSupport !== undefined
+                ? !!patch.websocketSupport
+                : existingApp.websocketSupport,
+        appDeployTokenConfig:
+            patch.appDeployTokenConfig !== undefined
+                ? (patch.appDeployTokenConfig as AppDeployTokenConfig)
+                : existingApp.appDeployTokenConfig,
+    }
+
+    return updateAppDefinition(merged, serviceManager)
+}
+
 export async function updateAppDefinition(
     params: UpdateAppDefinitionParams,
     serviceManager: ServiceManager
