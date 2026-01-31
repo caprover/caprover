@@ -190,90 +190,43 @@ export async function patchAppDefinition(
         .getAppsDataStore()
         .getAppDefinition(appName)
 
-    // Merge: use patch value if explicitly provided, otherwise keep existing
-    const merged: UpdateAppDefinitionParams = {
+    // Build base from existing app definition
+    const base: UpdateAppDefinitionParams = {
         appName,
-        projectId:
-            patch.projectId !== undefined
-                ? `${patch.projectId ?? ''}`
-                : existingApp.projectId,
-        description:
-            patch.description !== undefined
-                ? `${patch.description ?? ''}`
-                : existingApp.description,
-        instanceCount:
-            patch.instanceCount !== undefined
-                ? (patch.instanceCount as number | string)
-                : existingApp.instanceCount,
+        projectId: existingApp.projectId,
+        description: existingApp.description,
+        instanceCount: existingApp.instanceCount,
         captainDefinitionRelativeFilePath:
-            patch.captainDefinitionRelativeFilePath !== undefined
-                ? `${patch.captainDefinitionRelativeFilePath ?? ''}`
-                : existingApp.captainDefinitionRelativeFilePath,
-        envVars:
-            patch.envVars !== undefined
-                ? (patch.envVars as IAppEnvVar[])
-                : existingApp.envVars,
-        volumes:
-            patch.volumes !== undefined
-                ? (patch.volumes as IAppVolume[])
-                : existingApp.volumes,
-        tags:
-            patch.tags !== undefined
-                ? (patch.tags as IAppTag[])
-                : existingApp.tags,
-        nodeId:
-            patch.nodeId !== undefined
-                ? `${patch.nodeId ?? ''}`
-                : existingApp.nodeId,
-        notExposeAsWebApp:
-            patch.notExposeAsWebApp !== undefined
-                ? !!patch.notExposeAsWebApp
-                : existingApp.notExposeAsWebApp,
-        containerHttpPort:
-            patch.containerHttpPort !== undefined
-                ? (patch.containerHttpPort as number | string)
-                : existingApp.containerHttpPort,
-        httpAuth:
-            patch.httpAuth !== undefined
-                ? patch.httpAuth
-                : (existingApp as any).httpAuth,
-        forceSsl:
-            patch.forceSsl !== undefined
-                ? !!patch.forceSsl
-                : existingApp.forceSsl,
-        ports:
-            patch.ports !== undefined
-                ? (patch.ports as IAppPort[])
-                : existingApp.ports,
-        repoInfo:
-            patch.appPushWebhook !== undefined
-                ? (patch.appPushWebhook as any)?.repoInfo
-                : existingApp.appPushWebhook?.repoInfo,
-        customNginxConfig:
-            patch.customNginxConfig !== undefined
-                ? `${patch.customNginxConfig ?? ''}`
-                : existingApp.customNginxConfig,
-        redirectDomain:
-            patch.redirectDomain !== undefined
-                ? `${patch.redirectDomain ?? ''}`
-                : existingApp.redirectDomain,
-        preDeployFunction:
-            patch.preDeployFunction !== undefined
-                ? `${patch.preDeployFunction ?? ''}`
-                : existingApp.preDeployFunction,
-        serviceUpdateOverride:
-            patch.serviceUpdateOverride !== undefined
-                ? `${patch.serviceUpdateOverride ?? ''}`
-                : existingApp.serviceUpdateOverride,
-        websocketSupport:
-            patch.websocketSupport !== undefined
-                ? !!patch.websocketSupport
-                : existingApp.websocketSupport,
-        appDeployTokenConfig:
-            patch.appDeployTokenConfig !== undefined
-                ? (patch.appDeployTokenConfig as AppDeployTokenConfig)
-                : existingApp.appDeployTokenConfig,
+            existingApp.captainDefinitionRelativeFilePath,
+        envVars: existingApp.envVars,
+        volumes: existingApp.volumes,
+        tags: existingApp.tags,
+        nodeId: existingApp.nodeId,
+        notExposeAsWebApp: existingApp.notExposeAsWebApp,
+        containerHttpPort: existingApp.containerHttpPort,
+        httpAuth: (existingApp as any).httpAuth,
+        forceSsl: existingApp.forceSsl,
+        ports: existingApp.ports,
+        repoInfo: existingApp.appPushWebhook?.repoInfo,
+        customNginxConfig: existingApp.customNginxConfig,
+        redirectDomain: existingApp.redirectDomain,
+        preDeployFunction: existingApp.preDeployFunction,
+        serviceUpdateOverride: existingApp.serviceUpdateOverride,
+        websocketSupport: existingApp.websocketSupport,
+        appDeployTokenConfig: existingApp.appDeployTokenConfig,
     }
+
+    // Extract only defined patch fields, mapping to UpdateAppDefinitionParams keys
+    const overrides: Partial<UpdateAppDefinitionParams> = {}
+    for (const key of Object.keys(patch)) {
+        if (key === 'appPushWebhook') {
+            overrides.repoInfo = (patch.appPushWebhook as any)?.repoInfo
+        } else if (key in base) {
+            ;(overrides as any)[key] = patch[key]
+        }
+    }
+
+    const merged: UpdateAppDefinitionParams = { ...base, ...overrides }
 
     return updateAppDefinition(merged, serviceManager)
 }
