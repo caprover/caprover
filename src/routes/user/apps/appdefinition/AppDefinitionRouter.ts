@@ -326,10 +326,7 @@ router.patch('/update/', function (req, res, next) {
 
     if (!appName) {
         res.send(
-            new BaseApi(
-                ApiStatusCodes.ILLEGAL_PARAMETER,
-                'appName is required'
-            )
+            new BaseApi(ApiStatusCodes.ILLEGAL_PARAMETER, 'appName is required')
         )
         return
     }

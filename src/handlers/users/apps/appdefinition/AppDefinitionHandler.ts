@@ -195,19 +195,19 @@ export async function patchAppDefinition(
         appName,
         projectId:
             patch.projectId !== undefined
-                ? `${patch.projectId}`
+                ? `${patch.projectId ?? ''}`
                 : existingApp.projectId,
         description:
             patch.description !== undefined
-                ? `${patch.description}`
+                ? `${patch.description ?? ''}`
                 : existingApp.description,
         instanceCount:
             patch.instanceCount !== undefined
-                ? patch.instanceCount as number | string
+                ? (patch.instanceCount as number | string)
                 : existingApp.instanceCount,
         captainDefinitionRelativeFilePath:
             patch.captainDefinitionRelativeFilePath !== undefined
-                ? `${patch.captainDefinitionRelativeFilePath}`
+                ? `${patch.captainDefinitionRelativeFilePath ?? ''}`
                 : existingApp.captainDefinitionRelativeFilePath,
         envVars:
             patch.envVars !== undefined
@@ -223,7 +223,7 @@ export async function patchAppDefinition(
                 : existingApp.tags,
         nodeId:
             patch.nodeId !== undefined
-                ? `${patch.nodeId}`
+                ? `${patch.nodeId ?? ''}`
                 : existingApp.nodeId,
         notExposeAsWebApp:
             patch.notExposeAsWebApp !== undefined
@@ -251,19 +251,19 @@ export async function patchAppDefinition(
                 : existingApp.appPushWebhook?.repoInfo,
         customNginxConfig:
             patch.customNginxConfig !== undefined
-                ? `${patch.customNginxConfig}`
+                ? `${patch.customNginxConfig ?? ''}`
                 : existingApp.customNginxConfig,
         redirectDomain:
             patch.redirectDomain !== undefined
-                ? `${patch.redirectDomain}`
+                ? `${patch.redirectDomain ?? ''}`
                 : existingApp.redirectDomain,
         preDeployFunction:
             patch.preDeployFunction !== undefined
-                ? `${patch.preDeployFunction}`
+                ? `${patch.preDeployFunction ?? ''}`
                 : existingApp.preDeployFunction,
         serviceUpdateOverride:
             patch.serviceUpdateOverride !== undefined
-                ? `${patch.serviceUpdateOverride}`
+                ? `${patch.serviceUpdateOverride ?? ''}`
                 : existingApp.serviceUpdateOverride,
         websocketSupport:
             patch.websocketSupport !== undefined
