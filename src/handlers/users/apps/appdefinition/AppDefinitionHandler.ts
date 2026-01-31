@@ -163,6 +163,74 @@ export interface UpdateAppDefinitionParams {
     appDeployTokenConfig?: AppDeployTokenConfig
 }
 
+/**
+ * Partially update an app definition by merging provided fields with existing values.
+ * Only fields explicitly included in the request body are updated;
+ * omitted fields retain their current values.
+ *
+ * This is safer than the full update (POST /update/) for operations like
+ * scaling instance count, where you don't want to accidentally reset
+ * env vars or other settings.
+ */
+export async function patchAppDefinition(
+    appName: string,
+    patch: Record<string, unknown>,
+    dataStore: DataStore,
+    serviceManager: ServiceManager
+): Promise<BaseHandlerResult> {
+    if (!appName) {
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_PARAMETER,
+            'appName is required'
+        )
+    }
+
+    // Fetch existing app definition to use as base
+    const existingApp = await dataStore
+        .getAppsDataStore()
+        .getAppDefinition(appName)
+
+    // Build base from existing app definition
+    const base: UpdateAppDefinitionParams = {
+        appName,
+        projectId: existingApp.projectId,
+        description: existingApp.description,
+        instanceCount: existingApp.instanceCount,
+        captainDefinitionRelativeFilePath:
+            existingApp.captainDefinitionRelativeFilePath,
+        envVars: existingApp.envVars,
+        volumes: existingApp.volumes,
+        tags: existingApp.tags,
+        nodeId: existingApp.nodeId,
+        notExposeAsWebApp: existingApp.notExposeAsWebApp,
+        containerHttpPort: existingApp.containerHttpPort,
+        httpAuth: (existingApp as any).httpAuth,
+        forceSsl: existingApp.forceSsl,
+        ports: existingApp.ports,
+        repoInfo: existingApp.appPushWebhook?.repoInfo,
+        customNginxConfig: existingApp.customNginxConfig,
+        redirectDomain: existingApp.redirectDomain,
+        preDeployFunction: existingApp.preDeployFunction,
+        serviceUpdateOverride: existingApp.serviceUpdateOverride,
+        websocketSupport: existingApp.websocketSupport,
+        appDeployTokenConfig: existingApp.appDeployTokenConfig,
+    }
+
+    // Extract only defined patch fields, mapping to UpdateAppDefinitionParams keys
+    const overrides: Partial<UpdateAppDefinitionParams> = {}
+    for (const key of Object.keys(patch)) {
+        if (key === 'appPushWebhook') {
+            overrides.repoInfo = (patch.appPushWebhook as any)?.repoInfo
+        } else if (key in base) {
+            ;(overrides as any)[key] = patch[key]
+        }
+    }
+
+    const merged: UpdateAppDefinitionParams = { ...base, ...overrides }
+
+    return updateAppDefinition(merged, serviceManager)
+}
+
 export async function updateAppDefinition(
     params: UpdateAppDefinitionParams,
     serviceManager: ServiceManager
