@@ -3,6 +3,7 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import { IAppDefSaved } from '../models/AppDefinition'
 import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
@@ -76,6 +77,20 @@ class DataStore {
                 configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
             }
         )
+
+        // running migrations
+        if (data.get('schemaVersion') < 2) {
+            const appDefinitions = data.get('appDefinitions')
+            if (appDefinitions) {
+                Object.keys(appDefinitions).forEach((appName) => {
+                    const appDef = appDefinitions[appName] as IAppDefSaved
+                    appDef.isLegacyAppName = true
+                })
+            }
+
+            data.set('appDefinitions', appDefinitions)
+            data.set('schemaVersion', 2)
+        }
 
         this.data = data
         this.namespace = namespace

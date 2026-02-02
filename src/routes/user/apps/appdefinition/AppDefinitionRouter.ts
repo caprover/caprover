@@ -9,6 +9,7 @@ import {
 } from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { AppDeployTokenConfig } from '../../../../models/AppDefinition'
+import { IHashMapGeneric } from '../../../../models/ICacheGeneric'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
@@ -182,6 +183,8 @@ router.post('/register/', function (req, res, next) {
 router.post('/delete/', function (req, res, next) {
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     const appName: string = req.body.appName
     const volumes: string[] = req.body.volumes || []
@@ -189,6 +192,7 @@ router.post('/delete/', function (req, res, next) {
     const appsToDelete: string[] = appNames.length ? appNames : [appName]
 
     Logger.d(`Deleting app started: ${appName}`)
+    const legacyVolumes: IHashMapGeneric<boolean> = {}
 
     return Promise.resolve()
         .then(function () {
@@ -200,13 +204,31 @@ router.post('/delete/', function (req, res, next) {
             }
         })
         .then(function () {
+            return dataStore.getAppsDataStore().getAppDefinitions()
+        })
+        .then(function (apps) {
+            Object.keys(apps).forEach((appName) => {
+                const app = apps[appName]
+                if (app.isLegacyAppName) {
+                    const volumesForApp = app.volumes.map(
+                        (vol) => vol.volumeName
+                    )
+                    volumesForApp.forEach((volumeName) => {
+                        if (volumeName) {
+                            legacyVolumes[volumeName] = true
+                        }
+                    })
+                }
+            })
+        })
+        .then(function () {
             return serviceManager.removeApps(appsToDelete)
         })
         .then(function () {
             return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
         })
         .then(function () {
-            return serviceManager.removeVolsSafe(volumes)
+            return serviceManager.removeVolsSafe(volumes, legacyVolumes)
         })
         .then(function (failedVolsToRemoved) {
             Logger.d(`Successfully deleted: ${appsToDelete.join(', ')}`)

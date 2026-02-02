@@ -423,13 +423,11 @@ class ServiceManager {
         Logger.d(`Renaming app: ${oldAppName}`)
         const self = this
 
-        const oldServiceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(oldAppName)
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
         let defaultSslOn = false
+        let oldServiceName: string
 
         return Promise.resolve()
             .then(function () {
@@ -437,6 +435,9 @@ class ServiceManager {
             })
             .then(function (appDef) {
                 defaultSslOn = !!appDef.hasDefaultSubDomainSsl
+                oldServiceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(oldAppName, !!appDef.isLegacyAppName)
 
                 dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
 
@@ -473,14 +474,20 @@ class ServiceManager {
         const self = this
 
         const removeAppPromise = function (appName: string) {
-            const serviceName = self.dataStore
-                .getAppsDataStore()
-                .getServiceName(appName)
             const dockerApi = self.dockerApi
             const dataStore = self.dataStore
+            let serviceName: string
 
             return Promise.resolve()
                 .then(function () {
+                    return dataStore
+                        .getAppsDataStore()
+                        .getAppDefinition(appName)
+                })
+                .then(function (appDef) {
+                    serviceName = dataStore
+                        .getAppsDataStore()
+                        .getServiceName(appName, !!appDef.isLegacyAppName)
                     return self.ensureNotBuilding(appName)
                 })
                 .then(function () {
@@ -515,7 +522,7 @@ class ServiceManager {
         return Promise.all(promises)
     }
 
-    removeVolsSafe(volumes: string[]) {
+    removeVolsSafe(volumes: string[], legacyVolumes: IHashMapGeneric<boolean>) {
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
@@ -545,7 +552,7 @@ class ServiceManager {
                 volumes.forEach((v) => {
                     if (!volsFailedToDelete[v]) {
                         volumesTryToDelete.push(
-                            dataStore.getAppsDataStore().getVolumeName(v)
+                            legacyVolumes[v] ? `captain--${v}` : v
                         )
                     }
                 })
@@ -664,7 +671,7 @@ class ServiceManager {
             .then(function (app) {
                 serviceName = dataStore
                     .getAppsDataStore()
-                    .getServiceName(appName)
+                    .getServiceName(appName, !!app.isLegacyAppName)
 
                 // After leaving this block, nodeId will be guaranteed to be NonNull
                 if (app.hasPersistentData) {
@@ -869,14 +876,18 @@ class ServiceManager {
     }
 
     getAppLogs(appName: string, encoding: string) {
-        const serviceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName)
-
         const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+        let serviceName: string
 
         return Promise.resolve() //
             .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (appDef) {
+                serviceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(appName, !!appDef.isLegacyAppName)
                 return dockerApi.getLogForService(
                     serviceName,
                     CaptainConstants.configs.appLogSize,
@@ -889,15 +900,12 @@ class ServiceManager {
         Logger.d(`Ensure service inited and Updated for: ${appName}`)
         const self = this
 
-        const serviceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName)
-
         let imageName: string | undefined
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
         let app: IAppDef
         let dockerAuthObject: DockerAuthObj | undefined
+        let serviceName: string
 
         return Promise.resolve() //
             .then(function () {
@@ -905,6 +913,9 @@ class ServiceManager {
             })
             .then(function (appFound) {
                 app = appFound
+                serviceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(appName, !!app.isLegacyAppName)
 
                 Logger.d(`Check if service is running: ${serviceName}`)
                 return dockerApi.isServiceRunningByName(serviceName)
