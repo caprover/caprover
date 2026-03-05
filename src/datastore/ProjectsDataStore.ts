@@ -10,11 +10,11 @@ function isNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
-        /^[a-z]/.test(name) &&
+        /^[a-z0-9]/.test(name) &&
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
-    return isNameFormattingOk && ['captain', 'root'].indexOf(name) < 0
+    return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0
 }
 
 function isValidUUID(uuid: string | undefined): boolean {
