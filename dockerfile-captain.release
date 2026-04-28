@@ -2,7 +2,7 @@ FROM node:22-alpine
 RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
 
 WORKDIR /usr/src/app
-COPY . ./ 
+COPY . ./
 
 # Build backend code
 RUN npm ci && \
