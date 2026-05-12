@@ -15,9 +15,10 @@ router.post('/register/', function (req, res, next) {
     const projectName = `${req.body.name || ''}`.trim()
     const parentProjectId = `${req.body.parentProjectId || ''}`.trim()
     const description = `${req.body.description || ''}`.trim()
+    const envVars = req.body.envVars || []
 
     return registerProject(
-        { name: projectName, parentProjectId, description },
+        { name: projectName, parentProjectId, description, envVars },
         dataStore
     )
         .then(function (result) {
@@ -91,6 +92,7 @@ router.post('/update/', function (req, res, next) {
                     name: projectDefinition.name,
                     parentProjectId: projectDefinition.parentProjectId,
                     description: projectDefinition.description,
+                    envVars: projectDefinition.envVars || [],
                 })
         })
         .then(function () {

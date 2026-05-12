@@ -13,6 +13,7 @@ import {
 } from '../models/AppDefinition'
 import { DockerAuthObj } from '../models/DockerAuthObj'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
+import { ProjectDefinition } from '../models/ProjectDefinition'
 import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
 import CaptainConstants from '../utils/CaptainConstants'
@@ -187,15 +188,17 @@ class ServiceManager {
                     .getAppsDataStore()
                     .getAppDefinition(appName)
                     .then(function (app) {
-                        const envVars = app.envVars || []
-
-                        return self.imageMaker.ensureImage(
-                            source,
-                            appName,
-                            app.captainDefinitionRelativeFilePath,
-                            appVersion,
-                            envVars
-                        )
+                        return self
+                            .resolveEnvVarsWithInheritance(app)
+                            .then(function (mergedEnvVars) {
+                                return self.imageMaker.ensureImage(
+                                    source,
+                                    appName,
+                                    app.captainDefinitionRelativeFilePath,
+                                    appVersion,
+                                    mergedEnvVars
+                                )
+                            })
                     })
             })
             .then(function (builtImage) {
@@ -885,6 +888,45 @@ class ServiceManager {
             })
     }
 
+    private mergeEnvVars(base: IAppEnvVar[], override: IAppEnvVar[]): IAppEnvVar[] {
+        const map = new Map<string, string>()
+        base.forEach((v) => map.set(v.key, v.value))
+        override.forEach((v) => map.set(v.key, v.value))
+        return Array.from(map.entries()).map(([key, value]) => ({ key, value }))
+    }
+
+    private resolveEnvVarsWithInheritance(app: IAppDef): Promise<IAppEnvVar[]> {
+        const self = this
+        const appEnvVars = app.envVars || []
+
+        if (!app.projectId) {
+            return Promise.resolve(appEnvVars)
+        }
+
+        return self.dataStore
+            .getProjectsDataStore()
+            .getAllProjects()
+            .then(function (allProjects: ProjectDefinition[]) {
+                const projectMap = new Map<string, ProjectDefinition>()
+                allProjects.forEach((p) => projectMap.set(p.id, p))
+
+                const chain: ProjectDefinition[] = []
+                let current = projectMap.get(app.projectId!)
+                while (current) {
+                    chain.unshift(current)
+                    current = current.parentProjectId
+                        ? projectMap.get(current.parentProjectId)
+                        : undefined
+                }
+
+                let merged: IAppEnvVar[] = []
+                for (const project of chain) {
+                    merged = self.mergeEnvVars(merged, project.envVars || [])
+                }
+                return self.mergeEnvVars(merged, appEnvVars)
+            })
+    }
+
     ensureServiceInitedAndUpdated(appName: string) {
         Logger.d(`Ensure service inited and Updated for: ${appName}`)
         const self = this
@@ -905,6 +947,10 @@ class ServiceManager {
             })
             .then(function (appFound) {
                 app = appFound
+                return self.resolveEnvVarsWithInheritance(app)
+            })
+            .then(function (mergedEnvVars) {
+                app = { ...app, envVars: mergedEnvVars }
 
                 Logger.d(`Check if service is running: ${serviceName}`)
                 return dockerApi.isServiceRunningByName(serviceName)
