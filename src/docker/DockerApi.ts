@@ -109,6 +109,21 @@ class DockerApi {
         return dockerApiInstance
     }
 
+    // The /version endpoint is unversioned on the Docker Engine, but dockerode
+    // prepends `options.version` to every request path. Pinning a specific API
+    // version here means the probe breaks the moment the daemon's minimum
+    // supported version moves past it (see issue #2401: "client version 1.38
+    // is too old"). Dropping the key keeps the probe at unversioned /version.
+    static buildVersionProbeOptions(
+        connectionParams: Docker.DockerOptions
+    ): Docker.DockerOptions {
+        const probeOptions = JSON.parse(
+            JSON.stringify(connectionParams)
+        ) as Docker.DockerOptions & { version?: string }
+        delete probeOptions.version
+        return probeOptions
+    }
+
     ensureSwarmExists() {
         const self = this
 
@@ -1788,10 +1803,7 @@ const connectionParams: Docker.DockerOptions =
 connectionParams.version = CaptainConstants.configs.dockerApiVersion
 const dockerApiInstance = new DockerApi(connectionParams)
 
-const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
-lowVersionDocker.version = 'v1.44'
-
-new Docker(lowVersionDocker)
+new Docker(DockerApi.buildVersionProbeOptions(connectionParams))
     .version()
     .then((data) => {
         Logger.d('Docker API Version on host: ' + data.ApiVersion)
