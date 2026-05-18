@@ -9,6 +9,16 @@
 - Improved: Moved one click app creation process to backend for more stability [PR-2334](https://github.com/caprover/caprover/pull/2334)
 - Improved: Reduced the Backup size by excluding the GoAccess logs [PR-2336](https://github.com/caprover/caprover/pull/2336)
 
+## [1.14.2] - 2026-05-14
+
+- Hotfix nginx vulnerability https://github.com/caprover/caprover/pull/2399
+
+Note: CapRover does not include any `rewrite` directives that would result in this vulnerability. However, we are publishing this hotfix out of an abundance of caution to protect users who may have manually modified their Nginx config.
+
+## [1.14.1] - 2025-11-11
+
+- Hotfix for Docker v29 as they have introduced a break change https://github.com/caprover/caprover/issues/2351
+
 ## [1.14.0] - 2025-06-07
 
 - Added functionality for custom ports [issue-2220](https://github.com/caprover/caprover/pull/2220)
