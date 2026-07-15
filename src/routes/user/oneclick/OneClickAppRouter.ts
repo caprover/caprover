@@ -284,6 +284,8 @@ router.post('/deploy', function (req, res, next) {
     const template = req.body.template
     const values = req.body.values
     const templateName = req.body.templateName
+    const projectId =
+        typeof req.body.projectId === 'string' ? req.body.projectId : undefined
     const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
 
     return Promise.resolve() //
@@ -312,7 +314,7 @@ router.post('/deploy', function (req, res, next) {
                         `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
                     )
                 }
-            ).startDeployProcess(template, values)
+            ).startDeployProcess(template, values, projectId)
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,

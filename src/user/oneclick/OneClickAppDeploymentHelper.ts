@@ -78,7 +78,7 @@ export default class OneClickAppDeploymentHelper {
     createRegisterPromise(
         appName: string,
         dockerComposeService: IDockerComposeService,
-        projectMemoryCache: { projectId: string }
+        projectMemoryCache: { projectId: string; parentProjectId?: string }
     ) {
         const self = this
         return Promise.resolve().then(function () {
@@ -93,7 +93,7 @@ export default class OneClickAppDeploymentHelper {
     }
     createRegisterPromiseProject(
         appName: string,
-        projectMemoryCache: { projectId: string }
+        projectMemoryCache: { projectId: string; parentProjectId?: string }
     ) {
         const self = this
         return Promise.resolve().then(function () {
@@ -101,6 +101,7 @@ export default class OneClickAppDeploymentHelper {
                 id: '',
                 name: appName,
                 description: ``,
+                parentProjectId: projectMemoryCache.parentProjectId || undefined,
             }
             // change backend to ensure this returns project ID
             return self.apiManager

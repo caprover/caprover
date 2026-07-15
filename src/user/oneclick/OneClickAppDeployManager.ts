@@ -9,6 +9,7 @@ import Utils from '../../utils/Utils'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
+export const ONE_CLICK_PROJECT_ID_VAR_NAME = '$$cap_project_id'
 
 interface IDeploymentStep {
     stepName: string
@@ -48,15 +49,24 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        valuesArray: OneClickAppValuePair[]
+        valuesArray: OneClickAppValuePair[],
+        projectId?: string
     ) {
         const self = this
         let stringified = JSON.stringify(template)
 
         const values: IHashMapGeneric<string> = {}
-        valuesArray.forEach((element) => {
+        ;(valuesArray || []).forEach((element) => {
             values[element.key] = element.value
         })
+
+        // Prefer explicit projectId argument; fall back to a reserved values key
+        // so older API clients can still pass a selected project without a new field.
+        const selectedProjectId = (
+            projectId ||
+            values[ONE_CLICK_PROJECT_ID_VAR_NAME] ||
+            ''
+        ).trim()
 
         if (
             template.caproverOneClickApp.variables.find(
@@ -120,7 +130,13 @@ export default class OneClickAppDeployManager {
             const steps: IDeploymentStep[] = []
             const capAppName = values[ONE_CLICK_APP_NAME_VAR_NAME]
 
-            const projectMemoryCache = { projectId: '' }
+            // Single-service templates place the app under the selected project.
+            // Multi-service templates still create a grouping project, using the
+            // selected project as its parent (root when empty).
+            const projectMemoryCache = {
+                projectId: selectedProjectId,
+                parentProjectId: selectedProjectId,
+            }
 
             if (apps.length > 1) {
                 steps.push(
@@ -249,7 +265,7 @@ export default class OneClickAppDeployManager {
     }
     private createDeploymentStepForProjectCreation(
         capAppName: string,
-        projectMemoryCache: { projectId: string }
+        projectMemoryCache: { projectId: string; parentProjectId?: string }
     ): IDeploymentStep {
         const self = this
         return {
@@ -267,7 +283,7 @@ export default class OneClickAppDeployManager {
         appName: string,
         dockerComposeService: IDockerComposeService,
         capAppName: string,
-        projectMemoryCache: { projectId: string }
+        projectMemoryCache: { projectId: string; parentProjectId?: string }
     ): IDeploymentStep[] {
         const promises: IDeploymentStep[] = []
         const self = this
