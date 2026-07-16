@@ -101,7 +101,8 @@ export default class OneClickAppDeploymentHelper {
                 id: '',
                 name: appName,
                 description: ``,
-                parentProjectId: projectMemoryCache.parentProjectId || undefined,
+                parentProjectId:
+                    projectMemoryCache.parentProjectId || undefined,
             }
             // change backend to ensure this returns project ID
             return self.apiManager
