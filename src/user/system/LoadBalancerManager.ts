@@ -919,6 +919,35 @@ class LoadBalancerManager {
             })
     }
 
+    getActiveSslDomains() {
+        const self = this
+
+        return Promise.all([
+            self.getServerList(),
+            self.dataStore.getHasRootSsl(),
+            self.dataStore.getHasRegistrySsl(),
+        ]).then(function ([servers, hasRootSsl, hasRegistrySsl]) {
+            const activeDomains: string[] = servers
+                .filter((server) => server.hasSsl)
+                .map((server) => server.publicDomain)
+            const rootDomain = self.dataStore.getRootDomain()
+
+            if (hasRootSsl) {
+                activeDomains.push(
+                    `${CaptainConstants.configs.captainSubDomain}.${rootDomain}`
+                )
+            }
+
+            if (hasRegistrySsl) {
+                activeDomains.push(
+                    `${CaptainConstants.registrySubDomain}.${rootDomain}`
+                )
+            }
+
+            return Array.from(new Set(activeDomains))
+        })
+    }
+
     renewAllCertsAndReload() {
         const self = this
 
@@ -936,8 +965,11 @@ class LoadBalancerManager {
             1000 * 3600 * 20.3
         )
 
-        return self.certbotManager
-            .renewAllCerts() //
+        return self
+            .getActiveSslDomains()
+            .then(function (activeDomains) {
+                return self.certbotManager.renewAllCerts(activeDomains)
+            })
             .then(function () {
                 Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile()
