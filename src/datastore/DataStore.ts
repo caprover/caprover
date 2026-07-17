@@ -14,6 +14,7 @@ import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
+import validateConfigFile from './validateConfigFile'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
@@ -69,11 +70,14 @@ class DataStore {
     private projectsDataStore: ProjectsDataStore
 
     constructor(namespace: string) {
+        const configPath = `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`
+        validateConfigFile(configPath)
+
         const data = new Configstore(
             `captain-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
+                configPath,
             }
         )
 
