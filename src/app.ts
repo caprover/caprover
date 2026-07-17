@@ -43,10 +43,15 @@ app.use(
         },
     })
 )
-app.use(bodyParser.json())
+app.use(
+    bodyParser.json({
+        limit: '2mb',
+    })
+)
 app.use(
     bodyParser.urlencoded({
         extended: false,
+        limit: '2mb',
     })
 )
 app.use(cookieParser())
