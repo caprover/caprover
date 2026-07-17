@@ -38,6 +38,24 @@ const CURRENT_THEME = 'currentTheme'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
+export function validateConfigFile(configPath: string) {
+    if (!fs.pathExistsSync(configPath)) {
+        return
+    }
+
+    try {
+        JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            throw new Error(
+                `Cannot start CapRover because ${configPath} contains invalid JSON. Fix the file or restore it from a backup, then restart CapRover.`
+            )
+        }
+
+        throw error
+    }
+}
+
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
     .toString()
@@ -69,11 +87,14 @@ class DataStore {
     private projectsDataStore: ProjectsDataStore
 
     constructor(namespace: string) {
+        const configPath = `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`
+        validateConfigFile(configPath)
+
         const data = new Configstore(
             `captain-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
+                configPath,
             }
         )
 
