@@ -94,11 +94,26 @@ class ProjectsDataStore {
                     }
                 }
 
+                const envVars = (project.envVars || []).map((v) => ({
+                    key: `${v.key || ''}`,
+                    value: `${v.value || ''}`,
+                }))
+
+                for (const envVar of envVars) {
+                    if (!envVar.key) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Project env var key cannot be empty'
+                        )
+                    }
+                }
+
                 const projectToSave: ProjectDefinition = {
                     id: project.id,
                     name: project.name,
                     parentProjectId: project.parentProjectId,
                     description: project.description,
+                    envVars: envVars,
                 }
 
                 self.data.set(

@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import DataStore from '../../datastore/DataStore'
+import { IAppEnvVar } from '../../models/AppDefinition'
 import { ProjectDefinition } from '../../models/ProjectDefinition'
 import Logger from '../../utils/Logger'
 import { BaseHandlerResult } from '../BaseHandlerResult'
@@ -8,6 +9,7 @@ export interface RegisterProjectParams {
     name: string
     parentProjectId?: string
     description: string
+    envVars?: IAppEnvVar[]
 }
 
 export interface RegisterProjectResult extends BaseHandlerResult {
@@ -18,7 +20,7 @@ export async function registerProject(
     params: RegisterProjectParams,
     dataStore: DataStore
 ): Promise<RegisterProjectResult> {
-    const { name, parentProjectId, description } = params
+    const { name, parentProjectId, description, envVars } = params
 
     Logger.d(`Creating project: ${name}`)
 
@@ -31,6 +33,7 @@ export async function registerProject(
                 name: name,
                 parentProjectId: parentProjectId,
                 description: description,
+                envVars: envVars || [],
             })
 
         Logger.d(`Project created: ${name}`)
