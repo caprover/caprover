@@ -8,7 +8,7 @@
 - Improved: Descriptive error on installations on incompatible systems (e.g. Proxmox LXC) [issues-2326](https://github.com/caprover/caprover/issues/2326)
 - Improved: Moved one click app creation process to backend for more stability [PR-2334](https://github.com/caprover/caprover/pull/2334)
 - Improved: Reduced the Backup size by excluding the GoAccess logs [PR-2336](https://github.com/caprover/caprover/pull/2336)
-- Fixed: Removed orphaned SSL certificates shortly before expiration to prevent failed renewal attempts [Issue-2397](https://github.com/caprover/caprover/issues/2397)
+- Improved: Logged orphaned SSL certificates shortly before expiration for a safe observation period [Issue-2397](https://github.com/caprover/caprover/issues/2397)
 - Fixed: Prevented malformed `config-captain.json` from being overwritten [Issue-858](https://github.com/caprover/caprover/issues/858)
 - Fixed: Git webhook deployments failing when webhook payloads exceed 100 KB [Issue-1393](https://github.com/caprover/caprover/issues/1393)
 
