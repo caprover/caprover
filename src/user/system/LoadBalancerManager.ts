@@ -965,14 +965,26 @@ class LoadBalancerManager {
             1000 * 3600 * 20.3
         )
 
-        return self
-            .getActiveSslDomains()
-            .then(function (activeDomains) {
-                return self.certbotManager.renewAllCerts(activeDomains)
-            })
+        return self.certbotManager
+            .renewAllCerts() //
             .then(function () {
                 Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile()
+            })
+            .then(function () {
+                return self
+                    .getActiveSslDomains()
+                    .then(function (activeDomains) {
+                        return self.certbotManager.logExpiringOrphanedCertificates(
+                            activeDomains
+                        )
+                    })
+                    .catch(function (error) {
+                        // Observation must never affect certificate renewal or NGINX reload.
+                        Logger.e(
+                            `Orphaned certificate observation failed (no action taken): ${error}`
+                        )
+                    })
             })
     }
 }
