@@ -1,6 +1,6 @@
 import {
     CertCommandGenerator,
-    shouldDeleteOrphanedCertificate,
+    isExpiringOrphanedCertificate,
 } from '../src/user/system/CertbotManager'
 
 const defaultCommand = 'certbot certonly --domain ${domainName}'
@@ -63,12 +63,12 @@ test('falls back to default command when rule command is null', () => {
         .toEqual([ 'certbot', 'certonly', '--domain', 'nullcommand.com' ])
 })
 
-describe('orphaned certificate cleanup', () => {
+describe('orphaned certificate observation', () => {
     const currentTime = Date.parse('2026-07-16T12:00:00Z')
 
-    test('deletes orphaned certificates expiring within 48 hours', () => {
+    test('flags orphaned certificates expiring within 48 hours', () => {
         expect(
-            shouldDeleteOrphanedCertificate(
+            isExpiringOrphanedCertificate(
                 'expired.example.com',
                 [],
                 currentTime - 1,
@@ -76,7 +76,7 @@ describe('orphaned certificate cleanup', () => {
             )
         ).toBe(true)
         expect(
-            shouldDeleteOrphanedCertificate(
+            isExpiringOrphanedCertificate(
                 '48-hours.example.com',
                 [],
                 currentTime + 48 * 60 * 60 * 1000,
@@ -85,9 +85,9 @@ describe('orphaned certificate cleanup', () => {
         ).toBe(true)
     })
 
-    test('keeps orphaned certificates with more than 48 hours remaining', () => {
+    test('does not flag orphaned certificates with more than 48 hours remaining', () => {
         expect(
-            shouldDeleteOrphanedCertificate(
+            isExpiringOrphanedCertificate(
                 '49-hours.example.com',
                 [],
                 currentTime + 49 * 60 * 60 * 1000,
@@ -96,9 +96,9 @@ describe('orphaned certificate cleanup', () => {
         ).toBe(false)
     })
 
-    test('keeps active certificates even when they are expired', () => {
+    test('does not flag active certificates even when they are expired', () => {
         expect(
-            shouldDeleteOrphanedCertificate(
+            isExpiringOrphanedCertificate(
                 'active.example.com',
                 ['ACTIVE.EXAMPLE.COM'],
                 currentTime - 1,
