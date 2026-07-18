@@ -19,7 +19,7 @@ const ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS = 48 * 60 * 60 * 1000
 const CERTBOT_RENEWAL_CONFIG_DIRECTORY =
     CaptainConstants.letsEncryptEtcPath + '/renewal'
 
-export function shouldDeleteOrphanedCertificate(
+export function isExpiringOrphanedCertificate(
     certificateName: string,
     activeDomains: string[],
     expiryDate: number,
@@ -288,7 +288,7 @@ class CertbotManager {
             })
     }
 
-    cleanupExpiringOrphanedCertificates(activeDomains: string[]) {
+    logExpiringOrphanedCertificates(activeDomains: string[]) {
         const self = this
 
         return fs
@@ -326,7 +326,7 @@ class CertbotManager {
 
                                     if (
                                         Number.isNaN(expiryDate) ||
-                                        !shouldDeleteOrphanedCertificate(
+                                        !isExpiringOrphanedCertificate(
                                             certificateName,
                                             activeDomains,
                                             expiryDate
@@ -335,22 +335,13 @@ class CertbotManager {
                                         return
                                     }
 
-                                    return self
-                                        .runCommand([
-                                            'certbot',
-                                            'delete',
-                                            '--cert-name',
-                                            certificateName,
-                                        ])
-                                        .then(function () {
-                                            Logger.d(
-                                                `Deleted orphaned certificate nearing expiration: ${certificateName}`
-                                            )
-                                        })
+                                    Logger.d(
+                                        `Orphaned certificate eligible for deletion (no action taken): ${certificateName}`
+                                    )
                                 })
                                 .catch(function (error) {
                                     Logger.e(
-                                        `Skipping cleanup for certificate ${certificateName}: ${error}`
+                                        `Skipping orphan candidate check for certificate ${certificateName}: ${error}`
                                     )
                                 })
                         })
@@ -360,7 +351,7 @@ class CertbotManager {
             })
     }
 
-    renewAllCerts(activeDomains: string[]) {
+    renewAllCerts() {
         const self = this
 
         /*
@@ -374,47 +365,24 @@ class CertbotManager {
             it can be run as frequently as you want - since it will usually take no action.
          */
 
-        return self
-            .cleanupExpiringOrphanedCertificates(activeDomains)
-            .catch(function (error) {
-                // Cleanup must never prevent active certificates from renewing.
-                Logger.e(
-                    `Orphaned certificate cleanup failed; continuing with active certificate renewal: ${error}`
-                )
+        const cmd = ['certbot', 'renew']
+
+        if (shouldUseStaging) {
+            cmd.push('--staging')
+        }
+
+        return Promise.resolve() //
+            .then(function () {
+                return self.ensureAllCurrentlyRegisteredDomainsHaveDirs()
             })
             .then(function () {
-                let renewalPromise = Promise.resolve()
-
-                activeDomains.forEach((domainName) => {
-                    renewalPromise = renewalPromise.then(function () {
-                        const cmd = [
-                            'certbot',
-                            'renew',
-                            '--cert-name',
-                            domainName,
-                        ]
-
-                        if (shouldUseStaging) {
-                            cmd.push('--staging')
-                        }
-
-                        return self
-                            .ensureDomainHasDirectory(domainName)
-                            .then(function () {
-                                return self.runCommand(cmd)
-                            })
-                            .then(function () {
-                                // Ignore output :)
-                            })
-                            .catch(function (error) {
-                                Logger.e(
-                                    `Failed to renew certificate ${domainName}: ${error}`
-                                )
-                            })
-                    })
-                })
-
-                return renewalPromise
+                return self.runCommand(cmd)
+            })
+            .then(function (output) {
+                // Ignore output :)
+            })
+            .catch(function (err) {
+                Logger.e(err)
             })
     }
 
