@@ -1,4 +1,7 @@
-import { CertCommandGenerator } from '../src/user/system/CertbotManager'
+import {
+    CertCommandGenerator,
+    isExpiringOrphanedCertificate,
+} from '../src/user/system/CertbotManager'
 
 const defaultCommand = 'certbot certonly --domain ${domainName}'
 const exampleRule = {
@@ -58,4 +61,49 @@ test('falls back to default command when rule command is null', () => {
     const generator = new CertCommandGenerator([ nullCommandRule ], defaultCommand)
     expect(generator.getCertbotCertCommand('nullcommand.com', fakeWebroot))
         .toEqual([ 'certbot', 'certonly', '--domain', 'nullcommand.com' ])
+})
+
+describe('orphaned certificate observation', () => {
+    const currentTime = Date.parse('2026-07-16T12:00:00Z')
+
+    test('flags orphaned certificates expiring within 48 hours', () => {
+        expect(
+            isExpiringOrphanedCertificate(
+                'expired.example.com',
+                [],
+                currentTime - 1,
+                currentTime
+            )
+        ).toBe(true)
+        expect(
+            isExpiringOrphanedCertificate(
+                '48-hours.example.com',
+                [],
+                currentTime + 48 * 60 * 60 * 1000,
+                currentTime
+            )
+        ).toBe(true)
+    })
+
+    test('does not flag orphaned certificates with more than 48 hours remaining', () => {
+        expect(
+            isExpiringOrphanedCertificate(
+                '49-hours.example.com',
+                [],
+                currentTime + 49 * 60 * 60 * 1000,
+                currentTime
+            )
+        ).toBe(false)
+    })
+
+    test('does not flag active certificates even when they are expired', () => {
+        expect(
+            isExpiringOrphanedCertificate(
+                'active.example.com',
+                ['ACTIVE.EXAMPLE.COM'],
+                currentTime - 1,
+                currentTime
+            )
+        ).toBe(false)
+    })
 })

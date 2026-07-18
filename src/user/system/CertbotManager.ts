@@ -1,3 +1,4 @@
+import { X509Certificate } from 'crypto'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import CaptainConstants, {
@@ -14,6 +15,25 @@ const WEBROOT_PATH_IN_CAPTAIN =
     CaptainConstants.nginxDomainSpecificHtmlDir
 
 const shouldUseStaging = false // CaptainConstants.isDebug;
+const ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS = 48 * 60 * 60 * 1000
+const CERTBOT_RENEWAL_CONFIG_DIRECTORY =
+    CaptainConstants.letsEncryptEtcPath + '/renewal'
+
+export function isExpiringOrphanedCertificate(
+    certificateName: string,
+    activeDomains: string[],
+    expiryDate: number,
+    currentTime = Date.now()
+): boolean {
+    const activeDomainSet = new Set(
+        activeDomains.map((domain) => domain.toLowerCase())
+    )
+
+    return (
+        !activeDomainSet.has(certificateName.toLowerCase()) &&
+        expiryDate <= currentTime + ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS
+    )
+}
 
 function isCertCommandSuccess(output: string) {
     // https://github.com/certbot/certbot/blob/099c6c8b240400b928d6b349e023e5e8414611e6/certbot/certbot/_internal/main.py#L516
@@ -265,6 +285,69 @@ class CertbotManager {
         return Promise.resolve() //
             .then(function () {
                 return fs.ensureDir(`${WEBROOT_PATH_IN_CAPTAIN}/${domainName}`)
+            })
+    }
+
+    logExpiringOrphanedCertificates(activeDomains: string[]) {
+        const self = this
+
+        return fs
+            .readdir(CERTBOT_RENEWAL_CONFIG_DIRECTORY)
+            .then(function (renewalConfigFiles) {
+                let cleanupPromise = Promise.resolve()
+
+                renewalConfigFiles
+                    .filter((fileName) => fileName.endsWith('.conf'))
+                    .map((fileName) => fileName.slice(0, -'.conf'.length))
+                    .forEach((certificateName) => {
+                        cleanupPromise = cleanupPromise.then(function () {
+                            try {
+                                self.domainValidOrThrow(certificateName)
+                            } catch (error) {
+                                Logger.e(
+                                    `Skipping invalid Certbot certificate name ${certificateName}: ${error}`
+                                )
+                                return
+                            }
+
+                            const certificatePath =
+                                CaptainConstants.letsEncryptEtcPath +
+                                `/live/${certificateName}/cert.pem`
+
+                            return fs
+                                .readFile(certificatePath)
+                                .then(function (certificatePem) {
+                                    const certificate = new X509Certificate(
+                                        certificatePem
+                                    )
+                                    const expiryDate = Date.parse(
+                                        certificate.validTo
+                                    )
+
+                                    if (
+                                        Number.isNaN(expiryDate) ||
+                                        !isExpiringOrphanedCertificate(
+                                            certificateName,
+                                            activeDomains,
+                                            expiryDate
+                                        )
+                                    ) {
+                                        return
+                                    }
+
+                                    Logger.d(
+                                        `Orphaned certificate eligible for deletion (no action taken): ${certificateName}`
+                                    )
+                                })
+                                .catch(function (error) {
+                                    Logger.e(
+                                        `Skipping orphan candidate check for certificate ${certificateName}: ${error}`
+                                    )
+                                })
+                        })
+                    })
+
+                return cleanupPromise
             })
     }
 
