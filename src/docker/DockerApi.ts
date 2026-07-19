@@ -65,6 +65,38 @@ export abstract class IDockerUpdateOrders {
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
 
+export function getLegacyServiceDnsAlias(
+    serviceName: string,
+    namespace: string | undefined,
+    isLegacyAppName: boolean
+) {
+    if (!namespace || isLegacyAppName) {
+        return undefined
+    }
+
+    return `srv-${namespace}--${serviceName}`
+}
+
+export function getServiceNetworkAttachments(
+    networks: string[],
+    legacyDnsAlias: string | undefined
+) {
+    return networks.map((network) => {
+        const attachment: {
+            Target: string
+            Aliases?: string[]
+        } = {
+            Target: network,
+        }
+
+        if (legacyDnsAlias) {
+            attachment.Aliases = [legacyDnsAlias]
+        }
+
+        return attachment
+    })
+}
+
 export interface CreateContainerParams {
     containerName?: string
     imageName: string
@@ -1453,12 +1485,16 @@ class DockerApi {
                 }
 
                 if (networks) {
-                    updatedData.TaskTemplate.Networks = []
-                    for (let i = 0; i < networks.length; i++) {
-                        updatedData.TaskTemplate.Networks.push({
-                            Target: networks[i],
-                        })
-                    }
+                    const legacyDnsAlias = appObject
+                        ? getLegacyServiceDnsAlias(
+                              serviceName,
+                              namespace,
+                              !!appObject.isLegacyAppName
+                          )
+                        : undefined
+
+                    updatedData.TaskTemplate.Networks =
+                        getServiceNetworkAttachments(networks, legacyDnsAlias)
                 }
 
                 if (secrets) {
