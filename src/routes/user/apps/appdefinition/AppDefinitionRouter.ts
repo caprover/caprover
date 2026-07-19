@@ -15,7 +15,10 @@ import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
 
-export function ensureAppsExist(appNames: string[], apps: IHashMapGeneric<any>) {
+export function ensureAppsExist(
+    appNames: string[],
+    apps: IHashMapGeneric<any>
+) {
     appNames.forEach((appName) => {
         if (!apps[appName]) {
             throw ApiStatusCodes.createError(
