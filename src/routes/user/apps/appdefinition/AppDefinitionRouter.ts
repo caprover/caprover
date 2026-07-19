@@ -209,7 +209,10 @@ router.post('/delete/', function (req, res, next) {
             appsToDelete.forEach((appNameToDelete) => {
                 const app = apps[appNameToDelete]
                 if (!app) {
-                    return
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        `App (${appNameToDelete}) could not be found. Make sure that you have created the app.`
+                    )
                 }
 
                 const volumesForApp = app.volumes || []
