@@ -191,7 +191,7 @@ router.post('/delete/', function (req, res, next) {
     const appsToDelete: string[] = appNames.length ? appNames : [appName]
 
     Logger.d(`Deleting app started: ${appName}`)
-    const legacyVolumes: IHashMapGeneric<boolean> = {}
+    const volumesToDelete: IHashMapGeneric<string> = {}
 
     return Promise.resolve()
         .then(function () {
@@ -206,18 +206,27 @@ router.post('/delete/', function (req, res, next) {
             return dataStore.getAppsDataStore().getAppDefinitions()
         })
         .then(function (apps) {
-            Object.keys(apps).forEach((appName) => {
-                const app = apps[appName]
-                if (app.isLegacyAppName) {
-                    const volumesForApp = app.volumes.map(
-                        (vol) => vol.volumeName
-                    )
-                    volumesForApp.forEach((volumeName) => {
-                        if (volumeName) {
-                            legacyVolumes[volumeName] = true
-                        }
-                    })
+            appsToDelete.forEach((appNameToDelete) => {
+                const app = apps[appNameToDelete]
+                if (!app) {
+                    return
                 }
+
+                const volumesForApp = app.volumes || []
+                volumesForApp.forEach((volume) => {
+                    const volumeName = volume.volumeName
+                    if (!volumeName || volumes.indexOf(volumeName) < 0) {
+                        return
+                    }
+
+                    const physicalVolumeName = dataStore
+                        .getAppsDataStore()
+                        .getVolumeName(
+                            volumeName,
+                            !!app.isLegacyAppName
+                        )
+                    volumesToDelete[physicalVolumeName] = volumeName
+                })
             })
         })
         .then(function () {
@@ -227,7 +236,7 @@ router.post('/delete/', function (req, res, next) {
             return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
         })
         .then(function () {
-            return serviceManager.removeVolsSafe(volumes, legacyVolumes)
+            return serviceManager.removeVolsSafe(volumesToDelete)
         })
         .then(function (failedVolsToRemoved) {
             Logger.d(`Successfully deleted: ${appsToDelete.join(', ')}`)
