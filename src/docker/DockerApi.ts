@@ -1655,6 +1655,9 @@ class DockerApi {
                 return updatedData
             })
             .then(function (updatedData) {
+                updatedData.Labels = updatedData.Labels || {}
+                updatedData.Labels[CAPROVER_MANAGED_SERVICE_LABEL] = 'true'
+
                 return self.dockerode
                     .getService(serviceName)
                     .update(updatedData)
