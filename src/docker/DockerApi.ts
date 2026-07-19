@@ -1498,20 +1498,27 @@ class DockerApi {
                 }
 
                 if (networks) {
-                    const legacyDnsAlias = appObject
-                        ? getLegacyServiceDnsAlias(
-                              serviceName,
-                              namespace,
-                              !!appObject.isLegacyAppName
-                          )
-                        : undefined
-
-                    updatedData.TaskTemplate.Networks =
-                        getServiceNetworkAttachments(
-                            networks,
-                            legacyDnsAlias,
-                            updatedData.TaskTemplate.Networks || []
+                    if (appObject) {
+                        const legacyDnsAlias = getLegacyServiceDnsAlias(
+                            serviceName,
+                            namespace,
+                            !!appObject.isLegacyAppName
                         )
+
+                        updatedData.TaskTemplate.Networks =
+                            getServiceNetworkAttachments(
+                                networks,
+                                legacyDnsAlias,
+                                updatedData.TaskTemplate.Networks || []
+                            )
+                    } else {
+                        updatedData.TaskTemplate.Networks = []
+                        for (let i = 0; i < networks.length; i++) {
+                            updatedData.TaskTemplate.Networks.push({
+                                Target: networks[i],
+                            })
+                        }
+                    }
                 }
 
                 if (secrets) {
