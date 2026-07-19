@@ -20,7 +20,7 @@ export function ensureAppsExist(
     apps: IHashMapGeneric<any>
 ) {
     appNames.forEach((appName) => {
-        if (!apps[appName]) {
+        if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_GENERIC,
                 `App (${appName}) could not be found. Make sure that you have created the app.`
@@ -243,7 +243,9 @@ router.post('/delete/', function (req, res, next) {
             return serviceManager.removeApps(appsToDelete)
         })
         .then(function () {
-            return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
+            return Utils.getDelayedPromise(
+                Object.keys(volumesToDelete).length ? 12000 : 0
+            )
         })
         .then(function () {
             return serviceManager.removeVolsSafe(volumesToDelete)
