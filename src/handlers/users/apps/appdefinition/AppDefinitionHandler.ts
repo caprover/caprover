@@ -40,15 +40,15 @@ export async function registerAppDefinition(
             // if project is not found, it will throw an error
         }
 
-        // Avoid creating a DNS alias that conflicts with an orphaned legacy service
-        await serviceManager.ensureLegacyServiceNameAvailable(appName)
-
         // Register the app definition
         await dataStore
             .getAppsDataStore()
             .registerAppDefinition(appName, projectId, hasPersistentData)
 
         appCreated = true
+
+        // Avoid creating a DNS alias that conflicts with an orphaned legacy service
+        await serviceManager.ensureLegacyServiceNameAvailable(appName)
 
         // Create captain definition content
         const captainDefinitionContent: ICaptainDefinition = {
