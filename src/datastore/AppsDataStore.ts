@@ -869,16 +869,6 @@ class AppsDataStore {
         const self = this
 
         return new Promise<void>(function (resolve, reject) {
-            if (!isNameAllowed(appName)) {
-                reject(
-                    ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
-                    )
-                )
-                return
-            }
-
             if (!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
