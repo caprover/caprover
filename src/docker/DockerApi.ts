@@ -85,25 +85,15 @@ export interface IServiceNetworkAttachment {
 
 export function getServiceNetworkAttachments(
     networks: string[],
-    legacyDnsAlias: string | undefined,
-    existingAttachments: IServiceNetworkAttachment[] = []
+    legacyDnsAlias: string | undefined
 ) {
     return networks.map((network) => {
-        const existingAttachment = existingAttachments.find(
-            (attachment) => attachment.Target === network
-        )
         const attachment: IServiceNetworkAttachment = {
-            ...existingAttachment,
             Target: network,
         }
 
         if (legacyDnsAlias) {
-            attachment.Aliases = Array.from(
-                new Set([
-                    ...(existingAttachment?.Aliases || []),
-                    legacyDnsAlias,
-                ])
-            )
+            attachment.Aliases = [legacyDnsAlias]
         }
 
         return attachment
@@ -1508,8 +1498,7 @@ class DockerApi {
                         updatedData.TaskTemplate.Networks =
                             getServiceNetworkAttachments(
                                 networks,
-                                legacyDnsAlias,
-                                updatedData.TaskTemplate.Networks || []
+                                legacyDnsAlias
                             )
                     } else {
                         updatedData.TaskTemplate.Networks = []
