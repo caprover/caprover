@@ -522,7 +522,7 @@ class ServiceManager {
         return Promise.all(promises)
     }
 
-    removeVolsSafe(volumes: string[], legacyVolumes: IHashMapGeneric<boolean>) {
+    removeVolsSafe(volumes: IHashMapGeneric<string>) {
         const dockerApi = this.dockerApi
         const dataStore = this.dataStore
 
@@ -533,35 +533,45 @@ class ServiceManager {
                 return dataStore.getAppsDataStore().getAppDefinitions()
             })
             .then(function (apps) {
-                // Don't even try deleting volumes which are present in other app definitions
+                const physicalVolumesInUse: IHashMapGeneric<boolean> = {}
+
                 Object.keys(apps).forEach((appName) => {
                     const app = apps[appName]
                     const volsInApp = app.volumes || []
 
-                    volsInApp.forEach((v) => {
-                        const volName = v.volumeName
-                        if (!volName) return
-                        if (volumes.indexOf(volName) >= 0) {
-                            volsFailedToDelete[volName] = true
+                    volsInApp.forEach((volume) => {
+                        const volumeName = volume.volumeName
+                        if (!volumeName) {
+                            return
                         }
+
+                        const physicalVolumeName = dataStore
+                            .getAppsDataStore()
+                            .getVolumeName(
+                                volumeName,
+                                !!app.isLegacyAppName
+                            )
+                        physicalVolumesInUse[physicalVolumeName] = true
                     })
                 })
 
                 const volumesTryToDelete: string[] = []
-
-                volumes.forEach((v) => {
-                    if (!volsFailedToDelete[v]) {
-                        volumesTryToDelete.push(
-                            legacyVolumes[v] ? `captain--${v}` : v
-                        )
+                Object.keys(volumes).forEach((physicalVolumeName) => {
+                    const logicalVolumeName = volumes[physicalVolumeName]
+                    if (physicalVolumesInUse[physicalVolumeName]) {
+                        volsFailedToDelete[logicalVolumeName] = true
+                    } else {
+                        volumesTryToDelete.push(physicalVolumeName)
                     }
                 })
 
                 return dockerApi.deleteVols(volumesTryToDelete)
             })
             .then(function (failedVols) {
-                failedVols.forEach((v) => {
-                    volsFailedToDelete[v] = true
+                failedVols.forEach((physicalVolumeName) => {
+                    const logicalVolumeName =
+                        volumes[physicalVolumeName] || physicalVolumeName
+                    volsFailedToDelete[logicalVolumeName] = true
                 })
 
                 return Object.keys(volsFailedToDelete)
