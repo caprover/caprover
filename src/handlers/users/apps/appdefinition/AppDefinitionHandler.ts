@@ -47,9 +47,6 @@ export async function registerAppDefinition(
 
         appCreated = true
 
-        // Avoid creating a DNS alias that conflicts with an orphaned legacy service
-        await serviceManager.ensureLegacyServiceNameAvailable(appName)
-
         // Create captain definition content
         const captainDefinitionContent: ICaptainDefinition = {
             schemaVersion: 2,
