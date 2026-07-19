@@ -440,8 +440,7 @@ class ServiceManager {
                     .getServiceName(oldAppName, !!appDef.isLegacyAppName)
 
                 dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
-            })
-            .then(function () {
+
                 return self.ensureNotBuilding(oldAppName)
             })
             .then(function () {
