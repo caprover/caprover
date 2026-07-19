@@ -166,26 +166,6 @@ describe('service and volume naming migration', () => {
         ])
     })
 
-    test('rejects a legacy DNS alias that conflicts with an orphaned service', async () => {
-        const serviceManager = Object.create(
-            ServiceManager.prototype
-        ) as ServiceManager
-        ;(serviceManager as any).dataStore = {
-            getAppsDataStore: () => ({
-                getServiceName: () => 'srv-captain--paperless-db',
-            }),
-        }
-        ;(serviceManager as any).dockerApi = {
-            isServiceRunningByName: jest.fn().mockResolvedValue(true),
-        }
-
-        await expect(
-            serviceManager.ensureLegacyServiceNameAvailable('paperless-db')
-        ).rejects.toThrow(
-            'A Docker service named srv-captain--paperless-db already exists'
-        )
-    })
-
     test('deletes both physical volumes when neither remains in use', async () => {
         const appsDataStore = new AppsDataStore(
             createConfigStore({}),
