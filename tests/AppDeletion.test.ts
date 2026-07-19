@@ -10,4 +10,10 @@ describe('app deletion', () => {
             'App (missing-app) could not be found. Make sure that you have created the app.'
         )
     })
+
+    test('does not treat inherited object properties as existing apps', () => {
+        expect(() => ensureAppsExist(['constructor'], {})).toThrow(
+            'App (constructor) could not be found. Make sure that you have created the app.'
+        )
+    })
 })
