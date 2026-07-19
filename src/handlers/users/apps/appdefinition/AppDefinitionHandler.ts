@@ -40,6 +40,9 @@ export async function registerAppDefinition(
             // if project is not found, it will throw an error
         }
 
+        // Avoid creating a DNS alias that conflicts with an orphaned legacy service
+        await serviceManager.ensureLegacyServiceNameAvailable(appName)
+
         // Register the app definition
         await dataStore
             .getAppsDataStore()
