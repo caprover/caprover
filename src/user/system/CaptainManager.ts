@@ -576,7 +576,7 @@ class CaptainManager {
                     if (netDataInfo.data.smtp) {
                         envVars.push({
                             key: 'SMTP_FROM',
-                            value: netDataInfo.data.smtp.to,
+                            value: netDataInfo.data.smtp.username,
                         })
                         envVars.push({
                             key: 'SSMTP_TO',
