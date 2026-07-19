@@ -9,11 +9,26 @@ import {
 } from '../../../../handlers/users/apps/appdefinition/AppDefinitionHandler'
 import InjectionExtractor from '../../../../injection/InjectionExtractor'
 import { AppDeployTokenConfig } from '../../../../models/AppDefinition'
+import { IHashMapGeneric } from '../../../../models/ICacheGeneric'
 import CaptainManager from '../../../../user/system/CaptainManager'
 import Logger from '../../../../utils/Logger'
 import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
+
+export function ensureAppsExist(
+    appNames: string[],
+    apps: IHashMapGeneric<any>
+) {
+    appNames.forEach((appName) => {
+        if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                `App (${appName}) could not be found. Make sure that you have created the app.`
+            )
+        }
+    })
+}
 
 // unused images
 router.get('/unusedImages', function (req, res, next) {
@@ -182,6 +197,8 @@ router.post('/register/', function (req, res, next) {
 router.post('/delete/', function (req, res, next) {
     const serviceManager =
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     const appName: string = req.body.appName
     const volumes: string[] = req.body.volumes || []
@@ -189,6 +206,7 @@ router.post('/delete/', function (req, res, next) {
     const appsToDelete: string[] = appNames.length ? appNames : [appName]
 
     Logger.d(`Deleting app started: ${appName}`)
+    const volumesToDelete: IHashMapGeneric<string> = {}
 
     return Promise.resolve()
         .then(function () {
@@ -200,13 +218,38 @@ router.post('/delete/', function (req, res, next) {
             }
         })
         .then(function () {
+            return dataStore.getAppsDataStore().getAppDefinitions()
+        })
+        .then(function (apps) {
+            ensureAppsExist(appsToDelete, apps)
+
+            appsToDelete.forEach((appNameToDelete) => {
+                const app = apps[appNameToDelete]
+
+                const volumesForApp = app.volumes || []
+                volumesForApp.forEach((volume) => {
+                    const volumeName = volume.volumeName
+                    if (!volumeName || volumes.indexOf(volumeName) < 0) {
+                        return
+                    }
+
+                    const physicalVolumeName = dataStore
+                        .getAppsDataStore()
+                        .getVolumeName(volumeName, !!app.isLegacyAppName)
+                    volumesToDelete[physicalVolumeName] = volumeName
+                })
+            })
+        })
+        .then(function () {
             return serviceManager.removeApps(appsToDelete)
         })
         .then(function () {
-            return Utils.getDelayedPromise(volumes.length ? 12000 : 0)
+            return Utils.getDelayedPromise(
+                Object.keys(volumesToDelete).length ? 12000 : 0
+            )
         })
         .then(function () {
-            return serviceManager.removeVolsSafe(volumes)
+            return serviceManager.removeVolsSafe(volumesToDelete)
         })
         .then(function (failedVolsToRemoved) {
             Logger.d(`Successfully deleted: ${appsToDelete.join(', ')}`)

@@ -26,7 +26,7 @@ import isValidPath = require('is-valid-path')
 
 const APP_DEFINITIONS = 'appDefinitions'
 
-function isNameAllowed(name: string) {
+export function isNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
@@ -34,7 +34,11 @@ function isNameAllowed(name: string) {
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
-    return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0
+    return (
+        isNameFormattingOk &&
+        ['captain', 'registry'].indexOf(name) < 0 &&
+        !name.startsWith('captain-')
+    )
 }
 
 /**
@@ -294,12 +298,20 @@ class AppsDataStore {
             })
     }
 
-    getServiceName(appName: string) {
-        return `srv-${this.namepace}--${appName}`
+    getServiceName(appName: string, isLegacyAppName: boolean) {
+        if (isLegacyAppName) {
+            return `srv-${this.namepace}--${appName}`
+        }
+
+        return `${appName}`
     }
 
-    getVolumeName(volumeName: string) {
-        return `${this.namepace}--${volumeName}`
+    getVolumeName(volumeName: string, isLegacyVolumeName: boolean) {
+        if (isLegacyVolumeName) {
+            return `${this.namepace}--${volumeName}`
+        }
+
+        return volumeName
     }
 
     getAppDefinitions() {

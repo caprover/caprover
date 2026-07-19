@@ -3,6 +3,7 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import { IAppDefSaved } from '../models/AppDefinition'
 import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
@@ -77,6 +78,25 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .readFileSync(DEFAULT_NGINX_CONFIG_FOR_APP_PATH)
     .toString()
 
+export function runDataStoreMigrations(data: Configstore) {
+    const schemaVersion = data.get('schemaVersion') as number | undefined
+
+    if (schemaVersion && schemaVersion >= 2) {
+        return
+    }
+
+    const appDefinitions = data.get('appDefinitions')
+    if (appDefinitions) {
+        Object.keys(appDefinitions).forEach((appName) => {
+            const appDef = appDefinitions[appName] as IAppDefSaved
+            appDef.isLegacyAppName = true
+        })
+        data.set('appDefinitions', appDefinitions)
+    }
+
+    data.set('schemaVersion', 2)
+}
+
 class DataStore {
     private encryptor: CaptainEncryptor
     private namespace: string
@@ -97,6 +117,8 @@ class DataStore {
                 configPath,
             }
         )
+
+        runDataStoreMigrations(data)
 
         this.data = data
         this.namespace = namespace
