@@ -419,23 +419,6 @@ class ServiceManager {
             })
     }
 
-    ensureLegacyServiceNameAvailable(appName: string) {
-        const legacyServiceName = this.dataStore
-            .getAppsDataStore()
-            .getServiceName(appName, true)
-
-        return this.dockerApi
-            .isServiceRunningByName(legacyServiceName)
-            .then(function (serviceExists) {
-                if (serviceExists) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_ALREADY_EXIST,
-                        `A Docker service named ${legacyServiceName} already exists and conflicts with the legacy DNS alias`
-                    )
-                }
-            })
-    }
-
     renameApp(oldAppName: string, newAppName: string) {
         Logger.d(`Renaming app: ${oldAppName}`)
         const self = this
@@ -457,10 +440,6 @@ class ServiceManager {
                     .getServiceName(oldAppName, !!appDef.isLegacyAppName)
 
                 dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
-
-                if (!appDef.isLegacyAppName) {
-                    return self.ensureLegacyServiceNameAvailable(newAppName)
-                }
             })
             .then(function () {
                 return self.ensureNotBuilding(oldAppName)
