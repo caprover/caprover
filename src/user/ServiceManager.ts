@@ -1,572 +1,590 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
-import ApiStatusCodes from "../api/ApiStatusCodes";
-import DataStore from "../datastore/DataStore";
-import DockerApi, { IDockerUpdateOrders } from "../docker/DockerApi";
+import ApiStatusCodes from '../api/ApiStatusCodes'
+import DataStore from '../datastore/DataStore'
+import DockerApi, { IDockerUpdateOrders } from '../docker/DockerApi'
 import {
-  AppDeployTokenConfig,
-  IAppDef,
-  IAppEnvVar,
-  IAppPort,
-  IAppTag,
-  IAppVolume,
-  IHttpAuth,
-  RepoInfo,
-} from "../models/AppDefinition";
-import { DockerAuthObj } from "../models/DockerAuthObj";
-import { IHashMapGeneric } from "../models/ICacheGeneric";
-import { IImageSource } from "../models/IImageSource";
-import { PreDeployFunction } from "../models/OtherTypes";
-import CaptainConstants from "../utils/CaptainConstants";
-import Logger from "../utils/Logger";
-import Utils from "../utils/Utils";
-import Authenticator from "./Authenticator";
-import DockerRegistryHelper from "./DockerRegistryHelper";
-import ImageMaker, { BuildLogsManager } from "./ImageMaker";
-import { EventLogger } from "./events/EventLogger";
+    AppDeployTokenConfig,
+    IAppDef,
+    IAppEnvVar,
+    IAppPort,
+    IAppTag,
+    IAppVolume,
+    IHttpAuth,
+    RepoInfo,
+} from '../models/AppDefinition'
+import { DockerAuthObj } from '../models/DockerAuthObj'
+import { IHashMapGeneric } from '../models/ICacheGeneric'
+import { IImageSource } from '../models/IImageSource'
+import { PreDeployFunction } from '../models/OtherTypes'
+import CaptainConstants from '../utils/CaptainConstants'
+import Logger from '../utils/Logger'
+import Utils from '../utils/Utils'
+import Authenticator from './Authenticator'
+import DockerRegistryHelper from './DockerRegistryHelper'
+import ImageMaker, { BuildLogsManager } from './ImageMaker'
+import { EventLogger } from './events/EventLogger'
 import {
-  CapRoverEventFactory,
-  CapRoverEventType,
-} from "./events/ICapRoverEvent";
-import DomainResolveChecker from "./system/DomainResolveChecker";
-import LoadBalancerManager from "./system/LoadBalancerManager";
-import requireFromString = require("require-from-string");
+    CapRoverEventFactory,
+    CapRoverEventType,
+} from './events/ICapRoverEvent'
+import DomainResolveChecker from './system/DomainResolveChecker'
+import LoadBalancerManager from './system/LoadBalancerManager'
+import requireFromString = require('require-from-string')
 
 const ERROR_FIRST_ENABLE_ROOT_SSL =
-  "You have to first enable SSL for your root domain";
+    'You have to first enable SSL for your root domain'
 
-const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>;
+const serviceMangerCache = {} as IHashMapGeneric<ServiceManager>
 
 interface QueuedPromise {
-  resolve: undefined | ((reason?: unknown) => void);
-  reject: undefined | ((reason?: any) => void);
-  promise: undefined | Promise<unknown>;
+    resolve: undefined | ((reason?: unknown) => void)
+    reject: undefined | ((reason?: any) => void)
+    promise: undefined | Promise<unknown>
 }
 
 interface QueuedBuild {
-  appName: string;
-  source: IImageSource;
-  promiseToSave: QueuedPromise;
+    appName: string
+    source: IImageSource
+    promiseToSave: QueuedPromise
 }
 
 class ServiceManager {
-  static get(
-    namespace: string,
-    authenticator: Authenticator,
-    dataStore: DataStore,
-    dockerApi: DockerApi,
-    loadBalancerManager: LoadBalancerManager,
-    eventLogger: EventLogger,
-    domainResolveChecker: DomainResolveChecker,
-  ) {
-    if (!serviceMangerCache[namespace]) {
-      serviceMangerCache[namespace] = new ServiceManager(
-        dataStore,
-        authenticator,
-        dockerApi,
-        loadBalancerManager,
-        eventLogger,
-        domainResolveChecker,
-      );
-    }
-    return serviceMangerCache[namespace];
-  }
-
-  private activeOrScheduledBuilds: IHashMapGeneric<boolean>;
-  private buildLogsManager: BuildLogsManager;
-  private queuedBuilds: QueuedBuild[];
-  private isReady: boolean;
-  private imageMaker: ImageMaker;
-  private dockerRegistryHelper: DockerRegistryHelper;
-
-  constructor(
-    private dataStore: DataStore,
-    private authenticator: Authenticator,
-    private dockerApi: DockerApi,
-    private loadBalancerManager: LoadBalancerManager,
-    private eventLogger: EventLogger,
-    private domainResolveChecker: DomainResolveChecker,
-  ) {
-    this.activeOrScheduledBuilds = {};
-    this.queuedBuilds = [];
-    this.buildLogsManager = new BuildLogsManager();
-    this.isReady = true;
-    this.dockerRegistryHelper = new DockerRegistryHelper(
-      this.dataStore,
-      this.dockerApi,
-    );
-    this.imageMaker = new ImageMaker(
-      this.dockerRegistryHelper,
-      this.dockerApi,
-      this.dataStore.getNameSpace(),
-      this.buildLogsManager,
-    );
-  }
-
-  getRegistryHelper() {
-    return this.dockerRegistryHelper;
-  }
-
-  isInited() {
-    return this.isReady;
-  }
-
-  scheduleDeployNewVersion(appName: string, source: IImageSource) {
-    const self = this;
-
-    const activeBuildAppName = self.isAnyBuildRunning();
-    this.activeOrScheduledBuilds[appName] = true;
-
-    self.buildLogsManager.getAppBuildLogs(appName).clear();
-
-    if (activeBuildAppName) {
-      const existingBuildForTheSameApp = self.queuedBuilds.find(
-        (v) => v.appName === appName,
-      );
-
-      if (existingBuildForTheSameApp) {
-        self.buildLogsManager
-          .getAppBuildLogs(appName)
-          .log(
-            `A build for ${appName} was queued, it's now being replaced with a new build...`,
-          );
-
-        // replacing the new source!
-        existingBuildForTheSameApp.source = source;
-
-        const existingPromise =
-          existingBuildForTheSameApp.promiseToSave.promise;
-
-        if (!existingPromise)
-          throw new Error("Existing promise for the queued app is NULL!!");
-
-        return existingPromise;
-      }
-
-      self.buildLogsManager
-        .getAppBuildLogs(appName)
-        .log(
-          `An active build (${activeBuildAppName}) is in progress. This build is queued...`,
-        );
-
-      const promiseToSave: QueuedPromise = {
-        resolve: undefined,
-        reject: undefined,
-        promise: undefined,
-      };
-
-      const promise = new Promise(function (resolve, reject) {
-        promiseToSave.resolve = resolve;
-        promiseToSave.reject = reject;
-      });
-
-      promiseToSave.promise = promise;
-
-      self.queuedBuilds.push({ appName, source, promiseToSave });
-
-      // This should only return when the build is finished,
-      // somehow we need save the promise in queue - for "attached builds"
-      return promise;
+    static get(
+        namespace: string,
+        authenticator: Authenticator,
+        dataStore: DataStore,
+        dockerApi: DockerApi,
+        loadBalancerManager: LoadBalancerManager,
+        eventLogger: EventLogger,
+        domainResolveChecker: DomainResolveChecker
+    ) {
+        if (!serviceMangerCache[namespace]) {
+            serviceMangerCache[namespace] = new ServiceManager(
+                dataStore,
+                authenticator,
+                dockerApi,
+                loadBalancerManager,
+                eventLogger,
+                domainResolveChecker
+            )
+        }
+        return serviceMangerCache[namespace]
     }
 
-    return this.startDeployingNewVersion(appName, source);
-  }
+    private activeOrScheduledBuilds: IHashMapGeneric<boolean>
+    private buildLogsManager: BuildLogsManager
+    private queuedBuilds: QueuedBuild[]
+    private isReady: boolean
+    private imageMaker: ImageMaker
+    private dockerRegistryHelper: DockerRegistryHelper
 
-  startDeployingNewVersion(appName: string, source: IImageSource) {
-    const self = this;
-    const dataStore = this.dataStore;
-    let deployedVersion: number;
-
-    return Promise.resolve() //
-      .then(function () {
-        return dataStore.getAppsDataStore().createNewVersion(appName);
-      })
-      .then(function (appVersion) {
-        deployedVersion = appVersion;
-        return dataStore
-          .getAppsDataStore()
-          .getAppDefinition(appName)
-          .then(function (app) {
-            const envVars = app.envVars || [];
-
-            return self.imageMaker.ensureImage(
-              source,
-              appName,
-              app.captainDefinitionRelativeFilePath,
-              appVersion,
-              envVars,
-            );
-          });
-      })
-      .then(function (builtImage) {
-        return dataStore
-          .getAppsDataStore()
-          .setDeployedVersionAndImage(appName, deployedVersion, builtImage);
-      })
-      .then(function () {
-        self.onBuildFinished(appName);
-
-        self.eventLogger.trackEvent(
-          CapRoverEventFactory.create(CapRoverEventType.AppBuildSuccessful, {
-            appName,
-          }),
-        );
-
-        return self.ensureServiceInitedAndUpdated(appName);
-      })
-      .catch(function (error) {
-        self.onBuildFinished(appName);
-        return new Promise<void>(function (resolve, reject) {
-          self.logBuildFailed(appName, error);
-          reject(error);
-        });
-      });
-  }
-
-  onBuildFinished(appName: string) {
-    const self = this;
-    self.activeOrScheduledBuilds[appName] = false;
-
-    Promise.resolve().then(function () {
-      const newBuild = self.queuedBuilds.shift();
-      if (newBuild)
-        self.startDeployingNewVersion(newBuild.appName, newBuild.source);
-    });
-  }
-
-  enableCustomDomainSsl(appName: string, customDomain: string) {
-    const self = this;
-
-    return Promise.resolve()
-      .then(function () {
-        return self.dataStore.getHasRootSsl();
-      })
-      .then(function (rootHasSsl) {
-        if (!rootHasSsl) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.STATUS_ERROR_GENERIC,
-            ERROR_FIRST_ENABLE_ROOT_SSL,
-          );
-        }
-
-        Logger.d(`Verifying Captain owns domain: ${customDomain}`);
-
-        return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
-          customDomain,
-          undefined,
-        );
-      })
-      .then(function () {
-        Logger.d(`Enabling SSL for: ${appName} on ${customDomain}`);
-
-        return self.dataStore
-          .getAppsDataStore()
-          .verifyCustomDomainBelongsToApp(appName, customDomain);
-      })
-      .then(function () {
-        return self.domainResolveChecker.requestCertificateForDomain(
-          customDomain,
-        );
-      })
-      .then(function () {
-        return self.dataStore
-          .getAppsDataStore()
-          .enableCustomDomainSsl(appName, customDomain);
-      })
-      .then(function () {
-        return self.reloadLoadBalancer();
-      });
-  }
-
-  addCustomDomain(appName: string, customDomain: string) {
-    const self = this;
-
-    return Promise.resolve()
-      .then(function () {
-        const rootDomain = self.dataStore.getRootDomain();
-
-        try {
-          Utils.checkCustomDomain(customDomain, appName, rootDomain);
-        } catch (error) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-            error,
-          );
-        }
-      })
-      .then(function () {
-        return self.domainResolveChecker.verifyDomainResolvesToDefaultServerOnHost(
-          customDomain,
-        );
-      })
-      .then(function () {
-        Logger.d(`Enabling custom domain for: ${appName}`);
-
-        return self.dataStore
-          .getAppsDataStore()
-          .addCustomDomainForApp(appName, customDomain);
-      })
-      .then(function () {
-        return self.reloadLoadBalancer();
-      });
-  }
-
-  removeCustomDomain(appName: string, customDomain: string) {
-    const self = this;
-
-    return Promise.resolve()
-      .then(function () {
-        Logger.d(`Removing custom domain for: ${appName}`);
-
-        return self.dataStore
-          .getAppsDataStore()
-          .removeCustomDomainForApp(appName, customDomain);
-      })
-      .then(function () {
-        return self.reloadLoadBalancer();
-      });
-  }
-
-  enableSslForApp(appName: string) {
-    const self = this;
-
-    let rootDomain: string;
-
-    return Promise.resolve()
-      .then(function () {
-        return self.dataStore.getHasRootSsl();
-      })
-      .then(function (rootHasSsl) {
-        if (!rootHasSsl) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.STATUS_ERROR_GENERIC,
-            ERROR_FIRST_ENABLE_ROOT_SSL,
-          );
-        }
-        return self.verifyCaptainOwnsGenericSubDomain(appName);
-      })
-      .then(function () {
-        Logger.d(`Enabling SSL for: ${appName}`);
-
-        return self.dataStore.getRootDomain();
-      })
-      .then(function (val) {
-        rootDomain = val;
-
-        if (!rootDomain) {
-          throw new Error("No rootDomain! Cannot verify domain");
-        }
-      })
-      .then(function () {
-        // it will ensure that the app exists, otherwise it throws an exception
-        return self.dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function () {
-        return `${appName}.${rootDomain}`;
-      })
-      .then(function (domainName) {
-        return self.domainResolveChecker.requestCertificateForDomain(
-          domainName,
-        );
-      })
-      .then(function () {
-        return self.dataStore
-          .getAppsDataStore()
-          .setSslForDefaultSubDomain(appName, true);
-      })
-      .then(function () {
-        return self.reloadLoadBalancer();
-      });
-  }
-
-  verifyCaptainOwnsGenericSubDomain(appName: string) {
-    const self = this;
-
-    let rootDomain: string;
-
-    return Promise.resolve()
-      .then(function () {
-        return self.dataStore.getRootDomain();
-      })
-      .then(function (val) {
-        rootDomain = val;
-      })
-      .then(function () {
-        // it will ensure that the app exists, otherwise it throws an exception
-        return self.dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function () {
-        return `${appName}.${rootDomain}`;
-      })
-      .then(function (domainName) {
-        Logger.d(`Verifying Captain owns domain: ${domainName}`);
-
-        return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
-          domainName,
-          undefined,
-        );
-      });
-  }
-
-  renameApp(oldAppName: string, newAppName: string) {
-    Logger.d(`Renaming app: ${oldAppName}`);
-    const self = this;
-
-    const dockerApi = this.dockerApi;
-    const dataStore = this.dataStore;
-
-    let defaultSslOn = false;
-    let oldServiceName: string;
-
-    return Promise.resolve()
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinition(oldAppName);
-      })
-      .then(function (appDef) {
-        defaultSslOn = !!appDef.hasDefaultSubDomainSsl;
-        oldServiceName = dataStore
-          .getAppsDataStore()
-          .getServiceName(oldAppName, !!appDef.isLegacyAppName);
-
-        dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName);
-
-        return self.ensureNotBuilding(oldAppName);
-      })
-      .then(function () {
-        Logger.d(`Check if service is running: ${oldServiceName}`);
-        return dockerApi.isServiceRunningByName(oldServiceName);
-      })
-      .then(function (isRunning) {
-        if (!isRunning) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.STATUS_ERROR_GENERIC,
-            "Service is not running!",
-          );
-        }
-        return dockerApi.removeServiceByName(oldServiceName);
-      })
-      .then(function () {
-        return dataStore
-          .getAppsDataStore()
-          .renameApp(self.authenticator, oldAppName, newAppName);
-      })
-      .then(function () {
-        return self.ensureServiceInitedAndUpdated(newAppName);
-      })
-      .then(function () {
-        if (defaultSslOn) return self.enableSslForApp(newAppName);
-      });
-  }
-
-  removeApps(appNames: string[]) {
-    Logger.d(`Removing service for: ${appNames.join(", ")}`);
-    const self = this;
-
-    const removeAppPromise = function (appName: string) {
-      const dockerApi = self.dockerApi;
-      const dataStore = self.dataStore;
-      let serviceName: string;
-
-      return Promise.resolve()
-        .then(function () {
-          return dataStore.getAppsDataStore().getAppDefinition(appName);
-        })
-        .then(function (appDef) {
-          serviceName = dataStore
-            .getAppsDataStore()
-            .getServiceName(appName, !!appDef.isLegacyAppName);
-          return self.ensureNotBuilding(appName);
-        })
-        .then(function () {
-          Logger.d(`Check if service is running: ${serviceName}`);
-          return dockerApi.isServiceRunningByName(serviceName);
-        })
-        .then(function (isRunning) {
-          if (isRunning) {
-            return dockerApi.removeServiceByName(serviceName);
-          } else {
-            Logger.w(
-              `Cannot delete service... It is not running: ${serviceName}`,
-            );
-            return true;
-          }
-        })
-        .then(function () {
-          return dataStore.getAppsDataStore().deleteAppDefinition(appName);
-        })
-        .then(function () {
-          return self.reloadLoadBalancer();
-        });
-    };
-
-    const promises = [];
-    for (const appName of appNames) {
-      promises.push(removeAppPromise(appName));
+    constructor(
+        private dataStore: DataStore,
+        private authenticator: Authenticator,
+        private dockerApi: DockerApi,
+        private loadBalancerManager: LoadBalancerManager,
+        private eventLogger: EventLogger,
+        private domainResolveChecker: DomainResolveChecker
+    ) {
+        this.activeOrScheduledBuilds = {}
+        this.queuedBuilds = []
+        this.buildLogsManager = new BuildLogsManager()
+        this.isReady = true
+        this.dockerRegistryHelper = new DockerRegistryHelper(
+            this.dataStore,
+            this.dockerApi
+        )
+        this.imageMaker = new ImageMaker(
+            this.dockerRegistryHelper,
+            this.dockerApi,
+            this.dataStore.getNameSpace(),
+            this.buildLogsManager
+        )
     }
 
-    return Promise.all(promises);
-  }
+    getRegistryHelper() {
+        return this.dockerRegistryHelper
+    }
 
-  removeVolsSafe(volumes: IHashMapGeneric<string>) {
-    const dockerApi = this.dockerApi;
-    const dataStore = this.dataStore;
+    isInited() {
+        return this.isReady
+    }
 
-    const volsFailedToDelete: IHashMapGeneric<boolean> = {};
+    scheduleDeployNewVersion(appName: string, source: IImageSource) {
+        const self = this
 
-    return Promise.resolve()
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinitions();
-      })
-      .then(function (apps) {
-        const physicalVolumesInUse: IHashMapGeneric<boolean> = {};
+        const activeBuildAppName = self.isAnyBuildRunning()
+        this.activeOrScheduledBuilds[appName] = true
 
-        Object.keys(apps).forEach((appName) => {
-          const app = apps[appName];
-          const volsInApp = app.volumes || [];
+        self.buildLogsManager.getAppBuildLogs(appName).clear()
 
-          volsInApp.forEach((volume) => {
-            const volumeName = volume.volumeName;
-            if (!volumeName) {
-              return;
+        if (activeBuildAppName) {
+            const existingBuildForTheSameApp = self.queuedBuilds.find(
+                (v) => v.appName === appName
+            )
+
+            if (existingBuildForTheSameApp) {
+                self.buildLogsManager
+                    .getAppBuildLogs(appName)
+                    .log(
+                        `A build for ${appName} was queued, it's now being replaced with a new build...`
+                    )
+
+                // replacing the new source!
+                existingBuildForTheSameApp.source = source
+
+                const existingPromise =
+                    existingBuildForTheSameApp.promiseToSave.promise
+
+                if (!existingPromise)
+                    throw new Error(
+                        'Existing promise for the queued app is NULL!!'
+                    )
+
+                return existingPromise
             }
 
-            const physicalVolumeName = dataStore
-              .getAppsDataStore()
-              .getVolumeName(volumeName, !!app.isLegacyAppName);
-            physicalVolumesInUse[physicalVolumeName] = true;
-          });
-        });
+            self.buildLogsManager
+                .getAppBuildLogs(appName)
+                .log(
+                    `An active build (${activeBuildAppName}) is in progress. This build is queued...`
+                )
 
-        const volumesTryToDelete: string[] = [];
-        Object.keys(volumes).forEach((physicalVolumeName) => {
-          const logicalVolumeName = volumes[physicalVolumeName];
-          if (physicalVolumesInUse[physicalVolumeName]) {
-            volsFailedToDelete[logicalVolumeName] = true;
-          } else {
-            volumesTryToDelete.push(physicalVolumeName);
-          }
-        });
+            const promiseToSave: QueuedPromise = {
+                resolve: undefined,
+                reject: undefined,
+                promise: undefined,
+            }
 
-        return dockerApi.deleteVols(volumesTryToDelete);
-      })
-      .then(function (failedVols) {
-        failedVols.forEach((physicalVolumeName) => {
-          const logicalVolumeName =
-            volumes[physicalVolumeName] || physicalVolumeName;
-          volsFailedToDelete[logicalVolumeName] = true;
-        });
+            const promise = new Promise(function (resolve, reject) {
+                promiseToSave.resolve = resolve
+                promiseToSave.reject = reject
+            })
 
-        return Object.keys(volsFailedToDelete);
-      });
-  }
+            promiseToSave.promise = promise
 
-  createPreDeployFunctionIfExist(app: IAppDef): PreDeployFunction | undefined {
-    let preDeployFunction = app.preDeployFunction;
+            self.queuedBuilds.push({ appName, source, promiseToSave })
 
-    if (!preDeployFunction) {
-      return undefined;
+            // This should only return when the build is finished,
+            // somehow we need save the promise in queue - for "attached builds"
+            return promise
+        }
+
+        return this.startDeployingNewVersion(appName, source)
     }
 
-    /*
+    startDeployingNewVersion(appName: string, source: IImageSource) {
+        const self = this
+        const dataStore = this.dataStore
+        let deployedVersion: number
+
+        return Promise.resolve() //
+            .then(function () {
+                return dataStore.getAppsDataStore().createNewVersion(appName)
+            })
+            .then(function (appVersion) {
+                deployedVersion = appVersion
+                return dataStore
+                    .getAppsDataStore()
+                    .getAppDefinition(appName)
+                    .then(function (app) {
+                        const envVars = app.envVars || []
+
+                        return self.imageMaker.ensureImage(
+                            source,
+                            appName,
+                            app.captainDefinitionRelativeFilePath,
+                            appVersion,
+                            envVars
+                        )
+                    })
+            })
+            .then(function (builtImage) {
+                return dataStore
+                    .getAppsDataStore()
+                    .setDeployedVersionAndImage(
+                        appName,
+                        deployedVersion,
+                        builtImage
+                    )
+            })
+            .then(function () {
+                self.onBuildFinished(appName)
+
+                self.eventLogger.trackEvent(
+                    CapRoverEventFactory.create(
+                        CapRoverEventType.AppBuildSuccessful,
+                        {
+                            appName,
+                        }
+                    )
+                )
+
+                return self.ensureServiceInitedAndUpdated(appName)
+            })
+            .catch(function (error) {
+                self.onBuildFinished(appName)
+                return new Promise<void>(function (resolve, reject) {
+                    self.logBuildFailed(appName, error)
+                    reject(error)
+                })
+            })
+    }
+
+    onBuildFinished(appName: string) {
+        const self = this
+        self.activeOrScheduledBuilds[appName] = false
+
+        Promise.resolve().then(function () {
+            const newBuild = self.queuedBuilds.shift()
+            if (newBuild)
+                self.startDeployingNewVersion(newBuild.appName, newBuild.source)
+        })
+    }
+
+    enableCustomDomainSsl(appName: string, customDomain: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        ERROR_FIRST_ENABLE_ROOT_SSL
+                    )
+                }
+
+                Logger.d(`Verifying Captain owns domain: ${customDomain}`)
+
+                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
+                    customDomain,
+                    undefined
+                )
+            })
+            .then(function () {
+                Logger.d(`Enabling SSL for: ${appName} on ${customDomain}`)
+
+                return self.dataStore
+                    .getAppsDataStore()
+                    .verifyCustomDomainBelongsToApp(appName, customDomain)
+            })
+            .then(function () {
+                return self.domainResolveChecker.requestCertificateForDomain(
+                    customDomain
+                )
+            })
+            .then(function () {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .enableCustomDomainSsl(appName, customDomain)
+            })
+            .then(function () {
+                return self.reloadLoadBalancer()
+            })
+    }
+
+    addCustomDomain(appName: string, customDomain: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                const rootDomain = self.dataStore.getRootDomain()
+
+                try {
+                    Utils.checkCustomDomain(customDomain, appName, rootDomain)
+                } catch (error) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
+                        error
+                    )
+                }
+            })
+            .then(function () {
+                return self.domainResolveChecker.verifyDomainResolvesToDefaultServerOnHost(
+                    customDomain
+                )
+            })
+            .then(function () {
+                Logger.d(`Enabling custom domain for: ${appName}`)
+
+                return self.dataStore
+                    .getAppsDataStore()
+                    .addCustomDomainForApp(appName, customDomain)
+            })
+            .then(function () {
+                return self.reloadLoadBalancer()
+            })
+    }
+
+    removeCustomDomain(appName: string, customDomain: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                Logger.d(`Removing custom domain for: ${appName}`)
+
+                return self.dataStore
+                    .getAppsDataStore()
+                    .removeCustomDomainForApp(appName, customDomain)
+            })
+            .then(function () {
+                return self.reloadLoadBalancer()
+            })
+    }
+
+    enableSslForApp(appName: string) {
+        const self = this
+
+        let rootDomain: string
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.getHasRootSsl()
+            })
+            .then(function (rootHasSsl) {
+                if (!rootHasSsl) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        ERROR_FIRST_ENABLE_ROOT_SSL
+                    )
+                }
+                return self.verifyCaptainOwnsGenericSubDomain(appName)
+            })
+            .then(function () {
+                Logger.d(`Enabling SSL for: ${appName}`)
+
+                return self.dataStore.getRootDomain()
+            })
+            .then(function (val) {
+                rootDomain = val
+
+                if (!rootDomain) {
+                    throw new Error('No rootDomain! Cannot verify domain')
+                }
+            })
+            .then(function () {
+                // it will ensure that the app exists, otherwise it throws an exception
+                return self.dataStore
+                    .getAppsDataStore()
+                    .getAppDefinition(appName)
+            })
+            .then(function () {
+                return `${appName}.${rootDomain}`
+            })
+            .then(function (domainName) {
+                return self.domainResolveChecker.requestCertificateForDomain(
+                    domainName
+                )
+            })
+            .then(function () {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .setSslForDefaultSubDomain(appName, true)
+            })
+            .then(function () {
+                return self.reloadLoadBalancer()
+            })
+    }
+
+    verifyCaptainOwnsGenericSubDomain(appName: string) {
+        const self = this
+
+        let rootDomain: string
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dataStore.getRootDomain()
+            })
+            .then(function (val) {
+                rootDomain = val
+            })
+            .then(function () {
+                // it will ensure that the app exists, otherwise it throws an exception
+                return self.dataStore
+                    .getAppsDataStore()
+                    .getAppDefinition(appName)
+            })
+            .then(function () {
+                return `${appName}.${rootDomain}`
+            })
+            .then(function (domainName) {
+                Logger.d(`Verifying Captain owns domain: ${domainName}`)
+
+                return self.domainResolveChecker.verifyCaptainOwnsDomainOrThrow(
+                    domainName,
+                    undefined
+                )
+            })
+    }
+
+    renameApp(oldAppName: string, newAppName: string) {
+        Logger.d(`Renaming app: ${oldAppName}`)
+        const self = this
+
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+
+        let defaultSslOn = false
+        let oldServiceName: string
+
+        return Promise.resolve()
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(oldAppName)
+            })
+            .then(function (appDef) {
+                defaultSslOn = !!appDef.hasDefaultSubDomainSsl
+                oldServiceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(oldAppName, !!appDef.isLegacyAppName)
+
+                dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
+
+                return self.ensureNotBuilding(oldAppName)
+            })
+            .then(function () {
+                Logger.d(`Check if service is running: ${oldServiceName}`)
+                return dockerApi.isServiceRunningByName(oldServiceName)
+            })
+            .then(function (isRunning) {
+                if (!isRunning) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.STATUS_ERROR_GENERIC,
+                        'Service is not running!'
+                    )
+                }
+                return dockerApi.removeServiceByName(oldServiceName)
+            })
+            .then(function () {
+                return dataStore
+                    .getAppsDataStore()
+                    .renameApp(self.authenticator, oldAppName, newAppName)
+            })
+            .then(function () {
+                return self.ensureServiceInitedAndUpdated(newAppName)
+            })
+            .then(function () {
+                if (defaultSslOn) return self.enableSslForApp(newAppName)
+            })
+    }
+
+    removeApps(appNames: string[]) {
+        Logger.d(`Removing service for: ${appNames.join(', ')}`)
+        const self = this
+
+        const removeAppPromise = function (appName: string) {
+            const dockerApi = self.dockerApi
+            const dataStore = self.dataStore
+            let serviceName: string
+
+            return Promise.resolve()
+                .then(function () {
+                    return dataStore
+                        .getAppsDataStore()
+                        .getAppDefinition(appName)
+                })
+                .then(function (appDef) {
+                    serviceName = dataStore
+                        .getAppsDataStore()
+                        .getServiceName(appName, !!appDef.isLegacyAppName)
+                    return self.ensureNotBuilding(appName)
+                })
+                .then(function () {
+                    Logger.d(`Check if service is running: ${serviceName}`)
+                    return dockerApi.isServiceRunningByName(serviceName)
+                })
+                .then(function (isRunning) {
+                    if (isRunning) {
+                        return dockerApi.removeServiceByName(serviceName)
+                    } else {
+                        Logger.w(
+                            `Cannot delete service... It is not running: ${serviceName}`
+                        )
+                        return true
+                    }
+                })
+                .then(function () {
+                    return dataStore
+                        .getAppsDataStore()
+                        .deleteAppDefinition(appName)
+                })
+                .then(function () {
+                    return self.reloadLoadBalancer()
+                })
+        }
+
+        const promises = []
+        for (const appName of appNames) {
+            promises.push(removeAppPromise(appName))
+        }
+
+        return Promise.all(promises)
+    }
+
+    removeVolsSafe(volumes: IHashMapGeneric<string>) {
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+
+        const volsFailedToDelete: IHashMapGeneric<boolean> = {}
+
+        return Promise.resolve()
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinitions()
+            })
+            .then(function (apps) {
+                const physicalVolumesInUse: IHashMapGeneric<boolean> = {}
+
+                Object.keys(apps).forEach((appName) => {
+                    const app = apps[appName]
+                    const volsInApp = app.volumes || []
+
+                    volsInApp.forEach((volume) => {
+                        const volumeName = volume.volumeName
+                        if (!volumeName) {
+                            return
+                        }
+
+                        const physicalVolumeName = dataStore
+                            .getAppsDataStore()
+                            .getVolumeName(volumeName, !!app.isLegacyAppName)
+                        physicalVolumesInUse[physicalVolumeName] = true
+                    })
+                })
+
+                const volumesTryToDelete: string[] = []
+                Object.keys(volumes).forEach((physicalVolumeName) => {
+                    const logicalVolumeName = volumes[physicalVolumeName]
+                    if (physicalVolumesInUse[physicalVolumeName]) {
+                        volsFailedToDelete[logicalVolumeName] = true
+                    } else {
+                        volumesTryToDelete.push(physicalVolumeName)
+                    }
+                })
+
+                return dockerApi.deleteVols(volumesTryToDelete)
+            })
+            .then(function (failedVols) {
+                failedVols.forEach((physicalVolumeName) => {
+                    const logicalVolumeName =
+                        volumes[physicalVolumeName] || physicalVolumeName
+                    volsFailedToDelete[logicalVolumeName] = true
+                })
+
+                return Object.keys(volsFailedToDelete)
+            })
+    }
+
+    createPreDeployFunctionIfExist(
+        app: IAppDef
+    ): PreDeployFunction | undefined {
+        let preDeployFunction = app.preDeployFunction
+
+        if (!preDeployFunction) {
+            return undefined
+        }
+
+        /*
         ////////////////////////////////// Expected content of the file //////////////////////////
 
             console.log('-------------------------------'+new Date());
@@ -580,415 +598,424 @@ class ServiceManager {
             };
          */
 
-    preDeployFunction =
-      preDeployFunction + "\n\n module.exports = preDeployFunction";
+        preDeployFunction =
+            preDeployFunction + '\n\n module.exports = preDeployFunction'
 
-    return requireFromString(preDeployFunction);
-  }
-
-  ensureNotBuilding(appName: string) {
-    if (this.activeOrScheduledBuilds[appName])
-      throw ApiStatusCodes.createError(
-        ApiStatusCodes.ILLEGAL_OPERATION,
-        `Build in-progress for ${appName}. Please wait...`,
-      );
-  }
-
-  updateAppDefinition(
-    appName: string,
-    projectId: string,
-    description: string,
-    instanceCount: number,
-    captainDefinitionRelativeFilePath: string,
-    envVars: IAppEnvVar[],
-    volumes: IAppVolume[],
-    tags: IAppTag[],
-    nodeId: string,
-    notExposeAsWebApp: boolean,
-    containerHttpPort: number,
-    httpAuth: IHttpAuth,
-    forceSsl: boolean,
-    ports: IAppPort[],
-    repoInfo: RepoInfo,
-    customNginxConfig: string,
-    redirectDomain: string,
-    preDeployFunction: string,
-    serviceUpdateOverride: string,
-    websocketSupport: boolean,
-    appDeployTokenConfig: AppDeployTokenConfig,
-  ) {
-    const self = this;
-    const dataStore = this.dataStore;
-    const dockerApi = this.dockerApi;
-
-    let serviceName: string;
-
-    let existingAppDefinition: IAppDef;
-
-    const checkIfNodeIdExists = function (nodeIdToCheck: string) {
-      return dockerApi.getNodesInfo().then(function (nodeInfo) {
-        for (let i = 0; i < nodeInfo.length; i++) {
-          if (nodeIdToCheck === nodeInfo[i].nodeId) {
-            return;
-          }
-        }
-
-        throw ApiStatusCodes.createError(
-          ApiStatusCodes.STATUS_ERROR_GENERIC,
-          `Node ID you requested is not part of the swarm cluster: ${nodeIdToCheck}`,
-        );
-      });
-    };
-
-    return Promise.resolve()
-      .then(function () {
-        projectId = `${projectId || ""}`.trim();
-        if (projectId) {
-          return dataStore.getProjectsDataStore().getProject(projectId);
-
-          // if project is not found, it will throw an error
-        }
-      })
-      .then(function () {
-        return self.ensureNotBuilding(appName);
-      })
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function (app) {
-        serviceName = dataStore
-          .getAppsDataStore()
-          .getServiceName(appName, !!app.isLegacyAppName);
-
-        // After leaving this block, nodeId will be guaranteed to be NonNull
-        if (app.hasPersistentData) {
-          if (nodeId) {
-            return checkIfNodeIdExists(nodeId);
-          } else {
-            if (app.nodeId) {
-              nodeId = app.nodeId;
-            } else {
-              return dockerApi
-                .isServiceRunningByName(serviceName)
-                .then(function (isRunning: boolean) {
-                  if (!isRunning) {
-                    throw ApiStatusCodes.createError(
-                      ApiStatusCodes.STATUS_ERROR_GENERIC,
-                      "Cannot find the service. Try again in a minute...",
-                    );
-                  }
-                  return dockerApi.getNodeIdByServiceName(serviceName, 0);
-                })
-                .then(function (nodeIdRunningService: string) {
-                  if (!nodeIdRunningService) {
-                    throw ApiStatusCodes.createError(
-                      ApiStatusCodes.STATUS_ERROR_GENERIC,
-                      "No NodeId was found. Try again in a minute...",
-                    );
-                  }
-
-                  nodeId = nodeIdRunningService;
-                });
-            }
-          }
-        } else {
-          if (volumes && volumes.length) {
-            throw ApiStatusCodes.createError(
-              ApiStatusCodes.ILLEGAL_OPERATION,
-              "Cannot set volumes for a non-persistent container!",
-            );
-          }
-
-          if (nodeId) {
-            return checkIfNodeIdExists(nodeId);
-          }
-        }
-      })
-      .then(function () {
-        serviceUpdateOverride = serviceUpdateOverride
-          ? `${serviceUpdateOverride}`.trim()
-          : "";
-        if (!serviceUpdateOverride) {
-          // no override!
-          return;
-        }
-
-        if (!Utils.convertYamlOrJsonToObject(serviceUpdateOverride)) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.ILLEGAL_PARAMETER,
-            "serviceUpdateOverride must be either a valid JSON object starting with { or an equivalent yaml",
-          );
-        }
-      })
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function (appDef) {
-        existingAppDefinition = appDef;
-
-        return dataStore
-          .getAppsDataStore()
-          .updateAppDefinitionInDb(
-            appName,
-            projectId,
-            description,
-            instanceCount,
-            captainDefinitionRelativeFilePath,
-            envVars,
-            volumes,
-            tags,
-            nodeId,
-            notExposeAsWebApp,
-            containerHttpPort,
-            httpAuth,
-            forceSsl,
-            ports,
-            repoInfo,
-            self.authenticator,
-            customNginxConfig,
-            redirectDomain,
-            preDeployFunction,
-            serviceUpdateOverride,
-            websocketSupport,
-            appDeployTokenConfig,
-          );
-      })
-      .then(function () {
-        return self.ensureServiceInitedAndUpdated(appName);
-      })
-      .catch(function (error) {
-        if (
-          error &&
-          error.captainErrorType ===
-            ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
-        ) {
-          // Revert back to the old definition because the nginx config is invalid
-          if (existingAppDefinition) {
-            Logger.d(
-              `nginx validation failed, reverting configs for: ${appName}`,
-            );
-            return dataStore
-              .getAppsDataStore()
-              .updateAppDefinitionInDb(
-                appName,
-                existingAppDefinition.projectId,
-                existingAppDefinition.description,
-                existingAppDefinition.instanceCount,
-                existingAppDefinition.captainDefinitionRelativeFilePath,
-                existingAppDefinition.envVars,
-                existingAppDefinition.volumes,
-                existingAppDefinition.tags || [],
-                existingAppDefinition.nodeId || "",
-                existingAppDefinition.notExposeAsWebApp,
-                existingAppDefinition.containerHttpPort || 80,
-                existingAppDefinition.httpAuth,
-                existingAppDefinition.forceSsl,
-                existingAppDefinition.ports,
-                existingAppDefinition.appPushWebhook?.repoInfo || {
-                  repo: "",
-                  branch: "",
-                  user: "",
-                  password: "",
-                },
-                self.authenticator,
-                existingAppDefinition.customNginxConfig || "",
-                existingAppDefinition.redirectDomain || "",
-                existingAppDefinition.preDeployFunction || "",
-                existingAppDefinition.serviceUpdateOverride || "",
-                existingAppDefinition.websocketSupport,
-                existingAppDefinition.appDeployTokenConfig || {
-                  enabled: false,
-                },
-              )
-              .then(function () {
-                self.reloadLoadBalancer();
-              })
-              .then(function () {
-                throw error;
-              });
-          }
-        }
-
-        throw error;
-      });
-  }
-
-  isAppBuilding(appName: string) {
-    return !!this.activeOrScheduledBuilds[appName];
-  }
-
-  /**
-   *
-   * @returns the active build that it finds
-   */
-  isAnyBuildRunning() {
-    const activeBuilds = this.activeOrScheduledBuilds;
-
-    for (const appName in activeBuilds) {
-      if (activeBuilds[appName]) {
-        return appName;
-      }
+        return requireFromString(preDeployFunction)
     }
 
-    return undefined;
-  }
-
-  getBuildStatus(appName: string) {
-    const self = this;
-
-    return {
-      isAppBuilding: self.isAppBuilding(appName),
-      logs: self.buildLogsManager.getAppBuildLogs(appName).getLogs(),
-      isBuildFailed:
-        self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
-    };
-  }
-
-  logBuildFailed(appName: string, error: string) {
-    const self = this;
-    error = (error || "") + "";
-
-    self.eventLogger.trackEvent(
-      CapRoverEventFactory.create(CapRoverEventType.AppBuildFailed, {
-        appName,
-        error: error.substring(0, 1000),
-      }),
-    );
-    this.buildLogsManager.getAppBuildLogs(appName).onBuildFailed(error);
-  }
-
-  getAppLogs(appName: string, encoding: string) {
-    const dockerApi = this.dockerApi;
-    const dataStore = this.dataStore;
-    let serviceName: string;
-
-    return Promise.resolve() //
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function (appDef) {
-        serviceName = dataStore
-          .getAppsDataStore()
-          .getServiceName(appName, !!appDef.isLegacyAppName);
-        return dockerApi.getLogForService(
-          serviceName,
-          CaptainConstants.configs.appLogSize,
-          encoding,
-        );
-      });
-  }
-
-  ensureServiceInitedAndUpdated(appName: string) {
-    Logger.d(`Ensure service inited and Updated for: ${appName}`);
-    const self = this;
-
-    let imageName: string | undefined;
-    const dockerApi = this.dockerApi;
-    const dataStore = this.dataStore;
-    let app: IAppDef;
-    let dockerAuthObject: DockerAuthObj | undefined;
-    let serviceName: string;
-
-    return Promise.resolve() //
-      .then(function () {
-        return dataStore.getAppsDataStore().getAppDefinition(appName);
-      })
-      .then(function (appFound) {
-        app = appFound;
-        serviceName = dataStore
-          .getAppsDataStore()
-          .getServiceName(appName, !!app.isLegacyAppName);
-
-        Logger.d(`Check if service is running: ${serviceName}`);
-        return dockerApi.isServiceRunningByName(serviceName);
-      })
-      .then(function (isRunning) {
-        for (let i = 0; i < app.versions.length; i++) {
-          const element = app.versions[i];
-          if (element.version === app.deployedVersion) {
-            imageName = element.deployedImageName;
-            break;
-          }
-        }
-
-        if (!imageName) {
-          throw ApiStatusCodes.createError(
-            ApiStatusCodes.ILLEGAL_PARAMETER,
-            "ImageName for deployed version is not available, this version was probably failed due to an unsuccessful build!",
-          );
-        }
-
-        if (isRunning) {
-          Logger.d(`Service is already running: ${serviceName}`);
-          return true;
-        } else {
-          Logger.d(
-            `Creating service ${serviceName} with default image, we will update image later`,
-          );
-
-          // if we pass in networks here. Almost always it results in a delayed update which causes
-          // update errors if they happen right away!
-          return dockerApi
-            .createServiceOnNodeId(
-              CaptainConstants.configs.appPlaceholderImageName,
-              serviceName,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
+    ensureNotBuilding(appName: string) {
+        if (this.activeOrScheduledBuilds[appName])
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_OPERATION,
+                `Build in-progress for ${appName}. Please wait...`
             )
-            .then(() => true);
+    }
+
+    updateAppDefinition(
+        appName: string,
+        projectId: string,
+        description: string,
+        instanceCount: number,
+        captainDefinitionRelativeFilePath: string,
+        envVars: IAppEnvVar[],
+        volumes: IAppVolume[],
+        tags: IAppTag[],
+        nodeId: string,
+        notExposeAsWebApp: boolean,
+        containerHttpPort: number,
+        httpAuth: IHttpAuth,
+        forceSsl: boolean,
+        ports: IAppPort[],
+        repoInfo: RepoInfo,
+        customNginxConfig: string,
+        redirectDomain: string,
+        preDeployFunction: string,
+        serviceUpdateOverride: string,
+        websocketSupport: boolean,
+        appDeployTokenConfig: AppDeployTokenConfig
+    ) {
+        const self = this
+        const dataStore = this.dataStore
+        const dockerApi = this.dockerApi
+
+        let serviceName: string
+
+        let existingAppDefinition: IAppDef
+
+        const checkIfNodeIdExists = function (nodeIdToCheck: string) {
+            return dockerApi.getNodesInfo().then(function (nodeInfo) {
+                for (let i = 0; i < nodeInfo.length; i++) {
+                    if (nodeIdToCheck === nodeInfo[i].nodeId) {
+                        return
+                    }
+                }
+
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    `Node ID you requested is not part of the swarm cluster: ${nodeIdToCheck}`
+                )
+            })
         }
-      })
-      .then(function () {
-        return self.dockerRegistryHelper.getDockerAuthObjectForImageName(
-          imageName!,
-        );
-      })
-      .then(function (data) {
-        dockerAuthObject = data;
-      })
-      .then(function () {
-        return self.createPreDeployFunctionIfExist(app);
-      })
-      .then(function (preDeployFunction) {
-        Logger.d(`Updating service ${serviceName} with image ${imageName}`);
 
-        return dockerApi.updateService(
-          serviceName,
-          imageName,
-          app.volumes,
-          app.networks,
-          app.envVars,
-          undefined,
-          dockerAuthObject,
-          Number(app.instanceCount),
-          app.nodeId,
-          dataStore.getNameSpace(),
-          app.ports,
-          app,
-          IDockerUpdateOrders.AUTO,
-          Utils.convertYamlOrJsonToObject(app.serviceUpdateOverride),
-          preDeployFunction,
-        );
-      })
-      .then(function () {
-        return new Promise<void>(function (resolve) {
-          // Waiting 2 extra seconds for docker DNS to pickup the service name
-          setTimeout(resolve, 2000);
-        });
-      })
-      .then(function () {
-        return self.reloadLoadBalancer();
-      });
-  }
+        return Promise.resolve()
+            .then(function () {
+                projectId = `${projectId || ''}`.trim()
+                if (projectId) {
+                    return dataStore
+                        .getProjectsDataStore()
+                        .getProject(projectId)
 
-  reloadLoadBalancer() {
-    Logger.d("Updating Load Balancer - ServiceManager");
-    const self = this;
-    return self.loadBalancerManager.rePopulateNginxConfigFile();
-  }
+                    // if project is not found, it will throw an error
+                }
+            })
+            .then(function () {
+                return self.ensureNotBuilding(appName)
+            })
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (app) {
+                serviceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(appName, !!app.isLegacyAppName)
+
+                // After leaving this block, nodeId will be guaranteed to be NonNull
+                if (app.hasPersistentData) {
+                    if (nodeId) {
+                        return checkIfNodeIdExists(nodeId)
+                    } else {
+                        if (app.nodeId) {
+                            nodeId = app.nodeId
+                        } else {
+                            return dockerApi
+                                .isServiceRunningByName(serviceName)
+                                .then(function (isRunning: boolean) {
+                                    if (!isRunning) {
+                                        throw ApiStatusCodes.createError(
+                                            ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                            'Cannot find the service. Try again in a minute...'
+                                        )
+                                    }
+                                    return dockerApi.getNodeIdByServiceName(
+                                        serviceName,
+                                        0
+                                    )
+                                })
+                                .then(function (nodeIdRunningService: string) {
+                                    if (!nodeIdRunningService) {
+                                        throw ApiStatusCodes.createError(
+                                            ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                            'No NodeId was found. Try again in a minute...'
+                                        )
+                                    }
+
+                                    nodeId = nodeIdRunningService
+                                })
+                        }
+                    }
+                } else {
+                    if (volumes && volumes.length) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Cannot set volumes for a non-persistent container!'
+                        )
+                    }
+
+                    if (nodeId) {
+                        return checkIfNodeIdExists(nodeId)
+                    }
+                }
+            })
+            .then(function () {
+                serviceUpdateOverride = serviceUpdateOverride
+                    ? `${serviceUpdateOverride}`.trim()
+                    : ''
+                if (!serviceUpdateOverride) {
+                    // no override!
+                    return
+                }
+
+                if (!Utils.convertYamlOrJsonToObject(serviceUpdateOverride)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'serviceUpdateOverride must be either a valid JSON object starting with { or an equivalent yaml'
+                    )
+                }
+            })
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (appDef) {
+                existingAppDefinition = appDef
+
+                return dataStore
+                    .getAppsDataStore()
+                    .updateAppDefinitionInDb(
+                        appName,
+                        projectId,
+                        description,
+                        instanceCount,
+                        captainDefinitionRelativeFilePath,
+                        envVars,
+                        volumes,
+                        tags,
+                        nodeId,
+                        notExposeAsWebApp,
+                        containerHttpPort,
+                        httpAuth,
+                        forceSsl,
+                        ports,
+                        repoInfo,
+                        self.authenticator,
+                        customNginxConfig,
+                        redirectDomain,
+                        preDeployFunction,
+                        serviceUpdateOverride,
+                        websocketSupport,
+                        appDeployTokenConfig
+                    )
+            })
+            .then(function () {
+                return self.ensureServiceInitedAndUpdated(appName)
+            })
+            .catch(function (error) {
+                if (
+                    error &&
+                    error.captainErrorType ===
+                        ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
+                ) {
+                    // Revert back to the old definition because the nginx config is invalid
+                    if (existingAppDefinition) {
+                        Logger.d(
+                            `nginx validation failed, reverting configs for: ${appName}`
+                        )
+                        return dataStore
+                            .getAppsDataStore()
+                            .updateAppDefinitionInDb(
+                                appName,
+                                existingAppDefinition.projectId,
+                                existingAppDefinition.description,
+                                existingAppDefinition.instanceCount,
+                                existingAppDefinition.captainDefinitionRelativeFilePath,
+                                existingAppDefinition.envVars,
+                                existingAppDefinition.volumes,
+                                existingAppDefinition.tags || [],
+                                existingAppDefinition.nodeId || '',
+                                existingAppDefinition.notExposeAsWebApp,
+                                existingAppDefinition.containerHttpPort || 80,
+                                existingAppDefinition.httpAuth,
+                                existingAppDefinition.forceSsl,
+                                existingAppDefinition.ports,
+                                existingAppDefinition.appPushWebhook
+                                    ?.repoInfo || {
+                                    repo: '',
+                                    branch: '',
+                                    user: '',
+                                    password: '',
+                                },
+                                self.authenticator,
+                                existingAppDefinition.customNginxConfig || '',
+                                existingAppDefinition.redirectDomain || '',
+                                existingAppDefinition.preDeployFunction || '',
+                                existingAppDefinition.serviceUpdateOverride ||
+                                    '',
+                                existingAppDefinition.websocketSupport,
+                                existingAppDefinition.appDeployTokenConfig || {
+                                    enabled: false,
+                                }
+                            )
+                            .then(function () {
+                                self.reloadLoadBalancer()
+                            })
+                            .then(function () {
+                                throw error
+                            })
+                    }
+                }
+
+                throw error
+            })
+    }
+
+    isAppBuilding(appName: string) {
+        return !!this.activeOrScheduledBuilds[appName]
+    }
+
+    /**
+     *
+     * @returns the active build that it finds
+     */
+    isAnyBuildRunning() {
+        const activeBuilds = this.activeOrScheduledBuilds
+
+        for (const appName in activeBuilds) {
+            if (activeBuilds[appName]) {
+                return appName
+            }
+        }
+
+        return undefined
+    }
+
+    getBuildStatus(appName: string) {
+        const self = this
+
+        return {
+            isAppBuilding: self.isAppBuilding(appName),
+            logs: self.buildLogsManager.getAppBuildLogs(appName).getLogs(),
+            isBuildFailed:
+                self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
+        }
+    }
+
+    logBuildFailed(appName: string, error: string) {
+        const self = this
+        error = (error || '') + ''
+
+        self.eventLogger.trackEvent(
+            CapRoverEventFactory.create(CapRoverEventType.AppBuildFailed, {
+                appName,
+                error: error.substring(0, 1000),
+            })
+        )
+        this.buildLogsManager.getAppBuildLogs(appName).onBuildFailed(error)
+    }
+
+    getAppLogs(appName: string, encoding: string) {
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+        let serviceName: string
+
+        return Promise.resolve() //
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (appDef) {
+                serviceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(appName, !!appDef.isLegacyAppName)
+                return dockerApi.getLogForService(
+                    serviceName,
+                    CaptainConstants.configs.appLogSize,
+                    encoding
+                )
+            })
+    }
+
+    ensureServiceInitedAndUpdated(appName: string) {
+        Logger.d(`Ensure service inited and Updated for: ${appName}`)
+        const self = this
+
+        let imageName: string | undefined
+        const dockerApi = this.dockerApi
+        const dataStore = this.dataStore
+        let app: IAppDef
+        let dockerAuthObject: DockerAuthObj | undefined
+        let serviceName: string
+
+        return Promise.resolve() //
+            .then(function () {
+                return dataStore.getAppsDataStore().getAppDefinition(appName)
+            })
+            .then(function (appFound) {
+                app = appFound
+                serviceName = dataStore
+                    .getAppsDataStore()
+                    .getServiceName(appName, !!app.isLegacyAppName)
+
+                Logger.d(`Check if service is running: ${serviceName}`)
+                return dockerApi.isServiceRunningByName(serviceName)
+            })
+            .then(function (isRunning) {
+                for (let i = 0; i < app.versions.length; i++) {
+                    const element = app.versions[i]
+                    if (element.version === app.deployedVersion) {
+                        imageName = element.deployedImageName
+                        break
+                    }
+                }
+
+                if (!imageName) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        'ImageName for deployed version is not available, this version was probably failed due to an unsuccessful build!'
+                    )
+                }
+
+                if (isRunning) {
+                    Logger.d(`Service is already running: ${serviceName}`)
+                    return true
+                } else {
+                    Logger.d(
+                        `Creating service ${serviceName} with default image, we will update image later`
+                    )
+
+                    // if we pass in networks here. Almost always it results in a delayed update which causes
+                    // update errors if they happen right away!
+                    return dockerApi
+                        .createServiceOnNodeId(
+                            CaptainConstants.configs.appPlaceholderImageName,
+                            serviceName,
+                            undefined,
+                            undefined,
+                            undefined,
+                            undefined,
+                            undefined
+                        )
+                        .then(() => true)
+                }
+            })
+            .then(function () {
+                return self.dockerRegistryHelper.getDockerAuthObjectForImageName(
+                    imageName!
+                )
+            })
+            .then(function (data) {
+                dockerAuthObject = data
+            })
+            .then(function () {
+                return self.createPreDeployFunctionIfExist(app)
+            })
+            .then(function (preDeployFunction) {
+                Logger.d(
+                    `Updating service ${serviceName} with image ${imageName}`
+                )
+
+                return dockerApi.updateService(
+                    serviceName,
+                    imageName,
+                    app.volumes,
+                    app.networks,
+                    app.envVars,
+                    undefined,
+                    dockerAuthObject,
+                    Number(app.instanceCount),
+                    app.nodeId,
+                    dataStore.getNameSpace(),
+                    app.ports,
+                    app,
+                    IDockerUpdateOrders.AUTO,
+                    Utils.convertYamlOrJsonToObject(app.serviceUpdateOverride),
+                    preDeployFunction
+                )
+            })
+            .then(function () {
+                return new Promise<void>(function (resolve) {
+                    // Waiting 2 extra seconds for docker DNS to pickup the service name
+                    setTimeout(resolve, 2000)
+                })
+            })
+            .then(function () {
+                return self.reloadLoadBalancer()
+            })
+    }
+
+    reloadLoadBalancer() {
+        Logger.d('Updating Load Balancer - ServiceManager')
+        const self = this
+        return self.loadBalancerManager.rePopulateNginxConfigFile()
+    }
 }
 
-export default ServiceManager;
+export default ServiceManager
