@@ -65,6 +65,40 @@ export abstract class IDockerUpdateOrders {
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
 
+export function getLegacyServiceDnsAlias(
+    serviceName: string,
+    namespace: string | undefined,
+    isLegacyAppName: boolean
+) {
+    if (!namespace || isLegacyAppName) {
+        return undefined
+    }
+
+    return `srv-${namespace}--${serviceName}`
+}
+
+export interface IServiceNetworkAttachment {
+    Target: string
+    Aliases?: string[]
+}
+
+export function getServiceNetworkAttachments(
+    networks: string[],
+    legacyDnsAlias: string | undefined
+) {
+    return networks.map((network) => {
+        const attachment: IServiceNetworkAttachment = {
+            Target: network,
+        }
+
+        if (legacyDnsAlias) {
+            attachment.Aliases = [legacyDnsAlias]
+        }
+
+        return attachment
+    })
+}
+
 export interface CreateContainerParams {
     containerName?: string
     imageName: string
@@ -1454,11 +1488,25 @@ class DockerApi {
                 }
 
                 if (networks) {
-                    updatedData.TaskTemplate.Networks = []
-                    for (let i = 0; i < networks.length; i++) {
-                        updatedData.TaskTemplate.Networks.push({
-                            Target: networks[i],
-                        })
+                    if (appObject) {
+                        const legacyDnsAlias = getLegacyServiceDnsAlias(
+                            serviceName,
+                            namespace,
+                            !!appObject.isLegacyAppName
+                        )
+
+                        updatedData.TaskTemplate.Networks =
+                            getServiceNetworkAttachments(
+                                networks,
+                                legacyDnsAlias
+                            )
+                    } else {
+                        updatedData.TaskTemplate.Networks = []
+                        for (let i = 0; i < networks.length; i++) {
+                            updatedData.TaskTemplate.Networks.push({
+                                Target: networks[i],
+                            })
+                        }
                     }
                 }
 

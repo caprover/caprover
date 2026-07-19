@@ -3,6 +3,10 @@ import AppsDataStore, {
     isNameAllowed,
 } from '../src/datastore/AppsDataStore'
 import { runDataStoreMigrations } from '../src/datastore/DataStore'
+import {
+    getLegacyServiceDnsAlias,
+    getServiceNetworkAttachments,
+} from '../src/docker/DockerApi'
 import ServiceManager from '../src/user/ServiceManager'
 
 function createConfigStore(initialData: { [key: string]: any }) {
@@ -86,6 +90,49 @@ describe('service and volume naming migration', () => {
 
         expect(deleteVols).toHaveBeenCalledWith(['data'])
         expect(failedVolumes).toEqual(['data'])
+    })
+
+    test('adds the legacy DNS alias to every network for a new app', () => {
+        const alias = getLegacyServiceDnsAlias(
+            'paperless-db',
+            'captain',
+            false
+        )
+
+        expect(
+            getServiceNetworkAttachments(
+                ['captain-overlay-network', 'private-network'],
+                alias
+            )
+        ).toEqual([
+            {
+                Target: 'captain-overlay-network',
+                Aliases: ['srv-captain--paperless-db'],
+            },
+            {
+                Target: 'private-network',
+                Aliases: ['srv-captain--paperless-db'],
+            },
+        ])
+    })
+
+    test('does not add a redundant DNS alias to legacy apps', () => {
+        const alias = getLegacyServiceDnsAlias(
+            'srv-captain--paperless-db',
+            'captain',
+            true
+        )
+
+        expect(
+            getServiceNetworkAttachments(
+                ['captain-overlay-network'],
+                alias
+            )
+        ).toEqual([
+            {
+                Target: 'captain-overlay-network',
+            },
+        ])
     })
 
     test('deletes both physical volumes when neither remains in use', async () => {
