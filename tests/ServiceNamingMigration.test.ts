@@ -116,6 +116,37 @@ describe('service and volume naming migration', () => {
         ])
     })
 
+    test('preserves existing aliases when rebuilding network attachments', () => {
+        expect(
+            getServiceNetworkAttachments(
+                ['network-a', 'network-b', 'network-c'],
+                undefined,
+                [
+                    {
+                        Target: 'network-a',
+                        Aliases: ['alias-a'],
+                    },
+                    {
+                        Target: 'network-b',
+                        Aliases: ['alias-b'],
+                    },
+                ]
+            )
+        ).toEqual([
+            {
+                Target: 'network-a',
+                Aliases: ['alias-a'],
+            },
+            {
+                Target: 'network-b',
+                Aliases: ['alias-b'],
+            },
+            {
+                Target: 'network-c',
+            },
+        ])
+    })
+
     test('does not add a redundant DNS alias to legacy apps', () => {
         const alias = getLegacyServiceDnsAlias(
             'srv-captain--paperless-db',
