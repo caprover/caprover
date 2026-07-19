@@ -80,7 +80,6 @@ export function getLegacyServiceDnsAlias(
 export interface IServiceNetworkAttachment {
     Target: string
     Aliases?: string[]
-    [key: string]: any
 }
 
 export function getServiceNetworkAttachments(
