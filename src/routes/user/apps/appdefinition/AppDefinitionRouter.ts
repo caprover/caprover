@@ -15,6 +15,20 @@ import Utils from '../../../../utils/Utils'
 
 const router = express.Router()
 
+export function ensureAppsExist(
+    appNames: string[],
+    apps: IHashMapGeneric<any>
+) {
+    appNames.forEach((appName) => {
+        if (!apps[appName]) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                `App (${appName}) could not be found. Make sure that you have created the app.`
+            )
+        }
+    })
+}
+
 // unused images
 router.get('/unusedImages', function (req, res, next) {
     return Promise.resolve()
@@ -206,14 +220,10 @@ router.post('/delete/', function (req, res, next) {
             return dataStore.getAppsDataStore().getAppDefinitions()
         })
         .then(function (apps) {
+            ensureAppsExist(appsToDelete, apps)
+
             appsToDelete.forEach((appNameToDelete) => {
                 const app = apps[appNameToDelete]
-                if (!app) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        `App (${appNameToDelete}) could not be found. Make sure that you have created the app.`
-                    )
-                }
 
                 const volumesForApp = app.volumes || []
                 volumesForApp.forEach((volume) => {
