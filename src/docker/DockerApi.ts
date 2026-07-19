@@ -77,20 +77,33 @@ export function getLegacyServiceDnsAlias(
     return `srv-${namespace}--${serviceName}`
 }
 
+export interface IServiceNetworkAttachment {
+    Target: string
+    Aliases?: string[]
+    [key: string]: any
+}
+
 export function getServiceNetworkAttachments(
     networks: string[],
-    legacyDnsAlias: string | undefined
+    legacyDnsAlias: string | undefined,
+    existingAttachments: IServiceNetworkAttachment[] = []
 ) {
     return networks.map((network) => {
-        const attachment: {
-            Target: string
-            Aliases?: string[]
-        } = {
+        const existingAttachment = existingAttachments.find(
+            (attachment) => attachment.Target === network
+        )
+        const attachment: IServiceNetworkAttachment = {
+            ...existingAttachment,
             Target: network,
         }
 
         if (legacyDnsAlias) {
-            attachment.Aliases = [legacyDnsAlias]
+            attachment.Aliases = Array.from(
+                new Set([
+                    ...(existingAttachment?.Aliases || []),
+                    legacyDnsAlias,
+                ])
+            )
         }
 
         return attachment
@@ -1494,7 +1507,11 @@ class DockerApi {
                         : undefined
 
                     updatedData.TaskTemplate.Networks =
-                        getServiceNetworkAttachments(networks, legacyDnsAlias)
+                        getServiceNetworkAttachments(
+                            networks,
+                            legacyDnsAlias,
+                            updatedData.TaskTemplate.Networks || []
+                        )
                 }
 
                 if (secrets) {
