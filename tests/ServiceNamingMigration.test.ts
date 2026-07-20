@@ -3,6 +3,8 @@ import AppsDataStore, {
     isNameAllowed,
 } from '../src/datastore/AppsDataStore'
 import { runDataStoreMigrations } from '../src/datastore/DataStore'
+import { getAllAppDefinitions } from '../src/handlers/users/apps/appdefinition/AppDefinitionHandler'
+import { IAppDef } from '../src/models/AppDefinition'
 import {
     getLegacyServiceDnsAlias,
     getServiceNetworkAttachments,
@@ -17,6 +19,27 @@ function createConfigStore(initialData: { [key: string]: any }) {
             data[key] = value
         }),
     } as unknown as configstore
+}
+
+function createAppDefinition(overrides: Partial<IAppDef> = {}): IAppDef {
+    return {
+        description: '',
+        deployedVersion: 0,
+        notExposeAsWebApp: false,
+        hasPersistentData: false,
+        hasDefaultSubDomainSsl: false,
+        captainDefinitionRelativeFilePath: './captain-definition',
+        forceSsl: false,
+        websocketSupport: false,
+        instanceCount: 1,
+        networks: ['captain-overlay-network'],
+        customDomain: [],
+        ports: [],
+        volumes: [],
+        envVars: [],
+        versions: [],
+        ...overrides,
+    }
 }
 
 describe('service and volume naming migration', () => {
@@ -47,6 +70,87 @@ describe('service and volume naming migration', () => {
 
         expect(appDefinitions.newApp).toEqual({})
         expect(data.set).not.toHaveBeenCalled()
+    })
+
+    test('returns an explicit legacy app name flag for every app', async () => {
+        const dataStore = {
+            getAppsDataStore: () => ({
+                getAppDefinitions: jest.fn().mockResolvedValue({
+                    legacyApp: createAppDefinition({
+                        isLegacyAppName: true,
+                    }),
+                    modernApp: createAppDefinition(),
+                }),
+            }),
+            getDefaultAppNginxConfig: jest.fn().mockResolvedValue(''),
+            getRootDomain: jest.fn().mockReturnValue('example.com'),
+        } as any
+        const serviceManager = {
+            isAppBuilding: jest.fn().mockReturnValue(false),
+        } as any
+
+        const result = await getAllAppDefinitions(dataStore, serviceManager)
+
+        expect(result.data.appDefinitions).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    appName: 'legacyApp',
+                    isLegacyAppName: true,
+                }),
+                expect.objectContaining({
+                    appName: 'modernApp',
+                    isLegacyAppName: false,
+                }),
+            ])
+        )
+    })
+
+    test('does not let saves override the legacy app name flag', async () => {
+        const storedApp = createAppDefinition({ isLegacyAppName: true })
+        const data = {
+            get: jest.fn((key: string) => {
+                if (key === 'appDefinitions.legacy-app') {
+                    return storedApp
+                }
+                return undefined
+            }),
+            set: jest.fn(),
+        } as unknown as configstore
+        const appsDataStore = new AppsDataStore(data, 'captain')
+
+        await (appsDataStore as any).saveApp(
+            'legacy-app',
+            createAppDefinition({ isLegacyAppName: false })
+        )
+
+        expect(data.set).toHaveBeenCalledWith(
+            'appDefinitions.legacy-app',
+            expect.objectContaining({ isLegacyAppName: true })
+        )
+    })
+
+    test('does not let saves mark a modern app as legacy', async () => {
+        const storedApp = createAppDefinition()
+        const data = {
+            get: jest.fn((key: string) => {
+                if (key === 'appDefinitions.modern-app') {
+                    return storedApp
+                }
+                return undefined
+            }),
+            set: jest.fn(),
+        } as unknown as configstore
+        const appsDataStore = new AppsDataStore(data, 'captain')
+
+        await (appsDataStore as any).saveApp(
+            'modern-app',
+            createAppDefinition({ isLegacyAppName: true })
+        )
+
+        expect(data.set).toHaveBeenCalledWith(
+            'appDefinitions.modern-app',
+            expect.not.objectContaining({ isLegacyAppName: expect.anything() })
+        )
     })
 
     test('reserves the captain service-name prefix', () => {

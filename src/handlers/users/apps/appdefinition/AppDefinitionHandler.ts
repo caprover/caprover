@@ -116,6 +116,7 @@ export async function getAllAppDefinitions(
             const app = apps[key]
             app.appName = key
             app.isAppBuilding = serviceManager.isAppBuilding(key)
+            app.isLegacyAppName = !!app.isLegacyAppName
             app.appPushWebhook = app.appPushWebhook || undefined
             appsArray.push(app)
         })
