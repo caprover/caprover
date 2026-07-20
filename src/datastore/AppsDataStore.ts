@@ -94,6 +94,18 @@ class AppsDataStore {
                     )
                 }
 
+                const existingApp = self.data.get(
+                    `${APP_DEFINITIONS}.${appName}`
+                ) as IAppDefSaved | undefined
+
+                if (existingApp) {
+                    if (existingApp.isLegacyAppName === undefined) {
+                        delete app.isLegacyAppName
+                    } else {
+                        app.isLegacyAppName = existingApp.isLegacyAppName
+                    }
+                }
+
                 if (app.forceSsl) {
                     let hasAtLeastOneSslDomain = app.hasDefaultSubDomainSsl
                     const customDomainArray = app.customDomain
