@@ -1,9 +1,9 @@
-FROM node:22-alpine
-RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
+# Build stage runs on the host platform to avoid QEMU SIGILL issues with Node.js 22 on arm64
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
+RUN apk add --update --no-cache make gcc g++ git curl openssl
 
 WORKDIR /usr/src/app
 COPY . ./
-
 
 # Build backend code
 RUN npm ci && \
@@ -11,6 +11,13 @@ RUN npm ci && \
      npm ci --omit=dev && \
      npm cache clean --force && \
      mv ./edge-override.json ./config-override.json
+
+# Final stage uses the target platform's Node.js runtime
+FROM node:22-alpine
+RUN apk add --update --no-cache git curl openssl openssh
+
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app .
 
 # This quick hack invalidates the cache.
 ADD https://www.google.com /time.now
