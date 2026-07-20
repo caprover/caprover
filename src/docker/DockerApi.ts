@@ -28,6 +28,7 @@ import Dockerode = require('dockerode')
 import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
+const CAPROVER_MANAGED_SERVICE_LABEL = 'com.caprover.managed'
 
 function safeParseChunk(chunk: string): {
     stream?: string
@@ -867,6 +868,9 @@ class DockerApi {
 
         const dataToCreate: any = {
             name: serviceName,
+            Labels: {
+                [CAPROVER_MANAGED_SERVICE_LABEL]: 'true',
+            },
             TaskTemplate: {
                 ContainerSpec: {
                     Image: imageName,
@@ -1651,6 +1655,9 @@ class DockerApi {
                 return updatedData
             })
             .then(function (updatedData) {
+                updatedData.Labels = updatedData.Labels || {}
+                updatedData.Labels[CAPROVER_MANAGED_SERVICE_LABEL] = 'true'
+
                 return self.dockerode
                     .getService(serviceName)
                     .update(updatedData)
