@@ -92,15 +92,20 @@ export default class OneClickAppDeploymentHelper {
         })
     }
     createRegisterPromiseProject(
-        appName: string,
-        projectMemoryCache: { projectId: string }
+        projectName: string,
+        projectMemoryCache: { projectId: string },
+        parentProjectId: string = ''
     ) {
         const self = this
         return Promise.resolve().then(function () {
             const projectDef: ProjectDefinition = {
                 id: '',
-                name: appName,
+                name: projectName,
                 description: ``,
+            }
+            const normalizedParentProjectId = `${parentProjectId || ''}`.trim()
+            if (normalizedParentProjectId) {
+                projectDef.parentProjectId = normalizedParentProjectId
             }
             // change backend to ensure this returns project ID
             return self.apiManager

@@ -179,7 +179,7 @@ router.post('/register/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.serviceManager
 
     const appName = req.body.appName as string
-    const projectId = `${req.body.projectId || ''}`
+    const projectId = `${req.body.projectId || ''}`.trim()
     const hasPersistentData = !!req.body.hasPersistentData
     const isDetachedBuild = !!req.query.detached
 
