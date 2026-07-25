@@ -39,7 +39,7 @@
         "request": "^2.88.2",
         "require-from-string": "^2.0.2",
         "serve-favicon": "~2.5.1",
-        "shell-quote": "^1.8.3",
+        "shell-quote": "^1.9.0",
         "simple-git": "^3.28.0",
         "ssh2": "^1.16.0",
         "tar": "^7.4.3",
