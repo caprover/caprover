@@ -60,7 +60,7 @@
         "@types/fs-extra": "^11.0.4",
         "@types/http-proxy": "^1.17.16",
         "@types/is-valid-path": "^0.1.2",
-        "@types/jest": "^29.5.14",
+        "@types/jest": "^30.0.0",
         "@types/js-base64": "^3.3.1",
         "@types/jsonwebtoken": "^9.0.10",
         "@types/moment": "^2.13.0",
@@ -75,13 +75,13 @@
         "@types/tar": "^6.1.13",
         "@types/uuid": "^10.0.0",
         "@types/validator": "^13.15.2",
-        "@typescript-eslint/eslint-plugin": "^8.36.0",
-        "@typescript-eslint/parser": "^8.36.0",
+        "@typescript-eslint/eslint-plugin": "^8.65.0",
+        "@typescript-eslint/parser": "^8.65.0",
         "eslint": "^9.30.1",
         "globals": "^16.3.0",
-        "jest": "^30.0.4",
+        "jest": "^30.4.2",
         "madge": "^8.0.0",
         "ts-jest": "^29.4.0",
-        "typescript-eslint": "^8.36.0"
+        "typescript-eslint": "^8.65.0"
     }
 }
