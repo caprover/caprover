@@ -115,9 +115,7 @@ export function enrichVolumesWithAppUsage(
 }
 
 /** Stable ascending sort by physical volume name (API contract). */
-export function sortVolumesByName(
-    volumes: VolumeListItem[]
-): VolumeListItem[] {
+export function sortVolumesByName(volumes: VolumeListItem[]): VolumeListItem[] {
     return volumes.slice().sort(function (a, b) {
         if (a.name < b.name) {
             return -1
