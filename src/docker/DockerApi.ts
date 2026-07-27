@@ -100,6 +100,64 @@ export function getServiceNetworkAttachments(
     })
 }
 
+/**
+ * Docker Engine may return CreatedAt on volume inspect/list even though
+ * @types/dockerode VolumeInspectInfo omits it.
+ */
+export type VolumeInspectWithCreatedAt = Dockerode.VolumeInspectInfo & {
+    CreatedAt?: string
+}
+
+/**
+ * CamelCase DTO for Docker named volumes (node-local to CapRover's engine).
+ * size/refCount are rarely present on listVolumes and must not be required by clients.
+ */
+export interface DockerVolumeInfo {
+    name: string
+    driver: string
+    mountpoint: string
+    scope: 'local' | 'global' | string
+    /** Always an object; Docker null/undefined Labels mapped to {} */
+    labels: { [key: string]: string }
+    /** Prefer Docker's null when Options are null; do not coerce to {} */
+    options: { [key: string]: string } | null
+    /**
+     * Almost always absent for listVolumes().
+     * Docker documents UsageData primarily for GET /system/df.
+     * Do NOT use for conflict logic. Mapped only if present.
+     */
+    size?: number
+    refCount?: number
+    /** Optional; Engine often returns CreatedAt though types omit it */
+    createdAt?: string
+}
+
+/** Pure mapper — unit-test without DockerApi singleton */
+export function mapVolumeInspectToDto(
+    v: VolumeInspectWithCreatedAt
+): DockerVolumeInfo {
+    const dto: DockerVolumeInfo = {
+        name: v.Name,
+        driver: v.Driver,
+        mountpoint: v.Mountpoint,
+        scope: v.Scope,
+        labels: v.Labels || {},
+        options: v.Options,
+    }
+
+    if (v.UsageData && typeof v.UsageData.Size === 'number') {
+        dto.size = v.UsageData.Size
+    }
+    if (v.UsageData && typeof v.UsageData.RefCount === 'number') {
+        dto.refCount = v.UsageData.RefCount
+    }
+    if (v.CreatedAt) {
+        dto.createdAt = v.CreatedAt
+    }
+
+    return dto
+}
+
 export interface CreateContainerParams {
     containerName?: string
     imageName: string
@@ -1784,6 +1842,36 @@ class DockerApi {
         return Promise.resolve().then(function () {
             return self.dockerode.listImages()
         })
+    }
+
+    /**
+     * List named volumes visible on CapRover's Docker engine endpoint only
+     * (node-local; not swarm-global). Empty Volumes maps to [].
+     * Failures reject and must not be treated as an empty success list by callers.
+     */
+    getVolumes(): Promise<DockerVolumeInfo[]> {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.listVolumes()
+            })
+            .then(function (result) {
+                const warnings = (result && result.Warnings) || []
+                if (warnings.length) {
+                    Logger.w(
+                        'Docker listVolumes warnings: ' + warnings.join(' | ')
+                    )
+                }
+
+                // Success with empty/missing Volumes → []; do NOT treat as error
+                const volumes = (result && result.Volumes) || []
+                return volumes.map(function (v) {
+                    return mapVolumeInspectToDto(
+                        v as VolumeInspectWithCreatedAt
+                    )
+                })
+            })
     }
 
     getNodeLables(nodeId: string) {

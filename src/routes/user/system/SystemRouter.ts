@@ -6,6 +6,10 @@ import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import DockerApi from '../../../docker/DockerApi'
 import DockerUtils from '../../../docker/DockerUtils'
+import {
+    enrichVolumesWithAppUsage,
+    sortVolumesByName,
+} from '../../../handlers/users/system/VolumesHandler'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
 import { IAppDef } from '../../../models/AppDefinition'
 import { AutomatedCleanupConfigsCleaner } from '../../../models/AutomatedCleanupConfigs'
@@ -551,6 +555,46 @@ router.get('/nodes/', function (req, res, next) {
                 'Node info retrieved'
             )
             baseApi.data = { nodes: data }
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+/**
+ * List Docker named volumes on CapRover's Docker engine endpoint (node-local).
+ * Enriched with usedByAppNames for Persistent Directories conflict detection.
+ * Auth: UserRouter injectUser (x-captain-auth). GET only — no write lock.
+ */
+router.get('/volumes/', function (req, res, next) {
+    const injectedUser = InjectionExtractor.extractUserFromInjected(res).user
+    const dataStore = injectedUser.dataStore
+    const namespace = injectedUser.namespace || CaptainConstants.rootNameSpace
+
+    return Promise.resolve()
+        .then(function () {
+            return DockerApi.get().getVolumes()
+        })
+        .then(function (volumes) {
+            return dataStore
+                .getAppsDataStore()
+                .getAppDefinitions()
+                .then(function (apps) {
+                    return enrichVolumesWithAppUsage(
+                        volumes,
+                        apps,
+                        dataStore,
+                        namespace
+                    )
+                })
+        })
+        .then(function (volumes) {
+            const sorted = sortVolumesByName(volumes)
+            Logger.d('Volumes retrieved: ' + sorted.length)
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Volumes retrieved'
+            )
+            baseApi.data = { volumes: sorted }
             res.send(baseApi)
         })
         .catch(ApiStatusCodes.createCatcher(res))
