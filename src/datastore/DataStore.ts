@@ -14,6 +14,7 @@ import { NetDataInfo } from '../models/NetDataInfo'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import Utils from '../utils/Utils'
+import AppBackupDataStore from './AppBackupDataStore'
 import AppsDataStore from './AppsDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
@@ -105,6 +106,7 @@ class DataStore {
     private registriesDataStore: RegistriesDataStore
     proDataStore: ProDataStore
     private projectsDataStore: ProjectsDataStore
+    private appBackupDataStore: AppBackupDataStore
 
     constructor(namespace: string) {
         const configPath = `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`
@@ -130,12 +132,14 @@ class DataStore {
         )
         this.proDataStore = new ProDataStore(this.data)
         this.registriesDataStore = new RegistriesDataStore(this.data, namespace)
+        this.appBackupDataStore = new AppBackupDataStore(this.data, namespace)
     }
 
     setEncryptionSalt(salt: string) {
         this.encryptor = new CaptainEncryptor(this.namespace + salt)
         this.appsDataStore.setEncryptor(this.encryptor)
         this.registriesDataStore.setEncryptor(this.encryptor)
+        this.appBackupDataStore.setEncryptor(this.encryptor)
     }
 
     getNameSpace(): string {
@@ -330,6 +334,10 @@ class DataStore {
 
     getRegistriesDataStore() {
         return this.registriesDataStore
+    }
+
+    getAppBackupDataStore() {
+        return this.appBackupDataStore
     }
 
     setUserEmailAddress(emailAddress: string) {

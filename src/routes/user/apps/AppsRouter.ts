@@ -1,3 +1,4 @@
+import AppBackupRouter from './backups/AppBackupRouter'
 import AppDataRouter from './appdata/AppDataRouter'
 import AppDefinitionRouter from './appdefinition/AppDefinitionRouter'
 import WebhooksRouter from './webhooks/WebhooksRouter'
@@ -9,6 +10,8 @@ const router = express.Router()
 router.use('/appDefinitions/', AppDefinitionRouter)
 
 router.use('/appData/', AppDataRouter)
+
+router.use('/appBackups/', AppBackupRouter)
 
 // semi-secured end points:
 router.use('/webhooks/', WebhooksRouter)

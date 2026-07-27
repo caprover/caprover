@@ -173,6 +173,13 @@ const data = {
 
     nginxSharedLogsPathOnHost: CAPTAIN_DATA_DIRECTORY + '/shared-logs',
 
+    // Per-app rclone backups. Lives under the data directory (which is a 1:1
+    // host<->captain bind), so log files written by ephemeral rclone containers
+    // are directly readable by the captain process.
+    appBackupsLogsPathOnHost: CAPTAIN_DATA_DIRECTORY + '/app-backups/logs',
+
+    appBackupsRcloneConfigDir: CAPTAIN_ROOT_DIRECTORY_TEMP + '/app-backups-conf',
+
     debugSourceDirectory: '', // Only used in debug mode
 
     // ********************* Local Docker Constants  ************************

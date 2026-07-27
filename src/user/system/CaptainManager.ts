@@ -18,6 +18,7 @@ import {
     CapRoverEventType,
 } from '../events/ICapRoverEvent'
 import ProManager from '../pro/ProManager'
+import AppBackupManager from './AppBackupManager'
 import BackupManager from './BackupManager'
 import CertbotManager from './CertbotManager'
 import DiskCleanupManager from './DiskCleanupManager'
@@ -44,6 +45,7 @@ class CaptainManager {
     private loadBalancerManager: LoadBalancerManager
     private domainResolveChecker: DomainResolveChecker
     private diskCleanupManager: DiskCleanupManager
+    private appBackupManager: AppBackupManager
     private dockerRegistry: SelfHostedDockerRegistry
     private backupManager: BackupManager
     private myNodeId: string | undefined
@@ -75,6 +77,7 @@ class CaptainManager {
             this.dataStore,
             dockerApi
         )
+        this.appBackupManager = new AppBackupManager(this.dataStore, dockerApi)
         this.myNodeId = undefined
         this.inited = false
         this.waitUntilRestarted = false
@@ -251,6 +254,9 @@ class CaptainManager {
             })
             .then(function () {
                 return self.diskCleanupManager.init()
+            })
+            .then(function () {
+                return self.appBackupManager.init()
             })
             .then(function () {
                 return self.dataStore.getGoAccessInfo()
@@ -466,6 +472,10 @@ class CaptainManager {
 
     getDiskCleanupManager() {
         return this.diskCleanupManager
+    }
+
+    getAppBackupManager() {
+        return this.appBackupManager
     }
 
     isInitialized() {
