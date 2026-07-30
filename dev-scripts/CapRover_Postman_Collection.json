@@ -483,6 +483,32 @@
       "response": []
     },
     {
+      "name": "GET volumes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-captain-auth",
+            "value": "{{captain_auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-namespace",
+            "value": "captain"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/system/volumes/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "system", "volumes", ""]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Create Backup",
       "request": {
         "method": "POST",

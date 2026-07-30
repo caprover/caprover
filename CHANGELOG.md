@@ -1,5 +1,6 @@
 ## [Next Version - available as `edge`]
 
+- New: Authorized API to list CapRover-managed named volumes configured through Persistent Directories (`GET /user/system/volumes/`)
 - New: Ability to deploy simplified Docker compose [PR-191](https://github.com/caprover/caprover-frontend/pull/191)
 - New: Defaulting to BuildKit [Issue-1582](https://github.com/caprover/caprover/issues/1582)
 - New: Defaulting to gzip on [PR-2360](https://github.com/caprover/caprover/pull/2360)
