@@ -1,4 +1,5 @@
 import DataStore from '../../datastore/DataStore'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import { IHashMapGeneric } from '../../models/ICacheGeneric'
 import {
     IDockerComposeService,
@@ -6,9 +7,100 @@ import {
 } from '../../models/IOneClickAppModels'
 import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
+import Logger from '../../utils/Logger'
+import { isProjectNameAllowed } from '../../datastore/ProjectsDataStore'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
+
+export interface OneClickDeploymentOptions {
+    parentProjectId?: string
+    projectName?: string
+    templateName?: string
+}
+
+export function getTemplateServiceCount(template: IOneClickTemplate): number {
+    if (
+        !template ||
+        !template.services ||
+        typeof template.services !== 'object'
+    ) {
+        return 0
+    }
+
+    return Object.keys(template.services).length
+}
+
+export function normalizeOneClickDeploymentOptions(
+    options?: OneClickDeploymentOptions
+): OneClickDeploymentOptions {
+    const normalized: OneClickDeploymentOptions = {
+        parentProjectId: `${options?.parentProjectId || ''}`.trim(),
+    }
+
+    if (options && options.projectName !== undefined) {
+        normalized.projectName = `${options.projectName || ''}`.trim()
+    }
+
+    if (options && options.templateName !== undefined) {
+        normalized.templateName = `${options.templateName || ''}`.trim()
+    }
+
+    return normalized
+}
+
+export async function validateOneClickDeploymentOptions(
+    dataStore: DataStore,
+    template: IOneClickTemplate,
+    options?: OneClickDeploymentOptions,
+    valuesArray: OneClickAppValuePair[] = []
+) {
+    const normalizedOptions = normalizeOneClickDeploymentOptions(options)
+    const parentProjectId = normalizedOptions.parentProjectId || ''
+
+    Logger.d(
+        `Validating one-click deployment options; services: ${getTemplateServiceCount(
+            template
+        )}; parent project selected: ${!!parentProjectId}`
+    )
+
+    if (parentProjectId) {
+        await dataStore.getProjectsDataStore().getProject(parentProjectId)
+    }
+
+    const usesOneClickAppName =
+        !!template?.caproverOneClickApp?.variables?.some(
+            (variable) => variable.id === ONE_CLICK_APP_NAME_VAR_NAME
+        )
+    const isDockerCompose =
+        normalizedOptions.templateName === 'DOCKER_COMPOSE' ||
+        (!usesOneClickAppName && normalizedOptions.projectName !== undefined)
+    const safeValuesArray = Array.isArray(valuesArray) ? valuesArray : []
+    const oneClickAppName = `${
+        safeValuesArray.find(
+            (value) => value && value.key === ONE_CLICK_APP_NAME_VAR_NAME
+        )?.value || ''
+    }`.trim()
+
+    if (getTemplateServiceCount(template) > 1) {
+        const projectName = isDockerCompose
+            ? normalizedOptions.projectName || ''
+            : oneClickAppName
+        if (!projectName) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_OPERATION,
+                'Project name is required for multi-service deployments'
+            )
+        }
+
+        if (!isProjectNameAllowed(projectName)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_OPERATION,
+                'Project name is not allowed'
+            )
+        }
+    }
+}
 
 interface IDeploymentStep {
     stepName: string
@@ -48,20 +140,26 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        valuesArray: OneClickAppValuePair[]
+        valuesArray: OneClickAppValuePair[] = [],
+        deploymentOptions?: OneClickDeploymentOptions
     ) {
         const self = this
+        const normalizedOptions =
+            normalizeOneClickDeploymentOptions(deploymentOptions)
         let stringified = JSON.stringify(template)
 
         const values: IHashMapGeneric<string> = {}
-        valuesArray.forEach((element) => {
-            values[element.key] = element.value
+        const safeValuesArray = Array.isArray(valuesArray) ? valuesArray : []
+        safeValuesArray.forEach((element) => {
+            if (element && element.key) {
+                values[element.key] = element.value
+            }
         })
 
+        const variables = template.caproverOneClickApp.variables || []
+
         if (
-            template.caproverOneClickApp.variables.find(
-                (v) => v.id === ONE_CLICK_APP_NAME_VAR_NAME
-            ) &&
+            variables.find((v) => v.id === ONE_CLICK_APP_NAME_VAR_NAME) &&
             (!values[ONE_CLICK_APP_NAME_VAR_NAME] ||
                 values[ONE_CLICK_APP_NAME_VAR_NAME].trim().length === 0)
         ) {
@@ -73,12 +171,8 @@ export default class OneClickAppDeployManager {
             return
         }
 
-        for (
-            let index = 0;
-            index < template.caproverOneClickApp.variables.length;
-            index++
-        ) {
-            const element = template.caproverOneClickApp.variables[index]
+        for (let index = 0; index < variables.length; index++) {
+            const element = variables[index]
             stringified = replaceWith(
                 element.id,
                 values[element.id] || '',
@@ -91,7 +185,7 @@ export default class OneClickAppDeployManager {
         } catch (error) {
             this.onDeploymentStateChanged({
                 steps: ['Parsing the template'],
-                error: `Cannot parse: ${stringified}\n\n\n\n${error}`,
+                error: `Cannot parse deployment template: ${error}`,
                 currentStep: 0,
             })
             return
@@ -118,15 +212,36 @@ export default class OneClickAppDeployManager {
             })
         } else {
             const steps: IDeploymentStep[] = []
-            const capAppName = values[ONE_CLICK_APP_NAME_VAR_NAME]
+            const capAppName = `${
+                values[ONE_CLICK_APP_NAME_VAR_NAME] || ''
+            }`.trim()
 
-            const projectMemoryCache = { projectId: '' }
+            const projectMemoryCache = {
+                projectId: normalizedOptions.parentProjectId || '',
+            }
+
+            Logger.d(
+                `Starting one-click deployment; services: ${apps.length}; parent project selected: ${!!projectMemoryCache.projectId}`
+            )
 
             if (apps.length > 1) {
+                const usesOneClickAppName = variables.some(
+                    (variable) => variable.id === ONE_CLICK_APP_NAME_VAR_NAME
+                )
+                const isDockerCompose =
+                    normalizedOptions.templateName === 'DOCKER_COMPOSE' ||
+                    (!usesOneClickAppName &&
+                        normalizedOptions.projectName !== undefined)
+                const groupProjectName =
+                    isDockerCompose &&
+                    normalizedOptions.projectName !== undefined
+                        ? normalizedOptions.projectName
+                        : capAppName
                 steps.push(
                     self.createDeploymentStepForProjectCreation(
-                        capAppName,
-                        projectMemoryCache
+                        groupProjectName,
+                        projectMemoryCache,
+                        projectMemoryCache.projectId
                     )
                 )
             }
@@ -248,16 +363,21 @@ export default class OneClickAppDeployManager {
         return apps
     }
     private createDeploymentStepForProjectCreation(
-        capAppName: string,
-        projectMemoryCache: { projectId: string }
+        projectName: string,
+        projectMemoryCache: { projectId: string },
+        parentProjectId: string
     ): IDeploymentStep {
         const self = this
         return {
-            stepName: `Creating project ${capAppName}`,
+            stepName: `Creating project ${projectName}`,
             stepPromise: function () {
+                Logger.d(
+                    `Creating one-click deployment group project; parent project selected: ${!!parentProjectId}`
+                )
                 return self.deploymentHelper.createRegisterPromiseProject(
-                    capAppName,
-                    projectMemoryCache
+                    projectName,
+                    projectMemoryCache,
+                    parentProjectId
                 )
             },
         }
