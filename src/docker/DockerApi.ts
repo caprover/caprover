@@ -1543,7 +1543,7 @@ class DockerApi {
                                 Name: obj.secretName,
                                 UID: '0',
                                 GID: '0',
-                                Mode: 292, // TODO << what is this! I just added a secret and this is how it came out with... But I don't know what it means
+                                Mode: 0o444, // Read-only for owner, group, and others
                             },
                             SecretID: obj.secretId,
                             SecretName: obj.secretName,
