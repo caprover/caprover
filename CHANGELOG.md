@@ -1,4 +1,6 @@
-## [Next Version - available as `edge`]
+## [Next Version]
+
+Available as `edge`
 
 - New: Warning when a persistent volume label is already used by another app [PR-226](https://github.com/caprover/caprover-frontend/pull/226)
 - New: Ability to deploy simplified Docker compose [PR-191](https://github.com/caprover/caprover-frontend/pull/191)
@@ -480,7 +482,7 @@ Breaking Change:
 
 - If you were manually setting port mapping on your containers before this release, make sure to re-map them through Captain interface. Since port mapping is added to the interface, Captain would override the current port mapping that you might have on your containers. If you didn't manually modified your containers `--publish-add` flag, you don't need to worry about this.
 
-## [ v0.2.2] - 2017-12-05
+## [v0.2.2] - 2017-12-05
 
 Hotfix:
 
