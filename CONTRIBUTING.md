@@ -64,7 +64,7 @@ Link this folder to the root folder (Apple does not allow to create folder on th
 
 #####
 
-use node 22 then
+use node 24 then
 
 ```bash
 $   npm install
