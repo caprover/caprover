@@ -1,20 +1,25 @@
-# NodeJS v20 freezes when building for multiarch
-# https://github.com/nodejs/docker-node/issues/2155
-
-FROM node:18-alpine
-RUN apk add --update --no-cache make gcc g++ git curl openssl openssh
+# Build stage runs on the host platform to avoid QEMU SIGILL issues with Node.js 22 on arm64
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
+RUN apk add --update --no-cache make gcc g++ git curl openssl
 
 WORKDIR /usr/src/app
-COPY . ./ 
+COPY . ./
 
 # Build backend code
 RUN npm ci && \
      npm run build && \
      npm ci --omit=dev && \
      npm cache clean --force
-      
+
+# Final stage uses the target platform's Node.js runtime
+FROM node:22-alpine
+RUN apk add --update --no-cache git curl openssl openssh
+
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app .
+
 ENV NODE_ENV production
 ENV PORT 3000
 EXPOSE 3000
 
-CMD ["node" , "./built/server.js"]
+CMD ["node", "./built/server.js"]

@@ -43,16 +43,21 @@ app.use(
         },
     })
 )
-app.use(bodyParser.json())
+app.use(
+    bodyParser.json({
+        limit: '2mb',
+    })
+)
 app.use(
     bodyParser.urlencoded({
         extended: false,
+        limit: '2mb',
     })
 )
 app.use(cookieParser())
 
 if (CaptainConstants.isDebug) {
-    app.use('*', function (req, res, next) {
+    app.use('/', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader('Access-Control-Allow-Credentials', 'true')
         res.setHeader(

@@ -21,12 +21,36 @@ function cleanup() {
         })
 }
 
-beforeEach(() => {
-    return cleanup()
-})
+if (process.env.CI) {
+    beforeEach(() => {
+        return cleanup()
+    })
 
-afterEach(() => {
-    return cleanup()
+    afterEach(() => {
+        return cleanup()
+    })
+}
+
+describe('BackupManager.sanitizeHostnameForFilename', () => {
+    test('returns the hostname unchanged when it only contains safe chars', () => {
+        expect(
+            BackupManager.sanitizeHostnameForFilename('captain-prod.example.com')
+        ).toBe('captain-prod.example.com')
+    })
+
+    test('replaces filesystem-unsafe characters with underscores', () => {
+        expect(
+            BackupManager.sanitizeHostnameForFilename('host/with bad?chars')
+        ).toBe('host_with_bad_chars')
+    })
+
+    test('returns an empty string for an empty hostname', () => {
+        expect(BackupManager.sanitizeHostnameForFilename('')).toBe('')
+    })
+
+    test('returns an empty string for an undefined hostname', () => {
+        expect(BackupManager.sanitizeHostnameForFilename(undefined)).toBe('')
+    })
 })
 
 if (process.env.CI) {

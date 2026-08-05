@@ -3,6 +3,7 @@
  */
 import Configstore = require('configstore')
 import fs = require('fs-extra')
+import { IAppDefSaved } from '../models/AppDefinition'
 import {
     AutomatedCleanupConfigsCleaner,
     IAutomatedCleanupConfigs,
@@ -38,6 +39,24 @@ const CURRENT_THEME = 'currentTheme'
 
 const DEFAULT_CAPTAIN_ROOT_DOMAIN = 'captain.localhost'
 
+export function validateConfigFile(configPath: string) {
+    if (!fs.pathExistsSync(configPath)) {
+        return
+    }
+
+    try {
+        JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            throw new Error(
+                `Cannot start CapRover because ${configPath} contains invalid JSON. Fix the file or restore it from a backup, then restart CapRover.`
+            )
+        }
+
+        throw error
+    }
+}
+
 const DEFAULT_NGINX_BASE_CONFIG = fs
     .readFileSync(__dirname + '/../../template/base-nginx-conf.ejs')
     .toString()
@@ -59,6 +78,25 @@ const DEFAULT_NGINX_CONFIG_FOR_APP = fs
     .readFileSync(DEFAULT_NGINX_CONFIG_FOR_APP_PATH)
     .toString()
 
+export function runDataStoreMigrations(data: Configstore) {
+    const schemaVersion = data.get('schemaVersion') as number | undefined
+
+    if (schemaVersion && schemaVersion >= 2) {
+        return
+    }
+
+    const appDefinitions = data.get('appDefinitions')
+    if (appDefinitions) {
+        Object.keys(appDefinitions).forEach((appName) => {
+            const appDef = appDefinitions[appName] as IAppDefSaved
+            appDef.isLegacyAppName = true
+        })
+        data.set('appDefinitions', appDefinitions)
+    }
+
+    data.set('schemaVersion', 2)
+}
+
 class DataStore {
     private encryptor: CaptainEncryptor
     private namespace: string
@@ -69,13 +107,18 @@ class DataStore {
     private projectsDataStore: ProjectsDataStore
 
     constructor(namespace: string) {
+        const configPath = `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`
+        validateConfigFile(configPath)
+
         const data = new Configstore(
             `captain-store-${namespace}`, // This value seems to be unused
             {},
             {
-                configPath: `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`,
+                configPath,
             }
         )
+
+        runDataStoreMigrations(data)
 
         this.data = data
         this.namespace = namespace

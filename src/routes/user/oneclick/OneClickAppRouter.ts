@@ -3,10 +3,13 @@ import axios from 'axios'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import { EventLogger } from '../../../user/events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../../../user/events/ICapRoverEvent'
+import OneClickAppDeployManager from '../../../user/oneclick/OneClickAppDeployManager'
+import { OneClickDeploymentJobRegistry } from '../../../user/oneclick/OneClickDeploymentJobRegistry'
 import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
 
@@ -269,4 +272,153 @@ router.get('/template/app', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+router.post('/deploy', function (req, res, next) {
+    const dataStore =
+        InjectionExtractor.extractUserFromInjected(res).user.dataStore
+    const serviceManager =
+        InjectionExtractor.extractUserFromInjected(res).user.serviceManager
+    const eventLogger =
+        InjectionExtractor.extractUserFromInjected(res).user.userManager
+            .eventLogger
+
+    const template = req.body.template
+    const values = req.body.values
+    const templateName = req.body.templateName
+    const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
+
+    return Promise.resolve() //
+        .then(function () {
+            if (!template) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Template is required'
+                )
+            }
+
+            const jobId = deploymentJobRegistry.createJob()
+
+            reportAnalyticsOnAppDeploy(templateName, template, eventLogger)
+
+            new OneClickAppDeployManager(
+                dataStore,
+                serviceManager,
+                (deploymentState) => {
+                    deploymentJobRegistry.updateJobProgress(
+                        jobId,
+                        deploymentState
+                    )
+                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
+                    Logger.dev(
+                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                    )
+                }
+            ).startDeployProcess(template, values)
+
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'One-click deployment started'
+            )
+            baseApi.data = { jobId }
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
+router.get('/deploy/progress', function (req, res, next) {
+    const jobId = req.query.jobId as string
+    const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
+
+    return Promise.resolve() //
+        .then(function () {
+            // Validate input
+            if (!jobId) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Job ID is required'
+                )
+            }
+
+            // Check if job exists
+            if (!deploymentJobRegistry.jobExists(jobId)) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Job ID not found'
+                )
+            }
+
+            Logger.d(`Getting deployment progress for jobId: ${jobId}`)
+
+            // Get the current job state from deployment manager
+            const jobState = deploymentJobRegistry.getJobState(jobId)
+
+            if (!jobState) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'Unable to retrieve job state'
+                )
+            }
+
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Deployment progress retrieved'
+            )
+            baseApi.data = jobState
+            res.send(baseApi)
+        })
+        .catch(ApiStatusCodes.createCatcher(res))
+})
+
 export default router
+
+// This function analyzes the provided template to identify any unused fields in Docker service definitions.
+// It then logs an analytics event with the unused fields and the template name (if it's an official or known template).
+// This helps track which fields users are using and may inform future improvements to the one-click app templates.
+export function reportAnalyticsOnAppDeploy(
+    templateName: any,
+    template: any,
+    eventLogger: EventLogger
+) {
+    const unusedDockerServiceFieldNames: string[] = []
+    if (
+        templateName === 'TEMPLATE_ONE_CLICK' ||
+        templateName === 'DOCKER_COMPOSE'
+    ) {
+        if (template?.services) {
+            template.services.forEach((service: any) => {
+                if (service && typeof service === 'object') {
+                    Object.keys(service).forEach((key) => {
+                        if (
+                            !'image,environment,ports,volumes,depends_on,hostname,command,cap_add'
+                                .split(',')
+                                .includes(key)
+                        ) {
+                            // log the unused keys so that we can track what to add next
+                            if (!unusedDockerServiceFieldNames.includes(key)) {
+                                unusedDockerServiceFieldNames.push(key)
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    }
+
+    // we do not want to log private repos names
+    const templateNameToReport =
+        templateName === 'TEMPLATE_ONE_CLICK' ||
+        templateName === 'DOCKER_COMPOSE' ||
+        (typeof templateName === 'string' &&
+            templateName.startsWith('OFFICIAL_'))
+            ? templateName
+            : 'UNKNOWN'
+
+    eventLogger.trackEvent(
+        CapRoverEventFactory.create(
+            CapRoverEventType.OneClickAppDeployStarted,
+            {
+                unusedFields: unusedDockerServiceFieldNames,
+                templateName: templateNameToReport,
+            }
+        )
+    )
+}

@@ -59,6 +59,19 @@ export default class BackupManager {
         return !!this.longOperationInProgress
     }
 
+    /**
+     * Sanitizes a hostname for safe use inside the backup download
+     * filename. Returns only characters that are portable across
+     * filesystems and safe for HTTP Content-Disposition headers
+     * ([A-Za-z0-9._-]). Returns an empty string if there is nothing
+     * usable left after sanitization, in which case the caller should
+     * omit the hostname segment entirely.
+     */
+    static sanitizeHostnameForFilename(hostname: string | undefined): string {
+        if (!hostname) return ''
+        return hostname.replace(/[^A-Za-z0-9._-]/g, '_')
+    }
+
     startRestorationIfNeededPhase1(captainIpAddress: string) {
         // if (/captain/restore/restore-instructions.json does exist):
         // - Connect all extra nodes via SSH and get their NodeID
@@ -658,7 +671,7 @@ export default class BackupManager {
                         // https://github.com/jprichardson/node-fs-extra/issues/638
                         return new Promise(function (resolve, reject) {
                             const child = exec(
-                                `mkdir -p {dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest}`
+                                `mkdir -p ${dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest} && mkdir -p ${dest}/shared-logs && rm -rf ${dest}/shared-logs`
                             )
                             child.addListener('error', reject)
                             child.addListener('exit', resolve)
@@ -707,18 +720,30 @@ export default class BackupManager {
                     .then(function (tarFilePath) {
                         const namespace = CaptainConstants.rootNameSpace
                         let mainIP = ''
+                        let hostname = ''
 
                         nodeInfo.forEach((n) => {
-                            if (n.isLeader)
+                            if (n.isLeader) {
                                 mainIP = (n.ip || '').split('.').join('_')
+                                hostname =
+                                    BackupManager.sanitizeHostnameForFilename(
+                                        n.hostname
+                                    )
+                            }
                         })
+
+                        // Append the leader's hostname to the filename so users
+                        // running multiple CapRover instances can tell their
+                        // backups apart after downloading them. See
+                        // https://github.com/caprover/caprover/issues/1257
+                        const hostSegment = hostname ? `-host-${hostname}` : ''
 
                         const now = moment()
                         const newName = `${
                             CaptainConstants.captainDownloadsDirectory
                         }/${namespace}/caprover-backup-${`${now.format(
                             'YYYY_MM_DD-HH_mm_ss'
-                        )}-${now.valueOf()}`}${`-ip-${mainIP}.tar`}`
+                        )}-${now.valueOf()}`}${`-ip-${mainIP}${hostSegment}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
                         setTimeout(

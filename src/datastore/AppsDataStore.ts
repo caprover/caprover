@@ -26,15 +26,44 @@ import isValidPath = require('is-valid-path')
 
 const APP_DEFINITIONS = 'appDefinitions'
 
-function isNameAllowed(name: string) {
+export function isNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
-        /^[a-z]/.test(name) &&
+        /^[a-z0-9]/.test(name) &&
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
-    return isNameFormattingOk && ['captain', 'registry'].indexOf(name) < 0
+    return (
+        isNameFormattingOk &&
+        ['captain', 'registry'].indexOf(name) < 0 &&
+        !name.startsWith('captain-')
+    )
+}
+
+/**
+ * Checks valid docker volume names
+ * @param name
+ * @returns {boolean}
+ *
+ * According to Docker documentation:
+ * A volume name must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes.
+ * A volume name may not start with a period or a dash and may not contain consecutive periods or dashes.
+ * The maximum length is 255 characters.
+ * https://docs.docker.com/engine/reference/commandline/volume_create/#create-a-volume
+ * example valid names: my-volume, My.Volume, my_volume, myvolume123, my.volume-name_123, myvolume
+ * example invalid names: -myvolume, .myvolume, my..volume, my--volume, my volume (space), my@volume, (special characters)
+ */
+function isDockerVolumeNameAllowed(name: string) {
+    const isNameFormattingOk =
+        !!name &&
+        name.length < 256 &&
+        /^[a-zA-Z0-9]/.test(name) &&
+        /[a-zA-Z0-9]$/.test(name) &&
+        /^[a-zA-Z0-9_.-]+$/.test(name) &&
+        name.indexOf('..') < 0 &&
+        name.indexOf('--') < 0
+    return isNameFormattingOk
 }
 
 function isPortValid(portNumber: number) {
@@ -63,6 +92,18 @@ class AppsDataStore {
                         ApiStatusCodes.STATUS_ERROR_GENERIC,
                         'App Name should not be empty'
                     )
+                }
+
+                const existingApp = self.data.get(
+                    `${APP_DEFINITIONS}.${appName}`
+                ) as IAppDefSaved | undefined
+
+                if (existingApp) {
+                    if (existingApp.isLegacyAppName === undefined) {
+                        delete app.isLegacyAppName
+                    } else {
+                        app.isLegacyAppName = existingApp.isLegacyAppName
+                    }
                 }
 
                 if (app.forceSsl) {
@@ -162,7 +203,7 @@ class AppsDataStore {
                         } else {
                             if (
                                 !obj.volumeName ||
-                                !isNameAllowed(obj.volumeName)
+                                !isDockerVolumeNameAllowed(obj.volumeName)
                             ) {
                                 throw ApiStatusCodes.createError(
                                     ApiStatusCodes.STATUS_ERROR_GENERIC,
@@ -217,7 +258,7 @@ class AppsDataStore {
         if (!isNameAllowed(appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
             )
         }
 
@@ -269,12 +310,20 @@ class AppsDataStore {
             })
     }
 
-    getServiceName(appName: string) {
-        return `srv-${this.namepace}--${appName}`
+    getServiceName(appName: string, isLegacyAppName: boolean) {
+        if (isLegacyAppName) {
+            return `srv-${this.namepace}--${appName}`
+        }
+
+        return `${appName}`
     }
 
-    getVolumeName(volumeName: string) {
-        return `${this.namepace}--${volumeName}`
+    getVolumeName(volumeName: string, isLegacyVolumeName: boolean) {
+        if (isLegacyVolumeName) {
+            return `${this.namepace}--${volumeName}`
+        }
+
+        return volumeName
     }
 
     getAppDefinitions() {
@@ -844,16 +893,6 @@ class AppsDataStore {
         const self = this
 
         return new Promise<void>(function (resolve, reject) {
-            if (!isNameAllowed(appName)) {
-                reject(
-                    ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
-                    )
-                )
-                return
-            }
-
             if (!self.data.get(`${APP_DEFINITIONS}.${appName}`)) {
                 reject(
                     ApiStatusCodes.createError(
@@ -890,7 +929,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters and single hyphens are allowed'
+                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
                     )
                 )
                 return

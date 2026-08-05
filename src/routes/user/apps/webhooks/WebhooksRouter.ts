@@ -9,6 +9,7 @@ const router = express.Router()
 
 const urlencodedParser = bodyParser.urlencoded({
     extended: true,
+    limit: '2mb',
 })
 
 function getPushedBranches(req: express.Request) {

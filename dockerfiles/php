@@ -2,3 +2,4 @@
 # Uncomment the line above if you want to use a Dockerfile instead of templateId
 
 COPY ./ /var/www/html/
+RUN sh -c 'rm -rf /var/www/html/.git || echo 1'

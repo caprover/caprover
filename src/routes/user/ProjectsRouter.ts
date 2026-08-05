@@ -1,7 +1,7 @@
 import express = require('express')
-import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import BaseApi from '../../api/BaseApi'
+import { registerProject } from '../../handlers/users/ProjectHandler'
 import InjectionExtractor from '../../injection/InjectionExtractor'
 import { ProjectDefinition } from '../../models/ProjectDefinition'
 import Logger from '../../utils/Logger'
@@ -16,23 +16,15 @@ router.post('/register/', function (req, res, next) {
     const parentProjectId = `${req.body.parentProjectId || ''}`.trim()
     const description = `${req.body.description || ''}`.trim()
 
-    Promise.resolve()
-        .then(function () {
-            const projectId = uuid()
-            return dataStore.getProjectsDataStore().saveProject(projectId, {
-                id: projectId,
-                name: projectName,
-                parentProjectId: parentProjectId,
-                description: description,
-            })
-        })
-        .then(function (project) {
-            Logger.d(`Project created: ${projectName}`)
-            const resp = new BaseApi(
-                ApiStatusCodes.STATUS_OK,
-                `Project created: ${projectName}`
-            )
-            resp.data = project
+    return registerProject(
+        { name: projectName, parentProjectId, description },
+        dataStore
+    )
+        .then(function (result) {
+            const resp = new BaseApi(ApiStatusCodes.STATUS_OK, result.message)
+            if (result.data) {
+                resp.data = result.data
+            }
             res.send(resp)
         })
         .catch(ApiStatusCodes.createCatcher(res))

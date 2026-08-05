@@ -28,6 +28,7 @@ import Dockerode = require('dockerode')
 import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
+const CAPROVER_MANAGED_SERVICE_LABEL = 'com.caprover.managed'
 
 function safeParseChunk(chunk: string): {
     stream?: string
@@ -64,6 +65,40 @@ export abstract class IDockerUpdateOrders {
     public static readonly START_FIRST = 'startFirst'
 }
 export type IDockerUpdateOrder = 'auto' | 'stopFirst' | 'startFirst'
+
+export function getLegacyServiceDnsAlias(
+    serviceName: string,
+    namespace: string | undefined,
+    isLegacyAppName: boolean
+) {
+    if (!namespace || isLegacyAppName) {
+        return undefined
+    }
+
+    return `srv-${namespace}--${serviceName}`
+}
+
+export interface IServiceNetworkAttachment {
+    Target: string
+    Aliases?: string[]
+}
+
+export function getServiceNetworkAttachments(
+    networks: string[],
+    legacyDnsAlias: string | undefined
+) {
+    return networks.map((network) => {
+        const attachment: IServiceNetworkAttachment = {
+            Target: network,
+        }
+
+        if (legacyDnsAlias) {
+            attachment.Aliases = [legacyDnsAlias]
+        }
+
+        return attachment
+    })
+}
 
 export interface CreateContainerParams {
     containerName?: string
@@ -321,6 +356,7 @@ class DockerApi {
                 const optionsForBuild: Dockerode.ImageBuildOptions = {
                     t: imageName,
                     buildargs: buildargs,
+                    version: CaptainConstants.configs.defaultDockerBuildVersion,
                 }
 
                 if (Object.keys(registryConfig).length > 0) {
@@ -832,6 +868,9 @@ class DockerApi {
 
         const dataToCreate: any = {
             name: serviceName,
+            Labels: {
+                [CAPROVER_MANAGED_SERVICE_LABEL]: 'true',
+            },
             TaskTemplate: {
                 ContainerSpec: {
                     Image: imageName,
@@ -1438,8 +1477,9 @@ class DockerApi {
                             // /var/lib/docker/volumes/YOUR_VOLUME_NAME/_data
                             mts.push({
                                 Source:
-                                    (namespace ? namespace + '--' : '') +
-                                    v.volumeName,
+                                    (namespace && appObject?.isLegacyAppName
+                                        ? namespace + '--'
+                                        : '') + v.volumeName,
                                 Target: v.containerPath,
                                 Type: VolumesTypes.VOLUME,
                                 ReadOnly: false,
@@ -1452,11 +1492,25 @@ class DockerApi {
                 }
 
                 if (networks) {
-                    updatedData.TaskTemplate.Networks = []
-                    for (let i = 0; i < networks.length; i++) {
-                        updatedData.TaskTemplate.Networks.push({
-                            Target: networks[i],
-                        })
+                    if (appObject) {
+                        const legacyDnsAlias = getLegacyServiceDnsAlias(
+                            serviceName,
+                            namespace,
+                            !!appObject.isLegacyAppName
+                        )
+
+                        updatedData.TaskTemplate.Networks =
+                            getServiceNetworkAttachments(
+                                networks,
+                                legacyDnsAlias
+                            )
+                    } else {
+                        updatedData.TaskTemplate.Networks = []
+                        for (let i = 0; i < networks.length; i++) {
+                            updatedData.TaskTemplate.Networks.push({
+                                Target: networks[i],
+                            })
+                        }
                     }
                 }
 
@@ -1489,7 +1543,7 @@ class DockerApi {
                                 Name: obj.secretName,
                                 UID: '0',
                                 GID: '0',
-                                Mode: 292, // TODO << what is this! I just added a secret and this is how it came out with... But I don't know what it means
+                                Mode: 0o444, // Read-only for owner, group, and others
                             },
                             SecretID: obj.secretId,
                             SecretName: obj.secretName,
@@ -1601,6 +1655,9 @@ class DockerApi {
                 return updatedData
             })
             .then(function (updatedData) {
+                updatedData.Labels = updatedData.Labels || {}
+                updatedData.Labels[CAPROVER_MANAGED_SERVICE_LABEL] = 'true'
+
                 return self.dockerode
                     .getService(serviceName)
                     .update(updatedData)
@@ -1788,7 +1845,7 @@ connectionParams.version = CaptainConstants.configs.dockerApiVersion
 const dockerApiInstance = new DockerApi(connectionParams)
 
 const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
-lowVersionDocker.version = 'v1.38'
+lowVersionDocker.version = 'v1.44'
 
 new Docker(lowVersionDocker)
     .version()

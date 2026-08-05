@@ -1,4 +1,33 @@
-## [Next Version - available as `edge`]
+## [Next Version]
+
+Available as `edge`
+
+- TBD
+
+## [1.15.0] - 2026-08-04
+
+- New: Warning when a persistent volume label is already used by another app [PR-226](https://github.com/caprover/caprover-frontend/pull/226)
+- New: Ability to deploy simplified Docker compose [PR-191](https://github.com/caprover/caprover-frontend/pull/191)
+- New: Defaulting to BuildKit [Issue-1582](https://github.com/caprover/caprover/issues/1582)
+- New: Defaulting to gzip on [PR-2360](https://github.com/caprover/caprover/pull/2360)
+- New: Ability to disable IP logging in GoAccess logs [PR-2362](https://github.com/caprover/caprover/pull/2362)
+- New: CapRover server hostname into the filename of the backup download [PR-2389](https://github.com/caprover/caprover/pull/2389)
+- Improved: Descriptive error on installations on incompatible systems (e.g. Proxmox LXC) [issues-2326](https://github.com/caprover/caprover/issues/2326)
+- Improved: Moved one click app creation process to backend for more stability [PR-2334](https://github.com/caprover/caprover/pull/2334)
+- Improved: Reduced the Backup size by excluding the GoAccess logs [PR-2336](https://github.com/caprover/caprover/pull/2336)
+- Improved: Logged expired or soon-to-expire orphaned SSL certificates for a safe observation period [Issue-2397](https://github.com/caprover/caprover/issues/2397)
+- Fixed: Prevented malformed `config-captain.json` from being overwritten [Issue-858](https://github.com/caprover/caprover/issues/858)
+- Fixed: Git webhook deployments failing when webhook payloads exceed 100 KB [Issue-1393](https://github.com/caprover/caprover/issues/1393)
+
+## [1.14.2] - 2026-05-14
+
+- Hotfix nginx vulnerability https://github.com/caprover/caprover/pull/2399
+
+Note: CapRover does not include any `rewrite` directives that would result in this vulnerability. However, we are publishing this hotfix out of an abundance of caution to protect users who may have manually modified their Nginx config.
+
+## [1.14.1] - 2025-11-11
+
+- Hotfix for Docker v29 as they have introduced a break change https://github.com/caprover/caprover/issues/2351
 
 ## [1.14.0] - 2025-06-07
 
@@ -457,7 +486,7 @@ Breaking Change:
 
 - If you were manually setting port mapping on your containers before this release, make sure to re-map them through Captain interface. Since port mapping is added to the interface, Captain would override the current port mapping that you might have on your containers. If you didn't manually modified your containers `--publish-add` flag, you don't need to worry about this.
 
-## [ v0.2.2] - 2017-12-05
+## [v0.2.2] - 2017-12-05
 
 Hotfix:
 

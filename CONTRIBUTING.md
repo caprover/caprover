@@ -64,7 +64,7 @@ Link this folder to the root folder (Apple does not allow to create folder on th
 
 #####
 
-use node 18 then
+use node 22 then
 
 ```bash
 $   npm install
@@ -75,12 +75,12 @@ $   ./dev-scripts/dev-clean-run-as-dev-macos-step-2.sh
 
 The main differences between the release and debug mode are:
 
--   docker image is created from the local source file, instead of getting pulled from Docker hub
--   security is much weaker is debug due to a static salt
--   self health monitoring is disabled in debug so that we can see possible crashes
--   same origin policy is disabled in debug mode to make front end development easier
--   an additional endpoint is available at `/force-exit` which force restarts the backend service
--   static resources (including front end app) are not being served in debug build.
+- docker image is created from the local source file, instead of getting pulled from Docker hub
+- security is much weaker is debug due to a static salt
+- self health monitoring is disabled in debug so that we can see possible crashes
+- same origin policy is disabled in debug mode to make front end development easier
+- an additional endpoint is available at `/force-exit` which force restarts the backend service
+- static resources (including front end app) are not being served in debug build.
 
 Captain by default uses `captain.localhost` as its root domain. It's not always needed, but if you need a root
 domain for your development, you can simply run a local DNS server on your local machine and point
@@ -128,22 +128,22 @@ orientation.
 Examples of behavior that contributes to creating a positive environment
 include:
 
--   Using welcoming and inclusive language
--   Being respectful of differing viewpoints and experiences
--   Gracefully accepting constructive criticism
--   Focusing on what is best for the community
--   Showing empathy towards other community members
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
 
 Examples of unacceptable behavior by participants include:
 
--   The use of sexualized language or imagery and unwelcome sexual attention or
-    advances
--   Trolling, insulting/derogatory comments, and personal or political attacks
--   Public or private harassment
--   Publishing others' private information, such as a physical or electronic
-    address, without explicit permission
--   Other conduct which could reasonably be considered inappropriate in a
-    professional setting
+- The use of sexualized language or imagery and unwelcome sexual attention or
+  advances
+- Trolling, insulting/derogatory comments, and personal or political attacks
+- Public or private harassment
+- Publishing others' private information, such as a physical or electronic
+  address, without explicit permission
+- Other conduct which could reasonably be considered inappropriate in a
+  professional setting
 
 ### Our Responsibilities
 

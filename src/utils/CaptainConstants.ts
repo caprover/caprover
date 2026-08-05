@@ -17,9 +17,11 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.14.2',
+    version: '1.15.0',
 
     defaultMaxLogSize: '512m',
+
+    defaultDockerBuildVersion: '2' as '1' | '2',
 
     buildLogSize: 50,
 
@@ -37,7 +39,9 @@ const configs = {
 
     netDataImageName: 'caprover/netdata:v1.34.1',
 
-    goAccessImageName: 'caprover/goaccess:1.9.3',
+    goAccessImageName: 'caprover/goaccess:1.9.4',
+
+    goAccessAnonymizeIP: false,
 
     registryImageName: 'registry:2',
 
@@ -70,6 +74,11 @@ const configs = {
     nginxPortNumber443: EnvVars.CAPTAIN_HOST_HTTPS_PORT,
     // The port can be overridden via env variable CAPTAIN_HOST_ADMIN_PORT
     adminPortNumber3000: EnvVars.CAPTAIN_HOST_ADMIN_PORT,
+
+    defaultGzipOn: true,
+
+    defaultGzipTypes:
+        'application/atom+xml application/geo+json application/javascript application/x-javascript application/json application/ld+json application/manifest+json application/rdf+xml application/rss+xml application/xhtml+xml application/xml font/eot font/otf font/ttf font/woff2 image/svg+xml text/css text/html text/javascript text/plain text/xml',
 }
 
 export interface CertbotCertCommandRule {
@@ -91,6 +100,8 @@ const data = {
     apiVersion: 'v2',
 
     isDebug: EnvVars.CAPTAIN_IS_DEBUG,
+
+    serviceContainerPort3000: 3000,
 
     rootNameSpace: 'captain',
 

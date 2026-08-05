@@ -308,7 +308,7 @@ class LoadBalancerManager {
 
                     const localDomain = dataStore
                         .getAppsDataStore()
-                        .getServiceName(appName)
+                        .getServiceName(appName, !!webApp.isLegacyAppName)
                     const forceSsl = !!webApp.forceSsl
                     const websocketSupport = !!webApp.websocketSupport
                     const nginxConfigTemplate =
@@ -341,6 +341,11 @@ class LoadBalancerManager {
                         serverWithSubDomain.redirectToPath = `http://${webApp.redirectDomain}`
                     }
 
+                    serverWithSubDomain.gzipOn =
+                        CaptainConstants.configs.defaultGzipOn
+                    serverWithSubDomain.gzipTypes =
+                        CaptainConstants.configs.defaultGzipTypes
+
                     servers.push(serverWithSubDomain)
 
                     // adding custom domains
@@ -366,6 +371,8 @@ class LoadBalancerManager {
                                 logAccessPath: logAccess
                                     ? self.getLogPath(appName, d.publicDomain)
                                     : undefined,
+                                gzipOn: serverWithSubDomain.gzipOn,
+                                gzipTypes: serverWithSubDomain.gzipTypes,
                             }
                             if (
                                 webApp.redirectDomain &&
@@ -531,8 +538,8 @@ class LoadBalancerManager {
                         hasRootSsl: hasRootSsl,
                         serviceName: CaptainConstants.captainServiceName,
                         domain: captainDomain,
-                        serviceExposedPort:
-                            CaptainConstants.configs.adminPortNumber3000,
+                        serviceContainerPort3000:
+                            CaptainConstants.serviceContainerPort3000,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
@@ -912,6 +919,35 @@ class LoadBalancerManager {
             })
     }
 
+    getActiveSslDomains() {
+        const self = this
+
+        return Promise.all([
+            self.getServerList(),
+            self.dataStore.getHasRootSsl(),
+            self.dataStore.getHasRegistrySsl(),
+        ]).then(function ([servers, hasRootSsl, hasRegistrySsl]) {
+            const activeDomains: string[] = servers
+                .filter((server) => server.hasSsl)
+                .map((server) => server.publicDomain)
+            const rootDomain = self.dataStore.getRootDomain()
+
+            if (hasRootSsl) {
+                activeDomains.push(
+                    `${CaptainConstants.configs.captainSubDomain}.${rootDomain}`
+                )
+            }
+
+            if (hasRegistrySsl) {
+                activeDomains.push(
+                    `${CaptainConstants.registrySubDomain}.${rootDomain}`
+                )
+            }
+
+            return Array.from(new Set(activeDomains))
+        })
+    }
+
     renewAllCertsAndReload() {
         const self = this
 
@@ -934,6 +970,21 @@ class LoadBalancerManager {
             .then(function () {
                 Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile()
+            })
+            .then(function () {
+                return self
+                    .getActiveSslDomains()
+                    .then(function (activeDomains) {
+                        return self.certbotManager.logExpiringOrphanedCertificates(
+                            activeDomains
+                        )
+                    })
+                    .catch(function (error) {
+                        // Observation must never affect certificate renewal or NGINX reload.
+                        Logger.e(
+                            `Orphaned certificate observation failed (no action taken): ${error}`
+                        )
+                    })
             })
     }
 }

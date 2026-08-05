@@ -576,7 +576,7 @@ class CaptainManager {
                     if (netDataInfo.data.smtp) {
                         envVars.push({
                             key: 'SMTP_FROM',
-                            value: netDataInfo.data.smtp.to,
+                            value: netDataInfo.data.smtp.username,
                         })
                         envVars.push({
                             key: 'SSMTP_TO',
@@ -747,6 +747,10 @@ class CaptainManager {
                                 value: (
                                     goAccessInfo.data.logRetentionDays ?? 180
                                 ).toString(),
+                            },
+                            {
+                                key: 'ANONYMIZE_IP',
+                                value: CaptainConstants.configs.goAccessAnonymizeIP.toString(),
                             },
                         ],
                         [],

@@ -464,27 +464,43 @@ router.get('/goaccess/:appName/files/:file', async function (req, res, next) {
                     key: 'FILE_PREFIX',
                     value: `${appName}--${domainName}`,
                 },
+                {
+                    key: 'ANONYMIZE_IP',
+                    value: CaptainConstants.configs.goAccessAnonymizeIP.toString(),
+                },
             ],
             sticky: false,
             wait: true,
         })
     }
 
-    const path = `${appName}/${file}`
-    res.sendFile(
-        path,
-        { root: CaptainConstants.nginxSharedLogsPathOnHost },
-        function (error) {
-            if (error !== undefined) {
-                Logger.e(error, 'Error getting GoAccess report ' + path)
-                const baseApi = new BaseApi(
-                    ApiStatusCodes.NOT_FOUND,
-                    'Report not found'
-                )
-                res.send(baseApi)
-            }
-        }
+    const fileRelativePath = `${appName}/${file}`
+    const absolutePath = path.join(
+        CaptainConstants.nginxSharedLogsPathOnHost,
+        appName,
+        file
     )
+
+    return Promise.resolve()
+        .then(function () {
+            return fs.readFile(absolutePath, 'utf8')
+        })
+        .then(function (fileContents) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'GoAccess report retrieved'
+            )
+            baseApi.data = fileContents
+            res.send(baseApi)
+        })
+        .catch(function (error) {
+            Logger.e(error, 'Error getting GoAccess report ' + fileRelativePath)
+            const baseApi = new BaseApi(
+                ApiStatusCodes.NOT_FOUND,
+                'Report not found'
+            )
+            res.send(baseApi)
+        })
 })
 
 router.get('/nginxconfig/', function (req, res, next) {
