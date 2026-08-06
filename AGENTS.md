@@ -31,7 +31,7 @@ The frontend is maintained in `caprover/caprover-frontend`. User-facing document
 
 ## Validation
 
-Use Node.js 22.
+Use Node.js 24.
 
 ```bash
 npm ci
