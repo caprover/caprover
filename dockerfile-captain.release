@@ -1,5 +1,5 @@
-# Build stage runs on the host platform to avoid QEMU SIGILL issues with Node.js 22 on arm64
-FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
+# Build stage runs on the host platform to avoid QEMU SIGILL issues with Node.js 24 on arm64
+FROM --platform=$BUILDPLATFORM node:24-alpine AS builder
 RUN apk add --update --no-cache make gcc g++ git curl openssl
 
 WORKDIR /usr/src/app
@@ -12,7 +12,7 @@ RUN npm ci && \
      npm cache clean --force
 
 # Final stage uses the target platform's Node.js runtime
-FROM node:22-alpine
+FROM node:24-alpine
 RUN apk add --update --no-cache git curl openssl openssh
 
 WORKDIR /usr/src/app

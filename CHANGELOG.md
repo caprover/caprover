@@ -2,7 +2,7 @@
 
 Available as `edge`
 
-- TBD
+- Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
 
 ## [1.15.0] - 2026-08-04
 
