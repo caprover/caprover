@@ -4,6 +4,10 @@ Available as `edge`
 
 - Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
 
+## [1.15.1] - 2026-08-08
+
+- Fixed: Custom one-click app template and Docker Compose deployments failing to start [PR-2453](https://github.com/caprover/caprover/pull/2453)
+
 ## [1.15.0] - 2026-08-04
 
 - New: Warning when a persistent volume label is already used by another app [PR-226](https://github.com/caprover/caprover-frontend/pull/226)

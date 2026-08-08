@@ -384,7 +384,7 @@ export function reportAnalyticsOnAppDeploy(
         templateName === 'DOCKER_COMPOSE'
     ) {
         if (template?.services) {
-            template.services.forEach((service: any) => {
+            Object.values(template.services).forEach((service: any) => {
                 if (service && typeof service === 'object') {
                     Object.keys(service).forEach((key) => {
                         if (
