@@ -167,14 +167,14 @@ describe('reportAnalyticsOnAppDeploy', () => {
         test('should track unused fields for TEMPLATE_ONE_CLICK', () => {
             const templateName = 'TEMPLATE_ONE_CLICK'
             const template = {
-                services: [
-                    {
+                services: {
+                    app: {
                         image: 'nginx:latest',
                         environment: { VAR: 'value' },
                         custom_field: 'value',
                         another_field: 'value2',
                     },
-                ],
+                },
             }
 
             reportAnalyticsOnAppDeploy(templateName, template, mockEventLogger)
@@ -186,14 +186,14 @@ describe('reportAnalyticsOnAppDeploy', () => {
         test('should track unused fields for DOCKER_COMPOSE', () => {
             const templateName = 'DOCKER_COMPOSE'
             const template = {
-                services: [
-                    {
+                services: {
+                    database: {
                         image: 'postgres:latest',
                         volumes: ['/data:/var/lib/postgresql/data'],
                         restart: 'always',
                         networks: ['backend'],
                     },
-                ],
+                },
             }
 
             reportAnalyticsOnAppDeploy(templateName, template, mockEventLogger)
@@ -228,19 +228,19 @@ describe('reportAnalyticsOnAppDeploy', () => {
         test('should handle multiple services with mixed fields', () => {
             const templateName = 'DOCKER_COMPOSE'
             const template = {
-                services: [
-                    {
+                services: {
+                    web: {
                         image: 'nginx:latest',
                         ports: ['80:80'],
                         custom_field1: 'value1',
                     },
-                    {
+                    database: {
                         image: 'postgres:latest',
                         environment: { POSTGRES_DB: 'mydb' },
                         custom_field2: 'value2',
                         another_custom: 'value3',
                     },
-                ],
+                },
             }
 
             reportAnalyticsOnAppDeploy(templateName, template, mockEventLogger)
