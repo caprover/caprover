@@ -540,6 +540,8 @@ class LoadBalancerManager {
                         domain: captainDomain,
                         serviceContainerPort3000:
                             CaptainConstants.serviceContainerPort3000,
+                        serviceExposedPort:
+                            CaptainConstants.serviceContainerPort3000,
                         defaultHtmlDir:
                             CaptainConstants.nginxStaticRootDir +
                             CaptainConstants.nginxDefaultHtmlDir,
