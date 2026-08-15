@@ -28,13 +28,16 @@ export async function registerAppDefinition(
     dataStore: DataStore,
     serviceManager: ServiceManager
 ): Promise<BaseHandlerResult> {
-    const { appName, projectId, hasPersistentData, isDetachedBuild } = params
+    const { appName, hasPersistentData, isDetachedBuild } = params
+    const projectId = `${params.projectId || ''}`.trim()
     let appCreated = false
 
-    Logger.d(`Registering app started: ${appName}`)
+    Logger.d(
+        `Registering app started: ${appName}; parent project selected: ${!!projectId}`
+    )
 
     try {
-        // Validate project if projectId is provided
+        // Validate the normalized project ID before writing the app.
         if (projectId) {
             await dataStore.getProjectsDataStore().getProject(projectId)
             // if project is not found, it will throw an error
@@ -71,12 +74,18 @@ export async function registerAppDefinition(
             await promiseToIgnore
         }
 
-        Logger.d(`AppName is saved: ${appName}`)
+        Logger.d(
+            `AppName is saved: ${appName}; projectId: ${projectId || 'root'}`
+        )
 
         return {
             message: 'App Definition Saved',
         }
     } catch (error: any) {
+        Logger.e(
+            error,
+            `Failed to register app: ${appName}; project selected: ${!!projectId}`
+        )
         // Cleanup if app was created but something failed
         if (appCreated) {
             try {
