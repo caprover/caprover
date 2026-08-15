@@ -540,6 +540,8 @@ class LoadBalancerManager {
                         domain: captainDomain,
                         serviceContainerPort3000:
                             CaptainConstants.serviceContainerPort3000,
+                        // Backwards compatibility for custom templates created before v1.15.0.
+                        // https://github.com/caprover/caprover/issues/2455
                         serviceExposedPort:
                             CaptainConstants.serviceContainerPort3000,
                         defaultHtmlDir:
