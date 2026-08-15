@@ -4,6 +4,11 @@ Available as `edge`
 
 - TBD
 
+## [1.15.2] - 2026-08-14
+
+- Fixed: Legacy custom Captain NGINX templates failing after upgrading to v1.15.0 [Issue-2455](https://github.com/caprover/caprover/issues/2455)
+- Fixed: Authentication not persisting after reloading the dashboard [PR-230](https://github.com/caprover/caprover-frontend/pull/230)
+
 ## [1.15.1] - 2026-08-08
 
 - Fixed: Custom one-click app template and Docker Compose deployments failing to start [PR-2453](https://github.com/caprover/caprover/pull/2453)
