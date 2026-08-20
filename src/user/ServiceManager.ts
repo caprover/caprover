@@ -441,19 +441,32 @@ class ServiceManager {
 
                 dataStore.getAppsDataStore().nameAllowedOrThrow(newAppName)
 
-                return self.ensureNotBuilding(oldAppName)
+                self.ensureNotBuilding(oldAppName)
+
+                return appDef
+            })
+            .then(function (appDef) {
+                Logger.d(`Check if service is running: ${oldServiceName}`)
+                return dockerApi
+                    .isServiceRunningByName(oldServiceName)
+                    .then(function (isRunning) {
+                        if (!isRunning) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Service is not running!'
+                            )
+                        }
+
+                        return self.dockerRegistryHelper.retagAndPushImagesForAppRename(
+                            appDef.versions || [],
+                            dataStore.getNameSpace(),
+                            oldAppName,
+                            newAppName,
+                            self.buildLogsManager.getAppBuildLogs(oldAppName)
+                        )
+                    })
             })
             .then(function () {
-                Logger.d(`Check if service is running: ${oldServiceName}`)
-                return dockerApi.isServiceRunningByName(oldServiceName)
-            })
-            .then(function (isRunning) {
-                if (!isRunning) {
-                    throw ApiStatusCodes.createError(
-                        ApiStatusCodes.STATUS_ERROR_GENERIC,
-                        'Service is not running!'
-                    )
-                }
                 return dockerApi.removeServiceByName(oldServiceName)
             })
             .then(function () {
