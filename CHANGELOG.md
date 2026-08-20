@@ -4,9 +4,10 @@ Available as `edge`
 
 - TBD
 
-## [1.15.3] - 2026-08-16
+## [1.15.3] - 2026-08-19
 
 - Fixed: Restored build output when using the BuildKit builder [Issue-2461](https://github.com/caprover/caprover/issues/2461)
+- Fixed: Tar file deployments failing from the dashboard [Issue-2463](https://github.com/caprover/caprover/issues/2463)
 
 ## [1.15.2] - 2026-08-14
 
