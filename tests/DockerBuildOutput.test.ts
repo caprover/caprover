@@ -43,6 +43,15 @@ test('keeps buffers isolated and flushes the final message', () => {
     expect(second.flush()).toEqual([{ stream: 'second' }])
 })
 
+test('reports malformed JSON without interrupting later messages', () => {
+    const parser = new DockerJsonStreamParser()
+
+    expect(parser.push('not-json\n{"stream":"still running"}\n')).toEqual([
+        { stream: 'Cannot parse not-json' },
+        { stream: 'still running' },
+    ])
+})
+
 test('preserves traditional builder output', () => {
     const decoder = new DockerBuildOutputDecoder()
     const message = { stream: 'Step 1/1\n' }
@@ -84,6 +93,39 @@ test('decodes BuildKit vertices, logs, and warnings', () => {
             aux: bytesField(1, vertex).toString('base64'),
         })
     ).toEqual([])
+})
+
+test('decodes BuildKit vertex errors once with error details', () => {
+    const vertex = Buffer.concat([
+        bytesField(1, 'sha256:failed-vertex'),
+        bytesField(3, '[1/1] RUN exit 1'),
+        bytesField(7, 'process exited with code 1'),
+    ])
+    const message = {
+        id: 'moby.buildkit.trace',
+        aux: bytesField(1, vertex).toString('base64'),
+    }
+    const decoder = new DockerBuildOutputDecoder()
+
+    expect(decoder.decode(message)).toEqual([
+        { stream: '[1/1] RUN exit 1\n' },
+        {
+            error: 'process exited with code 1',
+            errorDetail: { message: 'process exited with code 1' },
+        },
+    ])
+    expect(decoder.decode(message)).toEqual([])
+})
+
+test('reports malformed BuildKit protobuf output', () => {
+    const decoder = new DockerBuildOutputDecoder()
+
+    expect(
+        decoder.decode({
+            id: 'moby.buildkit.trace',
+            aux: Buffer.from([0x0a, 0x05, 0x01]).toString('base64'),
+        })
+    ).toEqual([{ stream: 'Cannot parse BuildKit build output\n' }])
 })
 
 test('ignores unrelated aux messages', () => {
