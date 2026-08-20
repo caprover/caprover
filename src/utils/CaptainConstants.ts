@@ -17,7 +17,7 @@ const CONSTANT_FILE_OVERRIDE_USER =
 const configs = {
     publishedNameOnDockerHub: 'caprover/caprover',
 
-    version: '1.15.2',
+    version: '1.15.3',
 
     defaultMaxLogSize: '512m',
 

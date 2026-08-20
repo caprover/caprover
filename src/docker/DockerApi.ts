@@ -11,6 +11,11 @@ import {
 import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
 import { DockerSecret } from '../models/DockerSecret'
 import DockerService from '../models/DockerService'
+import {
+    DockerBuildOutputDecoder,
+    DockerJsonMessage,
+    DockerJsonStreamParser,
+} from './DockerBuildOutput'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import {
     IDockerApiPort,
@@ -29,35 +34,6 @@ import dockerodeUtils = require('dockerode/lib/util')
 
 const Base64 = Base64Provider.Base64
 const CAPROVER_MANAGED_SERVICE_LABEL = 'com.caprover.managed'
-
-function safeParseChunk(chunk: string): {
-    stream?: string
-    error?: any
-    errorDetail?: any
-}[] {
-    chunk = `${chunk}`.trim()
-    try {
-        // See https://github.com/caprover/caprover/issues/570
-        // This appears to be bug either in Docker or dockerone:
-        // Sometimes chunk appears as two JSON objects, like
-        // ```
-        // {"stream":"something......"}
-        // {"stream":"another line of things"}
-        // ```
-        const chunks = chunk.split('\n')
-        const returnVal = [] as any[]
-        chunks.forEach((chk) => {
-            returnVal.push(JSON.parse(chk))
-        })
-        return returnVal
-    } catch (ignore) {
-        return [
-            {
-                stream: `Cannot parse ${chunk}`,
-            },
-        ]
-    }
-}
 
 export abstract class IDockerUpdateOrders {
     public static readonly AUTO = 'auto'
@@ -374,13 +350,11 @@ class DockerApi {
             .then(function (stream) {
                 return new Promise<void>(function (resolve, reject) {
                     let errorMessage = ''
+                    const streamParser = new DockerJsonStreamParser()
+                    const outputDecoder = new DockerBuildOutputDecoder()
 
-                    stream.setEncoding('utf8')
-
-                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
-                    stream.on('data', function (chunkRaw) {
-                        Logger.dev(`stream data ${chunkRaw}`)
-                        safeParseChunk(chunkRaw).forEach((chunk) => {
+                    function processMessage(message: DockerJsonMessage) {
+                        outputDecoder.decode(message).forEach((chunk) => {
                             const chuckStream = chunk.stream
                             if (chuckStream) {
                                 // Logger.dev('stream data ' + chuckStream);
@@ -401,6 +375,14 @@ class DockerApi {
                                 errorMessage += chunk.error
                             }
                         })
+                    }
+
+                    stream.setEncoding('utf8')
+
+                    // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
+                    stream.on('data', function (chunkRaw) {
+                        Logger.dev(`stream data ${chunkRaw}`)
+                        streamParser.push(chunkRaw).forEach(processMessage)
                     })
 
                     // stream.pipe(process.stdout, {end: true});
@@ -408,6 +390,7 @@ class DockerApi {
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        streamParser.flush().forEach(processMessage)
                         if (errorMessage) {
                             reject(errorMessage)
                             return
@@ -452,8 +435,27 @@ class DockerApi {
                 return new Promise<void>(function (resolve, reject) {
                     let errorMessage = ''
                     const logsBeforeError: string[] = []
+                    const streamParser = new DockerJsonStreamParser()
                     for (let i = 0; i < 20; i++) {
                         logsBeforeError.push('')
+                    }
+
+                    function processMessage(chunk: DockerJsonMessage) {
+                        const chuckStream = chunk.stream
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            logsBeforeError.shift()
+                            logsBeforeError.push(chuckStream)
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error)
+                            Logger.e(JSON.stringify(chunk.errorDetail))
+                            errorMessage += '\n [truncated] \n'
+                            errorMessage += logsBeforeError.join('')
+                            errorMessage += '\n'
+                            errorMessage += chunk.error
+                        }
                     }
 
                     stream.setEncoding('utf8')
@@ -461,23 +463,7 @@ class DockerApi {
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunkRaw) {
                         Logger.dev(`stream data ${chunkRaw}`)
-                        safeParseChunk(chunkRaw).forEach((chunk) => {
-                            const chuckStream = chunk.stream
-                            if (chuckStream) {
-                                // Logger.dev('stream data ' + chuckStream);
-                                logsBeforeError.shift()
-                                logsBeforeError.push(chuckStream)
-                            }
-
-                            if (chunk.error) {
-                                Logger.e(chunk.error)
-                                Logger.e(JSON.stringify(chunk.errorDetail))
-                                errorMessage += '\n [truncated] \n'
-                                errorMessage += logsBeforeError.join('')
-                                errorMessage += '\n'
-                                errorMessage += chunk.error
-                            }
-                        })
+                        streamParser.push(chunkRaw).forEach(processMessage)
                     })
 
                     // stream.pipe(process.stdout, {end: true});
@@ -485,6 +471,7 @@ class DockerApi {
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        streamParser.flush().forEach(processMessage)
                         if (errorMessage) {
                             reject(errorMessage)
                             return
@@ -742,32 +729,35 @@ class DockerApi {
             .then(function (stream) {
                 return new Promise<void>(function (resolve, reject) {
                     let errorMessage = ''
+                    const streamParser = new DockerJsonStreamParser()
+
+                    function processMessage(chunk: DockerJsonMessage) {
+                        const chuckStream = chunk.stream
+                        if (chuckStream) {
+                            // Logger.dev('stream data ' + chuckStream);
+                            buildLogs.log(chuckStream)
+                        }
+
+                        if (chunk.error) {
+                            Logger.e(chunk.error)
+                            const errorDetails = JSON.stringify(
+                                chunk.errorDetail
+                            )
+                            Logger.e(errorDetails)
+                            buildLogs.log(errorDetails)
+                            buildLogs.log(chunk.error)
+                            errorMessage += '\n'
+                            errorMessage += errorDetails
+                            errorMessage += chunk.error
+                        }
+                    }
 
                     stream.setEncoding('utf8')
 
                     // THIS BLOCK HAS TO BE HERE. "end" EVENT WON'T GET CALLED OTHERWISE.
                     stream.on('data', function (chunkRaw) {
                         Logger.dev(`stream data ${chunkRaw}`)
-                        safeParseChunk(chunkRaw).forEach((chunk) => {
-                            const chuckStream = chunk.stream
-                            if (chuckStream) {
-                                // Logger.dev('stream data ' + chuckStream);
-                                buildLogs.log(chuckStream)
-                            }
-
-                            if (chunk.error) {
-                                Logger.e(chunk.error)
-                                const errorDetails = JSON.stringify(
-                                    chunk.errorDetail
-                                )
-                                Logger.e(errorDetails)
-                                buildLogs.log(errorDetails)
-                                buildLogs.log(chunk.error)
-                                errorMessage += '\n'
-                                errorMessage += errorDetails
-                                errorMessage += chunk.error
-                            }
-                        })
+                        streamParser.push(chunkRaw).forEach(processMessage)
                     })
 
                     // stream.pipe(process.stdout, {end: true});
@@ -775,6 +765,7 @@ class DockerApi {
                     // https://nodejs.org/api/stream.html#stream_event_end
 
                     stream.on('end', function () {
+                        streamParser.flush().forEach(processMessage)
                         if (errorMessage) {
                             buildLogs.log('Push failed...')
                             reject(errorMessage)
