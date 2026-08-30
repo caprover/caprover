@@ -4,6 +4,10 @@ Available as `edge`
 
 - TBD
 
+## [1.15.4] - 2026-08-30
+
+- Fixed: Backup downloads opening a Not Found page [PR-232](https://github.com/caprover/caprover-frontend/pull/232)
+
 ## [1.15.3] - 2026-08-20
 
 - Fixed: Restored build output when using the BuildKit builder [Issue-2461](https://github.com/caprover/caprover/issues/2461)
