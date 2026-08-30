@@ -16,6 +16,7 @@ import {
 import { IBuiltImage } from '../models/IBuiltImage'
 import Authenticator from '../user/Authenticator'
 import ApacheMd5 from '../utils/ApacheMd5'
+import { rewriteCapRoverBuiltImageName } from '../utils/BuiltImageName'
 import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import Logger from '../utils/Logger'
@@ -302,6 +303,23 @@ class AppsDataStore {
             .then(function (appData) {
                 if (appData.appName) appData.appName = newAppName
                 appData.hasDefaultSubDomainSsl = false
+
+                const versions = appData.versions || []
+                for (let i = 0; i < versions.length; i++) {
+                    const deployedImageName = versions[i].deployedImageName
+                    if (!deployedImageName) {
+                        continue
+                    }
+
+                    versions[i].deployedImageName =
+                        rewriteCapRoverBuiltImageName(
+                            deployedImageName,
+                            self.namepace,
+                            oldAppName,
+                            newAppName
+                        )
+                }
+
                 return self.saveApp(newAppName, appData)
             })
             .then(function () {
