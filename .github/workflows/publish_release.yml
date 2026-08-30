@@ -32,3 +32,40 @@ jobs:
             - name: Build and Push Release to DockerHub
               shell: bash
               run: ./dev-scripts/build_and_push_release.sh
+    draft-github-release:
+        needs: build-publish-docker-hub
+        permissions:
+            contents: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Create draft GitHub release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              shell: bash
+              run: |
+                  CAPROVER_VERSION="$(sed -n "s/^[[:space:]]*version: '\([^']*\)',/\1/p" src/utils/CaptainConstants.ts)"
+                  RELEASE_NOTES="$(
+                      awk -v version="$CAPROVER_VERSION" '
+                          BEGIN { heading = "## [" version "]" }
+                          index($0, heading) == 1 { capture = 1 }
+                          capture && /^## \[/ && index($0, heading) != 1 { exit }
+                          capture { sub(/\r$/, ""); print }
+                      ' CHANGELOG.md
+                  )"
+
+                  if [ -z "$CAPROVER_VERSION" ] || [ -z "$RELEASE_NOTES" ]; then
+                      echo "Could not find the current version or its changelog section."
+                      exit 1
+                  fi
+
+                  if gh release view "v${CAPROVER_VERSION}" >/dev/null 2>&1; then
+                      echo "Release v${CAPROVER_VERSION} already exists."
+                      exit 0
+                  fi
+
+                  gh release create "v${CAPROVER_VERSION}" \
+                      --target "$GITHUB_SHA" \
+                      --title "v${CAPROVER_VERSION}" \
+                      --notes "$RELEASE_NOTES" \
+                      --draft
