@@ -14,7 +14,7 @@ jobs:
               with:
                   node-version: 24
             - run: |
-                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
+                  sudo bash -c "mkdir /captain && chown -R \`whoami\` /captain"
                   npm ci
                   npm run build
                   npm run lint
@@ -38,19 +38,19 @@ jobs:
             contents: write
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Create draft GitHub release
               env:
                   GH_TOKEN: ${{ github.token }}
               shell: bash
               run: |
-                  CAPROVER_VERSION="$(sed -n "s/^[[:space:]]*version: '\([^']*\)',/\1/p" src/utils/CaptainConstants.ts)"
+                  CAPROVER_VERSION="$(sed -n "s/^[[:space:]]*version: '\\([^']*\\)',/\\1/p" src/utils/CaptainConstants.ts)"
                   RELEASE_NOTES="$(
                       awk -v version="$CAPROVER_VERSION" '
                           BEGIN { heading = "## [" version "]" }
                           index($0, heading) == 1 { capture = 1 }
-                          capture && /^## \[/ && index($0, heading) != 1 { exit }
-                          capture { sub(/\r$/, ""); print }
+                          capture && /^## \\[/ && index($0, heading) != 1 { exit }
+                          capture { sub(/\\r$/, ""); print }
                       ' CHANGELOG.md
                   )"
 
@@ -59,13 +59,25 @@ jobs:
                       exit 1
                   fi
 
-                  if gh release view "v${CAPROVER_VERSION}" >/dev/null 2>&1; then
-                      echo "Release v${CAPROVER_VERSION} already exists."
+                  TAG_NAME="v${CAPROVER_VERSION}"
+
+                  if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+                      echo "Release ${TAG_NAME} already exists."
                       exit 0
                   fi
 
-                  gh release create "v${CAPROVER_VERSION}" \
+                  if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
+                      git fetch --force origin "refs/tags/${TAG_NAME}:refs/tags/${TAG_NAME}"
+                      TAG_SHA="$(git rev-list -n 1 "$TAG_NAME")"
+
+                      if [ "$TAG_SHA" != "$GITHUB_SHA" ]; then
+                          echo "Tag ${TAG_NAME} points to ${TAG_SHA}, expected ${GITHUB_SHA}."
+                          exit 1
+                      fi
+                  fi
+
+                  gh release create "$TAG_NAME" \
                       --target "$GITHUB_SHA" \
-                      --title "v${CAPROVER_VERSION}" \
+                      --title "$TAG_NAME" \
                       --notes "$RELEASE_NOTES" \
                       --draft
