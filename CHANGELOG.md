@@ -4,6 +4,10 @@ Available as `edge`
 
 - Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
 
+## [1.15.4] - 2026-08-30
+
+- Fixed: Backup downloads opening a Not Found page [PR-232](https://github.com/caprover/caprover-frontend/pull/232)
+
 ## [1.15.3] - 2026-08-20
 
 - Fixed: Restored build output when using the BuildKit builder [Issue-2461](https://github.com/caprover/caprover/issues/2461)
