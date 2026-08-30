@@ -14,7 +14,7 @@ jobs:
               with:
                   node-version: 24
             - run: |
-                  sudo bash -c "mkdir /captain && chown -R \`whoami\` /captain"
+                  sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
                   npm ci
                   npm run build
                   npm run lint
@@ -44,13 +44,13 @@ jobs:
                   GH_TOKEN: ${{ github.token }}
               shell: bash
               run: |
-                  CAPROVER_VERSION="$(sed -n "s/^[[:space:]]*version: '\\([^']*\\)',/\\1/p" src/utils/CaptainConstants.ts)"
+                  CAPROVER_VERSION="$(sed -n "s/^[[:space:]]*version: '\([^']*\)',/\1/p" src/utils/CaptainConstants.ts)"
                   RELEASE_NOTES="$(
                       awk -v version="$CAPROVER_VERSION" '
                           BEGIN { heading = "## [" version "]" }
                           index($0, heading) == 1 { capture = 1 }
-                          capture && /^## \\[/ && index($0, heading) != 1 { exit }
-                          capture { sub(/\\r$/, ""); print }
+                          capture && /^## \[/ && index($0, heading) != 1 { exit }
+                          capture { sub(/\r$/, ""); print }
                       ' CHANGELOG.md
                   )"
 
