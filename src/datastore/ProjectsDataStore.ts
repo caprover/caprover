@@ -6,7 +6,7 @@ import AppsDataStore from './AppsDataStore'
 
 const PROJECTS_DEFINITIONS = 'projectsDefinitions'
 
-function isNameAllowed(name: string) {
+export function isProjectNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
@@ -46,7 +46,7 @@ class ProjectsDataStore {
                     project.parentProjectId || ''
                 }`.trim()
 
-                if (!isNameAllowed(project.name)) {
+                if (!isProjectNameAllowed(project.name)) {
                     throw ApiStatusCodes.createError(
                         ApiStatusCodes.ILLEGAL_OPERATION,
                         'Project name is not allowed'
