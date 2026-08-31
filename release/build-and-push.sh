@@ -49,11 +49,7 @@ if [ "$BRANCH" != "$EXPECTED_BRANCH" ]; then
 fi
 
 if [ "$CHANNEL" = "release" ]; then
-    npm ci
-    npm run build
-    node ./release/validate-version.js
-    source ./version
-    git clean -fdx
+    CAPROVER_VERSION="$(./release/validate-version.sh "$IMAGE_NAME")"
 fi
 
 ## Building frontend app
