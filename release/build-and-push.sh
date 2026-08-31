@@ -75,7 +75,7 @@ echo "Building finished"
 cd "$ORIG_DIR"
 mv "$FRONTEND_DIR/caprover-frontend/build" ./dist-frontend
 
-sudo apt-get update && sudo apt-get install qemu-user-static
+sudo apt-get update && sudo apt-get install -y qemu-user-static
 # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 docker run --rm --privileged tonistiigi/binfmt --install all
 # export DOCKER_CLI_EXPERIMENTAL=enabled
