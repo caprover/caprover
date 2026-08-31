@@ -48,12 +48,11 @@ if [ "$BRANCH" != "$EXPECTED_BRANCH" ]; then
     exit 1
 fi
 
+sudo apt-get update
+sudo apt-get install -y jq qemu-user-static
+
 if [ "$CHANNEL" = "release" ]; then
-    npm ci
-    npm run build
-    node ./release/validate-version.js
-    source ./version
-    git clean -fdx
+    CAPROVER_VERSION="$(./release/validate-version.sh "$IMAGE_NAME")"
 fi
 
 ## Building frontend app
@@ -75,7 +74,6 @@ echo "Building finished"
 cd "$ORIG_DIR"
 mv "$FRONTEND_DIR/caprover-frontend/build" ./dist-frontend
 
-sudo apt-get update && sudo apt-get install -y qemu-user-static
 # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 docker run --rm --privileged tonistiigi/binfmt --install all
 # export DOCKER_CLI_EXPERIMENTAL=enabled
