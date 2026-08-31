@@ -34,7 +34,7 @@ fi
 
 npm ci
 npm run build
-node ./dev-scripts/validate-build-version-docker-hub.js
+node ./release/validate-version.js
 source ./version
 git clean -fdx
 
@@ -71,4 +71,4 @@ docker buildx rm mybuilder || echo "mybuilder not found"
 docker buildx create --name mybuilder
 docker buildx use mybuilder
 
-docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f dockerfile-captain.release --push .
+docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME:$CAPROVER_VERSION -t $IMAGE_NAME:latest -f release/dockerfile.release --push .
