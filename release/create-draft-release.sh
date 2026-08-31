@@ -20,11 +20,6 @@ fi
 
 TAG_NAME="v${CAPROVER_VERSION}"
 
-if gh release view "$TAG_NAME" >/dev/null 2>&1; then
-    echo "Release ${TAG_NAME} already exists."
-    exit 0
-fi
-
 if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
     git fetch --force origin "refs/tags/${TAG_NAME}:refs/tags/${TAG_NAME}"
     TAG_SHA="$(git rev-list -n 1 "$TAG_NAME")"
@@ -33,6 +28,17 @@ if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>
         echo "Tag ${TAG_NAME} points to ${TAG_SHA}, expected ${GITHUB_SHA}."
         exit 1
     fi
+else
+    TAG_LOOKUP_STATUS=$?
+    if [ "$TAG_LOOKUP_STATUS" -ne 2 ]; then
+        echo "Could not check whether tag ${TAG_NAME} exists."
+        exit "$TAG_LOOKUP_STATUS"
+    fi
+fi
+
+if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+    echo "Release ${TAG_NAME} already exists."
+    exit 0
 fi
 
 gh release create "$TAG_NAME" \
