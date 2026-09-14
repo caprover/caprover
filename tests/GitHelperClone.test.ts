@@ -47,7 +47,7 @@ test('configures simple-git for SSH key deployments', async () => {
     const raw = jest.fn().mockResolvedValue('')
     const env = configureGitMock(raw)
 
-    await GitHelper.clone(
+    const result = await GitHelper.clone(
         '',
         '',
         'private key',
@@ -56,6 +56,7 @@ test('configures simple-git for SSH key deployments', async () => {
         '/tmp/repository'
     )
 
+    expect(result).toBeUndefined()
     expect(mockedGit).toHaveBeenCalledWith({
         unsafe: {
             allowUnsafeSshCommand: true,
