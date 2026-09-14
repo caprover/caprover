@@ -28,7 +28,6 @@ export default class GitHelper {
 
     static getLastHash(directory: string) {
         return git(directory) //
-            .silent(true) //
             .raw(['rev-parse', 'HEAD']) //
     }
 
@@ -74,8 +73,11 @@ export default class GitHelper {
                     )
                 })
                 .then(function () {
-                    return git() //
-                        .silent(true) //
+                    return git({
+                        unsafe: {
+                            allowUnsafeSshCommand: true,
+                        },
+                    })
                         .env('GIT_SSH_COMMAND', `ssh -i ${SSH_KEY_PATH}`) //
                         .raw([
                             'clone',
@@ -86,7 +88,7 @@ export default class GitHelper {
                             directory,
                         ])
                 })
-                .then(function () {
+                .finally(function () {
                     return fs.remove(SSH_KEY_PATH)
                 })
         } else {
@@ -99,7 +101,6 @@ export default class GitHelper {
             const remote = `${SCHEME}://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
-                .silent(true) //
                 .raw([
                     'clone',
                     '--recurse-submodules',
