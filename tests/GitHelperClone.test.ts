@@ -16,6 +16,7 @@ jest.mock('child_process', () => ({
 }))
 
 jest.mock('fs-extra', () => ({
+    ...jest.requireActual('fs-extra'),
     ensureDir: jest.fn().mockResolvedValue(undefined),
     outputFile: jest.fn().mockResolvedValue(undefined),
     remove: jest.fn().mockResolvedValue(undefined),
