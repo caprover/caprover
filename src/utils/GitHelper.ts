@@ -88,6 +88,9 @@ export default class GitHelper {
                             directory,
                         ])
                 })
+                .then(function () {
+                    //
+                })
                 .finally(function () {
                     return fs.remove(SSH_KEY_PATH)
                 })
