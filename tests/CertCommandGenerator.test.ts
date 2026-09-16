@@ -63,7 +63,7 @@ test('falls back to default command when rule command is null', () => {
         .toEqual([ 'certbot', 'certonly', '--domain', 'nullcommand.com' ])
 })
 
-describe('orphaned certificate observation', () => {
+describe('orphaned certificate cleanup eligibility', () => {
     const currentTime = Date.parse('2026-07-16T12:00:00Z')
 
     test('flags orphaned certificates expiring within 48 hours', () => {
@@ -88,9 +88,9 @@ describe('orphaned certificate observation', () => {
     test('does not flag orphaned certificates with more than 48 hours remaining', () => {
         expect(
             isExpiringOrphanedCertificate(
-                '49-hours.example.com',
+                'more-than-48-hours.example.com',
                 [],
-                currentTime + 49 * 60 * 60 * 1000,
+                currentTime + 48 * 60 * 60 * 1000 + 1,
                 currentTime
             )
         ).toBe(false)

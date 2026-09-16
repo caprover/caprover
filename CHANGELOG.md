@@ -3,6 +3,7 @@
 Available as `edge`
 
 - Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
+- Fixed: Removed expired or soon-to-expire orphaned SSL certificates before renewal [Issue-2397](https://github.com/caprover/caprover/issues/2397)
 
 ## [1.15.4] - 2026-08-30
 

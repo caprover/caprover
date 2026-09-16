@@ -288,7 +288,7 @@ class CertbotManager {
             })
     }
 
-    logExpiringOrphanedCertificates(activeDomains: string[]) {
+    deleteExpiringOrphanedCertificates(activeDomains: string[]) {
         const self = this
 
         return fs
@@ -335,13 +335,22 @@ class CertbotManager {
                                         return
                                     }
 
-                                    Logger.d(
-                                        `Orphaned certificate eligible for deletion (no action taken): ${certificateName}`
-                                    )
+                                    return self
+                                        .runCommand([
+                                            'certbot',
+                                            'delete',
+                                            '--cert-name',
+                                            certificateName,
+                                        ])
+                                        .then(function () {
+                                            Logger.d(
+                                                `Deleted expired or soon-to-expire orphaned certificate: ${certificateName}`
+                                            )
+                                        })
                                 })
                                 .catch(function (error) {
                                     Logger.e(
-                                        `Skipping orphan candidate check for certificate ${certificateName}: ${error}`
+                                        `Failed to delete orphaned certificate ${certificateName}: ${error}`
                                     )
                                 })
                         })
