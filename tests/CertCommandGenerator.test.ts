@@ -1,6 +1,6 @@
 import {
     CertCommandGenerator,
-    isExpiringOrphanedCertificate,
+    isExpiredOrphanedCertificateEligibleForDeletion,
 } from '../src/user/system/CertbotManager'
 
 const defaultCommand = 'certbot certonly --domain ${domainName}'
@@ -63,34 +63,26 @@ test('falls back to default command when rule command is null', () => {
         .toEqual([ 'certbot', 'certonly', '--domain', 'nullcommand.com' ])
 })
 
-describe('orphaned certificate observation', () => {
+describe('orphaned certificate cleanup eligibility', () => {
     const currentTime = Date.parse('2026-07-16T12:00:00Z')
 
-    test('flags orphaned certificates expiring within 48 hours', () => {
+    test('flags orphaned certificates at least 24 hours after expiration', () => {
         expect(
-            isExpiringOrphanedCertificate(
-                'expired.example.com',
+            isExpiredOrphanedCertificateEligibleForDeletion(
+                'expired-24-hours.example.com',
                 [],
-                currentTime - 1,
-                currentTime
-            )
-        ).toBe(true)
-        expect(
-            isExpiringOrphanedCertificate(
-                '48-hours.example.com',
-                [],
-                currentTime + 48 * 60 * 60 * 1000,
+                currentTime - 24 * 60 * 60 * 1000,
                 currentTime
             )
         ).toBe(true)
     })
 
-    test('does not flag orphaned certificates with more than 48 hours remaining', () => {
+    test('does not flag orphaned certificates before the 24-hour grace period ends', () => {
         expect(
-            isExpiringOrphanedCertificate(
-                '49-hours.example.com',
+            isExpiredOrphanedCertificateEligibleForDeletion(
+                'expired-less-than-24-hours.example.com',
                 [],
-                currentTime + 49 * 60 * 60 * 1000,
+                currentTime - 24 * 60 * 60 * 1000 + 1,
                 currentTime
             )
         ).toBe(false)
@@ -98,10 +90,10 @@ describe('orphaned certificate observation', () => {
 
     test('does not flag active certificates even when they are expired', () => {
         expect(
-            isExpiringOrphanedCertificate(
+            isExpiredOrphanedCertificateEligibleForDeletion(
                 'active.example.com',
                 ['ACTIVE.EXAMPLE.COM'],
-                currentTime - 1,
+                currentTime - 24 * 60 * 60 * 1000,
                 currentTime
             )
         ).toBe(false)
