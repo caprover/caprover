@@ -18,9 +18,8 @@ describe('certificate renewal flow', () => {
         const calls: string[] = []
         const deleteExpiredOrphanedCertificates = jest
             .fn()
-            .mockImplementation(async (activeDomains: string[]) => {
+            .mockImplementation(async () => {
                 calls.push('cleanup')
-                expect(activeDomains).toEqual(['active.example.com'])
             })
         const renewAllCerts = jest.fn().mockImplementation(async () => {
             calls.push('renew')
@@ -47,6 +46,9 @@ describe('certificate renewal flow', () => {
 
         await manager.renewAllCertsAndReload()
 
+        expect(deleteExpiredOrphanedCertificates).toHaveBeenCalledWith([
+            'active.example.com',
+        ])
         expect(calls).toEqual([
             'get-active-domains',
             'cleanup',
