@@ -15,11 +15,11 @@ const WEBROOT_PATH_IN_CAPTAIN =
     CaptainConstants.nginxDomainSpecificHtmlDir
 
 const shouldUseStaging = false // CaptainConstants.isDebug;
-const ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS = 48 * 60 * 60 * 1000
+const ORPHAN_CERTIFICATE_EXPIRY_GRACE_PERIOD_MS = 24 * 60 * 60 * 1000
 const CERTBOT_RENEWAL_CONFIG_DIRECTORY =
     CaptainConstants.letsEncryptEtcPath + '/renewal'
 
-export function isExpiringOrphanedCertificate(
+export function isExpiredOrphanedCertificateEligibleForDeletion(
     certificateName: string,
     activeDomains: string[],
     expiryDate: number,
@@ -31,7 +31,7 @@ export function isExpiringOrphanedCertificate(
 
     return (
         !activeDomainSet.has(certificateName.toLowerCase()) &&
-        expiryDate <= currentTime + ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS
+        expiryDate <= currentTime - ORPHAN_CERTIFICATE_EXPIRY_GRACE_PERIOD_MS
     )
 }
 
@@ -307,7 +307,7 @@ class CertbotManager {
             })
     }
 
-    deleteExpiringOrphanedCertificates(
+    deleteExpiredOrphanedCertificates(
         getActiveDomains: () => Promise<string[]>
     ) {
         const self = this
@@ -335,79 +335,56 @@ class CertbotManager {
                                 CaptainConstants.letsEncryptEtcPath +
                                 `/live/${certificateName}/cert.pem`
 
-                            return fs
-                                .readFile(certificatePath)
-                                .then(function (certificatePem) {
-                                    const certificate = new X509Certificate(
-                                        certificatePem
-                                    )
-                                    const expiryDate = Date.parse(
-                                        certificate.validTo
-                                    )
+                            return self
+                                .runWithLock(function () {
+                                    return Promise.all([
+                                        fs.readFile(certificatePath),
+                                        getActiveDomains(),
+                                    ]).then(function ([
+                                        certificatePem,
+                                        activeDomains,
+                                    ]) {
+                                        const certificate = new X509Certificate(
+                                            certificatePem
+                                        )
+                                        const expiryDate = Date.parse(
+                                            certificate.validTo
+                                        )
 
-                                    if (
-                                        Number.isNaN(expiryDate) ||
-                                        expiryDate >
-                                            Date.now() +
-                                                ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS
-                                    ) {
-                                        return
-                                    }
+                                        if (
+                                            Number.isNaN(expiryDate) ||
+                                            !isExpiredOrphanedCertificateEligibleForDeletion(
+                                                certificateName,
+                                                activeDomains,
+                                                expiryDate
+                                            )
+                                        ) {
+                                            return
+                                        }
 
-                                    return self.runWithLock(function () {
-                                        return Promise.all([
-                                            fs.readFile(certificatePath),
-                                            getActiveDomains(),
-                                        ]).then(function ([
-                                            currentCertificatePem,
-                                            activeDomains,
-                                        ]) {
-                                            const currentCertificate =
-                                                new X509Certificate(
-                                                    currentCertificatePem
-                                                )
-                                            const currentExpiryDate =
-                                                Date.parse(
-                                                    currentCertificate.validTo
-                                                )
-
-                                            if (
-                                                Number.isNaN(
-                                                    currentExpiryDate
-                                                ) ||
-                                                !isExpiringOrphanedCertificate(
-                                                    certificateName,
-                                                    activeDomains,
-                                                    currentExpiryDate
-                                                )
-                                            ) {
-                                                return
-                                            }
-
-                                            return self
-                                                .runCommandWithoutLock([
-                                                    'certbot',
-                                                    'delete',
-                                                    '--cert-name',
-                                                    certificateName,
-                                                ])
-                                                .then(function (output) {
-                                                    const successMessage = `Deleted all files relating to certificate ${certificateName}.`
-                                                    if (
-                                                        !output.includes(
-                                                            successMessage
-                                                        )
-                                                    ) {
-                                                        throw new Error(
-                                                            `Unexpected output from Certbot while deleting ${certificateName}: ${output}`
-                                                        )
-                                                    }
-
-                                                    Logger.d(
-                                                        `Deleted expired or soon-to-expire orphaned certificate: ${certificateName}`
+                                        return self
+                                            .runCommandWithoutLock([
+                                                'certbot',
+                                                'delete',
+                                                '--cert-name',
+                                                certificateName,
+                                            ])
+                                            .then(function (output) {
+                                                const successMessage = `Deleted all files relating to certificate ${certificateName}.`
+                                                if (
+                                                    !output.includes(
+                                                        successMessage
                                                     )
-                                                })
-                                        })
+                                                ) {
+                                                    throw new Error(
+                                                        `Unexpected output from Certbot while deleting ${certificateName}: ${output}`
+                                                    )
+                                                }
+
+                                                Logger.d(
+                                                    `Deleted orphaned certificate more than 24 hours after expiration: ${certificateName}`
+                                                )
+                                            })
                                     })
                                 })
                                 .catch(function (error) {

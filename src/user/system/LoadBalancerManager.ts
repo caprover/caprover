@@ -980,7 +980,7 @@ class LoadBalancerManager {
         )
 
         return self.certbotManager
-            .deleteExpiringOrphanedCertificates(function () {
+            .deleteExpiredOrphanedCertificates(function () {
                 return self.getActiveSslDomains()
             })
             .catch(function (error) {

@@ -12,7 +12,7 @@ describe('orphaned certificate cleanup', () => {
 
     beforeEach(() => {
         jest.useFakeTimers()
-        jest.setSystemTime(new Date('2029-08-03T15:02:01Z'))
+        jest.setSystemTime(new Date('2029-08-04T15:02:01Z'))
     })
 
     afterEach(() => {
@@ -24,7 +24,9 @@ describe('orphaned certificate cleanup', () => {
         jest.spyOn(fs, 'readdir').mockResolvedValue([
             'orphan.example.com.conf',
         ] as never)
-        jest.spyOn(fs, 'readFile').mockResolvedValue(certificatePem as never)
+        const readFile = jest
+            .spyOn(fs, 'readFile')
+            .mockResolvedValue(certificatePem as never)
         const executeCommand = jest
             .fn()
             .mockResolvedValue(
@@ -34,10 +36,11 @@ describe('orphaned certificate cleanup', () => {
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiringOrphanedCertificates(() =>
+        await manager.deleteExpiredOrphanedCertificates(() =>
             Promise.resolve([])
         )
 
+        expect(readFile).toHaveBeenCalledTimes(1)
         expect(executeCommand).toHaveBeenCalledWith(
             CaptainConstants.certbotServiceName,
             [
@@ -67,7 +70,7 @@ describe('orphaned certificate cleanup', () => {
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiringOrphanedCertificates(() =>
+        await manager.deleteExpiredOrphanedCertificates(() =>
             Promise.resolve([])
         )
 
@@ -100,7 +103,7 @@ describe('orphaned certificate cleanup', () => {
             return Promise.resolve(['ACTIVE.EXAMPLE.COM'])
         })
 
-        await manager.deleteExpiringOrphanedCertificates(getActiveDomains)
+        await manager.deleteExpiredOrphanedCertificates(getActiveDomains)
 
         expect(getActiveDomains).toHaveBeenCalledTimes(1)
         expect(executeCommand).not.toHaveBeenCalled()
