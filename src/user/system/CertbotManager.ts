@@ -19,6 +19,9 @@ const ORPHAN_CERTIFICATE_EXPIRY_GRACE_PERIOD_MS = 24 * 60 * 60 * 1000
 const CERTBOT_RENEWAL_CONFIG_DIRECTORY =
     CaptainConstants.letsEncryptEtcPath + '/renewal'
 
+/**
+ * Returns whether an inactive certificate has been expired for at least one day.
+ */
 export function isExpiredOrphanedCertificateEligibleForDeletion(
     certificateName: string,
     activeDomains: string[],
