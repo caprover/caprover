@@ -979,12 +979,9 @@ class LoadBalancerManager {
             1000 * 3600 * 20.3
         )
 
-        return self
-            .getActiveSslDomains()
-            .then(function (activeDomains) {
-                return self.certbotManager.deleteExpiringOrphanedCertificates(
-                    activeDomains
-                )
+        return self.certbotManager
+            .deleteExpiringOrphanedCertificates(function () {
+                return self.getActiveSslDomains()
             })
             .catch(function (error) {
                 // Cleanup must never affect certificate renewal or NGINX reload.

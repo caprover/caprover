@@ -3,6 +3,7 @@ import path = require('path')
 import type DockerApi from '../src/docker/DockerApi'
 import CertbotManager from '../src/user/system/CertbotManager'
 import CaptainConstants from '../src/utils/CaptainConstants'
+import Logger from '../src/utils/Logger'
 
 describe('orphaned certificate cleanup', () => {
     const certificatePem = fs.readFileSync(
@@ -26,12 +27,16 @@ describe('orphaned certificate cleanup', () => {
         jest.spyOn(fs, 'readFile').mockResolvedValue(certificatePem as never)
         const executeCommand = jest
             .fn()
-            .mockResolvedValue('Certificate deleted')
+            .mockResolvedValue(
+                'Deleted all files relating to certificate orphan.example.com.'
+            )
         const manager = new CertbotManager({
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiringOrphanedCertificates([])
+        await manager.deleteExpiringOrphanedCertificates(() =>
+            Promise.resolve([])
+        )
 
         expect(executeCommand).toHaveBeenCalledWith(
             CaptainConstants.certbotServiceName,
@@ -51,17 +56,25 @@ describe('orphaned certificate cleanup', () => {
             'second.example.com.conf',
         ] as never)
         jest.spyOn(fs, 'readFile').mockResolvedValue(certificatePem as never)
+        const errorLog = jest.spyOn(Logger, 'e').mockImplementation()
         const executeCommand = jest
             .fn()
-            .mockRejectedValueOnce(new Error('delete failed'))
-            .mockResolvedValueOnce('Certificate deleted')
+            .mockResolvedValueOnce('Certbot failed to delete the certificate')
+            .mockResolvedValueOnce(
+                'Deleted all files relating to certificate second.example.com.'
+            )
         const manager = new CertbotManager({
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiringOrphanedCertificates([])
+        await manager.deleteExpiringOrphanedCertificates(() =>
+            Promise.resolve([])
+        )
 
         expect(executeCommand).toHaveBeenCalledTimes(2)
+        expect(errorLog).toHaveBeenCalledWith(
+            expect.stringContaining('Unexpected output from Certbot')
+        )
         expect(executeCommand.mock.calls[1][1]).toEqual([
             'certbot',
             'delete',
@@ -69,5 +82,27 @@ describe('orphaned certificate cleanup', () => {
             'second.example.com',
             '--non-interactive',
         ])
+    })
+
+    test('rechecks active domains while holding the Certbot lock', async () => {
+        jest.spyOn(fs, 'readdir').mockResolvedValue([
+            'active.example.com.conf',
+        ] as never)
+        jest.spyOn(fs, 'readFile').mockResolvedValue(certificatePem as never)
+        const executeCommand = jest.fn()
+        const manager = new CertbotManager({
+            executeCommand,
+        } as unknown as DockerApi)
+        const getActiveDomains = jest.fn().mockImplementation(() => {
+            expect(() => manager.lock()).toThrow(
+                'Another operation is in process for Certbot'
+            )
+            return Promise.resolve(['ACTIVE.EXAMPLE.COM'])
+        })
+
+        await manager.deleteExpiringOrphanedCertificates(getActiveDomains)
+
+        expect(getActiveDomains).toHaveBeenCalledTimes(1)
+        expect(executeCommand).not.toHaveBeenCalled()
     })
 })
