@@ -307,9 +307,7 @@ class CertbotManager {
             })
     }
 
-    deleteExpiredOrphanedCertificates(
-        getActiveDomains: () => Promise<string[]>
-    ) {
+    deleteExpiredOrphanedCertificates(activeDomains: string[]) {
         const self = this
 
         return fs
@@ -337,55 +335,52 @@ class CertbotManager {
 
                             return self
                                 .runWithLock(function () {
-                                    return Promise.all([
-                                        fs.readFile(certificatePath),
-                                        getActiveDomains(),
-                                    ]).then(function ([
-                                        certificatePem,
-                                        activeDomains,
-                                    ]) {
-                                        const certificate = new X509Certificate(
-                                            certificatePem
-                                        )
-                                        const expiryDate = Date.parse(
-                                            certificate.validTo
-                                        )
-
-                                        if (
-                                            Number.isNaN(expiryDate) ||
-                                            !isExpiredOrphanedCertificateEligibleForDeletion(
-                                                certificateName,
-                                                activeDomains,
-                                                expiryDate
-                                            )
-                                        ) {
-                                            return
-                                        }
-
-                                        return self
-                                            .runCommandWithoutLock([
-                                                'certbot',
-                                                'delete',
-                                                '--cert-name',
-                                                certificateName,
-                                            ])
-                                            .then(function (output) {
-                                                const successMessage = `Deleted all files relating to certificate ${certificateName}.`
-                                                if (
-                                                    !output.includes(
-                                                        successMessage
-                                                    )
-                                                ) {
-                                                    throw new Error(
-                                                        `Unexpected output from Certbot while deleting ${certificateName}: ${output}`
-                                                    )
-                                                }
-
-                                                Logger.d(
-                                                    `Deleted orphaned certificate more than 24 hours after expiration: ${certificateName}`
+                                    return fs
+                                        .readFile(certificatePath)
+                                        .then(function (certificatePem) {
+                                            const certificate =
+                                                new X509Certificate(
+                                                    certificatePem
                                                 )
-                                            })
-                                    })
+                                            const expiryDate = Date.parse(
+                                                certificate.validTo
+                                            )
+
+                                            if (
+                                                Number.isNaN(expiryDate) ||
+                                                !isExpiredOrphanedCertificateEligibleForDeletion(
+                                                    certificateName,
+                                                    activeDomains,
+                                                    expiryDate
+                                                )
+                                            ) {
+                                                return
+                                            }
+
+                                            return self
+                                                .runCommandWithoutLock([
+                                                    'certbot',
+                                                    'delete',
+                                                    '--cert-name',
+                                                    certificateName,
+                                                ])
+                                                .then(function (output) {
+                                                    const successMessage = `Deleted all files relating to certificate ${certificateName}.`
+                                                    if (
+                                                        !output.includes(
+                                                            successMessage
+                                                        )
+                                                    ) {
+                                                        throw new Error(
+                                                            `Unexpected output from Certbot while deleting ${certificateName}: ${output}`
+                                                        )
+                                                    }
+
+                                                    Logger.d(
+                                                        `Deleted orphaned certificate more than 24 hours after expiration: ${certificateName}`
+                                                    )
+                                                })
+                                        })
                                 })
                                 .catch(function (error) {
                                     Logger.e(

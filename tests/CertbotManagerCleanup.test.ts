@@ -36,9 +36,7 @@ describe('orphaned certificate cleanup', () => {
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiredOrphanedCertificates(() =>
-            Promise.resolve([])
-        )
+        await manager.deleteExpiredOrphanedCertificates([])
 
         expect(readFile).toHaveBeenCalledTimes(1)
         expect(executeCommand).toHaveBeenCalledWith(
@@ -70,9 +68,7 @@ describe('orphaned certificate cleanup', () => {
             executeCommand,
         } as unknown as DockerApi)
 
-        await manager.deleteExpiredOrphanedCertificates(() =>
-            Promise.resolve([])
-        )
+        await manager.deleteExpiredOrphanedCertificates([])
 
         expect(executeCommand).toHaveBeenCalledTimes(2)
         expect(errorLog).toHaveBeenCalledWith(
@@ -87,7 +83,7 @@ describe('orphaned certificate cleanup', () => {
         ])
     })
 
-    test('rechecks active domains while holding the Certbot lock', async () => {
+    test('does not delete a certificate for an active domain', async () => {
         jest.spyOn(fs, 'readdir').mockResolvedValue([
             'active.example.com.conf',
         ] as never)
@@ -96,16 +92,8 @@ describe('orphaned certificate cleanup', () => {
         const manager = new CertbotManager({
             executeCommand,
         } as unknown as DockerApi)
-        const getActiveDomains = jest.fn().mockImplementation(() => {
-            expect(() => manager.lock()).toThrow(
-                'Another operation is in process for Certbot'
-            )
-            return Promise.resolve(['ACTIVE.EXAMPLE.COM'])
-        })
+        await manager.deleteExpiredOrphanedCertificates(['ACTIVE.EXAMPLE.COM'])
 
-        await manager.deleteExpiredOrphanedCertificates(getActiveDomains)
-
-        expect(getActiveDomains).toHaveBeenCalledTimes(1)
         expect(executeCommand).not.toHaveBeenCalled()
     })
 })
