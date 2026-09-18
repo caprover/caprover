@@ -27,12 +27,13 @@ fi
 
 if [ "$CHANNEL" = "edge" ]; then
     EXPECTED_BRANCH=master
-    CAPROVER_VERSION="$EDGE_VERSION"
+    IMAGE_TAG="${GITHUB_SHA:-}"
     IMAGE_NAME="$EDGE_IMAGE_NAME"
     DOCKERFILE=release/dockerfile.edge
     FRONTEND_COMMIT_HASH="$EDGE_FRONTEND_COMMIT"
 else
     EXPECTED_BRANCH=release
+    IMAGE_TAG="$CAPROVER_VERSION"
     IMAGE_NAME="$CAPROVER_IMAGE_NAME"
     DOCKERFILE=release/dockerfile.release
     FRONTEND_COMMIT_HASH="$RELEASE_FRONTEND_COMMIT"
@@ -98,4 +99,14 @@ if [ ! -d ./dist-frontend ]; then
     exit 1
 fi
 
-docker buildx build --platform linux/amd64,linux/arm64 -t "$IMAGE_NAME:$CAPROVER_VERSION" -t "$IMAGE_NAME:latest" -f "$DOCKERFILE" --push .
+if [ -z "$IMAGE_TAG" ]; then
+    echo "GITHUB_SHA is required when publishing the edge image!"
+    exit 1
+fi
+
+DOCKER_TAGS=(-t "$IMAGE_NAME:$IMAGE_TAG" -t "$IMAGE_NAME:latest")
+if [ "$CHANNEL" = "edge" ]; then
+    DOCKER_TAGS+=(-t "$IMAGE_NAME:$EDGE_VERSION")
+fi
+
+docker buildx build --platform linux/amd64,linux/arm64 "${DOCKER_TAGS[@]}" -f "$DOCKERFILE" --push .
