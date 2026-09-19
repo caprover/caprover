@@ -56,3 +56,9 @@ jobs:
             - name: Build and Push Edge to DockerHub
               shell: bash
               run: ./release/build-and-push.sh edge publish
+            - name: Clean up old edge commit tags
+              shell: bash
+              env:
+                  REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+              run: bash ./release/cleanup-edge-tags.sh
