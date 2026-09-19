@@ -59,7 +59,7 @@ while [ -n "$NEXT_URL" ]; do
 
     jq -c '
         .results[]
-        | select((.name // "") | test("^[0-9a-fA-F]{40}$"))
+        | select((.name // "") | test("^[0-9a-f]{40}$"))
         | {name, last_updated}
     ' <<<"$TAG_RESPONSE" >>"$TAG_FILE"
 
@@ -87,9 +87,25 @@ echo "Keeping the newest $KEEP_EDGE_COMMIT_TAGS of $COMMIT_TAG_COUNT edge commit
 while IFS= read -r TAG; do
     [ -n "$TAG" ] || continue
     echo "Deleting old edge commit tag: $TAG"
-    curl --fail-with-body --silent --show-error \
-        --request DELETE \
-        --header "Authorization: Bearer $HUB_TOKEN" \
-        "$API_BASE/tags/$TAG" \
-        >/dev/null
+
+    HTTP_STATUS="$(
+        curl --silent --show-error \
+            --output /dev/null \
+            --write-out '%{http_code}' \
+            --request DELETE \
+            --header "Authorization: Bearer $HUB_TOKEN" \
+            "$API_BASE/tags/$TAG"
+    )"
+
+    case "$HTTP_STATUS" in
+        2??)
+            ;;
+        404)
+            echo "Tag $TAG was already deleted."
+            ;;
+        *)
+            echo "Docker Hub returned HTTP $HTTP_STATUS while deleting tag $TAG." >&2
+            exit 1
+            ;;
+    esac
 done <<<"$TAGS_TO_DELETE"
