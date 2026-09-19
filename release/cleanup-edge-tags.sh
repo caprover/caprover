@@ -2,10 +2,8 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-. "$SCRIPT_DIR/release.conf"
-
 KEEP_EDGE_COMMIT_TAGS="${KEEP_EDGE_COMMIT_TAGS:-100}"
+API_BASE="https://hub.docker.com/v2/namespaces/caprover/repositories/caprover-edge"
 
 if ! [[ "$KEEP_EDGE_COMMIT_TAGS" =~ ^[0-9]+$ ]] || [ "$KEEP_EDGE_COMMIT_TAGS" -lt 1 ]; then
     echo "KEEP_EDGE_COMMIT_TAGS must be a positive integer." >&2
@@ -21,15 +19,6 @@ if ! command -v curl >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
     echo "curl and jq are required." >&2
     exit 1
 fi
-
-if [[ "$EDGE_IMAGE_NAME" != */* ]]; then
-    echo "EDGE_IMAGE_NAME must be in namespace/repository format." >&2
-    exit 1
-fi
-
-NAMESPACE="${EDGE_IMAGE_NAME%%/*}"
-REPOSITORY="${EDGE_IMAGE_NAME#*/}"
-API_BASE="https://hub.docker.com/v2/namespaces/$NAMESPACE/repositories/$REPOSITORY"
 
 AUTH_RESPONSE="$(
     jq -nc '{identifier: env.REGISTRY_USERNAME, secret: env.REGISTRY_PASSWORD}' |
