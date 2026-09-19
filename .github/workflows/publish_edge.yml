@@ -5,6 +5,10 @@ on:
         branches:
             - master
 
+concurrency:
+    group: edge-publish
+    queue: max
+
 permissions:
     contents: read
 
