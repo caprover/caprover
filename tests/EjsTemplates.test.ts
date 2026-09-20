@@ -71,4 +71,18 @@ describe('EJS nginx templates', () => {
 
         expect(ejs.render(template, data)).toBeTruthy()
     })
+
+    test('keeps Captain connections alive across the NGINX reload boundary', () => {
+        const template = fs.readFileSync(
+            path.join(__dirname, '..', 'template', 'root-nginx-conf.ejs'),
+            'utf8'
+        )
+        const rootTemplateData = templates.find(
+            ([filename]) => filename === 'root-nginx-conf.ejs'
+        )![1]
+
+        const rendered = ejs.render(template, rootTemplateData)
+
+        expect(rendered).toContain('keepalive_min_timeout 1s;')
+    })
 })
