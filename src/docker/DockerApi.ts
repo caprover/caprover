@@ -1430,22 +1430,32 @@ class DockerApi {
                     for (let i = 0; i < ports.length; i++) {
                         const p = ports[i]
                         if (p.protocol) {
-                            updatedData.EndpointSpec.Ports.push({
+                            const port: IDockerApiPort = {
                                 Protocol: p.protocol,
                                 TargetPort: p.containerPort,
                                 PublishedPort: p.hostPort,
-                            })
+                            }
+                            if (p.publishMode) {
+                                port.PublishMode = p.publishMode
+                            }
+                            updatedData.EndpointSpec.Ports.push(port)
                         } else {
-                            updatedData.EndpointSpec.Ports.push({
+                            const tcpPort: IDockerApiPort = {
                                 Protocol: 'tcp',
                                 TargetPort: p.containerPort,
                                 PublishedPort: p.hostPort,
-                            })
-                            updatedData.EndpointSpec.Ports.push({
+                            }
+                            const udpPort: IDockerApiPort = {
                                 Protocol: 'udp',
                                 TargetPort: p.containerPort,
                                 PublishedPort: p.hostPort,
-                            })
+                            }
+                            if (p.publishMode) {
+                                tcpPort.PublishMode = p.publishMode
+                                udpPort.PublishMode = p.publishMode
+                            }
+                            updatedData.EndpointSpec.Ports.push(tcpPort)
+                            updatedData.EndpointSpec.Ports.push(udpPort)
                         }
                     }
                 }

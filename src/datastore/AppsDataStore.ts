@@ -829,6 +829,10 @@ class AppsDataStore {
                         appObj.ports.push({
                             hostPort: hostPort,
                             containerPort: containerPort,
+                            ...(obj.protocol ? { protocol: obj.protocol } : {}),
+                            ...(obj.publishMode
+                                ? { publishMode: obj.publishMode }
+                                : {}),
                         })
                     }
                 }
