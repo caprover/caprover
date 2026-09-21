@@ -491,26 +491,54 @@ class AppsDataStore {
     addCustomDomainForApp(appName: string, customDomain: string) {
         const self = this
 
-        return this.getAppDefinition(appName).then(function (app) {
-            app.customDomain = app.customDomain || []
+        return this.ensureCustomDomainIsAvailable(appName, customDomain)
+            .then(function () {
+                return self.getAppDefinition(appName)
+            })
+            .then(function (app) {
+                app.customDomain = app.customDomain || []
 
-            if (app.customDomain.length > 0) {
-                for (let idx = 0; idx < app.customDomain.length; idx++) {
-                    if (app.customDomain[idx].publicDomain === customDomain) {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.ILLEGAL_PARAMETER,
-                            `App already has customDomain: ${customDomain} attached to app ${appName}`
-                        )
+                if (app.customDomain.length > 0) {
+                    for (let idx = 0; idx < app.customDomain.length; idx++) {
+                        if (
+                            app.customDomain[idx].publicDomain === customDomain
+                        ) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.ILLEGAL_PARAMETER,
+                                `App already has customDomain: ${customDomain} attached to app ${appName}`
+                            )
+                        }
                     }
                 }
-            }
 
-            app.customDomain.push({
-                publicDomain: customDomain,
-                hasSsl: false,
+                app.customDomain.push({
+                    publicDomain: customDomain,
+                    hasSsl: false,
+                })
+
+                return self.saveApp(appName, app)
             })
+    }
 
-            return self.saveApp(appName, app)
+    ensureCustomDomainIsAvailable(appName: string, customDomain: string) {
+        return this.getAppDefinitions().then(function (apps) {
+            for (const existingAppName of Object.keys(apps)) {
+                if (existingAppName === appName) continue
+
+                const domainOwner = (
+                    apps[existingAppName].customDomain || []
+                ).find(
+                    (domain) =>
+                        domain.publicDomain.toLowerCase() ===
+                        customDomain.toLowerCase()
+                )
+                if (domainOwner) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        `Custom domain ${customDomain} is already attached to app ${existingAppName}`
+                    )
+                }
+            }
         })
     }
 
