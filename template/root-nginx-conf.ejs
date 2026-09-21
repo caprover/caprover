@@ -42,10 +42,10 @@
 	listen       80;
 	client_max_body_size 300m;
 
-	# Keep idle API connections alive briefly during a graceful reload. This
-	# gives clients time to reuse the old-worker connection and receive a
-	# graceful Connection: close response instead of racing the worker exit.
-	keepalive_min_timeout 1s;
+	# Keep idle API connections alive during a graceful reload long enough for
+	# pooled clients to retire them. Node's default agent keeps idle sockets for
+	# 5 seconds, so leave a safety margin beyond that client-side timeout.
+	keepalive_min_timeout 10s;
 
 	gzip on;
 	gzip_disable "MSIE [1-6]\.";
