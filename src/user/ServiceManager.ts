@@ -290,6 +290,11 @@ class ServiceManager {
 
         return Promise.resolve()
             .then(function () {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .ensureCustomDomainIsAvailable(appName, customDomain)
+            })
+            .then(function () {
                 const rootDomain = self.dataStore.getRootDomain()
 
                 try {
