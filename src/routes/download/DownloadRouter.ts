@@ -23,9 +23,14 @@ router.get('/', function (req, res, next) {
 
                 if (!error) return
 
+                const downloadError = error as NodeJS.ErrnoException & {
+                    status?: number
+                }
+
                 if (
                     !res.headersSent &&
-                    (error.status === 404 || error.code === 'ENOENT')
+                    (downloadError.status === 404 ||
+                        downloadError.code === 'ENOENT')
                 ) {
                     res.sendStatus(404)
                     return
