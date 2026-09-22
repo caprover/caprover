@@ -610,11 +610,72 @@ export default class BackupManager {
                         cwd: CaptainConstants.restoreDirectoryPath,
                     })
                     .then(function () {
+                        return self.normalizeMalformedBackupDataLayoutIfNeeded()
+                    })
+                    .then(function () {
                         return fs.remove(CaptainConstants.restoreTarFilePath)
                     })
                     .then(function () {
                         return Promise.resolve(true)
                     })
+            })
+    }
+
+    private normalizeMalformedBackupDataLayoutIfNeeded() {
+        const dataDirectory = path.join(
+            CaptainConstants.restoreDirectoryPath,
+            'data'
+        )
+        const expectedConfigPath = path.join(
+            dataDirectory,
+            'config-captain.json'
+        )
+        const malformedDataDirectory = path.join(dataDirectory, 'data')
+        const malformedConfigPath = path.join(
+            malformedDataDirectory,
+            'config-captain.json'
+        )
+
+        if (
+            fs.pathExistsSync(expectedConfigPath) ||
+            !fs.pathExistsSync(malformedConfigPath)
+        ) {
+            return Promise.resolve()
+        }
+
+        // Backward compatibility for malformed backups likely introduced by:
+        // https://github.com/caprover/caprover/pull/2336
+        // https://github.com/caprover/caprover/commit/1b89d9123ba535070b1d95cc1832e8a38eacd157
+        //
+        // That change pre-created the backup destination before running
+        // "cp -rp /captain/data <destination>", which caused GNU cp to place
+        // the data directory itself inside the destination. Those backups
+        // therefore contain data/data/config-captain.json instead of the
+        // expected data/config-captain.json. The shared-logs exclusion in the
+        // same change also targeted the outer directory, so malformed backups
+        // can contain data/data/shared-logs even though those logs were meant
+        // to be excluded.
+        Logger.d(
+            'Detected malformed backup data/data layout. Normalizing before restore.'
+        )
+
+        return fs
+            .remove(path.join(malformedDataDirectory, 'shared-logs'))
+            .then(function () {
+                return fs.readdir(malformedDataDirectory)
+            })
+            .then(function (entries) {
+                return Promise.all(
+                    entries.map(function (entry) {
+                        return fs.move(
+                            path.join(malformedDataDirectory, entry),
+                            path.join(dataDirectory, entry)
+                        )
+                    })
+                )
+            })
+            .then(function () {
+                return fs.remove(malformedDataDirectory)
             })
     }
 
