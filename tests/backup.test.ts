@@ -13,10 +13,13 @@ import {
     copy,
     ensureDir,
     ensureFile,
+    outputJson,
     pathExists,
     readJson,
+    remove,
     removeSync,
 } from 'fs-extra'
+import * as tar from 'tar'
 import { isDeepStrictEqual } from 'util'
 import { RestoringInfo } from '../src/models/BackupMeta'
 import BackupManager, {
@@ -146,6 +149,129 @@ function backupTests() {
             .then(function (data) {
                 expect(data).toBeFalsy()
             })
+    })
+
+    test('Restores malformed backup with nested data/data layout', async () => {
+        const sourceDirectory = '/tmp/caprover-malformed-backup-test'
+        const malformedDataDirectory = `${sourceDirectory}/data/data`
+
+        await remove(sourceDirectory)
+
+        try {
+            await outputJson(`${sourceDirectory}/meta/backup.json`, {
+                salt: 'test-salt',
+                nodes: [
+                    {
+                        nodeId: '123456789',
+                        type: 'manager',
+                        isLeader: true,
+                        hostname: 'test',
+                        architecture: 'x86_64',
+                        operatingSystem: 'linux',
+                        nanoCpu: 8000000000,
+                        memoryBytes: 8241434624,
+                        dockerEngineVersion: '18.09.2',
+                        ip: '123.123.123.123',
+                        state: 'ready',
+                        status: 'active',
+                    },
+                ],
+            })
+            await outputJson(`${malformedDataDirectory}/config-captain.json`, {
+                appDefinitions: {
+                    pers1: {
+                        nodeId: '123456789',
+                    },
+                },
+            })
+            await ensureDir(`${malformedDataDirectory}/shared-logs`)
+            await outputJson(
+                `${malformedDataDirectory}/shared-logs/should-not-restore.json`,
+                { ignored: true }
+            )
+
+            await tar.c(
+                {
+                    file: BACKUP_FILE_PATH_ABSOLUTE,
+                    cwd: sourceDirectory,
+                },
+                ['./']
+            )
+
+            const bk = new BackupManager()
+            await bk.checkAndPrepareRestoration()
+
+            expect(
+                await pathExists(
+                    `${CaptainConstants.restoreDirectoryPath}/data/config-captain.json`
+                )
+            ).toBe(true)
+            expect(
+                await pathExists(
+                    `${CaptainConstants.restoreDirectoryPath}/data/data/config-captain.json`
+                )
+            ).toBe(false)
+            expect(
+                await pathExists(
+                    `${CaptainConstants.restoreDirectoryPath}/data/shared-logs`
+                )
+            ).toBe(false)
+
+            const ret = (await readJson(
+                CaptainConstants.restoreDirectoryPath +
+                    '/restore-instructions.json'
+            )) as RestoringInfo
+
+            expect(ret.nodesMapping).toEqual([
+                {
+                    newIp: 'CURRENT_NODE_DONT_CHANGE',
+                    oldIp: '123.123.123.123',
+                    privateKeyPath: '',
+                    user: '',
+                },
+            ])
+            expect(ret.oldNodesForReference[0].appsLockOnThisNode).toEqual([
+                'pers1',
+            ])
+        } finally {
+            await remove(sourceDirectory)
+        }
+    })
+
+    test('Rejects malformed nested backup without config-captain.json', async () => {
+        const sourceDirectory =
+            '/tmp/caprover-malformed-backup-missing-config-test'
+        const malformedDataDirectory = `${sourceDirectory}/data/data`
+
+        await remove(sourceDirectory)
+
+        try {
+            await outputJson(`${sourceDirectory}/meta/backup.json`, {
+                salt: 'test-salt',
+                nodes: [],
+            })
+            await ensureDir(malformedDataDirectory)
+
+            await tar.c(
+                {
+                    file: BACKUP_FILE_PATH_ABSOLUTE,
+                    cwd: sourceDirectory,
+                },
+                ['./']
+            )
+
+            const bk = new BackupManager()
+            await expect(bk.checkAndPrepareRestoration()).rejects.toThrow()
+
+            expect(
+                await pathExists(
+                    CaptainConstants.restoreDirectoryPath +
+                        '/restore-instructions.json'
+                )
+            ).toBe(false)
+        } finally {
+            await remove(sourceDirectory)
+        }
     })
 
     test('Test backup file', () => {
