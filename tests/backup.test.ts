@@ -1,4 +1,12 @@
-import { lstat, mkdtemp, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises'
+import {
+    lstat,
+    mkdtemp,
+    readFile,
+    readlink,
+    rm,
+    symlink,
+    writeFile,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
@@ -65,7 +73,6 @@ describe('BackupManager.sanitizeHostnameForFilename', () => {
     })
 })
 
-
 describe('copyCaptainDataForBackup', () => {
     test('copies data contents without nesting and excludes shared logs', async () => {
         const root = await mkdtemp(join(tmpdir(), 'caprover-backup-copy-'))
@@ -87,13 +94,17 @@ describe('copyCaptainDataForBackup', () => {
                 await readFile(join(destination, 'config-captain.json'), 'utf8')
             ).toBe('{}')
             expect(
-                await pathExists(join(destination, 'source', 'config-captain.json'))
+                await pathExists(
+                    join(destination, 'source', 'config-captain.json')
+                )
             ).toBe(false)
             expect(await pathExists(join(destination, 'shared-logs'))).toBe(
                 false
             )
             expect(
-                (await lstat(join(destination, 'broken-certificate-link'))).isSymbolicLink()
+                (
+                    await lstat(join(destination, 'broken-certificate-link'))
+                ).isSymbolicLink()
             ).toBe(true)
             expect(
                 await readlink(join(destination, 'broken-certificate-link'))
