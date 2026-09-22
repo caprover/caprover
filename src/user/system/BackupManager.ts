@@ -1,5 +1,5 @@
 import SshClientImport = require('ssh2')
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as tar from 'tar'
@@ -33,6 +33,31 @@ export interface IBackupCallbacks {
 }
 
 const BACKUP_META_DATA_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/meta/${BACKUP_JSON}`
+
+export function copyCaptainDataForBackup(
+    sourceDirectory: string,
+    destinationDirectory: string
+): Promise<void> {
+    return fs
+        .ensureDir(destinationDirectory)
+        .then(
+            () =>
+                new Promise<void>((resolve, reject) => {
+                    execFile(
+                        'cp',
+                        ['-rp', `${sourceDirectory}/.`, destinationDirectory],
+                        (error) => {
+                            if (error) {
+                                reject(error)
+                                return
+                            }
+                            resolve()
+                        }
+                    )
+                })
+        )
+        .then(() => fs.remove(path.join(destinationDirectory, 'shared-logs')))
+}
 export default class BackupManager {
     private longOperationInProgress: boolean
 
@@ -732,13 +757,10 @@ export default class BackupManager {
 
                         // We cannot use fs.copy as it doesn't properly copy the broken SymLink which might exist in LetsEncrypt
                         // https://github.com/jprichardson/node-fs-extra/issues/638
-                        return new Promise(function (resolve, reject) {
-                            const child = exec(
-                                `mkdir -p ${dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest} && mkdir -p ${dest}/shared-logs && rm -rf ${dest}/shared-logs`
-                            )
-                            child.addListener('error', reject)
-                            child.addListener('exit', resolve)
-                        })
+                        return copyCaptainDataForBackup(
+                            CaptainConstants.captainDataDirectory,
+                            dest
+                        )
                     })
                     .then(function () {
                         return iBackupCallbacks.getNodesInfo()

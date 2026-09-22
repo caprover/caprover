@@ -1,4 +1,15 @@
 import {
+    lstat,
+    mkdtemp,
+    readFile,
+    readlink,
+    rm,
+    symlink,
+    writeFile,
+} from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import {
     copy,
     ensureDir,
     ensureFile,
@@ -11,7 +22,9 @@ import {
 import * as tar from 'tar'
 import { isDeepStrictEqual } from 'util'
 import { RestoringInfo } from '../src/models/BackupMeta'
-import BackupManager from '../src/user/system/BackupManager'
+import BackupManager, {
+    copyCaptainDataForBackup,
+} from '../src/user/system/BackupManager'
 import CaptainConstants from '../src/utils/CaptainConstants'
 const BACKUP_FILE_PATH_ABSOLUTE = '/captain/backup.tar'
 
@@ -60,6 +73,63 @@ describe('BackupManager.sanitizeHostnameForFilename', () => {
 
     test('returns an empty string for an undefined hostname', () => {
         expect(BackupManager.sanitizeHostnameForFilename(undefined)).toBe('')
+    })
+})
+
+describe('copyCaptainDataForBackup', () => {
+    test('copies data contents without nesting and excludes shared logs', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'caprover-backup-copy-'))
+        const source = join(root, 'source')
+        const destination = join(root, 'destination')
+
+        try {
+            await ensureDir(join(source, 'shared-logs'))
+            await writeFile(join(source, 'config-captain.json'), '{}')
+            await writeFile(join(source, 'shared-logs', 'access.log'), 'log')
+            await symlink(
+                '/missing-certificate.pem',
+                join(source, 'broken-certificate-link')
+            )
+
+            await copyCaptainDataForBackup(source, destination)
+
+            expect(
+                await readFile(join(destination, 'config-captain.json'), 'utf8')
+            ).toBe('{}')
+            expect(
+                await pathExists(
+                    join(destination, 'source', 'config-captain.json')
+                )
+            ).toBe(false)
+            expect(await pathExists(join(destination, 'shared-logs'))).toBe(
+                false
+            )
+            expect(
+                (
+                    await lstat(join(destination, 'broken-certificate-link'))
+                ).isSymbolicLink()
+            ).toBe(true)
+            expect(
+                await readlink(join(destination, 'broken-certificate-link'))
+            ).toBe('/missing-certificate.pem')
+        } finally {
+            await rm(root, { recursive: true, force: true })
+        }
+    })
+
+    test('rejects when the source copy fails', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'caprover-backup-copy-'))
+
+        try {
+            await expect(
+                copyCaptainDataForBackup(
+                    join(root, 'missing-source'),
+                    join(root, 'destination')
+                )
+            ).rejects.toThrow()
+        } finally {
+            await rm(root, { recursive: true, force: true })
+        }
     })
 })
 
