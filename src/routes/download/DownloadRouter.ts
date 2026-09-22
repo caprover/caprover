@@ -18,8 +18,20 @@ router.get('/', function (req, res, next) {
         })
         .then(function (obj) {
             const fileFullPath = `${CaptainConstants.captainDownloadsDirectory}/${namespace}/${obj.downloadFileName}`
-            res.download(fileFullPath, function () {
+            res.download(fileFullPath, function (error) {
                 Utils.deleteFileQuietly(fileFullPath)
+
+                if (!error) return
+
+                if (
+                    !res.headersSent &&
+                    (error.status === 404 || error.code === 'ENOENT')
+                ) {
+                    res.sendStatus(404)
+                    return
+                }
+
+                next(error)
             })
         })
         .catch(ApiStatusCodes.createCatcher(res))
