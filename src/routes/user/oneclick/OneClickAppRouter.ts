@@ -8,7 +8,10 @@ import {
     CapRoverEventFactory,
     CapRoverEventType,
 } from '../../../user/events/ICapRoverEvent'
-import OneClickAppDeployManager from '../../../user/oneclick/OneClickAppDeployManager'
+import OneClickAppDeployManager, {
+    OneClickDeploymentOptions,
+    validateOneClickDeploymentOptions,
+} from '../../../user/oneclick/OneClickAppDeployManager'
 import { OneClickDeploymentJobRegistry } from '../../../user/oneclick/OneClickDeploymentJobRegistry'
 import CaptainConstants from '../../../utils/CaptainConstants'
 import Logger from '../../../utils/Logger'
@@ -283,17 +286,46 @@ router.post('/deploy', function (req, res, next) {
 
     const template = req.body.template
     const values = req.body.values
-    const templateName = req.body.templateName
+    const templateName =
+        req.body.templateName === undefined
+            ? undefined
+            : `${req.body.templateName || ''}`.trim()
+    const deploymentOptions: OneClickDeploymentOptions = {
+        parentProjectId: `${req.body.parentProjectId || ''}`.trim(),
+        templateName,
+    }
+    if (req.body.projectName !== undefined) {
+        deploymentOptions.projectName = `${req.body.projectName || ''}`.trim()
+    }
     const deploymentJobRegistry = OneClickDeploymentJobRegistry.getInstance()
 
     return Promise.resolve() //
-        .then(function () {
+        .then(async function () {
             if (!template) {
                 throw ApiStatusCodes.createError(
                     ApiStatusCodes.ILLEGAL_PARAMETER,
                     'Template is required'
                 )
             }
+
+            await validateOneClickDeploymentOptions(
+                dataStore,
+                template,
+                deploymentOptions,
+                values
+            )
+
+            const deploymentType =
+                templateName === 'DOCKER_COMPOSE'
+                    ? 'docker-compose'
+                    : templateName === 'TEMPLATE_ONE_CLICK'
+                      ? 'custom-one-click'
+                      : templateName
+                        ? 'one-click'
+                        : 'legacy'
+            Logger.d(
+                `One-click deployment validated; type: ${deploymentType}; parent project selected: ${!!deploymentOptions.parentProjectId}`
+            )
 
             const jobId = deploymentJobRegistry.createJob()
 
@@ -307,12 +339,11 @@ router.post('/deploy', function (req, res, next) {
                         jobId,
                         deploymentState
                     )
-                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
                     Logger.dev(
-                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                        `Deployment state updated for jobId: ${jobId}; current step: ${deploymentState.currentStep}; has error: ${!!deploymentState.error}`
                     )
                 }
-            ).startDeployProcess(template, values)
+            ).startDeployProcess(template, values, deploymentOptions)
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
