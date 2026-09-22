@@ -596,6 +596,8 @@ export default class BackupManager {
     }
 
     private extractBackupContentAndRemoveTar() {
+        const self = this
+
         if (!fs.statSync(CaptainConstants.restoreTarFilePath).isFile())
             throw new Error('restore tar file is not a file!!')
 
