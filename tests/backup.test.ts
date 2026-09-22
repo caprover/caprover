@@ -238,6 +238,42 @@ function backupTests() {
         }
     })
 
+    test('Rejects malformed nested backup without config-captain.json', async () => {
+        const sourceDirectory =
+            '/tmp/caprover-malformed-backup-missing-config-test'
+        const malformedDataDirectory = `${sourceDirectory}/data/data`
+
+        await remove(sourceDirectory)
+
+        try {
+            await outputJson(`${sourceDirectory}/meta/backup.json`, {
+                salt: 'test-salt',
+                nodes: [],
+            })
+            await ensureDir(malformedDataDirectory)
+
+            await tar.c(
+                {
+                    file: BACKUP_FILE_PATH_ABSOLUTE,
+                    cwd: sourceDirectory,
+                },
+                ['./']
+            )
+
+            const bk = new BackupManager()
+            await expect(bk.checkAndPrepareRestoration()).rejects.toThrow()
+
+            expect(
+                await pathExists(
+                    CaptainConstants.restoreDirectoryPath +
+                        '/restore-instructions.json'
+                )
+            ).toBe(false)
+        } finally {
+            await remove(sourceDirectory)
+        }
+    })
+
     test('Test backup file', () => {
         const bk = new BackupManager()
         return Promise.resolve()
