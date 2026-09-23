@@ -3,6 +3,7 @@ import axios from 'axios'
 import ApiStatusCodes from '../../../api/ApiStatusCodes'
 import BaseApi from '../../../api/BaseApi'
 import InjectionExtractor from '../../../injection/InjectionExtractor'
+import { OneClickAppValuePair } from '../../../models/OneClickApp'
 import { EventLogger } from '../../../user/events/EventLogger'
 import {
     CapRoverEventFactory,
@@ -295,24 +296,33 @@ router.post('/deploy', function (req, res, next) {
                 )
             }
 
-            const jobId = deploymentJobRegistry.createJob()
+            const normalizedValues = normalizeOneClickAppValues(values)
 
             reportAnalyticsOnAppDeploy(templateName, template, eventLogger)
 
-            new OneClickAppDeployManager(
-                dataStore,
-                serviceManager,
-                (deploymentState) => {
-                    deploymentJobRegistry.updateJobProgress(
-                        jobId,
-                        deploymentState
-                    )
-                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
-                    Logger.dev(
-                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
-                    )
-                }
-            ).startDeployProcess(template, values)
+            const jobId = deploymentJobRegistry.createJob()
+
+            try {
+                new OneClickAppDeployManager(
+                    dataStore,
+                    serviceManager,
+                    (deploymentState) => {
+                        deploymentJobRegistry.updateJobProgress(
+                            jobId,
+                            deploymentState
+                        )
+                        Logger.dev(
+                            `Deployment state updated for jobId: ${jobId}`
+                        )
+                        Logger.dev(
+                            `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                        )
+                    }
+                ).startDeployProcess(template, normalizedValues)
+            } catch (error) {
+                deploymentJobRegistry.removeJob(jobId)
+                throw error
+            }
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
@@ -369,6 +379,23 @@ router.get('/deploy/progress', function (req, res, next) {
 })
 
 export default router
+
+export function normalizeOneClickAppValues(
+    values: unknown
+): OneClickAppValuePair[] {
+    if (values === undefined) {
+        return []
+    }
+
+    if (!Array.isArray(values)) {
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_PARAMETER,
+            'Values must be an array'
+        )
+    }
+
+    return values as OneClickAppValuePair[]
+}
 
 // This function analyzes the provided template to identify any unused fields in Docker service definitions.
 // It then logs an analytics event with the unused fields and the template name (if it's an official or known template).
