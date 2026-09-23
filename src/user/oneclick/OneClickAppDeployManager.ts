@@ -48,7 +48,7 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        valuesArray: OneClickAppValuePair[]
+        valuesArray: OneClickAppValuePair[] = []
     ) {
         const self = this
         let stringified = JSON.stringify(template)

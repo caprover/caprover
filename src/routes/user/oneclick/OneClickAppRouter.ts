@@ -295,24 +295,38 @@ router.post('/deploy', function (req, res, next) {
                 )
             }
 
-            const jobId = deploymentJobRegistry.createJob()
+            const normalizedValues = values === undefined ? [] : values
+            if (!Array.isArray(normalizedValues)) {
+                throw ApiStatusCodes.createError(
+                    ApiStatusCodes.ILLEGAL_PARAMETER,
+                    'Values must be an array'
+                )
+            }
 
             reportAnalyticsOnAppDeploy(templateName, template, eventLogger)
 
-            new OneClickAppDeployManager(
-                dataStore,
-                serviceManager,
-                (deploymentState) => {
-                    deploymentJobRegistry.updateJobProgress(
-                        jobId,
-                        deploymentState
-                    )
-                    Logger.dev(`Deployment state updated for jobId: ${jobId}`)
-                    Logger.dev(
-                        `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
-                    )
-                }
-            ).startDeployProcess(template, values)
+            const jobId = deploymentJobRegistry.createJob()
+            try {
+                new OneClickAppDeployManager(
+                    dataStore,
+                    serviceManager,
+                    (deploymentState) => {
+                        deploymentJobRegistry.updateJobProgress(
+                            jobId,
+                            deploymentState
+                        )
+                        Logger.dev(
+                            `Deployment state updated for jobId: ${jobId}`
+                        )
+                        Logger.dev(
+                            `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                        )
+                    }
+                ).startDeployProcess(template, normalizedValues)
+            } catch (error) {
+                deploymentJobRegistry.removeJob(jobId)
+                throw error
+            }
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
