@@ -300,29 +300,27 @@ router.post('/deploy', function (req, res, next) {
 
             reportAnalyticsOnAppDeploy(templateName, template, eventLogger)
 
-            const jobId = deploymentJobRegistry.createJob()
-
-            try {
-                new OneClickAppDeployManager(
-                    dataStore,
-                    serviceManager,
-                    (deploymentState) => {
-                        deploymentJobRegistry.updateJobProgress(
-                            jobId,
-                            deploymentState
-                        )
-                        Logger.dev(
-                            `Deployment state updated for jobId: ${jobId}`
-                        )
-                        Logger.dev(
-                            `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
-                        )
-                    }
-                ).startDeployProcess(template, normalizedValues)
-            } catch (error) {
-                deploymentJobRegistry.removeJob(jobId)
-                throw error
-            }
+            const jobId = startOneClickDeploymentJob(
+                deploymentJobRegistry,
+                (jobId) => {
+                    new OneClickAppDeployManager(
+                        dataStore,
+                        serviceManager,
+                        (deploymentState) => {
+                            deploymentJobRegistry.updateJobProgress(
+                                jobId,
+                                deploymentState
+                            )
+                            Logger.dev(
+                                `Deployment state updated for jobId: ${jobId}`
+                            )
+                            Logger.dev(
+                                `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
+                            )
+                        }
+                    ).startDeployProcess(template, normalizedValues)
+                }
+            )
 
             const baseApi = new BaseApi(
                 ApiStatusCodes.STATUS_OK,
@@ -395,6 +393,22 @@ export function normalizeOneClickAppValues(
     }
 
     return values as OneClickAppValuePair[]
+}
+
+export function startOneClickDeploymentJob(
+    deploymentJobRegistry: OneClickDeploymentJobRegistry,
+    startDeployment: (jobId: string) => void
+): string {
+    const jobId = deploymentJobRegistry.createJob()
+
+    try {
+        startDeployment(jobId)
+    } catch (error) {
+        deploymentJobRegistry.removeJob(jobId)
+        throw error
+    }
+
+    return jobId
 }
 
 // This function analyzes the provided template to identify any unused fields in Docker service definitions.
