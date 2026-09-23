@@ -142,6 +142,7 @@ describe('one-click deploy route', () => {
         })
 
         expect(response.status).toBe(500)
+        await response.text()
         expect(registry.createJob).toHaveBeenCalledTimes(1)
         expect(registry.removeJob).toHaveBeenCalledWith('job-1')
     })
