@@ -52,13 +52,56 @@ jest.mock('../src/user/events/ICapRoverEvent', () => ({
     },
 }))
 
-import { reportAnalyticsOnAppDeploy } from '../src/routes/user/oneclick/OneClickAppRouter'
+import {
+    normalizeOneClickAppValues,
+    reportAnalyticsOnAppDeploy,
+    startOneClickDeploymentJob,
+} from '../src/routes/user/oneclick/OneClickAppRouter'
 import { EventLogger } from '../src/user/events/EventLogger'
 import {
     CapRoverEventFactory,
     CapRoverEventType,
     ICapRoverEvent,
 } from '../src/user/events/ICapRoverEvent'
+
+describe('one-click deployment request handling', () => {
+    test('defaults omitted values to an empty array', () => {
+        expect(normalizeOneClickAppValues(undefined)).toEqual([])
+    })
+
+    test('rejects a non-array values payload before creating a job', () => {
+        expect(() => normalizeOneClickAppValues({})).toThrow(
+            'Values must be an array'
+        )
+    })
+
+    test('removes a job when deployment startup throws', () => {
+        const registry = {
+            createJob: jest.fn(() => 'job-1'),
+            removeJob: jest.fn(),
+        }
+
+        expect(() =>
+            startOneClickDeploymentJob(registry as any, () => {
+                throw new Error('startup failed')
+            })
+        ).toThrow('startup failed')
+
+        expect(registry.removeJob).toHaveBeenCalledWith('job-1')
+    })
+
+    test('keeps and returns the job when deployment startup succeeds', () => {
+        const registry = {
+            createJob: jest.fn(() => 'job-1'),
+            removeJob: jest.fn(),
+        }
+
+        expect(
+            startOneClickDeploymentJob(registry as any, () => undefined)
+        ).toBe('job-1')
+        expect(registry.removeJob).not.toHaveBeenCalled()
+    })
+})
 
 describe('reportAnalyticsOnAppDeploy', () => {
     let mockEventLogger: EventLogger
