@@ -29,7 +29,7 @@
         "is-valid-path": "^0.1.1",
         "js-base64": "^3.7.7",
         "jsonwebtoken": "^9.0.2",
-        "morgan": "^1.10.0",
+        "morgan": "^1.12.1",
         "multer": "^2.0.1",
         "on-finished": "^2.4.1",
         "public-ip": "^8.0.0",
