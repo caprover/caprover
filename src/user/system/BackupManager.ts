@@ -43,9 +43,14 @@ export function copyCaptainDataForBackup(
         .then(
             () =>
                 new Promise<void>((resolve, reject) => {
+                    // -R (not -r) with -P keeps dangling/symlinked certs
+                    // as symlinks on BSD cp (macOS) too. BSD's lowercase
+                    // -r implies following symlinks for compatibility,
+                    // which throws ENOENT on a broken link; GNU cp (Linux)
+                    // never followed them either way.
                     execFile(
                         'cp',
-                        ['-rp', `${sourceDirectory}/.`, destinationDirectory],
+                        ['-RPp', `${sourceDirectory}/.`, destinationDirectory],
                         (error) => {
                             if (error) {
                                 reject(error)
