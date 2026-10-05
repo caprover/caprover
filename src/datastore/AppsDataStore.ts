@@ -255,7 +255,7 @@ class AppsDataStore {
         if (!isNameAllowed(appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
+                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed, up to 49 characters'
             )
         }
 
@@ -958,7 +958,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
+                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed, up to 49 characters'
                     )
                 )
                 return

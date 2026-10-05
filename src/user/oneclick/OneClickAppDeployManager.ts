@@ -34,7 +34,7 @@ export default class OneClickAppDeployManager {
     private deploymentHelper: OneClickAppDeploymentHelper
     private template: IOneClickTemplate | undefined
     constructor(
-        dataStore: DataStore,
+        private dataStore: DataStore,
         serviceManager: ServiceManager,
         private onDeploymentStateChanged: (
             deploymentState: IDeploymentState
@@ -117,6 +117,24 @@ export default class OneClickAppDeployManager {
                 currentStep: 0,
             })
         } else {
+            // Check every app name before the first step, so a name that
+            // registration refuses does not leave the earlier apps behind.
+            for (let index = 0; index < apps.length; index++) {
+                try {
+                    self.dataStore
+                        .getAppsDataStore()
+                        .nameAllowedOrThrow(apps[index].appName)
+                } catch (error: any) {
+                    if (!error || !error.captainErrorType) throw error
+                    self.onDeploymentStateChanged({
+                        steps: ['Parsing the template'],
+                        error: `${apps[index].appName}: ${error.apiMessage}`,
+                        currentStep: 0,
+                    })
+                    return
+                }
+            }
+
             const steps: IDeploymentStep[] = []
             const capAppName = values[ONE_CLICK_APP_NAME_VAR_NAME]
 
