@@ -237,7 +237,13 @@ class ServiceManager {
         Promise.resolve().then(function () {
             const newBuild = self.queuedBuilds.shift()
             if (newBuild)
-                self.startDeployingNewVersion(newBuild.appName, newBuild.source)
+                self.startDeployingNewVersion(
+                    newBuild.appName,
+                    newBuild.source
+                ).then(
+                    newBuild.promiseToSave.resolve,
+                    newBuild.promiseToSave.reject
+                )
         })
     }
 
