@@ -93,4 +93,46 @@ describe('ServiceManager queued builds', () => {
         expect(await stateOf(queued)).toBe('rejected')
         await expect(queued).rejects.toThrow('second build failed')
     })
+
+    test('a service update failure advances the build queue only once', async () => {
+        const first = deferred<string>()
+        const second = deferred<string>()
+        const ensureImage = jest
+            .fn()
+            .mockReturnValueOnce(first.promise)
+            .mockReturnValueOnce(second.promise)
+            .mockResolvedValueOnce('img-captain-third:1')
+        const manager = serviceManager(ensureImage)
+
+        ;(manager.ensureServiceInitedAndUpdated as jest.Mock)
+            .mockRejectedValueOnce(new Error('first service update failed'))
+            .mockResolvedValue(undefined)
+
+        const running = manager.scheduleDeployNewVersion('first', source)
+        const queuedSecond = manager.scheduleDeployNewVersion('second', source)
+        const queuedThird = manager.scheduleDeployNewVersion('third', source)
+
+        first.resolve('img-captain-first:1')
+        await expect(running).rejects.toThrow('first service update failed')
+
+        // The second build should be running while the third remains queued.
+        // Before the fix, the service-update failure advanced the queue again
+        // and started both queued builds concurrently.
+        await new Promise((resolve) => setTimeout(resolve, 50))
+        expect(ensureImage).toHaveBeenCalledTimes(2)
+        expect(ensureImage.mock.calls.map((call) => call[1])).toEqual([
+            'first',
+            'second',
+        ])
+
+        second.resolve('img-captain-second:1')
+        await queuedSecond
+        await queuedThird
+
+        expect(ensureImage.mock.calls.map((call) => call[1])).toEqual([
+            'first',
+            'second',
+            'third',
+        ])
+    })
 })

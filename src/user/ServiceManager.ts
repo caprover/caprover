@@ -176,6 +176,16 @@ class ServiceManager {
         const self = this
         const dataStore = this.dataStore
         let deployedVersion: number
+        let hasAdvancedBuildQueue = false
+
+        function advanceBuildQueueOnce() {
+            if (hasAdvancedBuildQueue) {
+                return
+            }
+
+            hasAdvancedBuildQueue = true
+            self.onBuildFinished(appName)
+        }
 
         return Promise.resolve() //
             .then(function () {
@@ -208,7 +218,7 @@ class ServiceManager {
                     )
             })
             .then(function () {
-                self.onBuildFinished(appName)
+                advanceBuildQueueOnce()
 
                 self.eventLogger.trackEvent(
                     CapRoverEventFactory.create(
@@ -222,7 +232,7 @@ class ServiceManager {
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function (error) {
-                self.onBuildFinished(appName)
+                advanceBuildQueueOnce()
                 return new Promise<void>(function (resolve, reject) {
                     self.logBuildFailed(appName, error)
                     reject(error)
