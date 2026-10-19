@@ -19,6 +19,8 @@ Keep changes narrowly scoped. Do not add API fields, configuration, or abstracti
 
 The frontend is maintained in `caprover/caprover-frontend`. User-facing documentation is maintained in `caprover/caprover-website`.
 
+For releases, hotfixes, and backmerges, follow [RELEASING.md](RELEASING.md).
+
 ## Change constraints
 
 - Preserve API v2 response shapes, status handling, and compatibility with existing installations.
