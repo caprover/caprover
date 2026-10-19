@@ -6,6 +6,7 @@ import {
 } from '../../models/IOneClickAppModels'
 import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
+import composeAppConfig from '../../utils/ComposeAppConfig'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
@@ -92,6 +93,28 @@ export default class OneClickAppDeployManager {
             this.onDeploymentStateChanged({
                 steps: ['Parsing the template'],
                 error: `Cannot parse: ${stringified}\n\n\n\n${error}`,
+                currentStep: 0,
+            })
+            return
+        }
+
+        // Validate every service before dependency sorting or creating resources.
+        try {
+            const services = this.template!.services
+            if (
+                !services ||
+                typeof services !== 'object' ||
+                Array.isArray(services)
+            ) {
+                throw new Error('services: expected a mapping')
+            }
+            for (const [name, service] of Object.entries(services)) {
+                composeAppConfig(service, `services.${name}`)
+            }
+        } catch (error) {
+            this.onDeploymentStateChanged({
+                steps: ['Parsing the template'],
+                error: error instanceof Error ? error.message : String(error),
                 currentStep: 0,
             })
             return

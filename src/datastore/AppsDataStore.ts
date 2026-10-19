@@ -54,7 +54,7 @@ export function isNameAllowed(name: string) {
  * example valid names: my-volume, My.Volume, my_volume, myvolume123, my.volume-name_123, myvolume
  * example invalid names: -myvolume, .myvolume, my..volume, my--volume, my volume (space), my@volume, (special characters)
  */
-function isDockerVolumeNameAllowed(name: string) {
+export function isDockerVolumeNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 256 &&
