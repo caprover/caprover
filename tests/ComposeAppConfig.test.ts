@@ -152,7 +152,7 @@ ports:
             { volumes: [{ type: 'bind', source: './data', target: '/data' }] },
             'absolute bind',
         ],
-        [{ volumes: [{ type: 'tmpfs', target: '/data' }] }, 'source'],
+        [{ volumes: [{ type: 'tmpfs', target: '/data' }] }, 'type'],
         [
             {
                 volumes: [
@@ -188,5 +188,94 @@ ports:
         expect(() =>
             composeAppConfig(service as IDockerComposeService)
         ).toThrow(message)
+    })
+
+    test.each([
+        ['__proto__=value', 'constructor=other'],
+        JSON.parse('{"__proto__":"value","constructor":"other"}'),
+    ])('preserves special environment names as data: %j', (environment) => {
+        expect(composeAppConfig({ environment }).envVars).toEqual([
+            { key: '__proto__', value: 'value' },
+            { key: 'constructor', value: 'other' },
+        ])
+    })
+
+    test('preserves the input service and unrelated fields', () => {
+        const service: IDockerComposeService = {
+            image: 'nginx',
+            environment: ['TOKEN=a=b', 'EMPTY='],
+            volumes: [
+                'data:/data',
+                { type: 'bind', source: '/srv', target: '/srv' },
+            ],
+            ports: [
+                '8080:80',
+                { published: 9000, target: 90, protocol: 'udp', mode: 'host' },
+            ],
+            command: ['run', '--verbose'],
+            depends_on: ['db'],
+            hostname: 'example',
+        }
+        const snapshot = JSON.stringify(service)
+        const first = composeAppConfig(service)
+        expect(JSON.stringify(service)).toBe(snapshot)
+        expect(composeAppConfig(service)).toEqual(first)
+    })
+
+    test.each([
+        [{ environment: ['OK=value', '=secret'] }, 'environment[1]'],
+        [{ environment: { TOKEN: ['secret'] } }, 'environment.TOKEN'],
+        [
+            {
+                volumes: [
+                    'data:/data',
+                    {
+                        type: 'volume',
+                        source: 'cache',
+                        target: '/cache',
+                        read_only: true,
+                    },
+                ],
+            },
+            'volumes[1].read_only',
+        ],
+        [{ volumes: [{ type: 'tmpfs', target: '/tmp' }] }, 'volumes[0].type'],
+        [
+            { volumes: [{ type: 'volume', target: '/data' }] },
+            'volumes[0].source',
+        ],
+        [
+            {
+                volumes: [
+                    { type: 'volume', source: 'data', target: 'relative' },
+                ],
+            },
+            'volumes[0].target',
+        ],
+        [{ volumes: [[]] }, 'volumes[0]'],
+        [
+            {
+                ports: [
+                    '8080:80',
+                    { target: 80, published: 9000, host_ip: '127.0.0.1' },
+                ],
+            },
+            'ports[1].host_ip',
+        ],
+        [{ ports: [{ published: 8080, target: 0 }] }, 'ports[0].target'],
+        [{ ports: [{ published: 'bad', target: 80 }] }, 'ports[0].published'],
+        [
+            { ports: [{ published: 8080, target: 80, protocol: 'bad' }] },
+            'ports[0].protocol',
+        ],
+        [
+            { ports: [{ published: 8080, target: 80, mode: 'bad' }] },
+            'ports[0].mode',
+        ],
+        [{ ports: [[]] }, 'ports[0]'],
+    ])('reports the exact invalid field: %j', (service, path) => {
+        expect(() =>
+            composeAppConfig(service as IDockerComposeService, 'services.app')
+        ).toThrow(`services.app.${path}:`)
     })
 })

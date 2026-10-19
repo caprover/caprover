@@ -144,7 +144,10 @@ export default class OneClickAppDeploymentHelper {
                         },
                     ]
 
-                    const config = composeAppConfig(dockerComposeService)
+                    const config = composeAppConfig(
+                        dockerComposeService,
+                        `services.${appName}`
+                    )
                     appDef.volumes.push(...config.volumes)
                     appDef.ports = [...(appDef.ports || []), ...config.ports]
                     appDef.envVars = [

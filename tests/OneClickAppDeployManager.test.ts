@@ -148,10 +148,142 @@ describe('OneClickAppDeployManager', () => {
             ])
             expect(onDeploymentStateChanged).toHaveBeenCalledWith({
                 steps: ['Parsing the template'],
-                error: 'my-app-worker: ports: option host_ip is not supported by CapRover',
+                error: 'services.my-app-worker.ports[0].host_ip: option host_ip is not supported by CapRover',
                 currentStep: 0,
             })
             creates.forEach((create) => expect(create).not.toHaveBeenCalled())
+        })
+
+        test.each([undefined, null, [], 'invalid', 1, true])(
+            'rejects a malformed services collection: %j',
+            (services) => {
+                const onDeploymentStateChanged = jest.fn()
+                const invalidTemplate = {
+                    ...template,
+                    services,
+                } as unknown as IOneClickTemplate
+                expect(() =>
+                    new OneClickAppDeployManager(
+                        {} as any,
+                        {} as any,
+                        onDeploymentStateChanged
+                    ).startDeployProcess(invalidTemplate, [
+                        { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                    ])
+                ).not.toThrow()
+                expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                    steps: ['Parsing the template'],
+                    error: 'services: expected a mapping',
+                    currentStep: 0,
+                })
+                creates.forEach((create) =>
+                    expect(create).not.toHaveBeenCalled()
+                )
+            }
+        )
+
+        test.each([null, [], 'invalid', 1, true])(
+            'rejects a malformed later service before dependency sorting: %j',
+            (service) => {
+                const onDeploymentStateChanged = jest.fn()
+                const invalidTemplate = JSON.parse(JSON.stringify(template))
+                invalidTemplate.services[
+                    `${ONE_CLICK_APP_NAME_VAR_NAME}-worker`
+                ] = service
+                expect(() =>
+                    new OneClickAppDeployManager(
+                        {} as any,
+                        {} as any,
+                        onDeploymentStateChanged
+                    ).startDeployProcess(invalidTemplate, [
+                        { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                    ])
+                ).not.toThrow()
+                expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                    steps: ['Parsing the template'],
+                    error: 'services.my-app-worker: expected a service mapping',
+                    currentStep: 0,
+                })
+                creates.forEach((create) =>
+                    expect(create).not.toHaveBeenCalled()
+                )
+            }
+        )
+
+        test('substitutes placeholders before validating long syntax and preserves the original template', async () => {
+            const withVariables: IOneClickTemplate = JSON.parse(
+                JSON.stringify(template)
+            )
+            withVariables.services[ONE_CLICK_APP_NAME_VAR_NAME] = {
+                image: 'nginx',
+                environment: ['TOKEN=$$cap_token'],
+                volumes: [
+                    {
+                        type: 'volume',
+                        source: '$$cap_appname-data',
+                        target: '/data',
+                    },
+                ],
+                ports: [
+                    {
+                        published: '$$cap_host_port',
+                        target: '$$cap_container_port',
+                        protocol: 'udp',
+                        mode: 'host',
+                    },
+                ],
+                command: ['run', '--verbose'],
+            }
+            withVariables.caproverOneClickApp.variables.push(
+                ...['token', 'host_port', 'container_port'].map((key) => ({
+                    id: `$$cap_${key}`,
+                    label: key,
+                }))
+            )
+            const snapshot = JSON.stringify(withVariables)
+            const states = jest.fn()
+            new OneClickAppDeployManager(
+                {
+                    getAppsDataStore: () => ({ nameAllowedOrThrow: jest.fn() }),
+                } as any,
+                {} as any,
+                states
+            ).startDeployProcess(withVariables, [
+                { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                { key: '$$cap_token', value: 'a=b' },
+                { key: '$$cap_host_port', value: '8080' },
+                { key: '$$cap_container_port', value: '80' },
+            ])
+            await new Promise((resolve) => setImmediate(resolve))
+            expect(creates[2]).toHaveBeenCalledWith(
+                'my-app',
+                {
+                    image: 'nginx',
+                    environment: ['TOKEN=a=b'],
+                    volumes: [
+                        {
+                            type: 'volume',
+                            source: 'my-app-data',
+                            target: '/data',
+                        },
+                    ],
+                    ports: [
+                        {
+                            published: '8080',
+                            target: '80',
+                            protocol: 'udp',
+                            mode: 'host',
+                        },
+                    ],
+                    command: ['run', '--verbose'],
+                },
+                'my-app'
+            )
+            expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
+                error: '',
+                successMessage: 'done',
+            })
+            expect(JSON.stringify(withVariables)).toBe(snapshot)
         })
 
         test('an error that is not about a name is thrown, not reported as one', () => {

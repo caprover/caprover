@@ -98,6 +98,28 @@ export default class OneClickAppDeployManager {
             return
         }
 
+        // Validate every service before dependency sorting or creating resources.
+        try {
+            const services = this.template!.services
+            if (
+                !services ||
+                typeof services !== 'object' ||
+                Array.isArray(services)
+            ) {
+                throw new Error('services: expected a mapping')
+            }
+            for (const [name, service] of Object.entries(services)) {
+                composeAppConfig(service, `services.${name}`)
+            }
+        } catch (error) {
+            this.onDeploymentStateChanged({
+                steps: ['Parsing the template'],
+                error: error instanceof Error ? error.message : String(error),
+                currentStep: 0,
+            })
+            return
+        }
+
         // Dependency tree and sort apps using "createAppsArrayInOrder"
         // Call "createDeploymentStepPromises" for all apps.
         // populate steps as string[]
@@ -118,19 +140,6 @@ export default class OneClickAppDeployManager {
                 currentStep: 0,
             })
         } else {
-            // Validate every service before registering any apps or projects.
-            for (const app of apps) {
-                try {
-                    composeAppConfig(app.service)
-                } catch (error: any) {
-                    self.onDeploymentStateChanged({
-                        steps: ['Parsing the template'],
-                        error: `${app.appName}: ${error.message}`,
-                        currentStep: 0,
-                    })
-                    return
-                }
-            }
             // Check every app name before the first step, so a name that
             // registration refuses does not leave the earlier apps behind.
             for (let index = 0; index < apps.length; index++) {
