@@ -6,6 +6,7 @@ import {
 } from '../../models/IOneClickAppModels'
 import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
+import composeAppConfig from '../../utils/ComposeAppConfig'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
@@ -117,6 +118,19 @@ export default class OneClickAppDeployManager {
                 currentStep: 0,
             })
         } else {
+            // Validate every service before registering any apps or projects.
+            for (const app of apps) {
+                try {
+                    composeAppConfig(app.service)
+                } catch (error: any) {
+                    self.onDeploymentStateChanged({
+                        steps: ['Parsing the template'],
+                        error: `${app.appName}: ${error.message}`,
+                        currentStep: 0,
+                    })
+                    return
+                }
+            }
             // Check every app name before the first step, so a name that
             // registration refuses does not leave the earlier apps behind.
             for (let index = 0; index < apps.length; index++) {

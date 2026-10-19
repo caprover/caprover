@@ -133,6 +133,27 @@ describe('OneClickAppDeployManager', () => {
             ])
         })
 
+        test('unsupported options in a later service fail before any project or app is created', () => {
+            const onDeploymentStateChanged = jest.fn()
+            const invalidTemplate = JSON.parse(JSON.stringify(template))
+            invalidTemplate.services[
+                `${ONE_CLICK_APP_NAME_VAR_NAME}-worker`
+            ].ports = [{ published: 8080, target: 80, host_ip: '127.0.0.1' }]
+            new OneClickAppDeployManager(
+                {} as any,
+                {} as any,
+                onDeploymentStateChanged
+            ).startDeployProcess(invalidTemplate, [
+                { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+            ])
+            expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                steps: ['Parsing the template'],
+                error: 'my-app-worker: ports: option host_ip is not supported by CapRover',
+                currentStep: 0,
+            })
+            creates.forEach((create) => expect(create).not.toHaveBeenCalled())
+        })
+
         test('an error that is not about a name is thrown, not reported as one', () => {
             const manager = new OneClickAppDeployManager(
                 {} as any,
