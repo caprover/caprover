@@ -1,3 +1,4 @@
+import { isDockerVolumeNameAllowed } from '../datastore/AppsDataStore'
 import { IAppDef, IAppPort, IAppVolume } from '../models/AppDefinition'
 import { IDockerComposeService } from '../models/IOneClickAppModels'
 
@@ -62,13 +63,13 @@ export default function composeAppConfig(
         if (typeof entry === 'string') {
             const parts = entry.split(':')
             if (parts.length < 2 || parts.length > 3) {
-                throw new Error(`${entryPath}: expected source:target[:rw]`)
-            }
-            if (parts[2] && parts[2] !== 'rw') {
                 throw new Error(
-                    `${entryPath}: mount options are not supported by CapRover`
+                    `${entryPath}: expected source:target[:options]`
                 )
             }
+            // Existing One-Click templates use suffixes such as :ro. The
+            // legacy parser accepted and ignored them; preserve that behavior.
+            // Long-form options remain explicit about unsupported semantics.
             ;[source, target] = parts
             type = source.startsWith('/') ? 'bind' : 'volume'
         } else if (
@@ -106,7 +107,7 @@ export default function composeAppConfig(
         if (type === 'bind' && source.startsWith('/')) {
             return { hostPath: source, containerPath: target }
         }
-        if (type === 'volume' && /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(source)) {
+        if (type === 'volume' && isDockerVolumeNameAllowed(source)) {
             return { volumeName: source, containerPath: target }
         }
         throw new Error(

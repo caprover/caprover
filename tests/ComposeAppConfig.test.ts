@@ -134,7 +134,6 @@ ports:
         [{ volumes: { data: '/data' } }, 'volumes'],
         [{ volumes: ['/data'] }, 'volumes'],
         [{ volumes: ['./data:/data'] }, 'volumes'],
-        [{ volumes: ['data:/data:ro'] }, 'mount options'],
         [
             {
                 volumes: [
@@ -189,6 +188,20 @@ ports:
             composeAppConfig(service as IDockerComposeService)
         ).toThrow(message)
     })
+
+    test.each(['ro', 'rw', 'z', 'ro,z'])(
+        'preserves legacy short mount suffix behavior: %s',
+        (suffix) => {
+            expect(
+                composeAppConfig({
+                    volumes: [`data:/data:${suffix}`, `/srv:/files:${suffix}`],
+                }).volumes
+            ).toEqual([
+                { volumeName: 'data', containerPath: '/data' },
+                { hostPath: '/srv', containerPath: '/files' },
+            ])
+        }
+    )
 
     test.each([
         ['__proto__=value', 'constructor=other'],

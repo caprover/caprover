@@ -182,6 +182,44 @@ describe('OneClickAppDeployManager', () => {
             }
         )
 
+        test.each([
+            'data--backup',
+            'data..backup',
+            'data-',
+            'data_',
+            'data.',
+            'a'.repeat(256),
+        ])(
+            'rejects a later invalid named volume before creating resources: %s',
+            (volumeName) => {
+                for (const volume of [
+                    `${volumeName}:/data`,
+                    { type: 'volume', source: volumeName, target: '/data' },
+                ]) {
+                    const onDeploymentStateChanged = jest.fn()
+                    const invalidTemplate = JSON.parse(JSON.stringify(template))
+                    invalidTemplate.services[
+                        `${ONE_CLICK_APP_NAME_VAR_NAME}-worker`
+                    ].volumes = [volume]
+                    new OneClickAppDeployManager(
+                        {} as any,
+                        {} as any,
+                        onDeploymentStateChanged
+                    ).startDeployProcess(invalidTemplate, [
+                        { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                    ])
+                    expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                        steps: ['Parsing the template'],
+                        error: 'services.my-app-worker.volumes[0].source: use a named volume or an absolute bind source path',
+                        currentStep: 0,
+                    })
+                    creates.forEach((create) =>
+                        expect(create).not.toHaveBeenCalled()
+                    )
+                }
+            }
+        )
+
         test.each([null, [], 'invalid', 1, true])(
             'rejects a malformed later service before dependency sorting: %j',
             (service) => {

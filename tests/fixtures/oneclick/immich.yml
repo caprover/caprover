@@ -1,0 +1,101 @@
+captainVersion: 4
+
+services:
+    $$cap_appname:
+        caproverExtra:
+            dockerfileLines:
+                - FROM ghcr.io/immich-app/immich-server:$$cap_version
+            containerHttpPort: 2283
+        environment:
+            DB_PASSWORD: $$cap_app_db_pass
+            DB_USERNAME: $$cap_app_db_user
+            DB_DATABASE_NAME: $$cap_app_db_name
+            DB_HOSTNAME: srv-captain--$$cap_appname-db
+            REDIS_HOSTNAME: srv-captain--$$cap_appname-redis
+            UPLOAD_LOCATION: $$cap_app_upload_location
+            IMMICH_MACHINE_LEARNING_URL: http://srv-captain--$$cap_appname-machine-learning:3003
+        volumes:
+            - $$cap_app_upload_location:/usr/src/app/upload
+            - /etc/localtime:/etc/localtime:ro
+        depends_on:
+            - $$cap_appname-redis
+            - $$cap_appname-db
+
+    $$cap_appname-machine-learning:
+        caproverExtra:
+            notExposeAsWebApp: 'true'
+        image: ghcr.io/immich-app/immich-machine-learning:$$cap_version
+        environment:
+            DB_PASSWORD: $$cap_app_db_pass
+            DB_USERNAME: $$cap_app_db_user
+            DB_DATABASE_NAME: $$cap_app_db_name
+            DB_HOSTNAME: srv-captain--$$cap_appname-db
+            REDIS_HOSTNAME: srv-captain--$$cap_appname-redis
+            UPLOAD_LOCATION: $$cap_app_upload_location
+        volumes:
+            - $$cap_appname-model-cache:/cache
+
+    $$cap_appname-redis:
+        caproverExtra:
+            notExposeAsWebApp: 'true'
+        image: redis:$$cap_redis_version
+
+    $$cap_appname-db:
+        caproverExtra:
+            notExposeAsWebApp: 'true'
+        image: ghcr.io/immich-app/postgres:$$cap_postgres_version
+        environment:
+            POSTGRES_PASSWORD: $$cap_app_db_pass
+            POSTGRES_USER: $$cap_app_db_user
+            POSTGRES_DB: $$cap_app_db_name
+            POSTGRES_INITDB_ARGS: '--data-checksums'
+            PG_DATA: /var/lib/postgresql/data
+            DB_STORAGE_TYPE: $$cap_db_storage_type
+        volumes:
+            - $$cap_appname-db-data:/var/lib/postgresql/data
+
+caproverOneClickApp:
+    displayName: Immich
+    description: Open source (AGPLv3) Google Photos alternative. Backup your phone's photos and videos to your private server.
+    isOfficial: false
+    documentation: https://immich.app
+    instructions:
+        start: |-
+            Leave every default value as is for a working and simple installation. You can specify the (full) path to the directory you want to save your media at. The directory must exist beforehand. Immich can be used from a browser but kind of requires you to install the Immich app on your phone. If you have big media files (bigger than 500MB) that you want to backup, update your Nginx configuration file in caprover to increase your `client_max_body_size`.
+        end: |-
+            On your first visit it will ask for email and password to set up the admin user. Remember to change the default Nginx configuration and increasing the 'client_max_body_size' value if you expect to backup files bigger than 500MB. They will fail to upload if you don't.
+            Some upgrades take more and to preempt a restart go to **App Configs** and paste the following snippet into **Service Update Override**: `{ "TaskTemplate": { "RestartPolicy": { "Condition": "none", "MaxAttempts": "0" } } }`
+    variables:
+        - label: Immich version
+          id: $$cap_version
+          description: Check out their valid tags at https://github.com/immich-app/immich/releases
+          defaultValue: v2.5.2
+        - label: PostgreSQL database version
+          id: $$cap_postgres_version
+          description: Check valid tags at https://github.com/immich-app/base-images/pkgs/container/postgres
+          defaultValue: 14-vectorchord0.4.3-pgvectors0.2.0
+        - label: Redis version
+          id: $$cap_redis_version
+          description: Check out their valid tags at https://hub.docker.com/_/redis/tags
+          defaultValue: 8.4
+        - label: Database password
+          id: $$cap_app_db_pass
+          description: Password for accessing the database. A random one has been generated for you.
+          defaultValue: $$cap_gen_random_hex(32)
+        - label: Database username
+          id: $$cap_app_db_user
+          description: Username to access the database
+          defaultValue: 'immich'
+        - label: Database name
+          id: $$cap_app_db_name
+          description: A name for the database used by Immich
+          defaultValue: 'immich'
+        - label: Upload directory
+          id: $$cap_app_upload_location
+          description: Full path to the directory where you plan to store all your files. It should be created beforehand. If you want caprover to create it for you just leave the default 'immich-data'
+          defaultValue: immich-data
+        - label: Database storage type
+          id: $$cap_db_storage_type
+          description: Set to 'HDD' if your database is stored on a hard drive (not SSD). Leave empty for SSD (default).
+          defaultValue: ''
+          validRegex: /^(HDD|)$/
