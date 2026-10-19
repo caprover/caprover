@@ -18,8 +18,8 @@ The goal is to make the common use-cases exposed via simple controls on UI while
 2. Make sure your commit comments are self explanatory.
 3. Discuss the changes you want to make beforehand.
 4. Please avoid making opinion-based changes if it's just a code-style change - this includes, but not limited to, changes to how we work with promises, class inheritance and etc.
-5. To keep the process simple with just a few contributors, development happens directly on the master branch
-   and releases will be deployed on the same branch.
+5. Development targets `master`; production publishes from `release`. Follow
+   [RELEASING.md](RELEASING.md) for releases, hotfixes, and backmerges.
 6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
 
 ### Running backend dev environment
