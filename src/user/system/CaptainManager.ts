@@ -1,3 +1,4 @@
+import { statfs } from 'fs/promises'
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
@@ -769,6 +770,59 @@ class CaptainManager {
                 )
                 return self.loadBalancerManager.rePopulateNginxConfigFile()
             })
+    }
+
+    async getDiskUsage() {
+        const nodeId = this.getMyNodeId()
+        // This directory is bind-mounted from the host. statfs reports the
+        // entire backing filesystem, including space used outside /captain.
+        const [stats, nodes] = await Promise.all([
+            statfs(CaptainConstants.captainBaseDirectory),
+            this.getNodesInfo(),
+        ])
+        const node = nodes.find((entry) => entry.nodeId === nodeId)
+        if (!node || !node.hostname) {
+            throw new Error('Cannot identify the node hosting CapRover')
+        }
+
+        const totalBytes = stats.blocks * stats.bsize
+        const usedBytes = (stats.blocks - stats.bfree) * stats.bsize
+        // Available blocks can be negative when reserved space is consumed.
+        const availableBytes = Math.max(0, stats.bavail) * stats.bsize
+        if (
+            ![totalBytes, usedBytes, availableBytes].every(
+                Number.isSafeInteger
+            ) ||
+            totalBytes <= 0 ||
+            stats.bsize <= 0 ||
+            usedBytes < 0 ||
+            usedBytes > totalBytes ||
+            availableBytes > totalBytes - usedBytes
+        ) {
+            throw new Error('Invalid filesystem capacity statistics')
+        }
+
+        // Warn at 85% / 95% unavailable capacity, including reserved blocks.
+        const availableRatio = availableBytes / totalBytes
+        const severity: 'normal' | 'warning' | 'critical' =
+            availableRatio <= 0.05
+                ? 'critical'
+                : availableRatio <= 0.15
+                  ? 'warning'
+                  : 'normal'
+
+        return {
+            coverage: 'captain-node',
+            nodes: [
+                {
+                    nodeId,
+                    hostname: node.hostname,
+                    disks: [
+                        { totalBytes, usedBytes, availableBytes, severity },
+                    ],
+                },
+            ],
+        }
     }
 
     getNodesInfo() {
