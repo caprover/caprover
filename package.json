@@ -11,7 +11,8 @@
         "formatter": "prettier --check './src/**/*.ts'",
         "formatter-write": "prettier --write './src/**/*.ts'",
         "build": "echo 'RECOMPILING' && npx madge --circular --extensions ts ./ && rm -rf ./built && npx tsc && echo 'Build successful'",
-        "test": "jest"
+        "test": "jest",
+        "test:disk-docker": "node dev-scripts/test-disk-usage-bind-mount.js"
     },
     "dependencies": {
         "axios": "^1.10.0",

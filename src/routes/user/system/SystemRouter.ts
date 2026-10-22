@@ -209,6 +209,30 @@ router.post('/versionInfo/', function (req, res, next) {
         .catch(ApiStatusCodes.createCatcher(res))
 })
 
+router.get('/diskusage/', function (req, res, next) {
+    return Promise.resolve()
+        .then(function () {
+            return CaptainManager.get().getDiskUsage()
+        })
+        .then(function (data) {
+            const baseApi = new BaseApi(
+                ApiStatusCodes.STATUS_OK,
+                'Disk usage retrieved'
+            )
+            baseApi.data = data
+            res.send(baseApi)
+        })
+        .catch(function (error) {
+            Logger.e(error, 'Unable to retrieve disk usage')
+            res.send(
+                new BaseApi(
+                    ApiStatusCodes.STATUS_ERROR_GENERIC,
+                    'Unable to retrieve disk usage'
+                )
+            )
+        })
+})
+
 router.get('/diskcleanup/', function (req, res, next) {
     return Promise.resolve()
         .then(function () {

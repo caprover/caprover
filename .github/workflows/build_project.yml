@@ -23,3 +23,5 @@ jobs:
                   npm ci 
                   npm run build 
                   npm run test
+            - name: Verify disk usage through host bind mounts
+              run: npm run test:disk-docker
