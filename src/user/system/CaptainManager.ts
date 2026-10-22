@@ -4,6 +4,11 @@ import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DataStore from '../../datastore/DataStore'
 import DataStoreProvider from '../../datastore/DataStoreProvider'
 import DockerApi from '../../docker/DockerApi'
+import {
+    DiskUsageNode,
+    DiskUsageResponse,
+    DiskUsageSeverity,
+} from '../../models/DiskUsage'
 import { GoAccessInfo } from '../../models/GoAccessInfo'
 import { IRegistryInfo, IRegistryTypes } from '../../models/IRegistryInfo'
 import { NetDataInfo } from '../../models/NetDataInfo'
@@ -33,6 +38,8 @@ const DEBUG_SALT = 'THIS IS NOT A REAL CERTIFICATE'
 const MAX_FAIL_ALLOWED = 4
 const HEALTH_CHECK_INTERVAL = 20000 // ms
 const TIMEOUT_HEALTH_CHECK = 15000 // ms
+const CRITICAL_AVAILABLE_RATIO = 0.05
+const WARNING_AVAILABLE_RATIO = 0.15
 interface ISuccessCallback {
     (success: boolean): void
 }
@@ -48,6 +55,7 @@ class CaptainManager {
     private dockerRegistry: SelfHostedDockerRegistry
     private backupManager: BackupManager
     private myNodeId: string | undefined
+    private diskUsageNode?: Pick<DiskUsageNode, 'nodeId' | 'hostname'>
     private inited: boolean
     private waitUntilRestarted: boolean
     private captainSalt: string
@@ -772,17 +780,21 @@ class CaptainManager {
             })
     }
 
-    async getDiskUsage() {
+    async getDiskUsage(): Promise<DiskUsageResponse> {
         const nodeId = this.getMyNodeId()
         // This directory is bind-mounted from the host. statfs reports the
         // entire backing filesystem, including space used outside /captain.
-        const [stats, nodes] = await Promise.all([
-            statfs(CaptainConstants.captainBaseDirectory),
-            this.getNodesInfo(),
-        ])
-        const node = nodes.find((entry) => entry.nodeId === nodeId)
-        if (!node || !node.hostname) {
-            throw new Error('Cannot identify the node hosting CapRover')
+        // Separate Docker data or application filesystems are outside coverage.
+        const stats = await statfs(CaptainConstants.captainBaseDirectory)
+        // Reuse verified host identity for this process so transient Docker API
+        // failures do not prevent fresh disk readings after the initial lookup.
+        if (this.diskUsageNode?.nodeId !== nodeId) {
+            const nodes = await this.getNodesInfo()
+            const node = nodes.find((entry) => entry.nodeId === nodeId)
+            if (!node || !node.hostname) {
+                throw new Error('Cannot identify the node hosting CapRover')
+            }
+            this.diskUsageNode = { nodeId, hostname: node.hostname }
         }
 
         const totalBytes = stats.blocks * stats.bsize
@@ -804,10 +816,10 @@ class CaptainManager {
 
         // Warn at 85% / 95% unavailable capacity, including reserved blocks.
         const availableRatio = availableBytes / totalBytes
-        const severity: 'normal' | 'warning' | 'critical' =
-            availableRatio <= 0.05
+        const severity: DiskUsageSeverity =
+            availableRatio <= CRITICAL_AVAILABLE_RATIO
                 ? 'critical'
-                : availableRatio <= 0.15
+                : availableRatio <= WARNING_AVAILABLE_RATIO
                   ? 'warning'
                   : 'normal'
 
@@ -816,7 +828,7 @@ class CaptainManager {
             nodes: [
                 {
                     nodeId,
-                    hostname: node.hostname,
+                    hostname: this.diskUsageNode.hostname,
                     disks: [
                         { totalBytes, usedBytes, availableBytes, severity },
                     ],

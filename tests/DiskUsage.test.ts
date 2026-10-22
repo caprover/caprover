@@ -1,36 +1,91 @@
 import express = require('express')
+import type { StatsFs } from 'fs'
 import fs from 'fs/promises'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import ApiStatusCodes from '../src/api/ApiStatusCodes'
+import type {
+    DiskUsageResponse,
+    DiskUsageSeverity,
+} from '../src/models/DiskUsage'
+import type { ServerDockerInfo } from '../src/models/ServerDockerInfo'
 import UserRouter from '../src/routes/user/UserRouter'
 import Authenticator from '../src/user/Authenticator'
 import CaptainManager from '../src/user/system/CaptainManager'
 import CaptainConstants from '../src/utils/CaptainConstants'
 import Logger from '../src/utils/Logger'
 
+function filesystemStats(overrides: Partial<StatsFs> = {}): StatsFs {
+    return {
+        type: 0,
+        bsize: 4096,
+        frsize: 4096,
+        blocks: 1000,
+        bfree: 200,
+        bavail: 200,
+        files: 1000,
+        ffree: 500,
+        ...overrides,
+    }
+}
+
+function dockerNode(
+    overrides: Partial<ServerDockerInfo> = {}
+): ServerDockerInfo {
+    return {
+        nodeId: 'captain-node-id',
+        hostname: 'captain-host',
+        type: 'manager',
+        isLeader: false,
+        architecture: 'x86_64',
+        operatingSystem: 'linux',
+        nanoCpu: 1000000000,
+        memoryBytes: 1073741824,
+        dockerEngineVersion: '28.0.0',
+        ip: '127.0.0.1',
+        state: 'ready',
+        status: 'active',
+        ...overrides,
+    }
+}
+
+const normalUsage: DiskUsageResponse = {
+    coverage: 'captain-node',
+    nodes: [
+        {
+            nodeId: 'captain-node-id',
+            hostname: 'captain-host',
+            disks: [
+                {
+                    totalBytes: 4096000,
+                    usedBytes: 3276800,
+                    availableBytes: 819200,
+                    severity: 'normal',
+                },
+            ],
+        },
+    ],
+}
+
 describe('disk usage', () => {
     let manager: CaptainManager
-    let readStats: jest.SpyInstance
-    let getNodesInfo: jest.SpyInstance
+    let readStats: jest.SpiedFunction<typeof fs.statfs>
+    let getNodesInfo: jest.SpiedFunction<CaptainManager['getNodesInfo']>
 
     beforeEach(() => {
         manager = Object.create(CaptainManager.prototype) as CaptainManager
         jest.spyOn(manager, 'getMyNodeId').mockReturnValue('captain-node-id')
         getNodesInfo = jest.spyOn(manager, 'getNodesInfo').mockResolvedValue([
-            {
+            dockerNode({
                 nodeId: 'other-node-id',
                 hostname: 'other-host',
                 isLeader: true,
-            },
-            { nodeId: 'captain-node-id', hostname: 'captain-host' },
-        ] as any)
-        readStats = jest.spyOn(fs, 'statfs').mockResolvedValue({
-            bsize: 4096,
-            blocks: 1000,
-            bfree: 200,
-            bavail: 200,
-        } as any)
+            }),
+            dockerNode(),
+        ])
+        readStats = jest
+            .spyOn(fs, 'statfs')
+            .mockResolvedValue(filesystemStats())
         jest.spyOn(Logger, 'e').mockImplementation()
     })
 
@@ -45,27 +100,11 @@ describe('disk usage', () => {
             '/custom-captain'
         )
 
-        expect(await manager.getDiskUsage()).toEqual({
-            coverage: 'captain-node',
-            nodes: [
-                {
-                    nodeId: 'captain-node-id',
-                    hostname: 'captain-host',
-                    disks: [
-                        {
-                            totalBytes: 4096000,
-                            usedBytes: 3276800,
-                            availableBytes: 819200,
-                            severity: 'normal',
-                        },
-                    ],
-                },
-            ],
-        })
+        expect(await manager.getDiskUsage()).toEqual(normalUsage)
         expect(readStats).toHaveBeenCalledWith('/custom-captain')
     })
 
-    test.each([
+    test.each<[number, DiskUsageSeverity]>([
         [151, 'normal'],
         [150, 'warning'],
         [51, 'warning'],
@@ -73,12 +112,7 @@ describe('disk usage', () => {
         [0, 'critical'],
         [-10, 'critical'],
     ])('classifies %i available blocks as %s', async (bavail, severity) => {
-        readStats.mockResolvedValue({
-            bsize: 4096,
-            blocks: 1000,
-            bfree: 200,
-            bavail,
-        })
+        readStats.mockResolvedValue(filesystemStats({ bavail }))
 
         const data = await manager.getDiskUsage()
         expect(data.nodes[0].disks[0]).toEqual({
@@ -89,13 +123,13 @@ describe('disk usage', () => {
         })
     })
 
-    test.each([
+    test.each<Partial<StatsFs>>([
         { bsize: 4096, blocks: 0, bfree: 0, bavail: 0 },
         { bsize: 4096, blocks: 1000, bfree: 1001, bavail: 100 },
         { bsize: 4096, blocks: 1000, bfree: 200, bavail: 201 },
         { bsize: 4096, blocks: NaN, bfree: 200, bavail: 100 },
     ])('rejects invalid capacity statistics: %j', async (stats) => {
-        readStats.mockResolvedValue(stats)
+        readStats.mockResolvedValue(filesystemStats(stats))
         await expect(manager.getDiskUsage()).rejects.toThrow(
             'Invalid filesystem capacity statistics'
         )
@@ -108,6 +142,45 @@ describe('disk usage', () => {
         )
     })
 
+    test('keeps reading fresh capacity during Docker failures after identity is known', async () => {
+        await manager.getDiskUsage()
+        getNodesInfo.mockRejectedValue(new Error('Docker unavailable'))
+        readStats.mockResolvedValue(filesystemStats({ bavail: 50 }))
+
+        const data = await manager.getDiskUsage()
+        expect(data.nodes[0]).toMatchObject({
+            nodeId: 'captain-node-id',
+            hostname: 'captain-host',
+            disks: [{ availableBytes: 204800, severity: 'critical' }],
+        })
+        expect(getNodesInfo).toHaveBeenCalledTimes(1)
+        expect(readStats).toHaveBeenCalledTimes(2)
+    })
+
+    test('retries identity discovery after an initial Docker failure', async () => {
+        getNodesInfo.mockRejectedValueOnce(new Error('Docker unavailable'))
+        await expect(manager.getDiskUsage()).rejects.toThrow(
+            'Docker unavailable'
+        )
+        expect(await manager.getDiskUsage()).toEqual(normalUsage)
+        expect(getNodesInfo).toHaveBeenCalledTimes(2)
+    })
+
+    test('refreshes cached identity when the hosting node changes', async () => {
+        await manager.getDiskUsage()
+        jest.spyOn(manager, 'getMyNodeId').mockReturnValue('new-node-id')
+        getNodesInfo.mockResolvedValue([
+            dockerNode({ nodeId: 'new-node-id', hostname: 'new-host' }),
+        ])
+
+        const data = await manager.getDiskUsage()
+        expect(data.nodes[0]).toMatchObject({
+            nodeId: 'new-node-id',
+            hostname: 'new-host',
+        })
+        expect(getNodesInfo).toHaveBeenCalledTimes(2)
+    })
+
     describe('GET /api/v2/user/system/diskusage', () => {
         let server: Server
         let url: string
@@ -116,9 +189,16 @@ describe('disk usage', () => {
         beforeEach(async () => {
             authorized = true
             jest.spyOn(CaptainManager, 'get').mockReturnValue(manager)
-            jest.spyOn(Authenticator, 'getAuthenticator').mockReturnValue({
-                decodeAuthToken: jest.fn().mockResolvedValue(undefined),
-            } as any)
+            const authenticator = new Authenticator(
+                'disk-usage-test',
+                CaptainConstants.rootNameSpace
+            )
+            jest.spyOn(authenticator, 'decodeAuthToken').mockRejectedValue(
+                new Error('Missing auth token')
+            )
+            jest.spyOn(Authenticator, 'getAuthenticator').mockReturnValue(
+                authenticator
+            )
 
             const app = express()
             app.use((_req, res, next) => {
@@ -152,7 +232,7 @@ describe('disk usage', () => {
             expect(await response.json()).toEqual({
                 status: ApiStatusCodes.STATUS_OK,
                 description: 'Disk usage retrieved',
-                data: await manager.getDiskUsage(),
+                data: normalUsage,
             })
             expect(readStats).toHaveBeenCalledWith(
                 CaptainConstants.captainBaseDirectory
