@@ -12,6 +12,7 @@ import {
     RepoInfo,
 } from '../models/AppDefinition'
 import { DockerAuthObj } from '../models/DockerAuthObj'
+import { AppRuntimeDetails, AppsRuntimeResponse } from '../models/AppRuntime'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
@@ -888,6 +889,70 @@ class ServiceManager {
             isBuildFailed:
                 self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
         }
+    }
+
+    getAppsRuntime(): Promise<AppsRuntimeResponse> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const dockerApi = this.dockerApi
+        let appNames: string[]
+
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+                appNames = Object.keys(apps)
+                return dockerApi.getServiceRuntimes(
+                    appNames.map(function (appName) {
+                        return appsDataStore.getServiceName(
+                            appName,
+                            !!apps[appName].isLegacyAppName
+                        )
+                    })
+                )
+            })
+            .then(function (runtimes) {
+                return {
+                    apps: runtimes.map(function (runtime, index) {
+                        return {
+                            appName: appNames[index],
+                            status: runtime.status,
+                            desiredInstances: runtime.desiredInstances,
+                            runningInstances: runtime.runningInstances,
+                            currentTasks: runtime.currentTasks,
+                            latestFailure: runtime.latestFailure,
+                            error: runtime.error,
+                        }
+                    }),
+                }
+            })
+    }
+
+    getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const dockerApi = this.dockerApi
+
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+                if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'App not found'
+                    )
+                }
+                const app = apps[appName]
+                const serviceName = appsDataStore.getServiceName(
+                    appName,
+                    !!app.isLegacyAppName
+                )
+                return dockerApi.getServiceRuntimes([serviceName])
+            })
+            .then(function (runtimes) {
+                return { appName, ...runtimes[0] }
+            })
     }
 
     logBuildFailed(appName: string, error: string) {

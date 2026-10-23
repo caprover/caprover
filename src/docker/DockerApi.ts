@@ -16,6 +16,13 @@ import {
     DockerJsonMessage,
     DockerJsonStreamParser,
 } from './DockerBuildOutput'
+import {
+    DockerRuntimeNode,
+    DockerRuntimeTask,
+    getServiceRuntime,
+    ServiceRuntime,
+    unavailableServiceRuntime,
+} from './ServiceRuntime'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import {
     IDockerApiPort,
@@ -225,6 +232,88 @@ class DockerApi {
             })
             .then(function (services) {
                 return (services || []) as unknown as DockerService[]
+            })
+    }
+
+    getServiceRuntimes(serviceNames: string[]): Promise<ServiceRuntime[]> {
+        const self = this
+        if (!serviceNames.length) return Promise.resolve([])
+
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.listServices({
+                    filters: { name: serviceNames },
+                    status: true,
+                })
+            })
+            .then(function (services) {
+                // Docker's name filter can match prefixes. Match exact names
+                // before collecting tasks so another app's state cannot leak.
+                const ownedServices = services.filter(function (service) {
+                    return serviceNames.includes(service.Spec?.Name || '')
+                })
+                if (!ownedServices.length) {
+                    return {
+                        ownedServices,
+                        tasks: [] as DockerRuntimeTask[],
+                        nodes: [] as DockerRuntimeNode[],
+                    }
+                }
+
+                const tasksPromise: Promise<DockerRuntimeTask[]> =
+                    self.dockerode.listTasks({
+                        filters: {
+                            service: ownedServices.map(function (service) {
+                                return service.ID
+                            }),
+                        },
+                    })
+                const nodesPromise: Promise<DockerRuntimeNode[]> =
+                    self.dockerode.listNodes().catch(function (error) {
+                        Logger.e(
+                            error,
+                            'Unable to retrieve Docker nodes for app runtime'
+                        )
+                        return []
+                    })
+
+                return Promise.all([tasksPromise, nodesPromise]).then(
+                    function ([tasks, nodes]) {
+                        return { ownedServices, tasks, nodes }
+                    }
+                )
+            })
+            .then(function ({ ownedServices, tasks, nodes }) {
+                return serviceNames.map(function (serviceName) {
+                    const service = ownedServices.find(function (service) {
+                        return service.Spec?.Name === serviceName
+                    })
+                    if (!service) {
+                        return unavailableServiceRuntime('Service not found')
+                    }
+                    try {
+                        return getServiceRuntime(
+                            service,
+                            tasks.filter(function (task) {
+                                return task.ServiceID === service.ID
+                            }),
+                            nodes
+                        )
+                    } catch (error) {
+                        Logger.e(error, 'Unable to retrieve app runtime')
+                        return unavailableServiceRuntime(
+                            'Unable to retrieve app runtime'
+                        )
+                    }
+                })
+            })
+            .catch(function (error) {
+                Logger.e(error, 'Unable to retrieve app runtime')
+                return serviceNames.map(function () {
+                    return unavailableServiceRuntime(
+                        'Unable to retrieve app runtime'
+                    )
+                })
             })
     }
 
