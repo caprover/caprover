@@ -1,5 +1,5 @@
 # Build stage runs on the host platform to avoid QEMU SIGILL issues with Node.js 24 on arm64
-FROM --platform=$BUILDPLATFORM node:24-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
 RUN apk add --update --no-cache make gcc g++ git curl openssl
 
 WORKDIR /usr/src/app
@@ -14,7 +14,7 @@ RUN npm ci && \
      printf '{"publishedNameOnDockerHub":"%s","version":"%s"}\n' "$EDGE_IMAGE_NAME" "$EDGE_VERSION" > ./config-override.json
 
 # Final stage uses the target platform's Node.js runtime
-FROM node:24-alpine
+FROM node:24.22.1-alpine
 RUN apk add --update --no-cache git curl openssl openssh
 
 WORKDIR /usr/src/app
