@@ -12,17 +12,17 @@ import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
 import { DockerSecret } from '../models/DockerSecret'
 import DockerService from '../models/DockerService'
 import {
+    DockerBuildOutputDecoder,
+    DockerJsonMessage,
+    DockerJsonStreamParser,
+} from './DockerBuildOutput'
+import {
     DockerRuntimeNode,
     DockerRuntimeTask,
     getServiceRuntime,
     ServiceRuntime,
     unavailableServiceRuntime,
 } from './ServiceRuntime'
-import {
-    DockerBuildOutputDecoder,
-    DockerJsonMessage,
-    DockerJsonStreamParser,
-} from './DockerBuildOutput'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import {
     IDockerApiPort,
@@ -239,10 +239,12 @@ class DockerApi {
         const self = this
         if (!serviceNames.length) return Promise.resolve([])
 
-        return self.dockerode
-            .listServices({
-                filters: { name: serviceNames },
-                status: true,
+        return Promise.resolve()
+            .then(function () {
+                return self.dockerode.listServices({
+                    filters: { name: serviceNames },
+                    status: true,
+                })
             })
             .then(function (services) {
                 // Docker's name filter can match prefixes. Match exact names

@@ -1,10 +1,6 @@
 import type Docker = require('dockerode')
-import {
-    AppRuntimeDetails,
-    AppRuntimeStatus,
-    RuntimeTask,
-    TaskState,
-} from '../models/AppRuntime'
+import { AppRuntimeStatus, TaskState } from '../models/AppRuntime'
+import type { AppRuntimeDetails, RuntimeTask } from '../models/AppRuntime'
 
 // dockerode's task/node list methods return any[]. Describe only the fields
 // consumed here; raw Docker objects never become part of the public response.

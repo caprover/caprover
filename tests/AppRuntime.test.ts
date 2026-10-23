@@ -1,17 +1,18 @@
 import configstore = require('configstore')
 import express = require('express')
-import { createServer, Server } from 'node:http'
-import { AddressInfo } from 'node:net'
+import { createServer } from 'node:http'
+import type { Server } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import ApiStatusCodes from '../src/api/ApiStatusCodes'
 import AppsDataStore from '../src/datastore/AppsDataStore'
 import DockerApi from '../src/docker/DockerApi'
-import {
+import { getServiceRuntime } from '../src/docker/ServiceRuntime'
+import type {
     DockerRuntimeNode,
     DockerRuntimeService,
     DockerRuntimeTask,
-    getServiceRuntime,
 } from '../src/docker/ServiceRuntime'
-import { IAllAppDefinitions, IAppDef } from '../src/models/AppDefinition'
+import type { IAllAppDefinitions, IAppDef } from '../src/models/AppDefinition'
 import { AppRuntimeStatus, TaskState } from '../src/models/AppRuntime'
 import UserRouter from '../src/routes/user/UserRouter'
 import Authenticator from '../src/user/Authenticator'

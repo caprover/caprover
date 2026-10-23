@@ -894,11 +894,15 @@ class ServiceManager {
     getAppsRuntime(): Promise<AppsRuntimeResponse> {
         const appsDataStore = this.dataStore.getAppsDataStore()
         const dockerApi = this.dockerApi
+        let appNames: string[]
 
-        return appsDataStore.getAppDefinitions().then(function (apps) {
-            const appNames = Object.keys(apps)
-            return dockerApi
-                .getServiceRuntimes(
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+                appNames = Object.keys(apps)
+                return dockerApi.getServiceRuntimes(
                     appNames.map(function (appName) {
                         return appsDataStore.getServiceName(
                             appName,
@@ -906,26 +910,32 @@ class ServiceManager {
                         )
                     })
                 )
-                .then(function (runtimes) {
-                    return {
-                        apps: runtimes.map(function (runtime, index) {
-                            const { taskHistory, ...summary } = runtime
-                            return {
-                                appName: appNames[index],
-                                ...summary,
-                            }
-                        }),
-                    }
-                })
-        })
+            })
+            .then(function (runtimes) {
+                return {
+                    apps: runtimes.map(function (runtime, index) {
+                        return {
+                            appName: appNames[index],
+                            status: runtime.status,
+                            desiredInstances: runtime.desiredInstances,
+                            runningInstances: runtime.runningInstances,
+                            currentTasks: runtime.currentTasks,
+                            latestFailure: runtime.latestFailure,
+                            error: runtime.error,
+                        }
+                    }),
+                }
+            })
     }
 
     getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
         const appsDataStore = this.dataStore.getAppsDataStore()
         const dockerApi = this.dockerApi
 
-        return appsDataStore
-            .getAppDefinitions()
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
             .then(function (apps) {
                 if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
                     throw ApiStatusCodes.createError(
