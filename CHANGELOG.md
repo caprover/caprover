@@ -4,6 +4,10 @@ Available as `edge`
 
 - TBD
 
+## [1.15.5] - 2026-10-23
+
+- Security: Updated Node.js to 22.23.4 to address CVE-2026-111497
+
 ## [1.15.4] - 2026-08-30
 
 - Fixed: Backup downloads opening a Not Found page [PR-232](https://github.com/caprover/caprover-frontend/pull/232)
