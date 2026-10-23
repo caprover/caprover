@@ -27,6 +27,12 @@ For releases, hotfixes, and backmerges, follow [RELEASING.md](RELEASING.md).
   and tests. Independently outline the simplest complete implementation using existing patterns.
 - Match local conventions for naming, file structure, promises, error handling, and dependency
   ownership. If a similar feature already exists, follow its pattern unless a change is justified.
+- Treat the closest analogous code as the primary style reference. A pattern used elsewhere in the
+  repository does not justify changing the established style of the class or feature being edited.
+  Match control-flow shape as well as syntax, including promise chaining, dependency capture,
+  callback style, and where validation occurs.
+- For each new file, identify an existing file with the same responsibility and mirror its directory
+  placement, imports, route shape, naming, and test structure. Do not invent a parallel convention.
 - Favor **KISS, YAGNI, and proportionate DRY**. Add abstractions only for concrete reuse or a
   clear reduction in complexity. Avoid one-off wrappers, generic frameworks, and redundant state.
 - Keep responsibilities in their established layers. Avoid routing routine work through unrelated
@@ -38,6 +44,8 @@ For releases, hotfixes, and backmerges, follow [RELEASING.md](RELEASING.md).
   and one-click templates; update every affected consumer and relevant test.
 - Use existing TypeScript models and explicit types at API and domain boundaries. Avoid `any`,
   unsafe casts, speculative generics, and ambiguous untyped return contracts.
+- Map public API responses deliberately when summary and detail shapes differ. Avoid broad object
+  spreads that can expose a future internal or detail-only field through another endpoint.
 - Handle asynchronous failures, concurrent operations, retries, and legacy inputs deliberately.
   Avoid arbitrary sleeps as synchronization; verify actual Docker/control-plane outcomes.
 
@@ -63,6 +71,14 @@ For releases, hotfixes, and backmerges, follow [RELEASING.md](RELEASING.md).
    Separate merge blockers from optional improvements; avoid opinion-only refactoring.
 5. Report tests and runtime checks actually performed. Mocked tests alone do not establish
    correctness of host filesystem, Docker, or multi-node behavior.
+6. After implementation, review the complete final diff again as an unfamiliar reviewer. Do not
+   rely on the implementation plan or an earlier incremental review. Re-open the nearest analogous
+   files and compare layering, call direction, promise style, control flow, names, imports, response
+   construction, and tests.
+7. Inspect `git status --short` as part of the final review so new and untracked files receive the
+   same scrutiny as modified files. Resolve every unexplained style deviation before handoff.
+8. Treat formatter, lint, build, and test success as correctness signals, not proof of code-style
+   consistency. Report any intentional difference from neighboring code and its reason.
 
 ## Validation
 
@@ -77,3 +93,7 @@ npm test -- --runInBand
 ```
 
 Run the narrowest relevant Jest test while iterating, then the full suite before handoff. `npm run build` includes TypeScript compilation and circular-dependency detection.
+
+The repository formatter and lint scripts currently cover `src/**/*.ts`. Explicitly run Prettier
+and ESLint on changed TypeScript files outside `src`, especially new tests. Run `git diff --check`
+and inspect `git status --short` before handoff.
