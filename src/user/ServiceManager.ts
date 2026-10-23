@@ -891,42 +891,58 @@ class ServiceManager {
         }
     }
 
-    async getAppsRuntime(): Promise<AppsRuntimeResponse> {
+    getAppsRuntime(): Promise<AppsRuntimeResponse> {
         const appsDataStore = this.dataStore.getAppsDataStore()
-        const apps = await appsDataStore.getAppDefinitions()
-        const appNames = Object.keys(apps)
-        const runtimes = await this.dockerApi.getServiceRuntimes(
-            appNames.map((appName) =>
-                appsDataStore.getServiceName(
-                    appName,
-                    !!apps[appName].isLegacyAppName
+        const dockerApi = this.dockerApi
+
+        return appsDataStore.getAppDefinitions().then(function (apps) {
+            const appNames = Object.keys(apps)
+            return dockerApi
+                .getServiceRuntimes(
+                    appNames.map(function (appName) {
+                        return appsDataStore.getServiceName(
+                            appName,
+                            !!apps[appName].isLegacyAppName
+                        )
+                    })
                 )
-            )
-        )
-        return {
-            apps: runtimes.map(({ taskHistory, ...runtime }, index) => ({
-                appName: appNames[index],
-                ...runtime,
-            })),
-        }
+                .then(function (runtimes) {
+                    return {
+                        apps: runtimes.map(function (runtime, index) {
+                            const { taskHistory, ...summary } = runtime
+                            return {
+                                appName: appNames[index],
+                                ...summary,
+                            }
+                        }),
+                    }
+                })
+        })
     }
 
-    async getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
+    getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
         const appsDataStore = this.dataStore.getAppsDataStore()
-        const apps = await appsDataStore.getAppDefinitions()
-        if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
-            throw ApiStatusCodes.createError(
-                ApiStatusCodes.NOT_FOUND,
-                'App not found'
-            )
-        }
-        const app = apps[appName]
-        const serviceName = appsDataStore.getServiceName(
-            appName,
-            !!app.isLegacyAppName
-        )
-        const [runtime] = await this.dockerApi.getServiceRuntimes([serviceName])
-        return { appName, ...runtime }
+        const dockerApi = this.dockerApi
+
+        return appsDataStore
+            .getAppDefinitions()
+            .then(function (apps) {
+                if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'App not found'
+                    )
+                }
+                const app = apps[appName]
+                const serviceName = appsDataStore.getServiceName(
+                    appName,
+                    !!app.isLegacyAppName
+                )
+                return dockerApi.getServiceRuntimes([serviceName])
+            })
+            .then(function (runtimes) {
+                return { appName, ...runtimes[0] }
+            })
     }
 
     logBuildFailed(appName: string, error: string) {
