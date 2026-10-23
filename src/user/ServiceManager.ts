@@ -12,6 +12,7 @@ import {
     RepoInfo,
 } from '../models/AppDefinition'
 import { DockerAuthObj } from '../models/DockerAuthObj'
+import { AppRuntimeDetails, AppsRuntimeResponse } from '../models/AppRuntime'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
@@ -888,6 +889,44 @@ class ServiceManager {
             isBuildFailed:
                 self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
         }
+    }
+
+    async getAppsRuntime(): Promise<AppsRuntimeResponse> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const apps = await appsDataStore.getAppDefinitions()
+        const appNames = Object.keys(apps)
+        const runtimes = await this.dockerApi.getServiceRuntimes(
+            appNames.map((appName) =>
+                appsDataStore.getServiceName(
+                    appName,
+                    !!apps[appName].isLegacyAppName
+                )
+            )
+        )
+        return {
+            apps: runtimes.map(({ taskHistory, ...runtime }, index) => ({
+                appName: appNames[index],
+                ...runtime,
+            })),
+        }
+    }
+
+    async getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const apps = await appsDataStore.getAppDefinitions()
+        if (!Object.hasOwn(apps, appName)) {
+            throw ApiStatusCodes.createError(
+                ApiStatusCodes.NOT_FOUND,
+                'App not found'
+            )
+        }
+        const app = apps[appName]
+        const serviceName = appsDataStore.getServiceName(
+            appName,
+            !!app.isLegacyAppName
+        )
+        const [runtime] = await this.dockerApi.getServiceRuntimes([serviceName])
+        return { appName, ...runtime }
     }
 
     logBuildFailed(appName: string, error: string) {

@@ -12,6 +12,13 @@ import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
 import { DockerSecret } from '../models/DockerSecret'
 import DockerService from '../models/DockerService'
 import {
+    DockerRuntimeNode,
+    DockerRuntimeTask,
+    getServiceRuntime,
+    ServiceRuntime,
+    unavailableServiceRuntime,
+} from './ServiceRuntime'
+import {
     DockerBuildOutputDecoder,
     DockerJsonMessage,
     DockerJsonStreamParser,
@@ -226,6 +233,67 @@ class DockerApi {
             .then(function (services) {
                 return (services || []) as unknown as DockerService[]
             })
+    }
+
+    async getServiceRuntimes(
+        serviceNames: string[]
+    ): Promise<ServiceRuntime[]> {
+        if (!serviceNames.length) return []
+
+        try {
+            const services = await this.dockerode.listServices({
+                filters: { name: serviceNames },
+                status: true,
+            })
+            // Docker's name filter can match prefixes. Match exact names before
+            // collecting tasks so another app's state cannot leak into a result.
+            const ownedServices = services.filter((service) =>
+                serviceNames.includes(service.Spec?.Name || '')
+            )
+            const tasksPromise: Promise<DockerRuntimeTask[]> =
+                ownedServices.length
+                    ? this.dockerode.listTasks({
+                          filters: {
+                              service: ownedServices.map(
+                                  (service) => service.ID
+                              ),
+                          },
+                      })
+                    : Promise.resolve([])
+            const nodesPromise: Promise<DockerRuntimeNode[]> =
+                ownedServices.length
+                    ? this.dockerode.listNodes()
+                    : Promise.resolve([])
+            const [tasks, nodes] = await Promise.all([
+                tasksPromise,
+                nodesPromise,
+            ])
+
+            return serviceNames.map((serviceName) => {
+                const service = ownedServices.find(
+                    (service) => service.Spec?.Name === serviceName
+                )
+                if (!service)
+                    return unavailableServiceRuntime('Service not found')
+                try {
+                    return getServiceRuntime(
+                        service,
+                        tasks.filter((task) => task.ServiceID === service.ID),
+                        nodes
+                    )
+                } catch (error) {
+                    Logger.e(error, 'Unable to retrieve app runtime')
+                    return unavailableServiceRuntime(
+                        'Unable to retrieve app runtime'
+                    )
+                }
+            })
+        } catch (error) {
+            Logger.e(error, 'Unable to retrieve app runtime')
+            return serviceNames.map(() =>
+                unavailableServiceRuntime('Unable to retrieve app runtime')
+            )
+        }
     }
 
     createJoinCommand(
