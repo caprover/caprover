@@ -37,7 +37,7 @@ export type DockerRuntimeService = Pick<
 >
 
 const HISTORY_LIMIT = 10
-const terminalStates = new Set<TaskState>([
+const historicalStates = new Set<TaskState>([
     TaskState.Complete,
     TaskState.Shutdown,
     TaskState.Failed,
@@ -118,10 +118,10 @@ export function getServiceRuntime(
         }
         return { task, runtime }
     })
-    // Retain overlapping active tasks during updates. Terminal attempts belong
+    // Retain overlapping active tasks during updates. Inactive attempts belong
     // in history, even when Docker has not scheduled a replacement yet.
     const current = entries.filter(
-        ({ runtime }) => !terminalStates.has(runtime.state)
+        ({ runtime }) => !historicalStates.has(runtime.state)
     )
     const runningInstances = new Set(
         current
@@ -165,7 +165,7 @@ export function getServiceRuntime(
         latestFailure,
         error: null,
         taskHistory: byStateTime
-            .filter(({ runtime }) => terminalStates.has(runtime.state))
+            .filter(({ runtime }) => historicalStates.has(runtime.state))
             .slice(0, HISTORY_LIMIT)
             .map(({ runtime }) => runtime),
     }

@@ -1,7 +1,7 @@
 import AppDataRouter from './appdata/AppDataRouter'
 import AppDefinitionRouter from './appdefinition/AppDefinitionRouter'
+import RuntimeRouter from './runtime/RuntimeRouter'
 import WebhooksRouter from './webhooks/WebhooksRouter'
-import RuntimeRouter from './RuntimeRouter'
 
 import express = require('express')
 

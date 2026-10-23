@@ -914,7 +914,7 @@ class ServiceManager {
     async getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
         const appsDataStore = this.dataStore.getAppsDataStore()
         const apps = await appsDataStore.getAppDefinitions()
-        if (!Object.hasOwn(apps, appName)) {
+        if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.NOT_FOUND,
                 'App not found'
