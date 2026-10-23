@@ -7,6 +7,7 @@ export enum AppRuntimeStatus {
 
 export enum TaskState {
     New = 'new',
+    Allocated = 'allocated',
     Pending = 'pending',
     Assigned = 'assigned',
     Accepted = 'accepted',

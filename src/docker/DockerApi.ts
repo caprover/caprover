@@ -262,7 +262,13 @@ class DockerApi {
                     : Promise.resolve([])
             const nodesPromise: Promise<DockerRuntimeNode[]> =
                 ownedServices.length
-                    ? this.dockerode.listNodes()
+                    ? this.dockerode.listNodes().catch((error) => {
+                          Logger.e(
+                              error,
+                              'Unable to retrieve Docker nodes for app runtime'
+                          )
+                          return []
+                      })
                     : Promise.resolve([])
             const [tasks, nodes] = await Promise.all([
                 tasksPromise,

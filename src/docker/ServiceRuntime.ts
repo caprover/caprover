@@ -139,7 +139,9 @@ export function getServiceRuntime(
             runtime.state === TaskState.Rejected ||
             runtime.state === TaskState.Orphaned ||
             !!runtime.error ||
-            !!runtime.exitCode
+            (!!runtime.exitCode &&
+                runtime.state !== TaskState.Shutdown &&
+                runtime.state !== TaskState.Complete)
     )?.runtime
     const latestFailure = failure
         ? {

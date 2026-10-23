@@ -114,6 +114,19 @@ describe('service runtime normalization', () => {
         )
     })
 
+    test('keeps an allocated task visible while it is being scheduled', () => {
+        const result = getServiceRuntime(
+            service(),
+            [task({ Status: { State: TaskState.Allocated } })],
+            nodes
+        )
+        expect(result).toMatchObject({
+            status: AppRuntimeStatus.Degraded,
+            runningInstances: 0,
+            currentTasks: [{ state: TaskState.Allocated }],
+        })
+    })
+
     test('keeps overlapping rollout tasks visible without counting a slot twice', () => {
         const tasks = [
             task({ ID: 'old', DesiredState: TaskState.Shutdown }),
@@ -187,6 +200,21 @@ describe('service runtime normalization', () => {
         expect(down.runningInstances).toBe(0)
         expect(down.status).toBe(AppRuntimeStatus.Degraded)
         expect(down.taskHistory).toHaveLength(1)
+    })
+
+    test('does not report a normally stopped task as a failure', () => {
+        const stopped = task({
+            ID: 'stopped',
+            DesiredState: TaskState.Shutdown,
+            Status: {
+                State: TaskState.Shutdown,
+                Timestamp: '2026-10-23T00:59:45Z',
+                ContainerStatus: { ExitCode: 143 },
+            },
+        })
+        const result = getServiceRuntime(service(), [stopped, task()], nodes)
+        expect(result.status).toBe(AppRuntimeStatus.Running)
+        expect(result.latestFailure).toBeNull()
     })
 
     test('caps history at ten total across slots, newest first, including shutdowns', () => {
@@ -450,7 +478,7 @@ describe('authenticated runtime routes through the real Docker client', () => {
         expect(requests).toHaveLength(3)
     })
 
-    test.each(['services', 'tasks', 'nodes'])(
+    test.each(['services', 'tasks'])(
         'returns unavailable data on a %s lookup failure and recovers',
         async (resource) => {
             engineFailure = resource
@@ -471,6 +499,19 @@ describe('authenticated runtime routes through the real Docker client', () => {
             expect(recovered.data.apps[0].status).toBe(AppRuntimeStatus.Running)
         }
     )
+
+    test('keeps runtime data when node-name lookup fails', async () => {
+        engineFailure = 'nodes'
+        const body = await (await fetch(url)).json()
+        expect(body.data.apps[0]).toMatchObject({
+            appName: 'website',
+            status: AppRuntimeStatus.Running,
+            desiredInstances: 1,
+            runningInstances: 1,
+            currentTasks: [{ nodeId: 'node-1', nodeName: null }],
+            error: null,
+        })
+    })
 
     test('a missing Docker service does not hide the other apps', async () => {
         definitions.missing = appDefinition()
