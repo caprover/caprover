@@ -140,7 +140,7 @@ describe('VersionManager', () => {
         expect(mockedGetText).not.toHaveBeenCalled()
     })
 
-    test('includes the optional minimum Docker API version from the official server', async () => {
+    test('passes through the optional Docker API minimum', async () => {
         CaptainConstants.configs.publishedNameOnDockerHub = 'caprover/caprover'
         mockedAxios.get.mockResolvedValue({
             data: {
@@ -169,7 +169,9 @@ describe('VersionManager', () => {
             updateService: jest.fn(),
         }
         const registryHelper = {
-            getDockerAuthObjectForImageName: jest.fn().mockResolvedValue(undefined),
+            getDockerAuthObjectForImageName: jest
+                .fn()
+                .mockResolvedValue(undefined),
         } as unknown as DockerRegistryHelper
 
         function mockVersionInfo(
@@ -191,7 +193,8 @@ describe('VersionManager', () => {
         }
 
         beforeEach(() => {
-            CaptainConstants.configs.publishedNameOnDockerHub = 'caprover/caprover'
+            CaptainConstants.configs.publishedNameOnDockerHub =
+                'caprover/caprover'
             CaptainConstants.configs.version = '1.15.5'
             ;(DockerApi.get as jest.Mock).mockReturnValue(dockerApiMock)
             dockerApiMock.getDockerVersion
@@ -202,7 +205,7 @@ describe('VersionManager', () => {
             mockedAxios.get.mockReset()
         })
 
-        test('rejects incompatible updates before pulling the image', async () => {
+        test('rejects incompatible updates before pulling', async () => {
             mockVersionInfo('v1.46')
 
             await expect(
@@ -214,9 +217,11 @@ describe('VersionManager', () => {
             expect(dockerApiMock.updateService).not.toHaveBeenCalled()
         })
 
-        test('allows compatible updates using numeric API version comparison', async () => {
+        test('compares Docker API versions numerically', async () => {
             mockVersionInfo('v1.46')
-            dockerApiMock.getDockerVersion.mockResolvedValue({ ApiVersion: '1.100' })
+            dockerApiMock.getDockerVersion.mockResolvedValue({
+                ApiVersion: '1.100',
+            })
 
             await expect(
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
@@ -225,7 +230,7 @@ describe('VersionManager', () => {
             expect(dockerApiMock.updateService).toHaveBeenCalledTimes(1)
         })
 
-        test('keeps existing behavior when the minimum requirement is null', async () => {
+        test('allows updates with a null API requirement', async () => {
             mockVersionInfo(null)
 
             await expect(
@@ -235,7 +240,7 @@ describe('VersionManager', () => {
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
 
-        test('ignores requirements for a different offered release', async () => {
+        test('ignores requirements for a different release', async () => {
             mockVersionInfo('v1.46')
 
             await expect(
@@ -245,8 +250,9 @@ describe('VersionManager', () => {
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
 
-        test('keeps custom-image updates independent of the official version API', async () => {
-            CaptainConstants.configs.publishedNameOnDockerHub = 'example/caprover'
+        test('keeps custom-image updates unchanged', async () => {
+            CaptainConstants.configs.publishedNameOnDockerHub =
+                'example/caprover'
 
             await expect(
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
