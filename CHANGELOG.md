@@ -3,6 +3,7 @@
 Available as `edge`
 
 - Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
+- Improved: Enabled WebSocket support by default for newly created apps [PR-2528](https://github.com/caprover/caprover/pull/2528)
 - Fixed: Removed orphaned SSL certificates one day after expiration before renewal [Issue-2397](https://github.com/caprover/caprover/issues/2397)
 - Fixed: Backups created with an incorrect nested data directory that prevented them from being restored [PR-2496](https://github.com/caprover/caprover/pull/2496)
 
