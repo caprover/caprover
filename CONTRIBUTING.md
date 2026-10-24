@@ -21,6 +21,7 @@ The goal is to make the common use-cases exposed via simple controls on UI while
 5. Development targets `master`; production publishes from `release`. Follow
    [RELEASING.md](RELEASING.md) for releases, hotfixes, and backmerges.
 6. By creating a Pull Request, you agree to all terms in https://github.com/caprover/caprover/blob/master/contrib.md
+7. AI generated code is fully welcomed. But AI generated slop is not. The code **must** match the code style that is consistent with the neighboring code. More code just to cover a rare edge case that otherwise is handled by a refresh is a hard no. 
 
 ### Running backend dev environment
 
