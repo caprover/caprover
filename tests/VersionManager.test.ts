@@ -69,7 +69,7 @@ describe('VersionManager', () => {
 
         expect(mockedAxios.get).toHaveBeenCalledWith(
             'https://api-v1.caprover.com/v2/versionInfo',
-            { params: { currentVersion: '1.15.0' } }
+            { params: { currentVersion: '1.15.0' }, timeout: 10000 }
         )
         expect(mockedGetText).not.toHaveBeenCalled()
     })
@@ -250,6 +250,15 @@ describe('VersionManager', () => {
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
 
+        test('allows updates when the version-info request fails', async () => {
+            mockedAxios.get.mockRejectedValue(new Error('network timeout'))
+
+            await expect(
+                new VersionManager().updateCaptain('1.16.0', registryHelper)
+            ).resolves.toBeUndefined()
+            expect(dockerApiMock.getDockerVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+        })
         test('keeps custom-image updates unchanged', async () => {
             CaptainConstants.configs.publishedNameOnDockerHub =
                 'example/caprover'

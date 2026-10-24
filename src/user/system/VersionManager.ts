@@ -31,6 +31,7 @@ class VersionManager {
                     params: {
                         currentVersion: currentVersion,
                     },
+                    timeout: 10000,
                 })
             })
             .then(function (responseObj) {
