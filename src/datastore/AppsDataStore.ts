@@ -993,7 +993,7 @@ class AppsDataStore {
                 hasDefaultSubDomainSsl: false,
                 redirectDomain: '',
                 forceSsl: false,
-                websocketSupport: false,
+                websocketSupport: true,
             }
 
             resolve(defaultAppDefinition)
