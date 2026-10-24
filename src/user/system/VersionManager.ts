@@ -1,4 +1,5 @@
 import axios from 'axios'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import CaptainConstants from '../../utils/CaptainConstants'
 import { getText } from '../../utils/HttpUtils'
@@ -19,6 +20,7 @@ class VersionManager {
         latestVersion: string
         changeLogMessage: string
         canUpdate: boolean
+        minDockerApiVersion?: string
     }> {
         // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
         // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
@@ -47,6 +49,9 @@ class VersionManager {
                     latestVersion: data.latestVersion + '',
                     changeLogMessage: data.changeLogMessage + '',
                     canUpdate: !!data.canUpdate,
+                    minDockerApiVersion: data.minDockerApiVersion
+                        ? String(data.minDockerApiVersion).trim()
+                        : undefined,
                 }
             })
             .catch(function (error) {
@@ -153,6 +158,9 @@ class VersionManager {
         const providedImageName = `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`
         return Promise.resolve()
             .then(function () {
+                return self.verifyHostSupportsVersion(versionTag)
+            })
+            .then(function () {
                 return dockerRegistryHelper.getDockerAuthObjectForImageName(
                     providedImageName
                 )
@@ -178,6 +186,47 @@ class VersionManager {
                     undefined,
                     undefined
                 )
+            })
+    }
+
+    private verifyHostSupportsVersion(versionTag: string) {
+        const self = this
+        if (
+            CaptainConstants.configs.publishedNameOnDockerHub !==
+            'caprover/caprover'
+        ) {
+            return Promise.resolve()
+        }
+
+        return self
+            .getCaptainImageTagsFromOfficialApi(
+                CaptainConstants.configs.version
+            )
+            .then(function (versionInfo) {
+                const minRequiredApiVersion = versionInfo.minDockerApiVersion
+                if (
+                    versionInfo.latestVersion !== versionTag ||
+                    !minRequiredApiVersion
+                ) {
+                    return
+                }
+
+                return self.dockerApi
+                    .getHostDockerApiVersion()
+                    .then(function (hostApiVersion) {
+                        if (
+                            hostApiVersion.localeCompare(
+                                minRequiredApiVersion.replace(/^v/, ''),
+                                undefined,
+                                { numeric: true }
+                            ) < 0
+                        ) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                `Cannot update to Captain ${versionTag}: it requires Docker API ${minRequiredApiVersion}, but this host only supports Docker API ${hostApiVersion}. Please update Docker Engine on the host first.`
+                            )
+                        }
+                    })
             })
     }
 

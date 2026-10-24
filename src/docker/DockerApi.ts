@@ -127,6 +127,11 @@ class DockerApi {
         return dockerApiInstance
     }
 
+    getHostDockerApiVersion(): Promise<string> {
+        return this.dockerode.version().then(function (data) {
+            return data.ApiVersion
+        })
+    }
     ensureSwarmExists() {
         const self = this
 

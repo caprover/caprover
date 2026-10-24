@@ -1,6 +1,8 @@
 import axios from 'axios'
+import DockerApi from '../src/docker/DockerApi'
 import CaptainConstants from '../src/utils/CaptainConstants'
 import { getText } from '../src/utils/HttpUtils'
+import DockerRegistryHelper from '../src/user/DockerRegistryHelper'
 import VersionManager from '../src/user/system/VersionManager'
 
 jest.mock('axios')
@@ -136,5 +138,122 @@ describe('VersionManager', () => {
             canUpdate: false,
         })
         expect(mockedGetText).not.toHaveBeenCalled()
+    })
+
+    test('includes the optional minimum Docker API version from the official server', async () => {
+        CaptainConstants.configs.publishedNameOnDockerHub = 'caprover/caprover'
+        mockedAxios.get.mockResolvedValue({
+            data: {
+                status: 100,
+                data: {
+                    currentVersion: '1.15.5',
+                    latestVersion: '1.16.0',
+                    canUpdate: true,
+                    changeLogMessage: '',
+                    minDockerApiVersion: 'v1.46',
+                },
+            },
+        })
+
+        await expect(
+            new VersionManager().getCaptainImageTags()
+        ).resolves.toEqual(
+            expect.objectContaining({ minDockerApiVersion: 'v1.46' })
+        )
+    })
+
+    describe('updateCaptain Docker API compatibility', () => {
+        const dockerApiMock = {
+            getHostDockerApiVersion: jest.fn(),
+            pullImage: jest.fn(),
+            updateService: jest.fn(),
+        }
+        const registryHelper = {
+            getDockerAuthObjectForImageName: jest.fn().mockResolvedValue(undefined),
+        } as unknown as DockerRegistryHelper
+
+        function mockVersionInfo(
+            minDockerApiVersion: string | null,
+            latestVersion = '1.16.0'
+        ) {
+            mockedAxios.get.mockResolvedValue({
+                data: {
+                    status: 100,
+                    data: {
+                        currentVersion: '1.15.5',
+                        latestVersion: latestVersion,
+                        canUpdate: true,
+                        changeLogMessage: '',
+                        minDockerApiVersion: minDockerApiVersion,
+                    },
+                },
+            })
+        }
+
+        beforeEach(() => {
+            CaptainConstants.configs.publishedNameOnDockerHub = 'caprover/caprover'
+            CaptainConstants.configs.version = '1.15.5'
+            ;(DockerApi.get as jest.Mock).mockReturnValue(dockerApiMock)
+            dockerApiMock.getHostDockerApiVersion
+                .mockReset()
+                .mockResolvedValue('1.44')
+            dockerApiMock.pullImage.mockReset().mockResolvedValue(undefined)
+            dockerApiMock.updateService.mockReset().mockResolvedValue(undefined)
+            mockedAxios.get.mockReset()
+        })
+
+        test('rejects incompatible updates before pulling the image', async () => {
+            mockVersionInfo('v1.46')
+
+            await expect(
+                new VersionManager().updateCaptain('1.16.0', registryHelper)
+            ).rejects.toThrow(
+                'Cannot update to Captain 1.16.0: it requires Docker API v1.46, but this host only supports Docker API 1.44. Please update Docker Engine on the host first.'
+            )
+            expect(dockerApiMock.pullImage).not.toHaveBeenCalled()
+            expect(dockerApiMock.updateService).not.toHaveBeenCalled()
+        })
+
+        test('allows compatible updates using numeric API version comparison', async () => {
+            mockVersionInfo('v1.46')
+            dockerApiMock.getHostDockerApiVersion.mockResolvedValue('1.100')
+
+            await expect(
+                new VersionManager().updateCaptain('1.16.0', registryHelper)
+            ).resolves.toBeUndefined()
+            expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+            expect(dockerApiMock.updateService).toHaveBeenCalledTimes(1)
+        })
+
+        test('keeps existing behavior when the minimum requirement is null', async () => {
+            mockVersionInfo(null)
+
+            await expect(
+                new VersionManager().updateCaptain('1.16.0', registryHelper)
+            ).resolves.toBeUndefined()
+            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+        })
+
+        test('ignores requirements for a different offered release', async () => {
+            mockVersionInfo('v1.46')
+
+            await expect(
+                new VersionManager().updateCaptain('1.15.4', registryHelper)
+            ).resolves.toBeUndefined()
+            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+        })
+
+        test('keeps custom-image updates independent of the official version API', async () => {
+            CaptainConstants.configs.publishedNameOnDockerHub = 'example/caprover'
+
+            await expect(
+                new VersionManager().updateCaptain('1.16.0', registryHelper)
+            ).resolves.toBeUndefined()
+            expect(mockedAxios.get).not.toHaveBeenCalled()
+            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+        })
     })
 })
