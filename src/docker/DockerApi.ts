@@ -119,6 +119,9 @@ class DockerApi {
 
     public dockerNeedsUpdate = false
 
+    /** Highest Docker API version the host supports, as reported by the startup probe. */
+    public hostDockerApiVersion?: string
+
     constructor(connectionParams: Docker.DockerOptions) {
         this.dockerode = new Docker(connectionParams)
     }
@@ -1941,6 +1944,8 @@ new Docker(lowVersionDocker)
     .version()
     .then((data) => {
         Logger.d('Docker API Version on host: ' + data.ApiVersion)
+
+        dockerApiInstance.hostDockerApiVersion = data.ApiVersion
 
         const majorSupported = Number(data.ApiVersion.split('.')[0])
         const minorSupported = Number(data.ApiVersion.split('.')[1])
