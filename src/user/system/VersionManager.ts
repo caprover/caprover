@@ -212,8 +212,9 @@ class VersionManager {
                 }
 
                 return self.dockerApi
-                    .getHostDockerApiVersion()
-                    .then(function (hostApiVersion) {
+                    .getDockerVersion()
+                    .then(function (dockerVersion) {
+                        const hostApiVersion = dockerVersion.ApiVersion
                         if (
                             hostApiVersion.localeCompare(
                                 minRequiredApiVersion.replace(/^v/, ''),

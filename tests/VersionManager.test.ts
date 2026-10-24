@@ -164,7 +164,7 @@ describe('VersionManager', () => {
 
     describe('updateCaptain Docker API compatibility', () => {
         const dockerApiMock = {
-            getHostDockerApiVersion: jest.fn(),
+            getDockerVersion: jest.fn(),
             pullImage: jest.fn(),
             updateService: jest.fn(),
         }
@@ -194,9 +194,9 @@ describe('VersionManager', () => {
             CaptainConstants.configs.publishedNameOnDockerHub = 'caprover/caprover'
             CaptainConstants.configs.version = '1.15.5'
             ;(DockerApi.get as jest.Mock).mockReturnValue(dockerApiMock)
-            dockerApiMock.getHostDockerApiVersion
+            dockerApiMock.getDockerVersion
                 .mockReset()
-                .mockResolvedValue('1.44')
+                .mockResolvedValue({ ApiVersion: '1.44' })
             dockerApiMock.pullImage.mockReset().mockResolvedValue(undefined)
             dockerApiMock.updateService.mockReset().mockResolvedValue(undefined)
             mockedAxios.get.mockReset()
@@ -216,7 +216,7 @@ describe('VersionManager', () => {
 
         test('allows compatible updates using numeric API version comparison', async () => {
             mockVersionInfo('v1.46')
-            dockerApiMock.getHostDockerApiVersion.mockResolvedValue('1.100')
+            dockerApiMock.getDockerVersion.mockResolvedValue({ ApiVersion: '1.100' })
 
             await expect(
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
@@ -231,7 +231,7 @@ describe('VersionManager', () => {
             await expect(
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
             ).resolves.toBeUndefined()
-            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.getDockerVersion).not.toHaveBeenCalled()
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
 
@@ -241,7 +241,7 @@ describe('VersionManager', () => {
             await expect(
                 new VersionManager().updateCaptain('1.15.4', registryHelper)
             ).resolves.toBeUndefined()
-            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.getDockerVersion).not.toHaveBeenCalled()
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
 
@@ -252,7 +252,7 @@ describe('VersionManager', () => {
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
             ).resolves.toBeUndefined()
             expect(mockedAxios.get).not.toHaveBeenCalled()
-            expect(dockerApiMock.getHostDockerApiVersion).not.toHaveBeenCalled()
+            expect(dockerApiMock.getDockerVersion).not.toHaveBeenCalled()
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
         })
     })
