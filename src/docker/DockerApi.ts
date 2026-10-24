@@ -119,6 +119,12 @@ class DockerApi {
 
     public dockerNeedsUpdate = false
 
+    /** Highest Docker API version the host supports, as reported by the startup probe. */
+    public hostDockerApiVersion?: string
+
+    /** Resolves once the startup probe has settled (success or logged failure). */
+    public hostDockerApiVersionReady: Promise<void> = Promise.resolve()
+
     constructor(connectionParams: Docker.DockerOptions) {
         this.dockerode = new Docker(connectionParams)
     }
@@ -1937,10 +1943,15 @@ const dockerApiInstance = new DockerApi(connectionParams)
 const lowVersionDocker = JSON.parse(JSON.stringify(connectionParams))
 lowVersionDocker.version = 'v1.44'
 
-new Docker(lowVersionDocker)
+// Readers await this handle so a request that arrives before the probe settles
+// does not read an unset hostDockerApiVersion. The trailing catch logs and
+// resolves, so readiness settles even when the probe fails (fail-open kept).
+dockerApiInstance.hostDockerApiVersionReady = new Docker(lowVersionDocker)
     .version()
     .then((data) => {
         Logger.d('Docker API Version on host: ' + data.ApiVersion)
+
+        dockerApiInstance.hostDockerApiVersion = data.ApiVersion
 
         const majorSupported = Number(data.ApiVersion.split('.')[0])
         const minorSupported = Number(data.ApiVersion.split('.')[1])

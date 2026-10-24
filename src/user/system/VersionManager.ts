@@ -1,9 +1,49 @@
 import axios from 'axios'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import CaptainConstants from '../../utils/CaptainConstants'
 import { getText } from '../../utils/HttpUtils'
 import Logger from '../../utils/Logger'
 import DockerRegistryHelper from '../DockerRegistryHelper'
+
+// Minimum Docker API version required by captain releases, as of the release that
+// started requiring it (pin bumps: 1.8.0 -> v1.40, 1.12.0 -> v1.43, 1.14.1 -> v1.44).
+// The official version API can override these with minDockerApiVersion; the table
+// keeps the pre-flight check working for releases the server does not describe yet.
+const RELEASE_MIN_DOCKER_API_VERSIONS: Array<{
+    sinceRelease: string
+    minDockerApiVersion: string
+}> = [
+    { sinceRelease: '1.14.1', minDockerApiVersion: 'v1.44' },
+    { sinceRelease: '1.12.0', minDockerApiVersion: 'v1.43' },
+    { sinceRelease: '1.8.0', minDockerApiVersion: 'v1.40' },
+]
+
+function isVersionAtLeast(candidate: string, baseline: string) {
+    const candidateParts = candidate.replace(/^v/, '').split('.')
+    const baselineParts = baseline.replace(/^v/, '').split('.')
+
+    for (let i = 0; i < 3; i++) {
+        const candidatePart = Number(candidateParts[i] || 0)
+        const baselinePart = Number(baselineParts[i] || 0)
+
+        if (candidatePart !== baselinePart) {
+            return candidatePart > baselinePart
+        }
+    }
+
+    return true
+}
+
+function getMinDockerApiVersionForRelease(versionTag: string) {
+    for (const releaseRequirement of RELEASE_MIN_DOCKER_API_VERSIONS) {
+        if (isVersionAtLeast(versionTag, releaseRequirement.sinceRelease)) {
+            return releaseRequirement.minDockerApiVersion
+        }
+    }
+
+    return undefined
+}
 
 class VersionManager {
     private dockerApi: DockerApi
@@ -19,6 +59,7 @@ class VersionManager {
         latestVersion: string
         changeLogMessage: string
         canUpdate: boolean
+        minDockerApiVersion?: string
     }> {
         // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
         // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
@@ -47,6 +88,9 @@ class VersionManager {
                     latestVersion: data.latestVersion + '',
                     changeLogMessage: data.changeLogMessage + '',
                     canUpdate: !!data.canUpdate,
+                    minDockerApiVersion: data.minDockerApiVersion
+                        ? data.minDockerApiVersion + ''
+                        : undefined,
                 }
             })
             .catch(function (error) {
@@ -153,6 +197,9 @@ class VersionManager {
         const providedImageName = `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`
         return Promise.resolve()
             .then(function () {
+                return self.verifyHostSupportsVersion(versionTag)
+            })
+            .then(function () {
                 return dockerRegistryHelper.getDockerAuthObjectForImageName(
                     providedImageName
                 )
@@ -178,6 +225,81 @@ class VersionManager {
                     undefined,
                     undefined
                 )
+            })
+    }
+
+    private verifyHostSupportsVersion(versionTag: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                // The startup probe stores the highest Docker API version the
+                // host supports. Await the probe before reading it so a request
+                // that arrives while the probe is still running does not see an
+                // unset version; a probe that failed resolves without setting
+                // one and the update keeps the pre-existing behavior.
+                return self.dockerApi.hostDockerApiVersionReady.then(
+                    function () {
+                        return self.dockerApi.hostDockerApiVersion
+                    }
+                )
+            })
+            .then(function (hostApiVersion) {
+                if (!hostApiVersion) {
+                    return undefined
+                }
+
+                return self
+                    .getMinRequiredDockerApiVersion(versionTag)
+                    .then(function (minRequiredApiVersion) {
+                        if (
+                            minRequiredApiVersion &&
+                            !isVersionAtLeast(
+                                hostApiVersion,
+                                minRequiredApiVersion
+                            )
+                        ) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                `Cannot update to Captain ${versionTag}: it requires Docker API ${minRequiredApiVersion}, but this host only supports Docker API ${hostApiVersion}. Please update Docker Engine on the host first.`
+                            )
+                        }
+
+                        return undefined
+                    })
+            })
+    }
+
+    private getMinRequiredDockerApiVersion(versionTag: string) {
+        const self = this
+
+        return Promise.resolve()
+            .then(function () {
+                // Only the official API can name the requirement of the release
+                // it offers. For custom images go straight to the release table.
+                if (
+                    'caprover/caprover' !==
+                    CaptainConstants.configs.publishedNameOnDockerHub
+                ) {
+                    return undefined
+                }
+
+                return self.getCaptainImageTagsFromOfficialApi(
+                    CaptainConstants.configs.version
+                )
+            })
+            .then(function (tagsInfo) {
+                // The server-provided requirement describes the release it
+                // offers: only trust it for exactly that tag.
+                if (
+                    tagsInfo &&
+                    tagsInfo.latestVersion === versionTag &&
+                    tagsInfo.minDockerApiVersion
+                ) {
+                    return tagsInfo.minDockerApiVersion
+                }
+
+                return getMinDockerApiVersionForRelease(versionTag)
             })
     }
 
