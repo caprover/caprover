@@ -170,6 +170,7 @@ describe('VersionManager', () => {
     describe('updateCaptain', () => {
         const dockerApiMock = {
             hostDockerApiVersion: undefined as string | undefined,
+            hostDockerApiVersionReady: Promise.resolve() as Promise<void>,
             pullImage: jest.fn(),
             updateService: jest.fn(),
         }
@@ -192,6 +193,7 @@ describe('VersionManager', () => {
 
         beforeEach(() => {
             dockerApiMock.hostDockerApiVersion = undefined
+            dockerApiMock.hostDockerApiVersionReady = Promise.resolve()
             dockerApiMock.pullImage.mockReset()
             dockerApiMock.pullImage.mockResolvedValue(undefined)
             dockerApiMock.updateService.mockReset()
@@ -254,6 +256,8 @@ describe('VersionManager', () => {
         })
 
         test('skips the check when the host API version is not detected', async () => {
+            // Real failure path: the probe's catch logs and resolves readiness
+            // without setting a version, so the update fail-opens.
             CaptainConstants.configs.publishedNameOnDockerHub =
                 'caprover/caprover'
             CaptainConstants.configs.version = '1.13.3'
@@ -268,6 +272,62 @@ describe('VersionManager', () => {
             // No requirement lookup is needed when there is nothing to compare against.
             expect(mockedAxios.get).not.toHaveBeenCalled()
             expect(dockerApiMock.pullImage).toHaveBeenCalledTimes(1)
+        })
+
+        test('waits for the startup Docker API probe to settle before checking', async () => {
+            CaptainConstants.configs.publishedNameOnDockerHub =
+                'caprover/caprover'
+            CaptainConstants.configs.version = '1.13.3'
+            mockOfficialVersionApi({
+                currentVersion: '1.13.3',
+                latestVersion: '1.15.5',
+                changeLogMessage: '',
+                canUpdate: true,
+            })
+            dockerApiMock.hostDockerApiVersion = '1.43'
+
+            // Simulate a request that arrives before the startup probe has
+            // resolved: readiness is still pending.
+            let resolveProbeReady!: () => void
+            dockerApiMock.hostDockerApiVersionReady = new Promise<void>(
+                function (resolve) {
+                    resolveProbeReady = resolve
+                }
+            )
+
+            const updatePromise = new VersionManager().updateCaptain(
+                '1.15.5',
+                createRegistryHelper()
+            )
+
+            let settled = false
+            updatePromise.then(
+                function () {
+                    settled = true
+                },
+                function () {
+                    settled = true
+                }
+            )
+
+            // Let every already-scheduled microtask and timer run: the update
+            // must still be waiting for the probe, not racing ahead to pull.
+            for (let i = 0; i < 20; i++) {
+                await Promise.resolve()
+            }
+            await new Promise(function (resolve) {
+                setTimeout(resolve, 0)
+            })
+            expect(settled).toBe(false)
+            expect(dockerApiMock.pullImage).not.toHaveBeenCalled()
+
+            resolveProbeReady()
+
+            await expect(updatePromise).rejects.toThrow(
+                'requires Docker API v1.44, but this host only supports Docker API 1.43'
+            )
+            expect(dockerApiMock.pullImage).not.toHaveBeenCalled()
+            expect(dockerApiMock.updateService).not.toHaveBeenCalled()
         })
 
         test('uses the server-provided minDockerApiVersion for the offered release', async () => {

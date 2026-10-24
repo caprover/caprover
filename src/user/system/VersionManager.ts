@@ -234,9 +234,15 @@ class VersionManager {
         return Promise.resolve()
             .then(function () {
                 // The startup probe stores the highest Docker API version the
-                // host supports. Without it there is nothing to compare against
-                // and the update keeps the pre-existing behavior.
-                return self.dockerApi.hostDockerApiVersion
+                // host supports. Await the probe before reading it so a request
+                // that arrives while the probe is still running does not see an
+                // unset version; a probe that failed resolves without setting
+                // one and the update keeps the pre-existing behavior.
+                return self.dockerApi.hostDockerApiVersionReady.then(
+                    function () {
+                        return self.dockerApi.hostDockerApiVersion
+                    }
+                )
             })
             .then(function (hostApiVersion) {
                 if (!hostApiVersion) {

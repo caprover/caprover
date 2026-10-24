@@ -23,10 +23,6 @@ function loadDockerApiWithFreshProbe() {
     return instance as typeof DockerApi
 }
 
-function waitForProbe() {
-    return new Promise((resolve) => setImmediate(resolve))
-}
-
 describe('DockerApi startup probe', () => {
     beforeEach(() => {
         mockHostApiVersion = '1.44'
@@ -36,7 +32,7 @@ describe('DockerApi startup probe', () => {
         mockHostApiVersion = '1.43'
 
         const api = loadDockerApiWithFreshProbe()
-        await waitForProbe()
+        await api.get().hostDockerApiVersionReady
 
         expect(api.get().hostDockerApiVersion).toBe('1.43')
         expect(api.get().dockerNeedsUpdate).toBe(true)
@@ -46,7 +42,7 @@ describe('DockerApi startup probe', () => {
         mockHostApiVersion = '1.44'
 
         const api = loadDockerApiWithFreshProbe()
-        await waitForProbe()
+        await api.get().hostDockerApiVersionReady
 
         expect(api.get().hostDockerApiVersion).toBe('1.44')
         expect(api.get().dockerNeedsUpdate).toBe(false)
@@ -56,7 +52,9 @@ describe('DockerApi startup probe', () => {
         mockHostApiVersion = 'unavailable'
 
         const api = loadDockerApiWithFreshProbe()
-        await waitForProbe()
+        // Readiness resolves even though the probe rejected: a failed probe
+        // logs and keeps the fail-open behavior.
+        await api.get().hostDockerApiVersionReady
 
         expect(api.get().hostDockerApiVersion).toBeUndefined()
         expect(api.get().dockerNeedsUpdate).toBe(false)
