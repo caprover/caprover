@@ -216,12 +216,18 @@ class VersionManager {
                     .getDockerVersion()
                     .then(function (dockerVersion) {
                         const hostApiVersion = dockerVersion.ApiVersion
+                        const [hostMajor, hostMinor] = hostApiVersion
+                            .split('.')
+                            .map(Number)
+                        const [requiredMajor, requiredMinor] =
+                            minRequiredApiVersion
+                                .replace(/^v/, '')
+                                .split('.')
+                                .map(Number)
                         if (
-                            hostApiVersion.localeCompare(
-                                minRequiredApiVersion.replace(/^v/, ''),
-                                undefined,
-                                { numeric: true }
-                            ) < 0
+                            hostMajor < requiredMajor ||
+                            (hostMajor === requiredMajor &&
+                                hostMinor < requiredMinor)
                         ) {
                             throw ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_ERROR_GENERIC,
