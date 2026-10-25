@@ -44,7 +44,7 @@ Glacier
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 12,
         borderRadiusLG: 16,
-        borderRadiusSM: 4,
+        borderRadiusSM: 8,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 38,

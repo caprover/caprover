@@ -44,7 +44,7 @@ Botanical
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 9,
         borderRadiusLG: 12,
-        borderRadiusSM: 4,
+        borderRadiusSM: 6,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 38,

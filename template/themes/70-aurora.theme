@@ -44,7 +44,7 @@ Aurora
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 10,
         borderRadiusLG: 14,
-        borderRadiusSM: 4,
+        borderRadiusSM: 7,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 38,

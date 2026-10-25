@@ -44,7 +44,7 @@ Blueprint
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 4,
         borderRadiusLG: 5,
-        borderRadiusSM: 4,
+        borderRadiusSM: 3,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 34,

@@ -44,7 +44,7 @@ Porcelain
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 3,
         borderRadiusLG: 4,
-        borderRadiusSM: 3,
+        borderRadiusSM: 2,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 36,

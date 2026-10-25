@@ -44,7 +44,7 @@ Candy Lab
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
         borderRadius: 14,
         borderRadiusLG: 18,
-        borderRadiusSM: 4,
+        borderRadiusSM: 10,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 40,
