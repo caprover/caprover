@@ -30,6 +30,7 @@ Hacker
         colorTextPlaceholder: isDarkMode ? '#A0B6BC' : '#4E6269',
         colorTextDisabled: isDarkMode ? '#A0B6BC' : '#4E6269',
         colorTextLightSolid: '#FFFFFF',
+        colorWhite: isDarkMode ? '#070A10' : '#FFFFFF',
         colorBorder: isDarkMode ? '#344A5E' : '#B5C5C4',
         colorBorderSecondary: isDarkMode ? '#25394C' : '#D1DDDA',
         colorFillAlter: isDarkMode ? '#172C32' : '#E1EDE3',
@@ -69,6 +70,9 @@ Hacker
         boxShadowTertiary: 'none',
     },
     components: {
+        Radio: {
+            buttonSolidCheckedColor: isDarkMode ? '#070A10' : '#FFFFFF',
+        },
         Layout: {
             headerBg: isDarkMode ? '#0D1520' : '#FAFCF6',
             siderBg: '#060D14',
