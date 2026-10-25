@@ -10,7 +10,11 @@ Glacier
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#7DE4F7' : '#006B9B',
-        colorLink: isDarkMode ? '#7DE4F7' : '#006B9B',
+        colorPrimaryHover: isDarkMode ? '#90E8F8' : '#00628F',
+        colorPrimaryActive: isDarkMode ? '#71D0E2' : '#005A82',
+        colorLink: isDarkMode ? '#9EEBF9' : '#006B9B',
+        colorLinkHover: isDarkMode ? '#AAEDFA' : '#00628F',
+        colorLinkActive: isDarkMode ? '#7DE4F7' : '#005A82',
         colorBgLayout: isDarkMode ? '#081824' : '#EBF4FA',
         colorBgContainer: isDarkMode ? '#112838' : '#F9FDFF',
         colorBgElevated: isDarkMode ? '#1D3B4A' : '#FFFFFF',
@@ -35,6 +39,8 @@ Glacier
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E67782' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Glacier
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#081824' : '#FFFFFF',
             primaryColor: isDarkMode ? '#081824' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Glacier
             footerBg: isDarkMode ? '#1D3B4A' : '#FFFFFF',
             titleColor: isDarkMode ? '#E9F9FF' : '#1D354B',
             titleFontSize: 16,
-            contentPadding: 24,
-            headerPadding: 24,
-            footerPadding: 24,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 24,
+            paddingContentHorizontalLG: 24,
         },
         Alert: {
             defaultPadding: '12px 16px',
@@ -181,29 +184,53 @@ Glacier
 
 ###CapRoverTheme.headEmbed:
 <style>
-html[data-caprover-theme="glacier"] .app-sidebar {
-    background: rgba(229, 241, 248, 0.86);
+html[data-caprover-theme="glacier"] {
+    --caprover-shell-radius: 18px;
+    --caprover-surface-radius: 14px;
+    --caprover-control-radius: 8px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: 0 4px 18px rgba(18, 93, 133, 0.08);
+    --caprover-heading-tracking: -0.02em;
+    --caprover-heading-weight: 550;
+}
+html[data-caprover-theme="glacier"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+html[data-caprover-theme="glacier"] .app-shell,
+html[data-caprover-theme="glacier"] .navigation-drawer {
+    background-image:
+        radial-gradient(ellipse at 0% 15%, rgba(28, 142, 190, 0.28), transparent 65%),
+        radial-gradient(ellipse at 18% 90%, rgba(49, 169, 179, 0.18), transparent 60%);
+}
+html[data-caprover-theme="glacier"] .app-sidebar,
+html[data-caprover-theme="glacier"] .navigation-drawer {
+    background-color: rgba(229, 241, 248, 0.86);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
 }
-html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
-    background: rgba(19, 44, 59, 0.88);
+html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar,
+html[data-caprover-theme="glacier"][data-caprover-dark="true"] .navigation-drawer {
+    background-color: rgba(19, 44, 59, 0.86);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    html[data-caprover-theme="glacier"] .app-sidebar {
+    html[data-caprover-theme="glacier"] .app-sidebar,
+    html[data-caprover-theme="glacier"] .navigation-drawer {
         background: #E5F1F8;
     }
-    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar,
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .navigation-drawer {
         background: #132C3B;
     }
 }
 @media (prefers-reduced-transparency: reduce) {
-    html[data-caprover-theme="glacier"] .app-sidebar {
+    html[data-caprover-theme="glacier"] .app-sidebar,
+    html[data-caprover-theme="glacier"] .navigation-drawer {
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
         background: #E5F1F8;
     }
-    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar,
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .navigation-drawer {
         background: #132C3B;
     }
 }

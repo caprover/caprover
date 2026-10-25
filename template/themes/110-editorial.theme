@@ -10,7 +10,11 @@ Editorial
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#E3A6B8' : '#792D45',
-        colorLink: isDarkMode ? '#E3A6B8' : '#792D45',
+        colorPrimaryHover: isDarkMode ? '#E7B3C3' : '#6F293F',
+        colorPrimaryActive: isDarkMode ? '#CF98A8' : '#66263A',
+        colorLink: isDarkMode ? '#EABCCA' : '#792D45',
+        colorLinkHover: isDarkMode ? '#EDC5D1' : '#6F293F',
+        colorLinkActive: isDarkMode ? '#E3A6B8' : '#66263A',
         colorBgLayout: isDarkMode ? '#1F191B' : '#F8F4ED',
         colorBgContainer: isDarkMode ? '#2A2125' : '#FFFCF6',
         colorBgElevated: isDarkMode ? '#382A2F' : '#FFFAF4',
@@ -35,6 +39,8 @@ Editorial
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E97782' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Editorial
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#1F191B' : '#FFFFFF',
             primaryColor: isDarkMode ? '#1F191B' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Editorial
             footerBg: isDarkMode ? '#382A2F' : '#FFFAF4',
             titleColor: isDarkMode ? '#F7EEE8' : '#29201F',
             titleFontSize: 16,
-            contentPadding: 28,
-            headerPadding: 28,
-            footerPadding: 28,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 28,
+            paddingContentHorizontalLG: 28,
         },
         Alert: {
             defaultPadding: '12px 16px',
@@ -181,10 +184,23 @@ Editorial
 
 ###CapRoverTheme.headEmbed:
 <style>
-html[data-caprover-theme="editorial"] .page-heading h1 {
+html[data-caprover-theme="editorial"] {
+    --caprover-shell-radius: 2px;
+    --caprover-surface-radius: 2px;
+    --caprover-control-radius: 2px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.015em;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="editorial"] .page-heading h1,
+html[data-caprover-theme="editorial"] .apps-heading h1,
+html[data-caprover-theme="editorial"] .app-details-heading h2,
+html[data-caprover-theme="editorial"] .form-section-title,
+html[data-caprover-theme="editorial"] .ant-modal-title {
     font-family: Georgia, 'Times New Roman', serif;
-    font-weight: 600;
-    letter-spacing: -0.035em;
+    font-weight: var(--caprover-heading-weight);
+    letter-spacing: var(--caprover-heading-tracking);
     line-height: 1.2;
 }
 </style>

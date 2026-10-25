@@ -10,7 +10,11 @@ Carbon
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#AA9ACA' : '#675C89',
-        colorLink: isDarkMode ? '#AA9ACA' : '#675C89',
+        colorPrimaryHover: isDarkMode ? '#B7A9D2' : '#5F557E',
+        colorPrimaryActive: isDarkMode ? '#9B8CB8' : '#574D73',
+        colorLink: isDarkMode ? '#BFB3D7' : '#675C89',
+        colorLinkHover: isDarkMode ? '#C8BDDD' : '#5F557E',
+        colorLinkActive: isDarkMode ? '#AA9ACA' : '#574D73',
         colorBgLayout: isDarkMode ? '#111216' : '#F3F4F7',
         colorBgContainer: isDarkMode ? '#1A1C21' : '#FFFFFF',
         colorBgElevated: isDarkMode ? '#24262D' : '#FAFAFC',
@@ -35,6 +39,8 @@ Carbon
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77681' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Carbon
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#111216' : '#FFFFFF',
             primaryColor: isDarkMode ? '#111216' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Carbon
             footerBg: isDarkMode ? '#24262D' : '#FAFAFC',
             titleColor: isDarkMode ? '#EDEEF2' : '#20232B',
             titleFontSize: 16,
-            contentPadding: 20,
-            headerPadding: 20,
-            footerPadding: 20,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 20,
+            paddingContentHorizontalLG: 20,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -180,7 +183,17 @@ Carbon
 }
 
 ###CapRoverTheme.headEmbed:
-
+<style>
+html[data-caprover-theme="carbon"] {
+    --caprover-shell-radius: 8px;
+    --caprover-surface-radius: 6px;
+    --caprover-control-radius: 4px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 600;
+}
+</style>
 
 ###CapRoverTheme.extra:
 {}

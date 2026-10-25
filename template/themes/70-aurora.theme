@@ -10,7 +10,11 @@ Aurora
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#AB94FF' : '#5549BF',
-        colorLink: isDarkMode ? '#AB94FF' : '#5549BF',
+        colorPrimaryHover: isDarkMode ? '#B8A4FF' : '#4E43B0',
+        colorPrimaryActive: isDarkMode ? '#9C87EA' : '#473DA0',
+        colorLink: isDarkMode ? '#C0AFFF' : '#5549BF',
+        colorLinkHover: isDarkMode ? '#C8B9FF' : '#4E43B0',
+        colorLinkActive: isDarkMode ? '#AB94FF' : '#473DA0',
         colorBgLayout: isDarkMode ? '#111328' : '#F7F4FC',
         colorBgContainer: isDarkMode ? '#1C1D3A' : '#FFFEFF',
         colorBgElevated: isDarkMode ? '#28294A' : '#FFFFFF',
@@ -35,6 +39,8 @@ Aurora
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77683' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Aurora
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#111328' : '#FFFFFF',
             primaryColor: isDarkMode ? '#111328' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Aurora
             footerBg: isDarkMode ? '#28294A' : '#FFFFFF',
             titleColor: isDarkMode ? '#F0EDFF' : '#27233D',
             titleFontSize: 16,
-            contentPadding: 24,
-            headerPadding: 24,
-            footerPadding: 24,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 24,
+            paddingContentHorizontalLG: 24,
         },
         Alert: {
             defaultPadding: '12px 16px',
@@ -181,15 +184,30 @@ Aurora
 
 ###CapRoverTheme.headEmbed:
 <style>
-html[data-caprover-theme="aurora"] .app-shell {
+html[data-caprover-theme="aurora"] {
+    --caprover-shell-radius: 16px;
+    --caprover-surface-radius: 12px;
+    --caprover-control-radius: 7px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: 0 4px 16px rgba(85, 73, 191, 0.06);
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="aurora"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+html[data-caprover-theme="aurora"] .workspace-layout {
     background-image:
         radial-gradient(circle at 12% 0%, rgba(112, 83, 201, 0.08), transparent 38%),
         radial-gradient(circle at 100% 100%, rgba(31, 155, 155, 0.05), transparent 40%);
 }
-html[data-caprover-theme="aurora"][data-caprover-dark="true"] .app-shell {
+html[data-caprover-theme="aurora"][data-caprover-dark="true"] .workspace-layout {
     background-image:
         radial-gradient(circle at 8% 0%, rgba(134, 95, 239, 0.10), transparent 40%),
         radial-gradient(circle at 100% 90%, rgba(40, 175, 160, 0.07), transparent 42%);
+}
+html[data-caprover-theme="aurora"] .workspace-content {
+    background: transparent;
 }
 </style>
 

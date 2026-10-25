@@ -10,7 +10,11 @@ Ember
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#E5A173' : '#9F4B22',
-        colorLink: isDarkMode ? '#E5A173' : '#9F4B22',
+        colorPrimaryHover: isDarkMode ? '#E9AF88' : '#92451F',
+        colorPrimaryActive: isDarkMode ? '#D0936A' : '#863F1D',
+        colorLink: isDarkMode ? '#ECB896' : '#9F4B22',
+        colorLinkHover: isDarkMode ? '#EEC2A4' : '#92451F',
+        colorLinkActive: isDarkMode ? '#E5A173' : '#863F1D',
         colorBgLayout: isDarkMode ? '#171616' : '#F6F1EC',
         colorBgContainer: isDarkMode ? '#25211F' : '#FFFCF8',
         colorBgElevated: isDarkMode ? '#312925' : '#FFF9F3',
@@ -35,6 +39,8 @@ Ember
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E87681' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Ember
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#171616' : '#FFFFFF',
             primaryColor: isDarkMode ? '#171616' : '#FFFFFF',
             primaryShadow: isDarkMode ? '0 2px 0 rgba(0,0,0,0.40)' : '0 2px 0 rgba(85,38,18,0.28)',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Ember
             footerBg: isDarkMode ? '#312925' : '#FFF9F3',
             titleColor: isDarkMode ? '#F7EAE0' : '#342B28',
             titleFontSize: 16,
-            contentPadding: 20,
-            headerPadding: 20,
-            footerPadding: 20,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 20,
+            paddingContentHorizontalLG: 20,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -180,7 +183,20 @@ Ember
 }
 
 ###CapRoverTheme.headEmbed:
-
+<style>
+html[data-caprover-theme="ember"] {
+    --caprover-shell-radius: 10px;
+    --caprover-surface-radius: 8px;
+    --caprover-control-radius: 4px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: 0 2px 10px rgba(85, 38, 18, 0.06);
+    --caprover-heading-tracking: -0.02em;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="ember"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+}
+</style>
 
 ###CapRoverTheme.extra:
 {}

@@ -10,7 +10,11 @@ Terminal
         fontSize: 13,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#82E69A' : '#20663B',
-        colorLink: isDarkMode ? '#82E69A' : '#20663B',
+        colorPrimaryHover: isDarkMode ? '#95EAA9' : '#1D5E36',
+        colorPrimaryActive: isDarkMode ? '#76D08C' : '#1B5632',
+        colorLink: isDarkMode ? '#A1ECB3' : '#20663B',
+        colorLinkHover: isDarkMode ? '#AEEFBD' : '#1D5E36',
+        colorLinkActive: isDarkMode ? '#82E69A' : '#1B5632',
         colorBgLayout: isDarkMode ? '#050D09' : '#F7F8F1',
         colorBgContainer: isDarkMode ? '#0C1811' : '#FFFFF8',
         colorBgElevated: isDarkMode ? '#13231A' : '#FBFFF5',
@@ -35,6 +39,8 @@ Terminal
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E67580' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Terminal
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#050D09' : '#FFFFFF',
             primaryColor: isDarkMode ? '#050D09' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Terminal
             footerBg: isDarkMode ? '#13231A' : '#FBFFF5',
             titleColor: isDarkMode ? '#D3F7D5' : '#172A1D',
             titleFontSize: 16,
-            contentPadding: 16,
-            headerPadding: 16,
-            footerPadding: 16,
-        },
-        Popover: {
-            innerPadding: 12,
+            paddingMD: 16,
+            paddingContentHorizontalLG: 16,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -180,7 +183,17 @@ Terminal
 }
 
 ###CapRoverTheme.headEmbed:
-
+<style>
+html[data-caprover-theme="terminal"] {
+    --caprover-shell-radius: 2px;
+    --caprover-surface-radius: 2px;
+    --caprover-control-radius: 2px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: 0;
+    --caprover-heading-weight: 600;
+}
+</style>
 
 ###CapRoverTheme.extra:
 {}

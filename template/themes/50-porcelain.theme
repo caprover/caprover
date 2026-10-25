@@ -10,7 +10,11 @@ Porcelain
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#78A5FF' : '#164FC5',
-        colorLink: isDarkMode ? '#78A5FF' : '#164FC5',
+        colorPrimaryHover: isDarkMode ? '#8CB2FF' : '#1449B5',
+        colorPrimaryActive: isDarkMode ? '#6D97E9' : '#1242A5',
+        colorLink: isDarkMode ? '#A9C4FF' : '#164FC5',
+        colorLinkHover: isDarkMode ? '#A7C4FF' : '#1449B5',
+        colorLinkActive: isDarkMode ? '#78A5FF' : '#1242A5',
         colorBgLayout: isDarkMode ? '#0C1726' : '#FAFBFC',
         colorBgContainer: isDarkMode ? '#142235' : '#FFFFFF',
         colorBgElevated: isDarkMode ? '#1D3147' : '#FFFFFF',
@@ -35,6 +39,8 @@ Porcelain
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77683' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Porcelain
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#0C1726' : '#FFFFFF',
             primaryColor: isDarkMode ? '#0C1726' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Porcelain
             footerBg: isDarkMode ? '#1D3147' : '#FFFFFF',
             titleColor: isDarkMode ? '#EFF5FF' : '#101C2B',
             titleFontSize: 16,
-            contentPadding: 20,
-            headerPadding: 20,
-            footerPadding: 20,
-        },
-        Popover: {
-            innerPadding: 16,
+            paddingMD: 20,
+            paddingContentHorizontalLG: 20,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -180,7 +183,17 @@ Porcelain
 }
 
 ###CapRoverTheme.headEmbed:
-
+<style>
+html[data-caprover-theme="porcelain"] {
+    --caprover-shell-radius: 4px;
+    --caprover-surface-radius: 3px;
+    --caprover-control-radius: 2px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 550;
+}
+</style>
 
 ###CapRoverTheme.extra:
 {}

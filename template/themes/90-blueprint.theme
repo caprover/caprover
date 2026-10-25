@@ -10,7 +10,11 @@ Blueprint
         fontSize: 14,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#63B6FF' : '#155DB8',
-        colorLink: isDarkMode ? '#63B6FF' : '#155DB8',
+        colorPrimaryHover: isDarkMode ? '#7AC1FF' : '#1356A9',
+        colorPrimaryActive: isDarkMode ? '#5AA6EA' : '#124E9B',
+        colorLink: isDarkMode ? '#9AD0FF' : '#155DB8',
+        colorLinkHover: isDarkMode ? '#9AD0FF' : '#1356A9',
+        colorLinkActive: isDarkMode ? '#63B6FF' : '#124E9B',
         colorBgLayout: isDarkMode ? '#0B1930' : '#F2F6FC',
         colorBgContainer: isDarkMode ? '#112644' : '#FFFFFF',
         colorBgElevated: isDarkMode ? '#193357' : '#FCFEFF',
@@ -35,6 +39,8 @@ Blueprint
         colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
         colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
         colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77784' : '#971D2D',
         colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
         colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
         colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
@@ -111,6 +117,7 @@ Blueprint
         },
         Button: {
             fontWeight: 500,
+            dangerColor: isDarkMode ? '#0B1930' : '#FFFFFF',
             primaryColor: isDarkMode ? '#0B1930' : '#FFFFFF',
             primaryShadow: 'none',
             defaultShadow: 'none',
@@ -162,12 +169,8 @@ Blueprint
             footerBg: isDarkMode ? '#193357' : '#FCFEFF',
             titleColor: isDarkMode ? '#E8F2FF' : '#172844',
             titleFontSize: 16,
-            contentPadding: 18,
-            headerPadding: 18,
-            footerPadding: 18,
-        },
-        Popover: {
-            innerPadding: 12,
+            paddingMD: 18,
+            paddingContentHorizontalLG: 18,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -181,16 +184,28 @@ Blueprint
 
 ###CapRoverTheme.headEmbed:
 <style>
-html[data-caprover-theme="blueprint"] .app-shell {
+html[data-caprover-theme="blueprint"] {
+    --caprover-shell-radius: 5px;
+    --caprover-surface-radius: 4px;
+    --caprover-control-radius: 3px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: 0;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="blueprint"] .workspace-layout {
     background-image:
         linear-gradient(rgba(21, 93, 184, 0.035) 1px, transparent 1px),
         linear-gradient(90deg, rgba(21, 93, 184, 0.035) 1px, transparent 1px);
     background-size: 24px 24px;
 }
-html[data-caprover-theme="blueprint"][data-caprover-dark="true"] .app-shell {
+html[data-caprover-theme="blueprint"][data-caprover-dark="true"] .workspace-layout {
     background-image:
         linear-gradient(rgba(99, 182, 255, 0.045) 1px, transparent 1px),
         linear-gradient(90deg, rgba(99, 182, 255, 0.045) 1px, transparent 1px);
+}
+html[data-caprover-theme="blueprint"] .workspace-content {
+    background: transparent;
 }
 </style>
 
