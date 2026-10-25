@@ -1,0 +1,452 @@
+###CapRoverTheme.name:
+Hacker
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'Chakra Petch', Arial, sans-serif",
+        fontFamilyCode: "'Share Tech Mono', Consolas, monospace",
+        fontSize: 14,
+        fontSizeHeading1: 42,
+        fontSizeHeading2: 36,
+        fontSizeHeading3: 32,
+        fontSizeHeading4: 24,
+        fontSizeHeading5: 16,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#C3FF3E' : '#365C00',
+        colorPrimaryHover: isDarkMode ? '#D6FF79' : '#2D4D00',
+        colorPrimaryActive: isDarkMode ? '#B5ED39' : '#243F00',
+        colorLink: isDarkMode ? '#E2FFAF' : '#365C00',
+        colorLinkHover: isDarkMode ? '#E7FFB7' : '#2D4D00',
+        colorLinkActive: isDarkMode ? '#C3FF3E' : '#243F00',
+        colorBgLayout: isDarkMode ? '#070A10' : '#EFF4F4',
+        colorBgContainer: isDarkMode ? '#0D1520' : '#FAFCF6',
+        colorBgElevated: isDarkMode ? '#142132' : '#FFFFFF',
+        colorBgSpotlight: isDarkMode ? '#142132' : '#070A10',
+        colorBgContainerDisabled: isDarkMode ? '#172C32' : '#E1EDE3',
+        colorText: isDarkMode ? '#E8F5E7' : '#17252D',
+        colorTextSecondary: isDarkMode ? '#A0B6BC' : '#4E6269',
+        colorTextPlaceholder: isDarkMode ? '#A0B6BC' : '#4E6269',
+        colorTextDisabled: isDarkMode ? '#A0B6BC' : '#4E6269',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#344A5E' : '#B5C5C4',
+        colorBorderSecondary: isDarkMode ? '#25394C' : '#D1DDDA',
+        colorFillAlter: isDarkMode ? '#172C32' : '#E1EDE3',
+        colorBgTextHover: isDarkMode ? '#172C32' : '#E1EDE3',
+        colorBgTextActive: isDarkMode ? '#253A25' : '#DAEBC6',
+        colorSuccess: isDarkMode ? '#55E0BA' : '#006B52',
+        colorSuccessText: isDarkMode ? '#55E0BA' : '#006B52',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFD26D' : '#8A5700',
+        colorWarningText: isDarkMode ? '#FFD26D' : '#8A5700',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF7FA9' : '#B51D45',
+        colorErrorHover: isDarkMode ? '#FF9CBA' : '#A01739',
+        colorErrorActive: isDarkMode ? '#F26A96' : '#8B1230',
+        colorErrorText: isDarkMode ? '#FF7FA9' : '#B51D45',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#65DAF4' : '#00687B',
+        colorInfoText: isDarkMode ? '#65DAF4' : '#00687B',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 0,
+        borderRadiusLG: 0,
+        borderRadiusSM: 0,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 36,
+        controlOutline: isDarkMode ? '#C3FF3E' : '#365C00',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#172C32' : '#E1EDE3',
+        controlItemBgActive: isDarkMode ? '#253A25' : '#DAEBC6',
+        boxShadow: isDarkMode ? '8px 8px 0 rgba(0,0,0,0.42)' : '8px 8px 0 rgba(23,37,45,0.14)',
+        boxShadowSecondary: isDarkMode ? '8px 8px 0 rgba(0,0,0,0.42)' : '8px 8px 0 rgba(23,37,45,0.14)',
+        boxShadowTertiary: 'none',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            siderBg: '#060D14',
+            lightSiderBg: '#060D14',
+            triggerBg: '#060D14',
+            lightTriggerBg: '#060D14',
+            footerBg: '#060D14',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#142132' : '#FFFFFF',
+            itemColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            itemHoverBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            itemHoverColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            itemSelectedBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            itemSelectedColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            itemHeight: 38,
+            itemMarginInline: 10,
+            itemMarginBlock: 2,
+            itemBorderRadius: 0,
+            darkItemBg: '#060D14',
+            darkSubMenuItemBg: '#060D14',
+            darkPopupBg: '#0F202C',
+            darkItemColor: '#C8DAE3',
+            darkItemHoverBg: '#132D34',
+            darkItemHoverColor: '#79E9FF',
+            darkItemSelectedBg: '#C3FF3E',
+            darkItemSelectedColor: '#0B1712',
+            darkItemDisabledColor: '#88AAB8',
+        },
+        Tree: {
+            titleHeight: 32,
+            nodeHoverBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            nodeHoverColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            nodeSelectedBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            nodeSelectedColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            directoryNodeSelectedBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            directoryNodeSelectedColor: isDarkMode ? '#C3FF3E' : '#365C00',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            headerHeight: 48,
+            headerFontSize: 15,
+            bodyPadding: 22,
+            headerPadding: 22,
+            extraColor: isDarkMode ? '#A0B6BC' : '#4E6269',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#070A10' : '#EFF4F4',
+            headerColor: isDarkMode ? '#A0B6BC' : '#4E6269',
+            headerSplitColor: isDarkMode ? '#25394C' : '#D1DDDA',
+            borderColor: isDarkMode ? '#25394C' : '#D1DDDA',
+            rowHoverBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            rowSelectedBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            rowSelectedHoverBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            cellPaddingBlockMD: 12,
+            cellPaddingInlineMD: 12,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#070A10' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#070A10' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            defaultColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            defaultBorderColor: isDarkMode ? '#344A5E' : '#B5C5C4',
+            defaultHoverColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            defaultHoverBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            defaultActiveColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            defaultActiveBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            paddingInline: 12,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            hoverBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            addonBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            hoverBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            activeBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            activeShadow: isDarkMode ? '0 0 0 2px rgba(101,218,244,0.6)' : '0 0 0 2px rgba(0,104,123,0.45)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#0D1520' : '#FAFCF6',
+            optionSelectedBg: isDarkMode ? '#253A25' : '#DAEBC6',
+            optionSelectedColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            optionActiveBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            hoverBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            activeBorderColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            activeOutlineColor: isDarkMode ? '#C3FF3E' : '#365C00',
+        },
+        Tabs: {
+            titleFontSize: 13,
+            horizontalItemGutter: 22,
+            inkBarColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            itemSelectedColor: isDarkMode ? '#C3FF3E' : '#365C00',
+            itemHoverColor: isDarkMode ? '#C3FF3E' : '#365C00',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#172C32' : '#E1EDE3',
+            defaultColor: isDarkMode ? '#E8F5E7' : '#17252D',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            itemMarginBottom: 16,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#142132' : '#FFFFFF',
+            contentBg: isDarkMode ? '#142132' : '#FFFFFF',
+            footerBg: isDarkMode ? '#142132' : '#FFFFFF',
+            titleColor: isDarkMode ? '#E8F5E7' : '#17252D',
+            titleFontSize: 22,
+            paddingMD: 22,
+            paddingContentHorizontalLG: 22,
+        },
+        Alert: {
+            defaultPadding: '10px 14px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&amp;family=Orbitron:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" />
+<style>
+html[data-caprover-theme="hacker"] {
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 0px;
+    --caprover-control-radius: 0px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: 4px 4px 0 rgba(23,37,45,0.08);
+    --caprover-heading-tracking: 0.025em;
+    --caprover-heading-weight: 600;
+    --hacker-edge: #365C00;
+    --hacker-signal: #00687B;
+    --hacker-pink: #A81E69;
+    --hacker-grid: rgba(0,104,123,0.055);
+}
+html[data-caprover-theme="hacker"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    --hacker-edge: #C3FF3E;
+    --hacker-signal: #65DAF4;
+    --hacker-pink: #F28CC7;
+    --hacker-grid: rgba(101,218,244,0.065);
+}
+html[data-caprover-theme="hacker"] body {
+    background: #03070C;
+}
+html[data-caprover-theme="hacker"] .app-shell.full-screen {
+    width: calc(100% - 24px);
+    height: calc(100% - 24px);
+    margin: 12px;
+    border-color: #274751;
+    box-shadow: 0 0 32px rgba(101,218,244,0.08);
+}
+html[data-caprover-theme="hacker"] .app-sidebar {
+    border-inline-end: 1px solid #274751;
+}
+html[data-caprover-theme="hacker"] .sidebar-brand {
+    height: 58px;
+    font-family: 'Orbitron', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #C3FF3E;
+    border-bottom-color: #274751;
+}
+html[data-caprover-theme="hacker"] .sidebar-section-label,
+html[data-caprover-theme="hacker"] .sidebar-content .ant-menu-item-group-title {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #88AAB8;
+}
+html[data-caprover-theme="hacker"] .sidebar-content .ant-menu-item {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+}
+html[data-caprover-theme="hacker"] .sidebar-content .ant-menu-item-selected {
+    font-weight: 600;
+    box-shadow: 3px 3px 0 #1C493B;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+html[data-caprover-theme="hacker"] .sidebar-tools {
+    border-bottom-color: #274751;
+}
+html[data-caprover-theme="hacker"] .sidebar-content .ant-btn-text {
+    color: #C8DAE3;
+}
+html[data-caprover-theme="hacker"] .sidebar-content .ant-btn-text:hover {
+    color: #C3FF3E;
+    background: #132D34;
+}
+html[data-caprover-theme="hacker"] .sidebar-brand:focus-visible,
+html[data-caprover-theme="hacker"] .sidebar-content .ant-btn-text:focus-visible,
+html[data-caprover-theme="hacker"] .sidebar-content .ant-menu-item:focus-visible,
+html[data-caprover-theme="hacker"] .workspace-header .ant-btn-text:focus-visible {
+    outline: 2px solid #65DAF4;
+    outline-offset: -3px;
+}
+html[data-caprover-theme="hacker"] .workspace-header {
+    height: 58px;
+    color: #C8DAE3;
+    background: #060D14;
+    border-bottom: 3px solid #C3FF3E;
+    border-image: linear-gradient(90deg, #C3FF3E 0%, #C3FF3E 42%, #65DAF4 42%, #65DAF4 82%, #F28CC7 82%) 1;
+}
+html[data-caprover-theme="hacker"] .workspace-breadcrumb {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+html[data-caprover-theme="hacker"] .workspace-header .ant-btn-text {
+    color: #C8DAE3;
+}
+html[data-caprover-theme="hacker"] .workspace-header .ant-btn-text:hover {
+    background: #132D34;
+    color: #79E9FF;
+}
+html[data-caprover-theme="hacker"] .header-separator {
+    border-color: #274751;
+}
+html[data-caprover-theme="hacker"] .workspace-layout {
+    border: 0;
+    background-color: var(--ant-color-bg-layout);
+    background-image:
+        repeating-linear-gradient(0deg, transparent 0, transparent 3px, var(--hacker-grid) 3px, var(--hacker-grid) 4px),
+        radial-gradient(circle, var(--hacker-signal) 0.5px, transparent 0.7px);
+    background-size: auto, 28px 28px;
+}
+html[data-caprover-theme="hacker"] .workspace-content {
+    background: transparent;
+}
+html[data-caprover-theme="hacker"] #main-content-layout {
+    padding: 28px;
+}
+html[data-caprover-theme="hacker"] .page-heading h1,
+html[data-caprover-theme="hacker"] .apps-heading h1 {
+    font-family: 'Orbitron', Arial, sans-serif;
+    font-size: clamp(26px, 2.5vw, 36px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    color: var(--hacker-edge);
+}
+html[data-caprover-theme="hacker"] .app-details-heading h2 {
+    font-family: 'Orbitron', Arial, sans-serif;
+    font-size: 30px;
+    line-height: 1.3;
+    color: var(--hacker-signal);
+}
+html[data-caprover-theme="hacker"] .apps-page > .ant-card-head {
+    padding: 20px;
+    border: 1px solid var(--hacker-signal);
+    border-inline-start: 5px solid var(--hacker-edge);
+    background: var(--ant-color-bg-container);
+    margin-bottom: 28px;
+    box-shadow: 5px 5px 0 var(--ant-color-border-secondary);
+}
+html[data-caprover-theme="hacker"] .count-badge {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    color: var(--hacker-pink);
+    border-color: var(--hacker-pink);
+}
+html[data-caprover-theme="hacker"] .project-manager {
+    padding: 8px;
+    background: var(--ant-color-bg-container);
+    border: 1px solid var(--ant-color-border);
+    border-top: 3px solid var(--hacker-pink);
+}
+html[data-caprover-theme="hacker"] .project-manager .ant-tree {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 12px;
+    border-inline-start: 1px dashed var(--hacker-signal);
+}
+html[data-caprover-theme="hacker"] .apps-page .ant-table-wrapper {
+    border-color: var(--hacker-signal);
+    border-top: 3px solid var(--hacker-edge);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+html[data-caprover-theme="hacker"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--hacker-signal);
+}
+html[data-caprover-theme="hacker"] .app-tag,
+html[data-caprover-theme="hacker"] .overview-label,
+html[data-caprover-theme="hacker"] .metric-heading {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+}
+html[data-caprover-theme="hacker"] .ant-btn-primary {
+    font-family: 'Chakra Petch', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%);
+}
+html[data-caprover-theme="hacker"] .ant-btn-primary:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--ant-color-bg-container), inset 0 0 0 4px var(--hacker-signal);
+}
+html[data-caprover-theme="hacker"] .form-section-title,
+html[data-caprover-theme="hacker"] .ant-modal-title {
+    font-family: 'Orbitron', Arial, sans-serif;
+    letter-spacing: 0.04em;
+}
+html[data-caprover-theme="hacker"] .form-section-title {
+    font-size: 16px;
+    line-height: 1.5;
+}
+html[data-caprover-theme="hacker"] .ant-modal-content {
+    border: 1px solid var(--hacker-signal);
+    border-top: 3px solid var(--hacker-edge);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+html[data-caprover-theme="hacker"] .overview-value,
+html[data-caprover-theme="hacker"] .metric-value {
+    font-family: 'Share Tech Mono', Consolas, monospace;
+    font-size: 32px;
+    letter-spacing: 0;
+}
+html[data-caprover-theme="hacker"] .load-balancer-metric,
+html[data-caprover-theme="hacker"] .mobile-app-card {
+    border-color: var(--hacker-signal);
+    border-top: 3px solid var(--hacker-edge);
+    background: var(--ant-color-bg-container);
+}
+html[data-caprover-theme="hacker"] .app-details-actions {
+    border-top: 3px solid var(--hacker-edge);
+}
+html[data-caprover-theme="hacker"] .navigation-drawer {
+    background: #060D14;
+    color: #C8DAE3;
+    border-inline-end: 1px solid #65DAF4;
+}
+html[data-caprover-theme="hacker"] .navigation-drawer .ant-drawer-title,
+html[data-caprover-theme="hacker"] .navigation-drawer .ant-drawer-close {
+    color: #C8DAE3;
+    font-family: 'Share Tech Mono', Consolas, monospace;
+}
+html[data-caprover-theme="hacker"] .navigation-drawer .ant-drawer-close:hover,
+html[data-caprover-theme="hacker"] .navigation-drawer .ant-drawer-close:focus-visible {
+    color: #79E9FF;
+    background: #132D34;
+}
+html[data-caprover-theme="hacker"] .navigation-drawer .ant-drawer-close:focus-visible {
+    outline: 2px solid #65DAF4;
+    outline-offset: 2px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="hacker"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border: 0;
+    }
+    html[data-caprover-theme="hacker"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="hacker"] .apps-page > .ant-card-head {
+        padding: 16px;
+    }
+    html[data-caprover-theme="hacker"] .app-details-heading h2 {
+        font-size: 24px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{siderTheme:'dark'}
