@@ -191,14 +191,20 @@ html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     html[data-caprover-theme="glacier"] .app-sidebar {
-        background: var(--ant-color-bg-container);
+        background: #E5F1F8;
+    }
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
+        background: #132C3B;
     }
 }
 @media (prefers-reduced-transparency: reduce) {
     html[data-caprover-theme="glacier"] .app-sidebar {
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
-        background: var(--ant-color-bg-container);
+        background: #E5F1F8;
+    }
+    html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
+        background: #132C3B;
     }
 }
 </style>
