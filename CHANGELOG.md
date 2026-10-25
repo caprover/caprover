@@ -2,10 +2,20 @@
 
 Available as `edge`
 
+- New: Redesigned dashboard with Overview, guided Setup, reorganized Settings, and streamlined app creation [PR-250](https://github.com/caprover/caprover-frontend/pull/250) [PR-247](https://github.com/caprover/caprover-frontend/pull/247) [PR-255](https://github.com/caprover/caprover-frontend/pull/255) [PR-256](https://github.com/caprover/caprover-frontend/pull/256)
+- New: App runtime health and diagnostics, including instance counts and task history [PR-2522](https://github.com/caprover/caprover/pull/2522) [PR-246](https://github.com/caprover/caprover-frontend/pull/246)
+- New: Disk usage monitoring with persistent low-space alerts [PR-2520](https://github.com/caprover/caprover/pull/2520) [PR-241](https://github.com/caprover/caprover-frontend/pull/241)
+- New: Eleven built-in light and dark themes with improved theme switching [PR-2530](https://github.com/caprover/caprover/pull/2530) [PR-2531](https://github.com/caprover/caprover/pull/2531) [PR-251](https://github.com/caprover/caprover-frontend/pull/251)
+- Improved: Docker Compose compatibility and warnings for ignored fields [PR-2519](https://github.com/caprover/caprover/pull/2519) [PR-239](https://github.com/caprover/caprover-frontend/pull/239)
 - Improved: Updated Node.js to version 24 and removed unsupported ARMv7 images [PR-2448](https://github.com/caprover/caprover/pull/2448)
 - Improved: Enabled WebSocket support by default for newly created apps [PR-2528](https://github.com/caprover/caprover/pull/2528)
+- Improved: Added Docker API compatibility checks before official upgrades when version metadata is available [PR-2529](https://github.com/caprover/caprover/pull/2529)
 - Fixed: Removed orphaned SSL certificates one day after expiration before renewal [Issue-2397](https://github.com/caprover/caprover/issues/2397)
-- Fixed: Backups created with an incorrect nested data directory that prevented them from being restored [PR-2496](https://github.com/caprover/caprover/pull/2496)
+- Fixed: Backup creation, restoration of malformed archives, and missing-download handling [PR-2496](https://github.com/caprover/caprover/pull/2496) [PR-2497](https://github.com/caprover/caprover/pull/2497)
+- Fixed: Queued builds and one-click deployments failing or creating partial resources [PR-2510](https://github.com/caprover/caprover/pull/2510) [PR-2499](https://github.com/caprover/caprover/pull/2499) [PR-2506](https://github.com/caprover/caprover/pull/2506)
+- Fixed: Project naming, duplicate custom domains, and custom port settings on app updates [PR-2507](https://github.com/caprover/caprover/pull/2507) [PR-2493](https://github.com/caprover/caprover/pull/2493) [PR-2492](https://github.com/caprover/caprover/pull/2492)
+- Fixed: Dashboard API connection resets during NGINX reloads and SSH Git clone failures [PR-2494](https://github.com/caprover/caprover/pull/2494) [PR-2485](https://github.com/caprover/caprover/pull/2485)
+- Security: Updated backend dependencies and replaced deprecated request library [PR-2478](https://github.com/caprover/caprover/pull/2478) [PR-2479](https://github.com/caprover/caprover/pull/2479)
 
 ## [1.15.5] - 2026-10-23
 
