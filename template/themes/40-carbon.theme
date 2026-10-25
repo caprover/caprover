@@ -5,9 +5,14 @@ Carbon
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
-        fontSize: 14,
+        fontFamily: "'IBM Plex Sans', Arial, sans-serif",
+        fontFamilyCode: "'IBM Plex Mono', Consolas, monospace",
+        fontSize: 13,
+        fontSizeHeading1: 38,
+        fontSizeHeading2: 32,
+        fontSizeHeading3: 30,
+        fontSizeHeading4: 26,
+        fontSizeHeading5: 15,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#AA9ACA' : '#675C89',
         colorPrimaryHover: isDarkMode ? '#B7A9D2' : '#5F557E',
@@ -48,12 +53,12 @@ Carbon
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 6,
-        borderRadiusLG: 8,
-        borderRadiusSM: 4,
+        borderRadius: 1,
+        borderRadiusLG: 2,
+        borderRadiusSM: 0,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 36,
+        controlHeight: 32,
         controlOutline: isDarkMode ? '#AA9ACA' : '#675C89',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Carbon
             itemHoverColor: isDarkMode ? '#EDEEF2' : '#20232B',
             itemSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
             itemSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
-            itemHeight: 36,
-            itemMarginInline: 8,
+            itemHeight: 32,
+            itemMarginInline: 4,
             itemMarginBlock: 2,
-            itemBorderRadius: 6,
+            itemBorderRadius: 1,
         },
         Tree: {
-            titleHeight: 32,
+            titleHeight: 28,
             nodeHoverBg: isDarkMode ? '#282830' : '#F0EEF5',
             nodeHoverColor: isDarkMode ? '#EDEEF2' : '#20232B',
             nodeSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
@@ -98,8 +103,8 @@ Carbon
             headerBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
             headerHeight: 48,
             headerFontSize: 15,
-            bodyPadding: 20,
-            headerPadding: 20,
+            bodyPadding: 18,
+            headerPadding: 18,
             extraColor: isDarkMode ? '#A5A7B2' : '#626875',
         },
         Table: {
@@ -112,7 +117,7 @@ Carbon
             rowSelectedHoverBg: isDarkMode ? '#2D2938' : '#E9E5F3',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#282830' : '#F0EEF5',
-            cellPaddingBlockMD: 12,
+            cellPaddingBlockMD: 9,
             cellPaddingInlineMD: 16,
         },
         Button: {
@@ -161,16 +166,16 @@ Carbon
         },
         Form: {
             labelColor: isDarkMode ? '#EDEEF2' : '#20232B',
-            itemMarginBottom: 18,
+            itemMarginBottom: 16,
         },
         Modal: {
             headerBg: isDarkMode ? '#24262D' : '#FAFAFC',
             contentBg: isDarkMode ? '#24262D' : '#FAFAFC',
             footerBg: isDarkMode ? '#24262D' : '#FAFAFC',
             titleColor: isDarkMode ? '#EDEEF2' : '#20232B',
-            titleFontSize: 16,
-            paddingMD: 20,
-            paddingContentHorizontalLG: 20,
+            titleFontSize: 18,
+            paddingMD: 18,
+            paddingContentHorizontalLG: 18,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -183,15 +188,99 @@ Carbon
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="carbon"] {
-    --caprover-shell-radius: 8px;
-    --caprover-surface-radius: 6px;
-    --caprover-control-radius: 4px;
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 2px;
+    --caprover-control-radius: 1px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: none;
-    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-tracking: -0.02em;
     --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="carbon"] .page-heading h1,
+html[data-caprover-theme="carbon"] .apps-heading h1,
+html[data-caprover-theme="carbon"] .app-details-heading h2 {
+    font-family: 'IBM Plex Sans', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 30px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="carbon"] .app-shell.full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+}
+html[data-caprover-theme="carbon"] .workspace-header,
+html[data-caprover-theme="carbon"] .sidebar-brand {
+    height: 42px;
+}
+html[data-caprover-theme="carbon"] .sidebar-brand {
+    font-size: 16px;
+    letter-spacing: 0.04em;
+}
+html[data-caprover-theme="carbon"] .sidebar-section-label,
+html[data-caprover-theme="carbon"] .sidebar-content .ant-menu-item-group-title {
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+}
+html[data-caprover-theme="carbon"] .sidebar-content .ant-menu-item-selected {
+    border-inline-start: 3px solid var(--ant-color-primary);
+}
+html[data-caprover-theme="carbon"] #main-content-layout {
+    padding: 20px;
+}
+html[data-caprover-theme="carbon"] .apps-page > .ant-card-head {
+    border-bottom: 2px solid var(--ant-color-border);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+html[data-caprover-theme="carbon"] .apps-heading h1,
+html[data-caprover-theme="carbon"] .page-heading h1 {
+    text-transform: uppercase;
+}
+html[data-caprover-theme="carbon"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+html[data-caprover-theme="carbon"] .project-manager .ant-tree,
+html[data-caprover-theme="carbon"] .app-tag,
+html[data-caprover-theme="carbon"] .count-badge,
+html[data-caprover-theme="carbon"] .metric-description {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+}
+html[data-caprover-theme="carbon"] .app-name-link {
+    font-weight: 600;
+}
+html[data-caprover-theme="carbon"] .app-details-actions {
+    box-shadow: none;
+    border-top-width: 2px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="carbon"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="carbon"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="carbon"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="carbon"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 

@@ -5,9 +5,14 @@ Porcelain
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
+        fontFamily: "'Manrope', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
         fontSize: 14,
+        fontSizeHeading1: 48,
+        fontSizeHeading2: 42,
+        fontSizeHeading3: 40,
+        fontSizeHeading4: 36,
+        fontSizeHeading5: 16,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#78A5FF' : '#164FC5',
         colorPrimaryHover: isDarkMode ? '#8CB2FF' : '#1449B5',
@@ -48,12 +53,12 @@ Porcelain
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 3,
+        borderRadius: 2,
         borderRadiusLG: 4,
-        borderRadiusSM: 2,
+        borderRadiusSM: 1,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 36,
+        controlHeight: 38,
         controlOutline: isDarkMode ? '#78A5FF' : '#164FC5',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Porcelain
             itemHoverColor: isDarkMode ? '#EFF5FF' : '#101C2B',
             itemSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
             itemSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
-            itemHeight: 36,
-            itemMarginInline: 6,
+            itemHeight: 44,
+            itemMarginInline: 8,
             itemMarginBlock: 2,
-            itemBorderRadius: 3,
+            itemBorderRadius: 2,
         },
         Tree: {
-            titleHeight: 32,
+            titleHeight: 40,
             nodeHoverBg: isDarkMode ? '#1A3049' : '#F0F5FD',
             nodeHoverColor: isDarkMode ? '#EFF5FF' : '#101C2B',
             nodeSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
@@ -98,8 +103,8 @@ Porcelain
             headerBg: isDarkMode ? '#142235' : '#FFFFFF',
             headerHeight: 48,
             headerFontSize: 15,
-            bodyPadding: 20,
-            headerPadding: 20,
+            bodyPadding: 32,
+            headerPadding: 32,
             extraColor: isDarkMode ? '#AABBD0' : '#536477',
         },
         Table: {
@@ -112,7 +117,7 @@ Porcelain
             rowSelectedHoverBg: isDarkMode ? '#223A61' : '#E9F0FF',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#1A3049' : '#F0F5FD',
-            cellPaddingBlockMD: 12,
+            cellPaddingBlockMD: 20,
             cellPaddingInlineMD: 16,
         },
         Button: {
@@ -168,9 +173,9 @@ Porcelain
             contentBg: isDarkMode ? '#1D3147' : '#FFFFFF',
             footerBg: isDarkMode ? '#1D3147' : '#FFFFFF',
             titleColor: isDarkMode ? '#EFF5FF' : '#101C2B',
-            titleFontSize: 16,
-            paddingMD: 20,
-            paddingContentHorizontalLG: 20,
+            titleFontSize: 18,
+            paddingMD: 32,
+            paddingContentHorizontalLG: 32,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -183,15 +188,105 @@ Porcelain
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="porcelain"] {
     --caprover-shell-radius: 4px;
-    --caprover-surface-radius: 3px;
+    --caprover-surface-radius: 0px;
     --caprover-control-radius: 2px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: none;
-    --caprover-heading-tracking: -0.025em;
-    --caprover-heading-weight: 550;
+    --caprover-heading-tracking: -0.045em;
+    --caprover-heading-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .page-heading h1,
+html[data-caprover-theme="porcelain"] .apps-heading h1,
+html[data-caprover-theme="porcelain"] .app-details-heading h2 {
+    font-family: 'Manrope', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 40px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="porcelain"] .workspace-header,
+html[data-caprover-theme="porcelain"] .sidebar-brand {
+    height: 64px;
+    border-bottom: 0;
+}
+html[data-caprover-theme="porcelain"] .sidebar-brand {
+    font-size: 22px;
+    font-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .workspace-layout {
+    border-inline-start: 0;
+}
+html[data-caprover-theme="porcelain"] .sidebar-content .ant-menu-item-selected {
+    background: transparent;
+    font-weight: 700;
+}
+html[data-caprover-theme="porcelain"] .sidebar-content .ant-menu-item-selected .ant-menu-title-content {
+    text-decoration: underline;
+    text-underline-offset: 7px;
+    text-decoration-thickness: 1px;
+}
+html[data-caprover-theme="porcelain"] #main-content-layout {
+    padding: 40px 36px;
+}
+html[data-caprover-theme="porcelain"] .apps-heading {
+    flex-wrap: wrap;
+    row-gap: 20px;
+}
+html[data-caprover-theme="porcelain"] .apps-heading h1 {
+    flex-basis: 100%;
+}
+html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head .ant-card-head-wrapper {
+    align-items: flex-end;
+}
+html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head {
+    margin-bottom: 36px;
+}
+html[data-caprover-theme="porcelain"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="porcelain"] .apps-page .ant-table-thead > tr > th {
+    background: transparent;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="porcelain"] .project-manager .ant-tree {
+    background: transparent;
+}
+html[data-caprover-theme="porcelain"] .page-heading {
+    margin-bottom: 32px;
+}
+html[data-caprover-theme="porcelain"] .form-section-title {
+    font-size: 18px;
+    font-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .app-details-actions {
+    border: 0;
+    border-top: 1px solid var(--ant-color-border);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="porcelain"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="porcelain"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="porcelain"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 

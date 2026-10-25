@@ -5,9 +5,14 @@ Botanical
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
-        fontSize: 14,
+        fontFamily: "'Source Sans 3', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 15,
+        fontSizeHeading1: 42,
+        fontSizeHeading2: 36,
+        fontSizeHeading3: 34,
+        fontSizeHeading4: 30,
+        fontSizeHeading5: 17,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#9BC9A7' : '#245A3D',
         colorPrimaryHover: isDarkMode ? '#AAD1B4' : '#215338',
@@ -48,12 +53,12 @@ Botanical
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 9,
-        borderRadiusLG: 12,
-        borderRadiusSM: 6,
+        borderRadius: 8,
+        borderRadiusLG: 20,
+        borderRadiusSM: 4,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 38,
+        controlHeight: 40,
         controlOutline: isDarkMode ? '#9BC9A7' : '#245A3D',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Botanical
             itemHoverColor: isDarkMode ? '#E8F4E7' : '#26372C',
             itemSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
             itemSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
-            itemHeight: 38,
+            itemHeight: 44,
             itemMarginInline: 8,
             itemMarginBlock: 2,
-            itemBorderRadius: 9,
+            itemBorderRadius: 8,
         },
         Tree: {
-            titleHeight: 34,
+            titleHeight: 40,
             nodeHoverBg: isDarkMode ? '#213B2F' : '#EDF3E8',
             nodeHoverColor: isDarkMode ? '#E8F4E7' : '#26372C',
             nodeSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
@@ -98,8 +103,8 @@ Botanical
             headerBg: isDarkMode ? '#142720' : '#FFFEF9',
             headerHeight: 52,
             headerFontSize: 15,
-            bodyPadding: 24,
-            headerPadding: 24,
+            bodyPadding: 28,
+            headerPadding: 28,
             extraColor: isDarkMode ? '#AAC3B2' : '#5F6C60',
         },
         Table: {
@@ -112,7 +117,7 @@ Botanical
             rowSelectedHoverBg: isDarkMode ? '#284838' : '#E3EDE2',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#213B2F' : '#EDF3E8',
-            cellPaddingBlockMD: 14,
+            cellPaddingBlockMD: 18,
             cellPaddingInlineMD: 16,
         },
         Button: {
@@ -168,9 +173,9 @@ Botanical
             contentBg: isDarkMode ? '#1D3429' : '#FFFDF7',
             footerBg: isDarkMode ? '#1D3429' : '#FFFDF7',
             titleColor: isDarkMode ? '#E8F4E7' : '#26372C',
-            titleFontSize: 16,
-            paddingMD: 24,
-            paddingContentHorizontalLG: 24,
+            titleFontSize: 18,
+            paddingMD: 28,
+            paddingContentHorizontalLG: 28,
         },
         Alert: {
             defaultPadding: '12px 16px',
@@ -183,18 +188,101 @@ Botanical
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&amp;family=Lora:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="botanical"] {
-    --caprover-shell-radius: 14px;
-    --caprover-surface-radius: 10px;
-    --caprover-control-radius: 6px;
+    --caprover-shell-radius: 16px;
+    --caprover-surface-radius: 20px;
+    --caprover-control-radius: 8px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: 0 2px 8px rgba(36, 90, 61, 0.04);
-    --caprover-heading-tracking: -0.015em;
-    --caprover-heading-weight: 550;
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 500;
 }
 html[data-caprover-theme="botanical"][data-caprover-dark="true"] {
     --caprover-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+html[data-caprover-theme="botanical"] .page-heading h1,
+html[data-caprover-theme="botanical"] .apps-heading h1,
+html[data-caprover-theme="botanical"] .app-details-heading h2 {
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="botanical"] .workspace-header {
+    height: 56px;
+    border-bottom: 0;
+}
+html[data-caprover-theme="botanical"] .sidebar-brand {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 22px;
+    height: 56px;
+}
+html[data-caprover-theme="botanical"] .sidebar-content .ant-menu-item {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 15px;
+}
+html[data-caprover-theme="botanical"] .sidebar-content .ant-menu-item-selected {
+    border-start-start-radius: 4px;
+    border-end-end-radius: 4px;
+    border-start-end-radius: 22px;
+    border-end-start-radius: 22px;
+}
+html[data-caprover-theme="botanical"] #main-content-layout {
+    padding: 32px;
+}
+html[data-caprover-theme="botanical"] .apps-page > .ant-card-head {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    margin-bottom: 24px;
+}
+html[data-caprover-theme="botanical"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-start-start-radius: 24px;
+    border-end-end-radius: 24px;
+    border-start-end-radius: 4px;
+    border-end-start-radius: 4px;
+}
+html[data-caprover-theme="botanical"] .apps-page .ant-table-thead > tr > th {
+    background: var(--ant-color-bg-layout);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 13px;
+    font-weight: 500;
+}
+html[data-caprover-theme="botanical"] .ant-btn:not(.ant-btn-circle),
+html[data-caprover-theme="botanical"] .ant-input-affix-wrapper {
+    border-start-start-radius: 4px;
+    border-end-end-radius: 4px;
+    border-start-end-radius: 16px;
+    border-end-start-radius: 16px;
+}
+html[data-caprover-theme="botanical"] .form-section-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 20px;
+}
+html[data-caprover-theme="botanical"] .load-balancer-metric {
+    border-start-start-radius: 24px;
+    border-end-end-radius: 24px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="botanical"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="botanical"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="botanical"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="botanical"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 

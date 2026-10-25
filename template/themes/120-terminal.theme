@@ -5,9 +5,14 @@ Terminal
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
+        fontFamily: "'JetBrains Mono', Consolas, monospace",
+        fontFamilyCode: "'JetBrains Mono', Consolas, monospace",
         fontSize: 13,
+        fontSizeHeading1: 30,
+        fontSizeHeading2: 24,
+        fontSizeHeading3: 22,
+        fontSizeHeading4: 18,
+        fontSizeHeading5: 15,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#82E69A' : '#20663B',
         colorPrimaryHover: isDarkMode ? '#95EAA9' : '#1D5E36',
@@ -48,12 +53,12 @@ Terminal
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 2,
-        borderRadiusLG: 2,
-        borderRadiusSM: 2,
+        borderRadius: 0,
+        borderRadiusLG: 0,
+        borderRadiusSM: 0,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 34,
+        controlHeight: 30,
         controlOutline: isDarkMode ? '#82E69A' : '#20663B',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Terminal
             itemHoverColor: isDarkMode ? '#D3F7D5' : '#172A1D',
             itemSelectedBg: isDarkMode ? '#183F26' : '#E4F4DF',
             itemSelectedColor: isDarkMode ? '#82E69A' : '#20663B',
-            itemHeight: 34,
-            itemMarginInline: 6,
+            itemHeight: 30,
+            itemMarginInline: 4,
             itemMarginBlock: 2,
-            itemBorderRadius: 2,
+            itemBorderRadius: 0,
         },
         Tree: {
-            titleHeight: 30,
+            titleHeight: 26,
             nodeHoverBg: isDarkMode ? '#12311E' : '#EEF8E8',
             nodeHoverColor: isDarkMode ? '#D3F7D5' : '#172A1D',
             nodeSelectedBg: isDarkMode ? '#183F26' : '#E4F4DF',
@@ -112,7 +117,7 @@ Terminal
             rowSelectedHoverBg: isDarkMode ? '#183F26' : '#E4F4DF',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#12311E' : '#EEF8E8',
-            cellPaddingBlockMD: 10,
+            cellPaddingBlockMD: 8,
             cellPaddingInlineMD: 12,
         },
         Button: {
@@ -161,14 +166,14 @@ Terminal
         },
         Form: {
             labelColor: isDarkMode ? '#D3F7D5' : '#172A1D',
-            itemMarginBottom: 18,
+            itemMarginBottom: 16,
         },
         Modal: {
             headerBg: isDarkMode ? '#13231A' : '#FBFFF5',
             contentBg: isDarkMode ? '#13231A' : '#FBFFF5',
             footerBg: isDarkMode ? '#13231A' : '#FBFFF5',
             titleColor: isDarkMode ? '#D3F7D5' : '#172A1D',
-            titleFontSize: 16,
+            titleFontSize: 18,
             paddingMD: 16,
             paddingContentHorizontalLG: 16,
         },
@@ -183,15 +188,102 @@ Terminal
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="terminal"] {
-    --caprover-shell-radius: 2px;
-    --caprover-surface-radius: 2px;
-    --caprover-control-radius: 2px;
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 0px;
+    --caprover-control-radius: 0px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: none;
     --caprover-heading-tracking: 0;
     --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="terminal"] .page-heading h1,
+html[data-caprover-theme="terminal"] .apps-heading h1,
+html[data-caprover-theme="terminal"] .app-details-heading h2 {
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: clamp(22px, 2.6vw, 22px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="terminal"] .app-shell.full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+}
+html[data-caprover-theme="terminal"] .workspace-header,
+html[data-caprover-theme="terminal"] .sidebar-brand {
+    height: 36px;
+    font-size: 12px;
+}
+html[data-caprover-theme="terminal"] .sidebar-brand {
+    font-size: 14px;
+}
+html[data-caprover-theme="terminal"] .sidebar-section-label,
+html[data-caprover-theme="terminal"] .sidebar-content .ant-menu-item-group-title {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+}
+html[data-caprover-theme="terminal"] .sidebar-content .ant-menu-item {
+    font-size: 12px;
+}
+html[data-caprover-theme="terminal"] .sidebar-content .ant-menu-item-selected {
+    border: 1px solid var(--ant-color-primary);
+}
+html[data-caprover-theme="terminal"] #main-content-layout {
+    padding: 20px;
+}
+html[data-caprover-theme="terminal"] .apps-heading h1,
+html[data-caprover-theme="terminal"] .page-heading h1 {
+    text-transform: uppercase;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+}
+html[data-caprover-theme="terminal"] .apps-page > .ant-card-head {
+    border-bottom: 1px solid var(--ant-color-primary);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+html[data-caprover-theme="terminal"] .apps-page .ant-table-wrapper {
+    border: 0;
+}
+html[data-caprover-theme="terminal"] .apps-page .ant-table-thead > tr > th {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--ant-color-primary);
+}
+html[data-caprover-theme="terminal"] .apps-page .ant-table-tbody > tr > td {
+    border-bottom: 1px dashed var(--ant-color-border-secondary);
+}
+html[data-caprover-theme="terminal"] .project-manager .ant-tree {
+    border-inline-start: 1px dashed var(--ant-color-border);
+}
+html[data-caprover-theme="terminal"] .app-details-actions {
+    box-shadow: none;
+    border-top-color: var(--ant-color-primary);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="terminal"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="terminal"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="terminal"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="terminal"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 

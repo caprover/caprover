@@ -5,9 +5,14 @@ Aurora
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
+        fontFamily: "'DM Sans', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
         fontSize: 14,
+        fontSizeHeading1: 42,
+        fontSizeHeading2: 36,
+        fontSizeHeading3: 34,
+        fontSizeHeading4: 30,
+        fontSizeHeading5: 16,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#AB94FF' : '#5549BF',
         colorPrimaryHover: isDarkMode ? '#B8A4FF' : '#4E43B0',
@@ -48,12 +53,12 @@ Aurora
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 10,
-        borderRadiusLG: 14,
-        borderRadiusSM: 7,
+        borderRadius: 18,
+        borderRadiusLG: 20,
+        borderRadiusSM: 10,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 38,
+        controlHeight: 40,
         controlOutline: isDarkMode ? '#AB94FF' : '#5549BF',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Aurora
             itemHoverColor: isDarkMode ? '#F0EDFF' : '#27233D',
             itemSelectedBg: isDarkMode ? '#33305B' : '#ECE7FB',
             itemSelectedColor: isDarkMode ? '#AB94FF' : '#5549BF',
-            itemHeight: 38,
+            itemHeight: 42,
             itemMarginInline: 8,
             itemMarginBlock: 2,
-            itemBorderRadius: 10,
+            itemBorderRadius: 18,
         },
         Tree: {
-            titleHeight: 34,
+            titleHeight: 38,
             nodeHoverBg: isDarkMode ? '#2B2A4D' : '#F1EDFC',
             nodeHoverColor: isDarkMode ? '#F0EDFF' : '#27233D',
             nodeSelectedBg: isDarkMode ? '#33305B' : '#ECE7FB',
@@ -112,7 +117,7 @@ Aurora
             rowSelectedHoverBg: isDarkMode ? '#33305B' : '#ECE7FB',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#2B2A4D' : '#F1EDFC',
-            cellPaddingBlockMD: 14,
+            cellPaddingBlockMD: 16,
             cellPaddingInlineMD: 16,
         },
         Button: {
@@ -168,7 +173,7 @@ Aurora
             contentBg: isDarkMode ? '#28294A' : '#FFFFFF',
             footerBg: isDarkMode ? '#28294A' : '#FFFFFF',
             titleColor: isDarkMode ? '#F0EDFF' : '#27233D',
-            titleFontSize: 16,
+            titleFontSize: 18,
             paddingMD: 24,
             paddingContentHorizontalLG: 24,
         },
@@ -183,14 +188,15 @@ Aurora
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="aurora"] {
-    --caprover-shell-radius: 16px;
-    --caprover-surface-radius: 12px;
-    --caprover-control-radius: 7px;
+    --caprover-shell-radius: 20px;
+    --caprover-surface-radius: 16px;
+    --caprover-control-radius: 18px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: 0 4px 16px rgba(85, 73, 191, 0.06);
-    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-tracking: -0.045em;
     --caprover-heading-weight: 600;
 }
 html[data-caprover-theme="aurora"][data-caprover-dark="true"] {
@@ -208,6 +214,72 @@ html[data-caprover-theme="aurora"][data-caprover-dark="true"] .workspace-layout 
 }
 html[data-caprover-theme="aurora"] .workspace-content {
     background: transparent;
+}
+html[data-caprover-theme="aurora"] .page-heading h1,
+html[data-caprover-theme="aurora"] .apps-heading h1,
+html[data-caprover-theme="aurora"] .app-details-heading h2 {
+    font-family: 'Space Grotesk', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="aurora"] .workspace-header {
+    height: 56px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+html[data-caprover-theme="aurora"] .sidebar-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    height: 56px;
+}
+html[data-caprover-theme="aurora"] .sidebar-content .ant-menu-item {
+    font-family: 'Space Grotesk', sans-serif;
+}
+html[data-caprover-theme="aurora"] .sidebar-content .ant-menu-item-selected {
+    border: 1px solid var(--ant-color-primary);
+    box-shadow: 0 0 20px rgba(134,95,239,0.14);
+}
+html[data-caprover-theme="aurora"] .apps-page > .ant-card-head {
+    padding: 22px;
+    border: 1px solid var(--ant-color-primary-border);
+    border-radius: 16px;
+    background: var(--ant-color-primary-bg);
+    margin-bottom: 28px;
+}
+html[data-caprover-theme="aurora"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+html[data-caprover-theme="aurora"] .metric-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px;
+}
+html[data-caprover-theme="aurora"] .ant-input-affix-wrapper,
+html[data-caprover-theme="aurora"] .ant-select-selector {
+    border-radius: 12px;
+}
+html[data-caprover-theme="aurora"] .app-details-actions {
+    border-color: var(--ant-color-primary-border);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="aurora"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="aurora"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="aurora"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="aurora"] .apps-page > .ant-card-head {
+        padding: 16px;
+    }
 }
 </style>
 

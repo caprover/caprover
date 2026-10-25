@@ -5,9 +5,14 @@ Ember
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
+        fontFamily: "'IBM Plex Sans', Arial, sans-serif",
+        fontFamilyCode: "'IBM Plex Mono', Consolas, monospace",
         fontSize: 14,
+        fontSizeHeading1: 42,
+        fontSizeHeading2: 36,
+        fontSizeHeading3: 34,
+        fontSizeHeading4: 30,
+        fontSizeHeading5: 16,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#E5A173' : '#9F4B22',
         colorPrimaryHover: isDarkMode ? '#E9AF88' : '#92451F',
@@ -48,12 +53,12 @@ Ember
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 5,
-        borderRadiusLG: 8,
-        borderRadiusSM: 4,
+        borderRadius: 3,
+        borderRadiusLG: 6,
+        borderRadiusSM: 2,
         lineWidth: 1,
         lineType: 'solid',
-        controlHeight: 36,
+        controlHeight: 38,
         controlOutline: isDarkMode ? '#E5A173' : '#9F4B22',
         controlOutlineWidth: 2,
         lineWidthFocus: 2,
@@ -80,13 +85,13 @@ Ember
             itemHoverColor: isDarkMode ? '#F7EAE0' : '#342B28',
             itemSelectedBg: isDarkMode ? '#50352B' : '#F5E1D3',
             itemSelectedColor: isDarkMode ? '#E5A173' : '#9F4B22',
-            itemHeight: 36,
+            itemHeight: 40,
             itemMarginInline: 8,
             itemMarginBlock: 2,
-            itemBorderRadius: 5,
+            itemBorderRadius: 3,
         },
         Tree: {
-            titleHeight: 32,
+            titleHeight: 36,
             nodeHoverBg: isDarkMode ? '#3A2E29' : '#F8EAE0',
             nodeHoverColor: isDarkMode ? '#F7EAE0' : '#342B28',
             nodeSelectedBg: isDarkMode ? '#50352B' : '#F5E1D3',
@@ -98,8 +103,8 @@ Ember
             headerBg: isDarkMode ? '#25211F' : '#FFFCF8',
             headerHeight: 48,
             headerFontSize: 15,
-            bodyPadding: 20,
-            headerPadding: 20,
+            bodyPadding: 22,
+            headerPadding: 22,
             extraColor: isDarkMode ? '#C0AA9B' : '#76655E',
         },
         Table: {
@@ -112,7 +117,7 @@ Ember
             rowSelectedHoverBg: isDarkMode ? '#50352B' : '#F5E1D3',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#3A2E29' : '#F8EAE0',
-            cellPaddingBlockMD: 12,
+            cellPaddingBlockMD: 13,
             cellPaddingInlineMD: 16,
         },
         Button: {
@@ -168,9 +173,9 @@ Ember
             contentBg: isDarkMode ? '#312925' : '#FFF9F3',
             footerBg: isDarkMode ? '#312925' : '#FFF9F3',
             titleColor: isDarkMode ? '#F7EAE0' : '#342B28',
-            titleFontSize: 16,
-            paddingMD: 20,
-            paddingContentHorizontalLG: 20,
+            titleFontSize: 18,
+            paddingMD: 22,
+            paddingContentHorizontalLG: 22,
         },
         Alert: {
             defaultPadding: '10px 14px',
@@ -183,18 +188,119 @@ Ember
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="ember"] {
-    --caprover-shell-radius: 10px;
-    --caprover-surface-radius: 8px;
-    --caprover-control-radius: 4px;
+    --caprover-shell-radius: 6px;
+    --caprover-surface-radius: 6px;
+    --caprover-control-radius: 3px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: 0 2px 10px rgba(85, 38, 18, 0.06);
-    --caprover-heading-tracking: -0.02em;
+    --caprover-heading-tracking: 0.01em;
     --caprover-heading-weight: 600;
 }
 html[data-caprover-theme="ember"][data-caprover-dark="true"] {
     --caprover-surface-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+}
+html[data-caprover-theme="ember"] .page-heading h1,
+html[data-caprover-theme="ember"] .apps-heading h1,
+html[data-caprover-theme="ember"] .app-details-heading h2 {
+    font-family: 'Barlow Semi Condensed', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="ember"] .workspace-header,
+html[data-caprover-theme="ember"] .sidebar-brand {
+    height: 52px;
+}
+html[data-caprover-theme="ember"] .sidebar-brand {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 23px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+html[data-caprover-theme="ember"] .sidebar-content .ant-menu-item {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 18px;
+}
+html[data-caprover-theme="ember"] .sidebar-content .ant-menu-item-selected {
+    border-inline-start: 4px solid var(--ant-color-primary);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+}
+html[data-caprover-theme="ember"] .apps-heading h1,
+html[data-caprover-theme="ember"] .page-heading h1 {
+    text-transform: uppercase;
+}
+html[data-caprover-theme="ember"] .apps-page > .ant-card-head {
+    padding: 20px;
+    border: 1px solid var(--ant-color-border);
+    border-bottom-width: 3px;
+    border-radius: 6px;
+    background: var(--ant-color-bg-layout);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+html[data-caprover-theme="ember"] .project-manager {
+    padding: 12px;
+    border: 1px solid var(--ant-color-border);
+    border-radius: 4px;
+    background: var(--ant-color-bg-layout);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
+}
+html[data-caprover-theme="ember"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+html[data-caprover-theme="ember"] .ant-input,
+html[data-caprover-theme="ember"] .ant-input-affix-wrapper,
+html[data-caprover-theme="ember"] .ant-select-selector {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.07);
+}
+html[data-caprover-theme="ember"] .ant-input-affix-wrapper > .ant-input,
+html[data-caprover-theme="ember"] .ant-input-affix-wrapper > .ant-input:focus {
+    box-shadow: none;
+}
+html[data-caprover-theme="ember"] .ant-input:focus,
+html[data-caprover-theme="ember"] .ant-input-affix-wrapper-focused,
+html[data-caprover-theme="ember"] .ant-select-focused .ant-select-selector {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.07), 0 0 0 2px var(--ant-color-primary);
+}
+html[data-caprover-theme="ember"] .ant-btn-primary {
+    box-shadow: 0 3px 0 var(--ant-color-primary-active);
+}
+html[data-caprover-theme="ember"] .metric-value {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 38px;
+    font-variant-numeric: tabular-nums;
+}
+html[data-caprover-theme="ember"] .form-section-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 22px;
+    text-transform: uppercase;
+}
+html[data-caprover-theme="ember"] .app-details-actions {
+    border-top-width: 3px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="ember"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="ember"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="ember"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="ember"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 

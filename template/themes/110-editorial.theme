@@ -5,9 +5,14 @@ Editorial
 {
     algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
     token: {
-        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
-        fontSize: 14,
+        fontFamily: "'Source Sans 3', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 15,
+        fontSizeHeading1: 52,
+        fontSizeHeading2: 46,
+        fontSizeHeading3: 44,
+        fontSizeHeading4: 40,
+        fontSizeHeading5: 17,
         fontWeightStrong: 600,
         colorPrimary: isDarkMode ? '#E3A6B8' : '#792D45',
         colorPrimaryHover: isDarkMode ? '#E7B3C3' : '#6F293F',
@@ -48,9 +53,9 @@ Editorial
         colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
         colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
         colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
-        borderRadius: 2,
-        borderRadiusLG: 2,
-        borderRadiusSM: 2,
+        borderRadius: 0,
+        borderRadiusLG: 0,
+        borderRadiusSM: 0,
         lineWidth: 1,
         lineType: 'solid',
         controlHeight: 38,
@@ -80,13 +85,13 @@ Editorial
             itemHoverColor: isDarkMode ? '#F7EEE8' : '#29201F',
             itemSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
             itemSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
-            itemHeight: 40,
-            itemMarginInline: 6,
+            itemHeight: 42,
+            itemMarginInline: 8,
             itemMarginBlock: 2,
-            itemBorderRadius: 2,
+            itemBorderRadius: 0,
         },
         Tree: {
-            titleHeight: 36,
+            titleHeight: 38,
             nodeHoverBg: isDarkMode ? '#382A30' : '#F8EDF0',
             nodeHoverColor: isDarkMode ? '#F7EEE8' : '#29201F',
             nodeSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
@@ -112,7 +117,7 @@ Editorial
             rowSelectedHoverBg: isDarkMode ? '#492E38' : '#F2E4E8',
             bodySortBg: 'transparent',
             headerSortActiveBg: isDarkMode ? '#382A30' : '#F8EDF0',
-            cellPaddingBlockMD: 16,
+            cellPaddingBlockMD: 18,
             cellPaddingInlineMD: 20,
         },
         Button: {
@@ -168,7 +173,7 @@ Editorial
             contentBg: isDarkMode ? '#382A2F' : '#FFFAF4',
             footerBg: isDarkMode ? '#382A2F' : '#FFFAF4',
             titleColor: isDarkMode ? '#F7EEE8' : '#29201F',
-            titleFontSize: 16,
+            titleFontSize: 28,
             paddingMD: 28,
             paddingContentHorizontalLG: 28,
         },
@@ -183,25 +188,116 @@ Editorial
 }
 
 ###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&amp;family=Newsreader:wght@400;500;600;700&amp;display=swap" />
 <style>
 html[data-caprover-theme="editorial"] {
-    --caprover-shell-radius: 2px;
-    --caprover-surface-radius: 2px;
-    --caprover-control-radius: 2px;
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 0px;
+    --caprover-control-radius: 0px;
     --caprover-border-width: 1px;
     --caprover-surface-shadow: none;
-    --caprover-heading-tracking: -0.015em;
-    --caprover-heading-weight: 600;
+    --caprover-heading-tracking: -0.035em;
+    --caprover-heading-weight: 500;
 }
+
 html[data-caprover-theme="editorial"] .page-heading h1,
 html[data-caprover-theme="editorial"] .apps-heading h1,
-html[data-caprover-theme="editorial"] .app-details-heading h2,
-html[data-caprover-theme="editorial"] .form-section-title,
-html[data-caprover-theme="editorial"] .ant-modal-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-weight: var(--caprover-heading-weight);
-    letter-spacing: var(--caprover-heading-tracking);
+html[data-caprover-theme="editorial"] .app-details-heading h2 {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+    font-size: clamp(28px, 3.2vw, 44px);
     line-height: 1.2;
+}
+html[data-caprover-theme="editorial"] .workspace-header {
+    height: 58px;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="editorial"] .sidebar-brand {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    height: 58px;
+}
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 19px;
+}
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item-selected {
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+html[data-caprover-theme="editorial"] .sidebar-section-label,
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item-group-title {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+}
+html[data-caprover-theme="editorial"] #main-content-layout {
+    padding: 36px;
+}
+html[data-caprover-theme="editorial"] .apps-heading {
+    flex-wrap: wrap;
+    row-gap: 18px;
+}
+html[data-caprover-theme="editorial"] .apps-heading h1 {
+    flex-basis: 100%;
+}
+html[data-caprover-theme="editorial"] .apps-page > .ant-card-head .ant-card-head-wrapper {
+    align-items: flex-end;
+}
+html[data-caprover-theme="editorial"] .apps-page > .ant-card-head {
+    border-bottom: 3px double var(--ant-color-text);
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+}
+html[data-caprover-theme="editorial"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="editorial"] .apps-page .ant-table-thead > tr > th {
+    background: transparent;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    border-bottom: 1px solid var(--ant-color-text);
+}
+html[data-caprover-theme="editorial"] .form-section-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+}
+html[data-caprover-theme="editorial"] .ant-modal-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+}
+html[data-caprover-theme="editorial"] .page-heading {
+    padding-bottom: 24px;
+    border-bottom: 3px double var(--ant-color-text);
+}
+html[data-caprover-theme="editorial"] .app-details-actions {
+    border: 0;
+    border-top: 1px solid var(--ant-color-text);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="editorial"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="editorial"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="editorial"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="editorial"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
 }
 </style>
 
