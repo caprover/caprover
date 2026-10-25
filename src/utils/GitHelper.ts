@@ -1,7 +1,7 @@
 import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import git from 'simple-git'
+import { simpleGit as git } from 'simple-git'
 import * as util from 'util'
 import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
@@ -74,6 +74,7 @@ export default class GitHelper {
                 })
                 .then(function () {
                     return git({
+                        allowEnvironment: ['GIT_SSH_COMMAND'],
                         unsafe: {
                             allowUnsafeSshCommand: true,
                         },

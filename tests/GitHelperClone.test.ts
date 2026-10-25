@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import git from 'simple-git'
+import { simpleGit as git } from 'simple-git'
 import GitHelper from '../src/utils/GitHelper'
 
 jest.mock('child_process', () => ({
@@ -24,7 +24,7 @@ jest.mock('fs-extra', () => ({
 
 jest.mock('simple-git', () => ({
     __esModule: true,
-    default: jest.fn(),
+    simpleGit: jest.fn(),
 }))
 
 const mockedGit = git as jest.MockedFunction<typeof git>
@@ -58,6 +58,7 @@ test('configures simple-git for SSH key deployments', async () => {
 
     expect(result).toBeUndefined()
     expect(mockedGit).toHaveBeenCalledWith({
+        allowEnvironment: ['GIT_SSH_COMMAND'],
         unsafe: {
             allowUnsafeSshCommand: true,
         },
