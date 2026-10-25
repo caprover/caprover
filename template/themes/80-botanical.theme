@@ -1,0 +1,290 @@
+###CapRoverTheme.name:
+Botanical
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'Source Sans 3', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 15,
+        fontSizeHeading1: 42,
+        fontSizeHeading2: 36,
+        fontSizeHeading3: 34,
+        fontSizeHeading4: 30,
+        fontSizeHeading5: 17,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#9BC9A7' : '#245A3D',
+        colorPrimaryHover: isDarkMode ? '#AAD1B4' : '#215338',
+        colorPrimaryActive: isDarkMode ? '#8DB898' : '#1E4C33',
+        colorLink: isDarkMode ? '#B4D6BD' : '#245A3D',
+        colorLinkHover: isDarkMode ? '#BEDCC6' : '#215338',
+        colorLinkActive: isDarkMode ? '#9BC9A7' : '#1E4C33',
+        colorBgLayout: isDarkMode ? '#0C1A16' : '#F8F6EF',
+        colorBgContainer: isDarkMode ? '#142720' : '#FFFEF9',
+        colorBgElevated: isDarkMode ? '#1D3429' : '#FFFDF7',
+        colorBgSpotlight: isDarkMode ? '#1D3429' : '#0C1A16',
+        colorBgContainerDisabled: isDarkMode ? '#213B2F' : '#EDF3E8',
+        colorText: isDarkMode ? '#E8F4E7' : '#26372C',
+        colorTextSecondary: isDarkMode ? '#AAC3B2' : '#5F6C60',
+        colorTextPlaceholder: isDarkMode ? '#AAC3B2' : '#5F6C60',
+        colorTextDisabled: isDarkMode ? '#AAC3B2' : '#677468',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#345145' : '#D9DFD3',
+        colorBorderSecondary: isDarkMode ? '#294338' : '#E5E8DF',
+        colorFillAlter: isDarkMode ? '#213B2F' : '#EDF3E8',
+        colorBgTextHover: isDarkMode ? '#213B2F' : '#EDF3E8',
+        colorBgTextActive: isDarkMode ? '#284838' : '#E3EDE2',
+        colorSuccess: isDarkMode ? '#7CE5DD' : '#007184',
+        colorSuccessText: isDarkMode ? '#7CE5DD' : '#007184',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77781' : '#971D2D',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 8,
+        borderRadiusLG: 20,
+        borderRadiusSM: 4,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 40,
+        controlOutline: isDarkMode ? '#9BC9A7' : '#245A3D',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#213B2F' : '#EDF3E8',
+        controlItemBgActive: isDarkMode ? '#284838' : '#E3EDE2',
+        boxShadow: isDarkMode ? '0 16px 32px rgba(0,0,0,0.30)' : '0 14px 32px rgba(40,69,45,0.11)',
+        boxShadowSecondary: isDarkMode ? '0 16px 32px rgba(0,0,0,0.30)' : '0 14px 32px rgba(40,69,45,0.11)',
+        boxShadowTertiary: isDarkMode ? '0 5px 18px rgba(0,0,0,0.20)' : '0 3px 12px rgba(40,69,45,0.06)',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#142720' : '#FFFEF9',
+            siderBg: isDarkMode ? '#10231B' : '#F1F1E7',
+            lightSiderBg: isDarkMode ? '#10231B' : '#F1F1E7',
+            triggerBg: isDarkMode ? '#10231B' : '#F1F1E7',
+            lightTriggerBg: isDarkMode ? '#10231B' : '#F1F1E7',
+            footerBg: isDarkMode ? '#10231B' : '#F1F1E7',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#1D3429' : '#FFFDF7',
+            itemColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            itemHoverBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            itemHoverColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            itemSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
+            itemSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            itemHeight: 44,
+            itemMarginInline: 8,
+            itemMarginBlock: 2,
+            itemBorderRadius: 8,
+        },
+        Tree: {
+            titleHeight: 40,
+            nodeHoverBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            nodeHoverColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            nodeSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
+            nodeSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            directoryNodeSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
+            directoryNodeSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#142720' : '#FFFEF9',
+            headerHeight: 52,
+            headerFontSize: 15,
+            bodyPadding: 28,
+            headerPadding: 28,
+            extraColor: isDarkMode ? '#AAC3B2' : '#5F6C60',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#0C1A16' : '#F8F6EF',
+            headerColor: isDarkMode ? '#AAC3B2' : '#5F6C60',
+            headerSplitColor: isDarkMode ? '#294338' : '#E5E8DF',
+            borderColor: isDarkMode ? '#294338' : '#E5E8DF',
+            rowHoverBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            rowSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
+            rowSelectedHoverBg: isDarkMode ? '#284838' : '#E3EDE2',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            cellPaddingBlockMD: 18,
+            cellPaddingInlineMD: 16,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#0C1A16' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#0C1A16' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#142720' : '#FFFEF9',
+            defaultColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            defaultBorderColor: isDarkMode ? '#345145' : '#D9DFD3',
+            defaultHoverColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            defaultHoverBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            defaultActiveColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            defaultActiveBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            paddingInline: 14,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#142720' : '#FFFEF9',
+            hoverBg: isDarkMode ? '#142720' : '#FFFEF9',
+            addonBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            hoverBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            activeBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            activeShadow: isDarkMode ? '0 0 0 2px rgba(155,201,167,0.5)' : '0 0 0 2px rgba(36,90,61,0.42)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#142720' : '#FFFEF9',
+            optionSelectedBg: isDarkMode ? '#284838' : '#E3EDE2',
+            optionSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            optionActiveBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            hoverBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            activeBorderColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            activeOutlineColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 26,
+            inkBarColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            itemSelectedColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+            itemHoverColor: isDarkMode ? '#9BC9A7' : '#245A3D',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#213B2F' : '#EDF3E8',
+            defaultColor: isDarkMode ? '#E8F4E7' : '#26372C',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            itemMarginBottom: 22,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#1D3429' : '#FFFDF7',
+            contentBg: isDarkMode ? '#1D3429' : '#FFFDF7',
+            footerBg: isDarkMode ? '#1D3429' : '#FFFDF7',
+            titleColor: isDarkMode ? '#E8F4E7' : '#26372C',
+            titleFontSize: 18,
+            paddingMD: 28,
+            paddingContentHorizontalLG: 28,
+        },
+        Alert: {
+            defaultPadding: '12px 16px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&amp;family=Lora:wght@400;500;600;700&amp;display=swap" />
+<style>
+html[data-caprover-theme="botanical"] {
+    --caprover-shell-radius: 16px;
+    --caprover-surface-radius: 20px;
+    --caprover-control-radius: 8px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: 0 2px 8px rgba(36, 90, 61, 0.04);
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 500;
+}
+html[data-caprover-theme="botanical"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+html[data-caprover-theme="botanical"] .page-heading h1,
+html[data-caprover-theme="botanical"] .apps-heading h1,
+html[data-caprover-theme="botanical"] .app-details-heading h2 {
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="botanical"] .workspace-header {
+    height: 56px;
+    border-bottom: 0;
+}
+html[data-caprover-theme="botanical"] .sidebar-brand {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 22px;
+    height: 56px;
+}
+html[data-caprover-theme="botanical"] .sidebar-content .ant-menu-item {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 15px;
+}
+html[data-caprover-theme="botanical"] .sidebar-content .ant-menu-item-selected {
+    border-start-start-radius: 4px;
+    border-end-end-radius: 4px;
+    border-start-end-radius: 22px;
+    border-end-start-radius: 22px;
+}
+html[data-caprover-theme="botanical"] #main-content-layout {
+    padding: 32px;
+}
+html[data-caprover-theme="botanical"] .apps-page > .ant-card-head {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    margin-bottom: 24px;
+}
+html[data-caprover-theme="botanical"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-start-start-radius: 24px;
+    border-end-end-radius: 24px;
+    border-start-end-radius: 4px;
+    border-end-start-radius: 4px;
+}
+html[data-caprover-theme="botanical"] .apps-page .ant-table-thead > tr > th {
+    background: var(--ant-color-bg-layout);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 13px;
+    font-weight: 500;
+}
+html[data-caprover-theme="botanical"] .ant-btn:not(.ant-btn-circle),
+html[data-caprover-theme="botanical"] .ant-input-affix-wrapper {
+    border-start-start-radius: 4px;
+    border-end-end-radius: 4px;
+    border-start-end-radius: 16px;
+    border-end-start-radius: 16px;
+}
+html[data-caprover-theme="botanical"] .form-section-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 20px;
+}
+html[data-caprover-theme="botanical"] .load-balancer-metric {
+    border-start-start-radius: 24px;
+    border-end-end-radius: 24px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="botanical"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="botanical"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="botanical"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="botanical"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}

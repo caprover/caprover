@@ -1,0 +1,305 @@
+###CapRoverTheme.name:
+Editorial
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'Source Sans 3', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 15,
+        fontSizeHeading1: 52,
+        fontSizeHeading2: 46,
+        fontSizeHeading3: 44,
+        fontSizeHeading4: 40,
+        fontSizeHeading5: 17,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#E3A6B8' : '#792D45',
+        colorPrimaryHover: isDarkMode ? '#E7B3C3' : '#6F293F',
+        colorPrimaryActive: isDarkMode ? '#CF98A8' : '#66263A',
+        colorLink: isDarkMode ? '#EABCCA' : '#792D45',
+        colorLinkHover: isDarkMode ? '#EDC5D1' : '#6F293F',
+        colorLinkActive: isDarkMode ? '#E3A6B8' : '#66263A',
+        colorBgLayout: isDarkMode ? '#1F191B' : '#F8F4ED',
+        colorBgContainer: isDarkMode ? '#2A2125' : '#FFFCF6',
+        colorBgElevated: isDarkMode ? '#382A2F' : '#FFFAF4',
+        colorBgSpotlight: isDarkMode ? '#382A2F' : '#1F191B',
+        colorBgContainerDisabled: isDarkMode ? '#382A30' : '#F8EDF0',
+        colorText: isDarkMode ? '#F7EEE8' : '#29201F',
+        colorTextSecondary: isDarkMode ? '#C3B1AE' : '#756A67',
+        colorTextPlaceholder: isDarkMode ? '#C3B1AE' : '#756A67',
+        colorTextDisabled: isDarkMode ? '#C3B1AE' : '#756A67',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#614B53' : '#D9CFC5',
+        colorBorderSecondary: isDarkMode ? '#483740' : '#E7DDD5',
+        colorFillAlter: isDarkMode ? '#382A30' : '#F8EDF0',
+        colorBgTextHover: isDarkMode ? '#382A30' : '#F8EDF0',
+        colorBgTextActive: isDarkMode ? '#492E38' : '#F2E4E8',
+        colorSuccess: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessText: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E97782' : '#971D2D',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 0,
+        borderRadiusLG: 0,
+        borderRadiusSM: 0,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 38,
+        controlOutline: isDarkMode ? '#E3A6B8' : '#792D45',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#382A30' : '#F8EDF0',
+        controlItemBgActive: isDarkMode ? '#492E38' : '#F2E4E8',
+        boxShadow: isDarkMode ? '0 10px 26px rgba(0,0,0,0.32)' : '0 8px 22px rgba(62,35,40,0.09)',
+        boxShadowSecondary: isDarkMode ? '0 10px 26px rgba(0,0,0,0.32)' : '0 8px 22px rgba(62,35,40,0.09)',
+        boxShadowTertiary: 'none',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            siderBg: isDarkMode ? '#251C20' : '#F3EEE6',
+            lightSiderBg: isDarkMode ? '#251C20' : '#F3EEE6',
+            triggerBg: isDarkMode ? '#251C20' : '#F3EEE6',
+            lightTriggerBg: isDarkMode ? '#251C20' : '#F3EEE6',
+            footerBg: isDarkMode ? '#251C20' : '#F3EEE6',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#382A2F' : '#FFFAF4',
+            itemColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            itemHoverBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            itemHoverColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            itemSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            itemSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            itemHeight: 42,
+            itemMarginInline: 8,
+            itemMarginBlock: 2,
+            itemBorderRadius: 0,
+        },
+        Tree: {
+            titleHeight: 38,
+            nodeHoverBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            nodeHoverColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            nodeSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            nodeSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            directoryNodeSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            directoryNodeSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            headerHeight: 52,
+            headerFontSize: 15,
+            bodyPadding: 28,
+            headerPadding: 28,
+            extraColor: isDarkMode ? '#C3B1AE' : '#756A67',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#1F191B' : '#F8F4ED',
+            headerColor: isDarkMode ? '#C3B1AE' : '#756A67',
+            headerSplitColor: isDarkMode ? '#483740' : '#E7DDD5',
+            borderColor: isDarkMode ? '#483740' : '#E7DDD5',
+            rowHoverBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            rowSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            rowSelectedHoverBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            cellPaddingBlockMD: 18,
+            cellPaddingInlineMD: 20,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#1F191B' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#1F191B' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            defaultColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            defaultBorderColor: isDarkMode ? '#614B53' : '#D9CFC5',
+            defaultHoverColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            defaultHoverBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            defaultActiveColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            defaultActiveBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            paddingInline: 14,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            hoverBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            addonBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            hoverBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            activeBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            activeShadow: isDarkMode ? '0 0 0 2px rgba(227,166,184,0.5)' : '0 0 0 2px rgba(121,45,69,0.42)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#2A2125' : '#FFFCF6',
+            optionSelectedBg: isDarkMode ? '#492E38' : '#F2E4E8',
+            optionSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            optionActiveBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            hoverBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            activeBorderColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            activeOutlineColor: isDarkMode ? '#E3A6B8' : '#792D45',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 26,
+            inkBarColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            itemSelectedColor: isDarkMode ? '#E3A6B8' : '#792D45',
+            itemHoverColor: isDarkMode ? '#E3A6B8' : '#792D45',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#382A30' : '#F8EDF0',
+            defaultColor: isDarkMode ? '#F7EEE8' : '#29201F',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            itemMarginBottom: 22,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#382A2F' : '#FFFAF4',
+            contentBg: isDarkMode ? '#382A2F' : '#FFFAF4',
+            footerBg: isDarkMode ? '#382A2F' : '#FFFAF4',
+            titleColor: isDarkMode ? '#F7EEE8' : '#29201F',
+            titleFontSize: 28,
+            paddingMD: 28,
+            paddingContentHorizontalLG: 28,
+        },
+        Alert: {
+            defaultPadding: '12px 16px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&amp;family=Newsreader:wght@400;500;600;700&amp;display=swap" />
+<style>
+html[data-caprover-theme="editorial"] {
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 0px;
+    --caprover-control-radius: 0px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.035em;
+    --caprover-heading-weight: 500;
+}
+
+html[data-caprover-theme="editorial"] .page-heading h1,
+html[data-caprover-theme="editorial"] .apps-heading h1,
+html[data-caprover-theme="editorial"] .app-details-heading h2 {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+    font-size: clamp(28px, 3.2vw, 44px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="editorial"] .workspace-header {
+    height: 58px;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="editorial"] .sidebar-brand {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    height: 58px;
+}
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 19px;
+}
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item-selected {
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+html[data-caprover-theme="editorial"] .sidebar-section-label,
+html[data-caprover-theme="editorial"] .sidebar-content .ant-menu-item-group-title {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+}
+html[data-caprover-theme="editorial"] #main-content-layout {
+    padding: 36px;
+}
+html[data-caprover-theme="editorial"] .apps-heading {
+    flex-wrap: wrap;
+    row-gap: 18px;
+}
+html[data-caprover-theme="editorial"] .apps-heading h1 {
+    flex-basis: 100%;
+}
+html[data-caprover-theme="editorial"] .apps-page > .ant-card-head .ant-card-head-wrapper {
+    align-items: flex-end;
+}
+html[data-caprover-theme="editorial"] .apps-page > .ant-card-head {
+    border-bottom: 3px double var(--ant-color-text);
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+}
+html[data-caprover-theme="editorial"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="editorial"] .apps-page .ant-table-thead > tr > th {
+    background: transparent;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    border-bottom: 1px solid var(--ant-color-text);
+}
+html[data-caprover-theme="editorial"] .form-section-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+}
+html[data-caprover-theme="editorial"] .ant-modal-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+}
+html[data-caprover-theme="editorial"] .page-heading {
+    padding-bottom: 24px;
+    border-bottom: 3px double var(--ant-color-text);
+}
+html[data-caprover-theme="editorial"] .app-details-actions {
+    border: 0;
+    border-top: 1px solid var(--ant-color-text);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="editorial"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="editorial"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="editorial"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="editorial"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}
