@@ -1,0 +1,207 @@
+###CapRoverTheme.name:
+Glacier
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: '\'Inter Variable\', Inter, -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
+        fontFamilyCode: '\'SFMono-Regular\', Consolas, \'Liberation Mono\', monospace',
+        fontSize: 14,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#7DE4F7' : '#006B9B',
+        colorLink: isDarkMode ? '#7DE4F7' : '#006B9B',
+        colorBgLayout: isDarkMode ? '#081824' : '#EBF4FA',
+        colorBgContainer: isDarkMode ? '#112838' : '#F9FDFF',
+        colorBgElevated: isDarkMode ? '#1D3B4A' : '#FFFFFF',
+        colorBgSpotlight: isDarkMode ? '#1D3B4A' : '#081824',
+        colorBgContainerDisabled: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+        colorText: isDarkMode ? '#E9F9FF' : '#1D354B',
+        colorTextSecondary: isDarkMode ? '#9BC5D8' : '#587186',
+        colorTextPlaceholder: isDarkMode ? '#9BC5D8' : '#587186',
+        colorTextDisabled: isDarkMode ? '#9BC5D8' : '#587186',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#315669' : '#C7DCEB',
+        colorBorderSecondary: isDarkMode ? '#244759' : '#DDEAF3',
+        colorFillAlter: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+        colorBgTextHover: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+        colorBgTextActive: isDarkMode ? '#1B4659' : '#D7F2FC',
+        colorSuccess: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessText: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 12,
+        borderRadiusLG: 16,
+        borderRadiusSM: 4,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 38,
+        controlOutline: isDarkMode ? '#7DE4F7' : '#006B9B',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+        controlItemBgActive: isDarkMode ? '#1B4659' : '#D7F2FC',
+        boxShadow: isDarkMode ? '0 20px 52px rgba(0,0,0,0.40)' : '0 18px 48px rgba(23,77,111,0.18)',
+        boxShadowSecondary: isDarkMode ? '0 20px 52px rgba(0,0,0,0.40)' : '0 18px 48px rgba(23,77,111,0.18)',
+        boxShadowTertiary: isDarkMode ? '0 10px 30px rgba(0,0,0,0.25)' : '0 6px 24px rgba(18,93,133,0.10)',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#112838' : '#F9FDFF',
+            siderBg: isDarkMode ? '#132C3B' : '#E5F1F8',
+            lightSiderBg: isDarkMode ? '#132C3B' : '#E5F1F8',
+            triggerBg: isDarkMode ? '#132C3B' : '#E5F1F8',
+            lightTriggerBg: isDarkMode ? '#132C3B' : '#E5F1F8',
+            footerBg: isDarkMode ? '#132C3B' : '#E5F1F8',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#1D3B4A' : '#FFFFFF',
+            itemColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            itemHoverBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            itemHoverColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            itemSelectedBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            itemSelectedColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            itemHeight: 40,
+            itemMarginInline: 8,
+            itemMarginBlock: 2,
+            itemBorderRadius: 12,
+        },
+        Tree: {
+            titleHeight: 36,
+            nodeHoverBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            nodeHoverColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            nodeSelectedBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            nodeSelectedColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            directoryNodeSelectedBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            directoryNodeSelectedColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#112838' : '#F9FDFF',
+            headerHeight: 52,
+            headerFontSize: 15,
+            bodyPadding: 24,
+            headerPadding: 24,
+            extraColor: isDarkMode ? '#9BC5D8' : '#587186',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#081824' : '#EBF4FA',
+            headerColor: isDarkMode ? '#9BC5D8' : '#587186',
+            headerSplitColor: isDarkMode ? '#244759' : '#DDEAF3',
+            borderColor: isDarkMode ? '#244759' : '#DDEAF3',
+            rowHoverBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            rowSelectedBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            rowSelectedHoverBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            cellPaddingBlockMD: 14,
+            cellPaddingInlineMD: 16,
+        },
+        Button: {
+            fontWeight: 500,
+            primaryColor: isDarkMode ? '#081824' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#112838' : '#F9FDFF',
+            defaultColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            defaultBorderColor: isDarkMode ? '#315669' : '#C7DCEB',
+            defaultHoverColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            defaultHoverBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            defaultActiveColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            defaultActiveBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            paddingInline: 14,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#112838' : '#F9FDFF',
+            hoverBg: isDarkMode ? '#112838' : '#F9FDFF',
+            addonBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            hoverBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            activeBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            activeShadow: isDarkMode ? '0 0 0 3px rgba(125,228,247,0.25)' : '0 0 0 3px rgba(0,107,155,0.23)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#112838' : '#F9FDFF',
+            optionSelectedBg: isDarkMode ? '#1B4659' : '#D7F2FC',
+            optionSelectedColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            optionActiveBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            hoverBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            activeBorderColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            activeOutlineColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 26,
+            inkBarColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            itemSelectedColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+            itemHoverColor: isDarkMode ? '#7DE4F7' : '#006B9B',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#1C3B4B' : '#EAF7FD',
+            defaultColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            itemMarginBottom: 22,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#1D3B4A' : '#FFFFFF',
+            contentBg: isDarkMode ? '#1D3B4A' : '#FFFFFF',
+            footerBg: isDarkMode ? '#1D3B4A' : '#FFFFFF',
+            titleColor: isDarkMode ? '#E9F9FF' : '#1D354B',
+            titleFontSize: 16,
+            contentPadding: 24,
+            headerPadding: 24,
+            footerPadding: 24,
+        },
+        Popover: {
+            innerPadding: 16,
+        },
+        Alert: {
+            defaultPadding: '12px 16px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<style>
+html[data-caprover-theme="glacier"] .app-sidebar {
+    background: rgba(229, 241, 248, 0.86);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+html[data-caprover-theme="glacier"][data-caprover-dark="true"] .app-sidebar {
+    background: rgba(19, 44, 59, 0.88);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    html[data-caprover-theme="glacier"] .app-sidebar {
+        background: var(--ant-color-bg-container);
+    }
+}
+@media (prefers-reduced-transparency: reduce) {
+    html[data-caprover-theme="glacier"] .app-sidebar {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: var(--ant-color-bg-container);
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}
