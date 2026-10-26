@@ -20,25 +20,7 @@ function checkSystemReq() {
             console.log(' ')
             console.log(' >>> Checking System Compatibility <<<')
 
-            const ver = output.Version.split('.')
-            const maj = Number(ver[0])
-            const min = Number(ver[1])
-
-            let versionOk = false
-
-            if (maj > 17) {
-                versionOk = true
-            } else if (maj === 17 && min >= 6) {
-                versionOk = true
-            }
-
-            if (versionOk) {
-                console.log('   Docker Version passed.')
-            } else {
-                console.log(
-                    'Warning!! Minimum Docker version is 17.06.x CapRover may not run properly on your Docker version.'
-                )
-            }
+            console.log('   Docker Version:', output.Version)
 
             return DockerApi.get().getDockerInfo()
         })
