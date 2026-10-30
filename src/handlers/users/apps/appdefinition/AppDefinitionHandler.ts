@@ -162,6 +162,7 @@ export interface UpdateAppDefinitionParams {
     serviceUpdateOverride?: string
     websocketSupport?: boolean
     appDeployTokenConfig?: AppDeployTokenConfig
+    hasPersistentData?: boolean
 }
 
 /**
@@ -215,6 +216,7 @@ export async function patchAppDefinition(
         serviceUpdateOverride: existingApp.serviceUpdateOverride,
         websocketSupport: existingApp.websocketSupport,
         appDeployTokenConfig: existingApp.appDeployTokenConfig,
+        hasPersistentData: existingApp.hasPersistentData,
     }
 
     // Extract only defined patch fields, mapping to UpdateAppDefinitionParams keys
@@ -258,6 +260,7 @@ export async function updateAppDefinition(
         serviceUpdateOverride,
         websocketSupport,
         appDeployTokenConfig,
+        hasPersistentData,
     } = params
 
     // Defaults & normalization
@@ -363,7 +366,8 @@ export async function updateAppDefinition(
         normalizedPreDeployFunction,
         normalizedServiceUpdateOverride,
         normalizedWebsocketSupport,
-        normalizedDeployTokenConfig
+        normalizedDeployTokenConfig,
+        hasPersistentData === undefined ? undefined : !!hasPersistentData
     )
 
     Logger.d(`AppName is updated: ${appName}`)

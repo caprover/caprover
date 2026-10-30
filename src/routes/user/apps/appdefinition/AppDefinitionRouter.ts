@@ -324,6 +324,7 @@ router.post('/update/', function (req, res, next) {
     const appDeployTokenConfig = req.body.appDeployTokenConfig as
         AppDeployTokenConfig | undefined
     const description = req.body.description
+    const hasPersistentData = req.body.hasPersistentData as boolean | undefined
 
     return updateAppDefinition(
         {
@@ -348,6 +349,7 @@ router.post('/update/', function (req, res, next) {
             serviceUpdateOverride,
             websocketSupport,
             appDeployTokenConfig,
+            hasPersistentData,
         },
         serviceManager
     )

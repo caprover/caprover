@@ -1480,7 +1480,8 @@ class DockerApi {
                     updatedData.TaskTemplate.ContainerSpec.Image = imageName
                 }
 
-                if (nodeId) {
+                // For app services, an empty nodeId means "not pinned": drop a stale node.id constraint
+                if (nodeId || appObject) {
                     updatedData.TaskTemplate.Placement =
                         updatedData.TaskTemplate.Placement || {}
                     updatedData.TaskTemplate.Placement.Constraints =
@@ -1498,7 +1499,9 @@ class DockerApi {
                             newConstraints.push(c)
                         }
                     }
-                    newConstraints.push(`node.id == ${nodeId}`)
+                    if (nodeId) {
+                        newConstraints.push(`node.id == ${nodeId}`)
+                    }
                     updatedData.TaskTemplate.Placement.Constraints =
                         newConstraints
                 }
