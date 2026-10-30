@@ -206,6 +206,27 @@ class DockerApi {
             })
     }
 
+    /**
+     * Node of a task of the service that is actually running (not just desired to run). Empty string if none.
+     */
+    getNodeIdOfRunningTask(serviceName: string): Promise<string> {
+        return this.dockerode
+            .listTasks({
+                filters: {
+                    service: [serviceName],
+                    'desired-state': ['running'],
+                },
+            })
+            .then(function (tasks) {
+                for (const task of tasks) {
+                    if (task.Status && task.Status.State === 'running') {
+                        return task.NodeID || ''
+                    }
+                }
+                return ''
+            })
+    }
+
     getLeaderNodeId() {
         const self = this
 

@@ -839,15 +839,29 @@ class ServiceManager {
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function (error) {
-                if (
+                const nginxValidationFailed =
                     error &&
                     error.captainErrorType ===
                         ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
-                ) {
-                    // Revert back to the old definition because the nginx config is invalid
+
+                // A failed persistent data toggle must not leave the new hasPersistentData/nodeId/instanceCount
+                // stored while the running service still has the old ones. Apps never deployed have no service to diverge from.
+                const persistentDataToggleFailed =
+                    !!existingAppDefinition &&
+                    !!existingAppDefinition.hasPersistentData !==
+                        newHasPersistentData &&
+                    existingAppDefinition.versions.some(
+                        (v) =>
+                            v.version ===
+                                existingAppDefinition.deployedVersion &&
+                            !!v.deployedImageName
+                    )
+
+                if (nginxValidationFailed || persistentDataToggleFailed) {
+                    // Revert back to the old definition
                     if (existingAppDefinition) {
                         Logger.d(
-                            `nginx validation failed, reverting configs for: ${appName}`
+                            `app update failed, reverting configs for: ${appName}`
                         )
                         return dataStore
                             .getAppsDataStore()
@@ -910,9 +924,8 @@ class ServiceManager {
                 return nodes[0].nodeId
             }
 
-            // retryCount at its limit: a single lookup, no waiting for a task that may never start
             return dockerApi
-                .getNodeIdByServiceName(serviceName, 10)
+                .getNodeIdOfRunningTask(serviceName)
                 .catch(function () {
                     return ''
                 })

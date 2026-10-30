@@ -263,6 +263,16 @@ export async function updateAppDefinition(
         hasPersistentData,
     } = params
 
+    if (
+        hasPersistentData !== undefined &&
+        typeof hasPersistentData !== 'boolean'
+    ) {
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_PARAMETER,
+            'hasPersistentData must be a boolean'
+        )
+    }
+
     // Defaults & normalization
     const normalizedDescription = `${description || ''}`
     const instanceCountNum = Number(instanceCount ?? 0)
@@ -367,7 +377,7 @@ export async function updateAppDefinition(
         normalizedServiceUpdateOverride,
         normalizedWebsocketSupport,
         normalizedDeployTokenConfig,
-        hasPersistentData === undefined ? undefined : !!hasPersistentData
+        hasPersistentData
     )
 
     Logger.d(`AppName is updated: ${appName}`)

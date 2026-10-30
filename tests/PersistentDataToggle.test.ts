@@ -1,4 +1,7 @@
-import { patchAppDefinition } from '../src/handlers/users/apps/appdefinition/AppDefinitionHandler'
+import {
+    patchAppDefinition,
+    updateAppDefinition,
+} from '../src/handlers/users/apps/appdefinition/AppDefinitionHandler'
 import DockerApi from '../src/docker/DockerApi'
 import ServiceManager from '../src/user/ServiceManager'
 import ApiStatusCodes from '../src/api/ApiStatusCodes'
@@ -39,13 +42,7 @@ function makeManager(app: any, nodes: string[], runningTaskNodeId: string) {
         getNodesInfo: jest
             .fn()
             .mockResolvedValue(nodes.map((nodeId) => ({ nodeId }))),
-        getNodeIdByServiceName: jest
-            .fn()
-            .mockImplementation(() =>
-                runningTaskNodeId
-                    ? Promise.resolve(runningTaskNodeId)
-                    : Promise.reject(new Error('no task'))
-            ),
+        getNodeIdOfRunningTask: jest.fn().mockResolvedValue(runningTaskNodeId),
         isServiceRunningByName: jest.fn().mockResolvedValue(true),
     }
     const manager = Object.assign(
@@ -60,6 +57,9 @@ function makeManager(app: any, nodes: string[], runningTaskNodeId: string) {
             authenticator: {},
         }
     )
+    ;(manager as any).reloadLoadBalancer = jest
+        .fn()
+        .mockResolvedValue(undefined)
     const ensureServiceInitedAndUpdated = jest.fn().mockResolvedValue(undefined)
     ;(manager as any).ensureServiceInitedAndUpdated =
         ensureServiceInitedAndUpdated
@@ -131,7 +131,7 @@ describe('persistent data toggle on existing apps', () => {
         expect(args[ARG_INSTANCE_COUNT]).toBe(1)
         expect(args[ARG_HAS_PERSISTENT_DATA]).toBe(true)
         expect(args[ARG_VOLUMES]).toHaveLength(1)
-        expect(dockerApi.getNodeIdByServiceName).not.toHaveBeenCalled()
+        expect(dockerApi.getNodeIdOfRunningTask).not.toHaveBeenCalled()
     })
 
     test('enabling on a multi-node swarm pins to the node of the running task', async () => {
@@ -319,5 +319,204 @@ describe('DockerApi.updateService node pin', () => {
             'node.id == old-node',
             'node.role == worker',
         ])
+    })
+})
+
+describe('hasPersistentData input validation', () => {
+    function makeServiceManager() {
+        return {
+            updateAppDefinition: jest.fn().mockResolvedValue(undefined),
+        } as any
+    }
+
+    test.each(['false', 'true', 0, 1, null, {}])(
+        'POST update rejects non-boolean %p',
+        async (value) => {
+            const serviceManager = makeServiceManager()
+            await expect(
+                updateAppDefinition(
+                    { appName: 'my-app', hasPersistentData: value as any },
+                    serviceManager
+                )
+            ).rejects.toMatchObject({
+                captainErrorType: ApiStatusCodes.ILLEGAL_PARAMETER,
+            })
+            expect(serviceManager.updateAppDefinition).not.toHaveBeenCalled()
+        }
+    )
+
+    test('PATCH rejects the string "false"', async () => {
+        const serviceManager = makeServiceManager()
+        const dataStore = {
+            getAppsDataStore: () => ({
+                getAppDefinition: jest
+                    .fn()
+                    .mockResolvedValue(makeApp({ hasPersistentData: true })),
+            }),
+        } as any
+
+        await expect(
+            patchAppDefinition(
+                'my-app',
+                { hasPersistentData: 'false' },
+                dataStore,
+                serviceManager
+            )
+        ).rejects.toMatchObject({
+            captainErrorType: ApiStatusCodes.ILLEGAL_PARAMETER,
+        })
+        expect(serviceManager.updateAppDefinition).not.toHaveBeenCalled()
+    })
+
+    test.each([true, false, undefined])(
+        'POST update accepts %p',
+        async (value) => {
+            const serviceManager = makeServiceManager()
+            await updateAppDefinition(
+                { appName: 'my-app', hasPersistentData: value },
+                serviceManager
+            )
+            expect(serviceManager.updateAppDefinition.mock.calls[0][21]).toBe(
+                value
+            )
+        }
+    )
+})
+
+describe('persistent data toggle rollback when the service update fails', () => {
+    const deployedVersions = {
+        deployedVersion: 1,
+        versions: [{ version: 1, deployedImageName: 'img:1' }],
+    }
+
+    test('a docker failure while enabling restores the previous definition', async () => {
+        const {
+            manager,
+            updateAppDefinitionInDb,
+            ensureServiceInitedAndUpdated,
+        } = makeManager(makeApp(deployedVersions), ['node-only'], '')
+        const dockerError = new Error('docker update failed')
+        ensureServiceInitedAndUpdated.mockRejectedValue(dockerError)
+
+        await expect(
+            callUpdate(manager, { hasPersistentData: true })
+        ).rejects.toBe(dockerError)
+
+        expect(updateAppDefinitionInDb).toHaveBeenCalledTimes(2)
+        const saved = updateAppDefinitionInDb.mock.calls[0]
+        expect(saved[ARG_HAS_PERSISTENT_DATA]).toBe(true)
+        const restored = updateAppDefinitionInDb.mock.calls[1]
+        expect(restored[ARG_HAS_PERSISTENT_DATA]).toBe(false)
+        expect(restored[ARG_INSTANCE_COUNT]).toBe(2)
+        expect(restored[ARG_NODE_ID]).toBe('')
+    })
+
+    test('a docker failure while disabling restores the previous definition', async () => {
+        const {
+            manager,
+            updateAppDefinitionInDb,
+            ensureServiceInitedAndUpdated,
+        } = makeManager(
+            makeApp({
+                ...deployedVersions,
+                hasPersistentData: true,
+                nodeId: 'node-a',
+                instanceCount: 1,
+            }),
+            ['node-a'],
+            'node-a'
+        )
+        ensureServiceInitedAndUpdated.mockRejectedValue(new Error('boom'))
+
+        await expect(
+            callUpdate(manager, { hasPersistentData: false })
+        ).rejects.toThrow('boom')
+
+        expect(updateAppDefinitionInDb).toHaveBeenCalledTimes(2)
+        const restored = updateAppDefinitionInDb.mock.calls[1]
+        expect(restored[ARG_HAS_PERSISTENT_DATA]).toBe(true)
+        expect(restored[ARG_NODE_ID]).toBe('node-a')
+        expect(restored[ARG_INSTANCE_COUNT]).toBe(1)
+    })
+
+    test('an app never deployed keeps the toggle (no service to diverge from)', async () => {
+        const {
+            manager,
+            updateAppDefinitionInDb,
+            ensureServiceInitedAndUpdated,
+        } = makeManager(makeApp({ deployedVersion: 0 }), ['node-only'], '')
+        ensureServiceInitedAndUpdated.mockRejectedValue(
+            ApiStatusCodes.createError(
+                ApiStatusCodes.ILLEGAL_PARAMETER,
+                'ImageName for deployed version is not available'
+            )
+        )
+
+        await expect(
+            callUpdate(manager, { hasPersistentData: true })
+        ).rejects.toMatchObject({
+            captainErrorType: ApiStatusCodes.ILLEGAL_PARAMETER,
+        })
+        expect(updateAppDefinitionInDb).toHaveBeenCalledTimes(1)
+    })
+
+    test('a failure without a toggle keeps the previous behavior (no revert)', async () => {
+        const {
+            manager,
+            updateAppDefinitionInDb,
+            ensureServiceInitedAndUpdated,
+        } = makeManager(makeApp(deployedVersions), ['node-a'], 'node-a')
+        ensureServiceInitedAndUpdated.mockRejectedValue(new Error('boom'))
+
+        await expect(callUpdate(manager, {})).rejects.toThrow('boom')
+        expect(updateAppDefinitionInDb).toHaveBeenCalledTimes(1)
+    })
+})
+
+describe('DockerApi.getNodeIdOfRunningTask', () => {
+    function apiWithTasks(tasks: any[]) {
+        const dockerApi = Object.create(DockerApi.prototype) as DockerApi
+        const listTasks = jest.fn().mockResolvedValue(tasks)
+        ;(dockerApi as any).dockerode = { listTasks }
+        return { dockerApi, listTasks }
+    }
+
+    test('skips tasks that are not running yet', async () => {
+        const { dockerApi, listTasks } = apiWithTasks([
+            { NodeID: 'node-preparing', Status: { State: 'preparing' } },
+            { NodeID: 'node-running', Status: { State: 'running' } },
+        ])
+
+        expect(await dockerApi.getNodeIdOfRunningTask('srv')).toBe(
+            'node-running'
+        )
+        expect(listTasks.mock.calls[0][0].filters.service).toEqual(['srv'])
+    })
+
+    test('returns empty when no task is running', async () => {
+        const { dockerApi } = apiWithTasks([
+            { NodeID: 'node-a', Status: { State: 'starting' } },
+            { NodeID: 'node-b', Status: { State: 'assigned' } },
+        ])
+
+        expect(await dockerApi.getNodeIdOfRunningTask('srv')).toBe('')
+    })
+
+    test('enabling persistent data is refused when no task is running', async () => {
+        const { manager, updateAppDefinitionInDb, dockerApi } = makeManager(
+            makeApp(),
+            ['node-a', 'node-b'],
+            ''
+        )
+
+        await expect(
+            callUpdate(manager, { hasPersistentData: true })
+        ).rejects.toMatchObject({
+            captainErrorType: ApiStatusCodes.ILLEGAL_OPERATION,
+        })
+        expect(dockerApi.getNodeIdOfRunningTask).toHaveBeenCalledWith(
+            'srv-captain--my-app'
+        )
+        expect(updateAppDefinitionInDb).not.toHaveBeenCalled()
     })
 })
