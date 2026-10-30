@@ -15,6 +15,7 @@ import CaptainConstants from '../utils/CaptainConstants'
 import CaptainEncryptor from '../utils/Encryptor'
 import Utils from '../utils/Utils'
 import AppsDataStore from './AppsDataStore'
+import PasskeysDataStore from './PasskeysDataStore'
 import ProDataStore from './ProDataStore'
 import ProjectsDataStore from './ProjectsDataStore'
 import RegistriesDataStore from './RegistriesDataStore'
@@ -106,6 +107,7 @@ class DataStore {
     private registriesDataStore: RegistriesDataStore
     proDataStore: ProDataStore
     private projectsDataStore: ProjectsDataStore
+    private passkeysDataStore: PasskeysDataStore
 
     constructor(namespace: string) {
         const configPath = `${CaptainConstants.captainDataDirectory}/config-${namespace}.json`
@@ -131,6 +133,7 @@ class DataStore {
         )
         this.proDataStore = new ProDataStore(this.data)
         this.registriesDataStore = new RegistriesDataStore(this.data, namespace)
+        this.passkeysDataStore = new PasskeysDataStore(this.data)
     }
 
     setEncryptionSalt(salt: string) {
@@ -323,6 +326,10 @@ class DataStore {
 
     getProjectsDataStore() {
         return this.projectsDataStore
+    }
+
+    getPasskeysDataStore() {
+        return this.passkeysDataStore
     }
 
     getProDataStore() {

@@ -9,6 +9,7 @@ import Utils from '../../utils/Utils'
 import AppsRouter from './apps/AppsRouter'
 import OneClickAppRouter from './oneclick/OneClickAppRouter'
 import ProRouter from './pro/ProRouter'
+import PasskeysRouter from './PasskeysRouter'
 import ProjectsRouter from './ProjectsRouter'
 import RegistriesRouter from './registeries/RegistriesRouter'
 import SystemRouter from './system/SystemRouter'
@@ -127,6 +128,7 @@ router.post('/changepassword/', function (req, res, next) {
 router.use('/apps/', AppsRouter)
 
 router.use('/projects/', ProjectsRouter)
+router.use('/passkeys/', PasskeysRouter)
 
 router.use('/oneclick/', OneClickAppRouter)
 

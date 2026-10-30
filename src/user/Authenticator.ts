@@ -161,19 +161,41 @@ class Authenticator {
                     )
                 }
 
-                const userObj: UserJwt = {
-                    namespace: self.namespace,
-                    tokenVersion: self.tokenVersion,
-                }
-
-                return jwt.sign(
-                    {
-                        data: userObj,
-                    },
-                    self.encryptionKey + (keySuffix ? keySuffix : ''),
-                    { expiresIn: '480h' }
-                )
+                return self.signUserToken(keySuffix)
             })
+    }
+
+    /**
+     * Only call after a passkey assertion has been verified. Issues the same
+     * tokens as a successful password login.
+     */
+    getAuthTokenForVerifiedPasskey() {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.signUserToken()
+        })
+    }
+
+    getAuthTokenForCookiesForVerifiedPasskey() {
+        const self = this
+        return Promise.resolve().then(function () {
+            return self.signUserToken(COOKIE_AUTH_SUFFIX)
+        })
+    }
+
+    private signUserToken(keySuffix?: string) {
+        const userObj: UserJwt = {
+            namespace: this.namespace,
+            tokenVersion: this.tokenVersion,
+        }
+
+        return jwt.sign(
+            {
+                data: userObj,
+            },
+            this.encryptionKey + (keySuffix ? keySuffix : ''),
+            { expiresIn: '480h' }
+        )
     }
 
     decodeAuthTokenFromCookies(token: string) {

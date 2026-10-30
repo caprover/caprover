@@ -72,4 +72,9 @@ export default {
         !!process.env.CAPROVER_DISABLE_ANALYTICS || !!process.env.DO_NOT_TRACK,
 
     CAPTAIN_BASE_DIRECTORY: process.env.CAPTAIN_BASE_DIRECTORY,
+
+    // Passkey (WebAuthn) overrides. Default RP ID is captain.<root-domain> and
+    // default origin is https://captain.<root-domain>. ORIGINS is comma-separated.
+    CAPTAIN_PASSKEY_RP_ID: process.env.CAPTAIN_PASSKEY_RP_ID,
+    CAPTAIN_PASSKEY_ORIGINS: process.env.CAPTAIN_PASSKEY_ORIGINS,
 }
