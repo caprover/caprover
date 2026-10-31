@@ -655,7 +655,8 @@ class ServiceManager {
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
-        appDeployTokenConfig: AppDeployTokenConfig
+        appDeployTokenConfig: AppDeployTokenConfig,
+        hasPersistentData?: boolean
     ) {
         const self = this
         const dataStore = this.dataStore
@@ -664,6 +665,8 @@ class ServiceManager {
         let serviceName: string
 
         let existingAppDefinition: IAppDef
+
+        let newHasPersistentData: boolean
 
         const checkIfNodeIdExists = function (nodeIdToCheck: string) {
             return dockerApi.getNodesInfo().then(function (nodeInfo) {
@@ -701,6 +704,39 @@ class ServiceManager {
                 serviceName = dataStore
                     .getAppsDataStore()
                     .getServiceName(appName, !!app.isLegacyAppName)
+
+                newHasPersistentData =
+                    hasPersistentData === undefined
+                        ? !!app.hasPersistentData
+                        : !!hasPersistentData
+
+                if (app.hasPersistentData && !newHasPersistentData) {
+                    // Disabling persistent data: only allowed without volumes, and it removes the node pin.
+                    if (
+                        (app.volumes && app.volumes.length) ||
+                        (volumes && volumes.length)
+                    ) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Cannot disable persistent data while the app has persistent directories. Remove them, save, and try again.'
+                        )
+                    }
+                    nodeId = ''
+                    return
+                }
+
+                if (!app.hasPersistentData && newHasPersistentData) {
+                    // Enabling persistent data on an existing app: pin it to one node and run a single instance.
+                    instanceCount = 1
+                    if (nodeId) {
+                        return checkIfNodeIdExists(nodeId)
+                    }
+                    return self
+                        .getNodeIdForNewPersistentApp(serviceName)
+                        .then(function (nodeIdForApp) {
+                            nodeId = nodeIdForApp
+                        })
+                }
 
                 // After leaving this block, nodeId will be guaranteed to be NonNull
                 if (app.hasPersistentData) {
@@ -795,22 +831,37 @@ class ServiceManager {
                         preDeployFunction,
                         serviceUpdateOverride,
                         websocketSupport,
-                        appDeployTokenConfig
+                        appDeployTokenConfig,
+                        newHasPersistentData
                     )
             })
             .then(function () {
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function (error) {
-                if (
+                const nginxValidationFailed =
                     error &&
                     error.captainErrorType ===
                         ApiStatusCodes.STATUS_ERROR_NGINX_VALIDATION_FAILED
-                ) {
-                    // Revert back to the old definition because the nginx config is invalid
+
+                // A failed persistent data toggle must not leave the new hasPersistentData/nodeId/instanceCount
+                // stored while the running service still has the old ones. Apps never deployed have no service to diverge from.
+                const persistentDataToggleFailed =
+                    !!existingAppDefinition &&
+                    !!existingAppDefinition.hasPersistentData !==
+                        newHasPersistentData &&
+                    existingAppDefinition.versions.some(
+                        (v) =>
+                            v.version ===
+                                existingAppDefinition.deployedVersion &&
+                            !!v.deployedImageName
+                    )
+
+                if (nginxValidationFailed || persistentDataToggleFailed) {
+                    // Revert back to the old definition
                     if (existingAppDefinition) {
                         Logger.d(
-                            `nginx validation failed, reverting configs for: ${appName}`
+                            `app update failed, reverting configs for: ${appName}`
                         )
                         return dataStore
                             .getAppsDataStore()
@@ -845,7 +896,8 @@ class ServiceManager {
                                 existingAppDefinition.websocketSupport,
                                 existingAppDefinition.appDeployTokenConfig || {
                                     enabled: false,
-                                }
+                                },
+                                existingAppDefinition.hasPersistentData
                             )
                             .then(function () {
                                 self.reloadLoadBalancer()
@@ -858,6 +910,35 @@ class ServiceManager {
 
                 throw error
             })
+    }
+
+    /**
+     * Node to pin an existing app to when persistent data is turned on.
+     * Single-node swarm: that node. Multi-node: the node of the currently running task.
+     */
+    getNodeIdForNewPersistentApp(serviceName: string): Promise<string> {
+        const dockerApi = this.dockerApi
+
+        return dockerApi.getNodesInfo().then(function (nodes) {
+            if (nodes.length === 1) {
+                return nodes[0].nodeId
+            }
+
+            return dockerApi
+                .getNodeIdOfRunningTask(serviceName)
+                .catch(function () {
+                    return ''
+                })
+                .then(function (nodeIdRunningService: string) {
+                    if (!nodeIdRunningService) {
+                        throw ApiStatusCodes.createError(
+                            ApiStatusCodes.ILLEGAL_OPERATION,
+                            'Cannot enable persistent data: the app has no running task to pin it to a node. Start the app (instance count 1) or set a Node ID, then try again.'
+                        )
+                    }
+                    return nodeIdRunningService
+                })
+        })
     }
 
     isAppBuilding(appName: string) {
