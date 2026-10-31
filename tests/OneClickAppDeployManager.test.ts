@@ -133,6 +133,35 @@ describe('OneClickAppDeployManager', () => {
             ])
         })
 
+        test('uses the first service name when a multi-service template has no app name variable', async () => {
+            const composeTemplate: IOneClickTemplate = {
+                captainVersion: 4,
+                services: {
+                    database: { image: 'mariadb' },
+                    web: { image: 'nginx', depends_on: ['database'] },
+                },
+                caproverOneClickApp: {
+                    displayName: 'Docker Compose',
+                    instructions: { start: '', end: 'done' },
+                    variables: [],
+                },
+            }
+            const states = jest.fn()
+            const appsDataStore = new AppsDataStore({ get: jest.fn() } as any, 'captain')
+            new OneClickAppDeployManager(
+                { getAppsDataStore: () => appsDataStore } as any,
+                {} as any,
+                states
+            ).startDeployProcess(composeTemplate, [])
+            await new Promise((resolve) => setImmediate(resolve))
+
+            expect(creates[0].mock.calls[0][0]).toBe('database')
+            expect(creates[2].mock.calls.map((call) => call[2])).toEqual([
+                'database',
+                'database',
+            ])
+        })
+
         test('unsupported options in a later service fail before any project or app is created', () => {
             const onDeploymentStateChanged = jest.fn()
             const invalidTemplate = JSON.parse(JSON.stringify(template))
