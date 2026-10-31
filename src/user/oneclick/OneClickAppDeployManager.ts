@@ -159,7 +159,8 @@ export default class OneClickAppDeployManager {
             }
 
             const steps: IDeploymentStep[] = []
-            const capAppName = values[ONE_CLICK_APP_NAME_VAR_NAME]
+            const capAppName =
+                values[ONE_CLICK_APP_NAME_VAR_NAME] || apps[0].appName
 
             const projectMemoryCache = { projectId: '' }
 
