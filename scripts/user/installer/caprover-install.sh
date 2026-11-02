@@ -7,7 +7,7 @@
 #   Safely prepare a fresh Ubuntu server and install a SINGLE-NODE CapRover.
 #   Report [ OK ], [INFO], [WARN] and [FAIL] messages so the operator knows
 #   exactly what was checked, changed, or left for manual review.
-#   Red error text is enabled only for interactive terminals with color support;
+#   Errors appear red and warnings yellow on color-capable interactive terminals;
 #   redirected logs and NO_COLOR remain free from ANSI escape sequences.
 #
 # FLOWCHART / DECISION TREE
@@ -225,6 +225,14 @@ print_fail() {
   fi
 }
 
+print_warn() {
+  if [[ -t 1 && -n "${TERM:-}" && "${TERM:-}" != dumb && -z "${NO_COLOR:-}" ]]; then
+    printf '\033[33m[WARN] %s\033[0m\n' "$*"
+  else
+    printf '[WARN] %s\n' "$*"
+  fi
+}
+
 usage() {
   cat <<'HELP'
 CapRover safe single-node installer
@@ -283,7 +291,7 @@ fi
 is_cmd() { command -v "$1" >/dev/null 2>&1; }
 ok()    { printf '[ OK ] %s\n' "$*"; }
 info()  { printf '[INFO] %s\n' "$*"; }
-warn()  { printf '[WARN] %s\n' "$*"; WARNINGS=$((WARNINGS+1)); }
+warn()  { print_warn "$*"; WARNINGS=$((WARNINGS+1)); }
 error() { print_fail "$*"; ERRORS=$((ERRORS+1)); }
 section() { printf '\n========== %s ==========\n' "$*"; }
 

@@ -20,6 +20,12 @@ run_test() {
 # Sourcing the definitions is safe in a child shell with no arguments.
 HEADER='source <(sed '\''$d'\'' "$SCRIPT"); set +e; ERRORS=0; WARNINGS=0'
 
+# Test terminal color from the real logger without running the installer.
+WARNING_TEST_SCRIPT="$(mktemp)"
+export WARNING_TEST_SCRIPT
+trap 'rm -f "$WARNING_TEST_SCRIPT"' EXIT
+printf '%s\n' 'source <(head -n -1 "$SCRIPT")' 'warn caution' > "$WARNING_TEST_SCRIPT"
+
 run_test 'rejects installing without explicitly accepted terms' \
  'result=$(bash "$SCRIPT" --yes 2>&1); rc=$?; [[ $rc -eq 2 && "$result" == *"--accept-terms"* ]]'
 
@@ -89,6 +95,18 @@ run_test 'TERM=dumb disables terminal escape sequences' \
 
 run_test 'missing option value is colored on terminal' \
  'command -v script >/dev/null || exit 0; out=$(TERM=xterm script -q -c "bash \"$SCRIPT\" --domain" /dev/null); esc=$(printf "\033"); [[ "$out" == *"${esc}[31m[FAIL] Missing --domain value${esc}[0m"* ]]'
+
+run_test 'redirected warnings remain plain and count once' \
+ "$HEADER; warn 'Check firewall' >/tmp/caprover-warning-test; esc=\$(printf '\\033'); [[ \$WARNINGS -eq 1 ]] && grep -Fxq '[WARN] Check firewall' /tmp/caprover-warning-test && ! grep -q \"\$esc\" /tmp/caprover-warning-test"
+
+run_test 'interactive warnings are yellow' \
+ 'command -v script >/dev/null || exit 0; out=$(TERM=xterm script -q -c "bash \"$WARNING_TEST_SCRIPT\"" /dev/null); esc=$(printf "\033"); [[ "$out" == *"${esc}[33m[WARN] caution${esc}[0m"* ]]'
+
+run_test 'NO_COLOR disables warning color on terminal' \
+ 'command -v script >/dev/null || exit 0; out=$(NO_COLOR=1 TERM=xterm script -q -c "bash \"$WARNING_TEST_SCRIPT\"" /dev/null); esc=$(printf "\033"); [[ "$out" == *"[WARN] caution"* && "$out" != *"$esc"* ]]'
+
+run_test 'TERM=dumb disables warning color on terminal' \
+ 'command -v script >/dev/null || exit 0; out=$(TERM=dumb script -q -c "bash \"$WARNING_TEST_SCRIPT\"" /dev/null); esc=$(printf "\033"); [[ "$out" == *"[WARN] caution"* && "$out" != *"$esc"* ]]'
 
 run_test 'script parses and displays usage' \
  'bash -n "$SCRIPT" && bash "$SCRIPT" --help | grep -q "Audit only"'
