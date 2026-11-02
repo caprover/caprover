@@ -7,6 +7,8 @@
 #   Safely prepare a fresh Ubuntu server and install a SINGLE-NODE CapRover.
 #   Report [ OK ], [INFO], [WARN] and [FAIL] messages so the operator knows
 #   exactly what was checked, changed, or left for manual review.
+#   Red error text is enabled only for interactive terminals with color support;
+#   redirected logs and NO_COLOR remain free from ANSI escape sequences.
 #
 # FLOWCHART / DECISION TREE
 #
@@ -212,6 +214,17 @@ SWARM_ACTIVE=false
 UFW_ACTIVE=false
 HAS_CURL=false
 
+# Use ANSI color only when the actual output stream is an interactive terminal.
+# Honor NO_COLOR and leave redirected output plain for logs and automation.
+# Messages are always treated as data, never as printf format strings.
+print_fail() {
+  if [[ -t 1 && -n "${TERM:-}" && "${TERM:-}" != dumb && -z "${NO_COLOR:-}" ]]; then
+    printf '\033[31m[FAIL] %s\033[0m\n' "$*"
+  else
+    printf '[FAIL] %s\n' "$*"
+  fi
+}
+
 usage() {
   cat <<'HELP'
 CapRover safe single-node installer
@@ -248,30 +261,30 @@ while (($#)); do
     --use-existing-swarm) USE_EXISTING_SWARM=true ;;
     --allow-other-ubuntu) ALLOW_OTHER_UBUNTU=true ;;
     --domain)
-      [[ $# -ge 2 ]] || { echo 'Missing --domain value' >&2; exit 2; }
+      [[ $# -ge 2 ]] || { print_fail 'Missing --domain value' >&2; exit 2; }
       DOMAIN="$2"; shift ;;
     --image)
-      [[ $# -ge 2 ]] || { echo 'Missing --image value' >&2; exit 2; }
+      [[ $# -ge 2 ]] || { print_fail 'Missing --image value' >&2; exit 2; }
       IMAGE="$2"; shift ;;
     -h|--help) usage; exit 0 ;;
-    *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+    *) print_fail "Unknown option: $1" >&2; usage >&2; exit 2 ;;
   esac
   shift
 done
 
 # Avoid malicious or accidental shell option-like image names and whitespace.
 if [[ ! "$IMAGE" =~ ^[[:alnum:]][[:alnum:]_.:/@-]*$ ]]; then
-  echo 'Invalid --image value' >&2; exit 2
+  print_fail 'Invalid --image value' >&2; exit 2
 fi
 if [[ -n "$DOMAIN" && ! "$DOMAIN" =~ ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$ ]]; then
-  echo 'Invalid domain syntax' >&2; exit 2
+  print_fail 'Invalid domain syntax' >&2; exit 2
 fi
 
 is_cmd() { command -v "$1" >/dev/null 2>&1; }
 ok()    { printf '[ OK ] %s\n' "$*"; }
 info()  { printf '[INFO] %s\n' "$*"; }
 warn()  { printf '[WARN] %s\n' "$*"; WARNINGS=$((WARNINGS+1)); }
-error() { printf '[FAIL] %s\n' "$*"; ERRORS=$((ERRORS+1)); }
+error() { print_fail "$*"; ERRORS=$((ERRORS+1)); }
 section() { printf '\n========== %s ==========\n' "$*"; }
 
 summary() {
@@ -962,7 +975,7 @@ main() {
   printf 'CapRover installer v%s\n' "$VERSION"
   info 'Target: clean Ubuntu 24.04, single-node Docker Swarm. No removal of existing workloads.'
   if [[ "$CHECK_ONLY" == false && "$YES" == true && "$ACCEPT_TERMS" == false ]]; then
-    printf '[FAIL] --yes requires --accept-terms.\n' >&2
+    print_fail '--yes requires --accept-terms.' >&2
     return 2
   fi
 

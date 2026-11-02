@@ -75,6 +75,21 @@ run_test 'confirmation cancels on invalid answer' \
 run_test 'confirmation cancels on end of input' \
  "$HEADER; printf \"\" | confirm_installation >/dev/null; [[ \$? -eq 2 ]]"
 
+run_test 'non-interactive output contains no ANSI color codes' \
+ 'out=$(TERM=xterm bash "$SCRIPT" --yes 2>&1); esc=$(printf "\033"); [[ "$out" == *"[FAIL] --yes requires --accept-terms."* && "$out" != *"$esc"* ]]'
+
+run_test 'terminal errors are red when color is allowed' \
+ 'command -v script >/dev/null || exit 0; out=$(TERM=xterm script -q -c "bash \"$SCRIPT\" --yes" /dev/null); esc=$(printf "\033"); [[ "$out" == *"${esc}[31m[FAIL] --yes requires --accept-terms.${esc}[0m"* ]]'
+
+run_test 'NO_COLOR disables terminal escape sequences' \
+ 'command -v script >/dev/null || exit 0; out=$(NO_COLOR=1 TERM=xterm script -q -c "bash \"$SCRIPT\" --yes" /dev/null); esc=$(printf "\033"); [[ "$out" == *"[FAIL] --yes requires --accept-terms."* && "$out" != *"$esc"* ]]'
+
+run_test 'TERM=dumb disables terminal escape sequences' \
+ 'command -v script >/dev/null || exit 0; out=$(TERM=dumb script -q -c "bash \"$SCRIPT\" --yes" /dev/null); esc=$(printf "\033"); [[ "$out" == *"[FAIL] --yes requires --accept-terms."* && "$out" != *"$esc"* ]]'
+
+run_test 'missing option value is colored on terminal' \
+ 'command -v script >/dev/null || exit 0; out=$(TERM=xterm script -q -c "bash \"$SCRIPT\" --domain" /dev/null); esc=$(printf "\033"); [[ "$out" == *"${esc}[31m[FAIL] Missing --domain value${esc}[0m"* ]]'
+
 run_test 'script parses and displays usage' \
  'bash -n "$SCRIPT" && bash "$SCRIPT" --help | grep -q "Audit only"'
 
