@@ -27,10 +27,10 @@ run_test 'Docker missing is recoverable' \
  "$HEADER; is_cmd() { [[ \"\$1\" != docker ]]; }; check_docker >/tmp/caprover-test-output; [[ \$DOCKER_MISSING == true && \$ERRORS -eq 0 ]]"
 
 run_test 'port audit recognizes occupied listening TCP port' \
- "$HEADER; python3 -c 'import socket,time;s=socket.socket();s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);s.bind((\"127.0.0.1\",39281));s.listen(1);time.sleep(5)' & pid=\$!; sleep 1; check_port 39281 tcp required >/dev/null; kill \$pid 2>/dev/null; wait \$pid 2>/dev/null; [[ \$ERRORS -eq 1 ]]"
+ "$HEADER; ss(){ printf 'LISTEN 0 128 127.0.0.1:39281 0.0.0.0:* users:((python3,pid=1,fd=3))\n'; }; check_port 39281 tcp required >/dev/null; [[ \$ERRORS -eq 1 ]]"
 
 run_test 'port audit passes an unoccupied TCP port' \
- "$HEADER; check_port 39282 tcp required >/dev/null; [[ \$ERRORS -eq 0 ]]"
+ "$HEADER; ss(){ :; }; check_port 39282 tcp required >/dev/null; [[ \$ERRORS -eq 0 ]]"
 
 run_test 'existing Swarm is blocked by default' \
  "$HEADER; docker(){ case \"\$*\" in *context* ) echo unix:///var/run/docker.sock ;; *Version* ) echo 27.2.0 ;; *SecurityOptions* ) echo '[\"name=seccomp\"]' ;; *LocalNodeState* ) echo active ;; *ControlAvailable* ) echo true ;; *info* ) return 0 ;; esac; }; check_docker >/dev/null; [[ \$ERRORS -ge 1 ]]"
@@ -52,6 +52,28 @@ run_test 'external checks are enabled by default' \
 
 run_test 'external checks can be disabled explicitly' \
  'set -- --skip-external-check; source <(head -n -1 "$SCRIPT"); [[ "$EXTERNAL_CHECK" == false ]]'
+
+# Keep legal consent opt-in and default the ordinary proceed prompt to Yes.
+run_test 'confirmation defaults to yes on blank Enter' \
+ "$HEADER; printf \"\n\" | confirm_installation >/dev/null"
+
+run_test 'confirmation accepts explicit yes' \
+ "$HEADER; printf \"yes\n\" | confirm_installation >/dev/null"
+
+run_test 'confirmation accepts explicit y' \
+ "$HEADER; printf \"Y\n\" | confirm_installation >/dev/null"
+
+run_test 'confirmation declines explicit no' \
+ "$HEADER; printf \"no\n\" | confirm_installation >/dev/null; [[ \$? -eq 2 ]]"
+
+run_test 'confirmation declines explicit n' \
+ "$HEADER; printf \"N\n\" | confirm_installation >/dev/null; [[ \$? -eq 2 ]]"
+
+run_test 'confirmation cancels on invalid answer' \
+ "$HEADER; printf \"maybe\n\" | confirm_installation >/dev/null; [[ \$? -eq 2 ]]"
+
+run_test 'confirmation cancels on end of input' \
+ "$HEADER; printf \"\" | confirm_installation >/dev/null; [[ \$? -eq 2 ]]"
 
 run_test 'script parses and displays usage' \
  'bash -n "$SCRIPT" && bash "$SCRIPT" --help | grep -q "Audit only"'

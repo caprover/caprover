@@ -103,9 +103,10 @@
 #     |
 #     +-- Installation mode?
 #           |  If terms were not accepted with --accept-terms, ask
-#           |  interactively; a noninteractive session must opt in.
-#           |  Unless --yes, ask for a second install confirmation.
-#           |  Declining either prompt -> EXIT without changes.
+#           |  interactively; explicit Yes required ([y/N], default No).
+#           |  Unless --yes, ask to proceed ([Y/n], default Yes).
+#           |  A No response to either prompt -> EXIT without changes.
+#           |  EOF or invalid responses -> CANCEL (no changes).
 #           v
 #   [8. Recover or install Docker, if needed]
 #     |
@@ -218,7 +219,7 @@ CapRover safe single-node installer
 Usage: sudo bash caprover-install.sh [OPTIONS]
 
   --check                 Audit only. No installations, firewall changes or files written.
-  --yes                   Skip installation confirmation (requires --accept-terms).
+  --yes                   Skip installation confirmation ([Y/n] defaults Yes; requires --accept-terms).
   --accept-terms          Confirm acceptance of CapRover's terms for the install.
   --skip-external-check   Skip the default post-install TCP reachability tests (check-host.net).
   --domain DOMAIN         Check wildcard DNS for the future root domain (e.g. apps.example.com).
@@ -278,6 +279,22 @@ summary() {
   if ((ERRORS > 0)); then
     printf 'Installation blocked. Resolve [FAIL] items and rerun.\n'
     return 1
+  fi
+  return 0
+}
+
+# Installing on a host that passed preflight is the ordinary safe path.
+# Blank input accepts it; EOF and unrecognized replies cancel safely.
+confirm_installation() {
+  local response
+  printf '\nChanges: install/start Docker if necessary, allow 80/443/3000 in active UFW, start CapRover.\n'
+  if ! read -r -p 'Proceed? [Y/n] ' response; then
+    info 'No answer received. Cancelled before installation.'
+    return 2
+  fi
+  if [[ -n "$response" && ! "$response" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+    info 'Cancelled before installation.'
+    return 2
   fi
   return 0
 }
@@ -979,12 +996,7 @@ main() {
       error 'Non-interactive installation requires --yes --accept-terms.'
       return 2
     fi
-    local confirm
-    printf '\nChanges: install/start Docker if necessary, allow 80/443/3000 in active UFW, start CapRover.\n'
-    read -r -p 'Proceed? [y/N] ' confirm
-    if [[ ! "$confirm" =~ ^[Yy]([Ee][Ss])?$ ]]; then
-      info 'Cancelled before installation.'; return 2
-    fi
+    confirm_installation || return 2
   fi
 
   if [[ "$DOCKER_MISSING" == true ]]; then

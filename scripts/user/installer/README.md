@@ -22,6 +22,12 @@ sudo bash caprover-install.sh --yes --accept-terms
 sudo bash caprover-install.sh --check --domain apps.example.com
 ```
 
+## Interactive confirmation defaults
+
+- **Accept CapRover terms? `[y/N]`**: No by default. You must type `y`/`yes` (or explicitly pass `--accept-terms`), because accepting terms requires affirmative consent.
+- **Proceed with installation? `[Y/n]`**: Yes by default after a successful preflight. Press **Enter**, `y`, or `yes` to proceed; `n`, `no`, an unrecognized answer, or end-of-input cancels without installation changes. `--yes` skips this prompt.
+- **Risky conditions**, such as untested Ubuntu versions or reusing a Swarm, still require explicit override flags. Existing workloads, unsafe port conflicts and existing CapRover data remain blocking conditions.
+
 The script leaves **provider firewall** changes, initial **DNS setup**, **domain configuration**, **password change**, and **HTTPS activation** for the operator. After successful setup, restrict/close `3000/tcp`. The public IPv4 service `ipconfig.io` identifies the *egress IP*, not whether ports are remotely reachable. After installation, the script asks `check-host.net` nodes to connect to public TCP ports 80, 443 and 3000 by default. Use `--skip-external-check` to opt out. Third-party test failures produce warnings, not installation errors.
 
 ## Behavior
