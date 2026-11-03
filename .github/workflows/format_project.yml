@@ -1,19 +1,21 @@
 name: Run formatter
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - master
     pull_request:
         branches:
             - master
+            - release
 
 jobs:
     check-code-formatting:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v5
               with:
-                  node-version: 22
+                  node-version: 24
             - run: npm ci && npm run formatter

@@ -83,12 +83,7 @@ export default class ApacheMd5 {
 
     // Exporting old style.
     static createApacheHash(password: string, salt?: string) {
-        let magic = ''
-        if (salt && salt.split('$')[1] === '1') {
-            magic = '$1$'
-        } else {
-            magic = '$apr1$'
-        }
+        const magic = salt && salt.split('$')[1] === '1' ? '$1$' : '$apr1$'
 
         salt = ApacheMd5.getSalt(salt)
 

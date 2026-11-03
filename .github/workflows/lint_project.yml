@@ -1,21 +1,23 @@
 name: Run lint
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - master
     pull_request:
         branches:
             - master
+            - release
 
 jobs:
     run-lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v5
               with:
-                  node-version: 22
+                  node-version: 24
             - run: |
                   sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
                   npm ci

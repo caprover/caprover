@@ -6,6 +6,7 @@ import {
 } from '../../models/IOneClickAppModels'
 import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
+import composeAppConfig from '../../utils/ComposeAppConfig'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
@@ -34,7 +35,7 @@ export default class OneClickAppDeployManager {
     private deploymentHelper: OneClickAppDeploymentHelper
     private template: IOneClickTemplate | undefined
     constructor(
-        dataStore: DataStore,
+        private dataStore: DataStore,
         serviceManager: ServiceManager,
         private onDeploymentStateChanged: (
             deploymentState: IDeploymentState
@@ -48,7 +49,7 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        valuesArray: OneClickAppValuePair[]
+        valuesArray: OneClickAppValuePair[] = []
     ) {
         const self = this
         let stringified = JSON.stringify(template)
@@ -97,6 +98,28 @@ export default class OneClickAppDeployManager {
             return
         }
 
+        // Validate every service before dependency sorting or creating resources.
+        try {
+            const services = this.template!.services
+            if (
+                !services ||
+                typeof services !== 'object' ||
+                Array.isArray(services)
+            ) {
+                throw new Error('services: expected a mapping')
+            }
+            for (const [name, service] of Object.entries(services)) {
+                composeAppConfig(service, `services.${name}`)
+            }
+        } catch (error) {
+            this.onDeploymentStateChanged({
+                steps: ['Parsing the template'],
+                error: error instanceof Error ? error.message : String(error),
+                currentStep: 0,
+            })
+            return
+        }
+
         // Dependency tree and sort apps using "createAppsArrayInOrder"
         // Call "createDeploymentStepPromises" for all apps.
         // populate steps as string[]
@@ -117,8 +140,27 @@ export default class OneClickAppDeployManager {
                 currentStep: 0,
             })
         } else {
+            // Check every app name before the first step, so a name that
+            // registration refuses does not leave the earlier apps behind.
+            for (let index = 0; index < apps.length; index++) {
+                try {
+                    self.dataStore
+                        .getAppsDataStore()
+                        .nameAllowedOrThrow(apps[index].appName)
+                } catch (error: any) {
+                    if (!error || !error.captainErrorType) throw error
+                    self.onDeploymentStateChanged({
+                        steps: ['Parsing the template'],
+                        error: `${apps[index].appName}: ${error.apiMessage}`,
+                        currentStep: 0,
+                    })
+                    return
+                }
+            }
+
             const steps: IDeploymentStep[] = []
-            const capAppName = values[ONE_CLICK_APP_NAME_VAR_NAME]
+            const capAppName =
+                values[ONE_CLICK_APP_NAME_VAR_NAME] || apps[0].appName
 
             const projectMemoryCache = { projectId: '' }
 

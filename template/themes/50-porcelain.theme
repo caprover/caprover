@@ -1,0 +1,294 @@
+###CapRoverTheme.name:
+Porcelain
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'Manrope', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 14,
+        fontSizeHeading1: 48,
+        fontSizeHeading2: 42,
+        fontSizeHeading3: 40,
+        fontSizeHeading4: 36,
+        fontSizeHeading5: 16,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#78A5FF' : '#164FC5',
+        colorPrimaryHover: isDarkMode ? '#8CB2FF' : '#1449B5',
+        colorPrimaryActive: isDarkMode ? '#6D97E9' : '#1242A5',
+        colorLink: isDarkMode ? '#A9C4FF' : '#164FC5',
+        colorLinkHover: isDarkMode ? '#A7C4FF' : '#1449B5',
+        colorLinkActive: isDarkMode ? '#78A5FF' : '#1242A5',
+        colorBgLayout: isDarkMode ? '#0C1726' : '#FAFBFC',
+        colorBgContainer: isDarkMode ? '#142235' : '#FFFFFF',
+        colorBgElevated: isDarkMode ? '#1D3147' : '#FFFFFF',
+        colorBgSpotlight: isDarkMode ? '#1D3147' : '#0C1726',
+        colorBgContainerDisabled: isDarkMode ? '#1A3049' : '#F0F5FD',
+        colorText: isDarkMode ? '#EFF5FF' : '#101C2B',
+        colorTextSecondary: isDarkMode ? '#AABBD0' : '#536477',
+        colorTextPlaceholder: isDarkMode ? '#AABBD0' : '#536477',
+        colorTextDisabled: isDarkMode ? '#AABBD0' : '#536477',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#31475D' : '#C9D2DD',
+        colorBorderSecondary: isDarkMode ? '#253C53' : '#E1E7ED',
+        colorFillAlter: isDarkMode ? '#1A3049' : '#F0F5FD',
+        colorBgTextHover: isDarkMode ? '#1A3049' : '#F0F5FD',
+        colorBgTextActive: isDarkMode ? '#223A61' : '#E9F0FF',
+        colorSuccess: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessText: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77683' : '#971D2D',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 2,
+        borderRadiusLG: 4,
+        borderRadiusSM: 1,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 38,
+        controlOutline: isDarkMode ? '#78A5FF' : '#164FC5',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#1A3049' : '#F0F5FD',
+        controlItemBgActive: isDarkMode ? '#223A61' : '#E9F0FF',
+        boxShadow: isDarkMode ? '0 12px 24px rgba(0,0,0,0.30)' : '0 8px 20px rgba(15,38,68,0.10)',
+        boxShadowSecondary: isDarkMode ? '0 12px 24px rgba(0,0,0,0.30)' : '0 8px 20px rgba(15,38,68,0.10)',
+        boxShadowTertiary: 'none',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#142235' : '#FFFFFF',
+            siderBg: isDarkMode ? '#0C1726' : '#FFFFFF',
+            lightSiderBg: isDarkMode ? '#0C1726' : '#FFFFFF',
+            triggerBg: isDarkMode ? '#0C1726' : '#FFFFFF',
+            lightTriggerBg: isDarkMode ? '#0C1726' : '#FFFFFF',
+            footerBg: isDarkMode ? '#0C1726' : '#FFFFFF',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#1D3147' : '#FFFFFF',
+            itemColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            itemHoverBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            itemHoverColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            itemSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            itemSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            itemHeight: 44,
+            itemMarginInline: 8,
+            itemMarginBlock: 2,
+            itemBorderRadius: 2,
+        },
+        Tree: {
+            titleHeight: 40,
+            nodeHoverBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            nodeHoverColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            nodeSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            nodeSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            directoryNodeSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            directoryNodeSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#142235' : '#FFFFFF',
+            headerHeight: 48,
+            headerFontSize: 15,
+            bodyPadding: 32,
+            headerPadding: 32,
+            extraColor: isDarkMode ? '#AABBD0' : '#536477',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#0C1726' : '#FAFBFC',
+            headerColor: isDarkMode ? '#AABBD0' : '#536477',
+            headerSplitColor: isDarkMode ? '#253C53' : '#E1E7ED',
+            borderColor: isDarkMode ? '#253C53' : '#E1E7ED',
+            rowHoverBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            rowSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            rowSelectedHoverBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            cellPaddingBlockMD: 20,
+            cellPaddingInlineMD: 16,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#0C1726' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#0C1726' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#142235' : '#FFFFFF',
+            defaultColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            defaultBorderColor: isDarkMode ? '#31475D' : '#C9D2DD',
+            defaultHoverColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            defaultHoverBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            defaultActiveColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            defaultActiveBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            paddingInline: 12,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#142235' : '#FFFFFF',
+            hoverBg: isDarkMode ? '#142235' : '#FFFFFF',
+            addonBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            hoverBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            activeBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            activeShadow: isDarkMode ? '0 0 0 2px rgba(120,165,255,0.5)' : '0 0 0 2px rgba(22,79,197,0.42)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#142235' : '#FFFFFF',
+            optionSelectedBg: isDarkMode ? '#223A61' : '#E9F0FF',
+            optionSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            optionActiveBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            hoverBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            activeBorderColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            activeOutlineColor: isDarkMode ? '#78A5FF' : '#164FC5',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 22,
+            inkBarColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            itemSelectedColor: isDarkMode ? '#78A5FF' : '#164FC5',
+            itemHoverColor: isDarkMode ? '#78A5FF' : '#164FC5',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#1A3049' : '#F0F5FD',
+            defaultColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            itemMarginBottom: 18,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#1D3147' : '#FFFFFF',
+            contentBg: isDarkMode ? '#1D3147' : '#FFFFFF',
+            footerBg: isDarkMode ? '#1D3147' : '#FFFFFF',
+            titleColor: isDarkMode ? '#EFF5FF' : '#101C2B',
+            titleFontSize: 18,
+            paddingMD: 32,
+            paddingContentHorizontalLG: 32,
+        },
+        Alert: {
+            defaultPadding: '10px 14px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" />
+<style>
+html[data-caprover-theme="porcelain"] {
+    --caprover-shell-radius: 4px;
+    --caprover-surface-radius: 0px;
+    --caprover-control-radius: 2px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.045em;
+    --caprover-heading-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .page-heading h1,
+html[data-caprover-theme="porcelain"] .apps-heading h1,
+html[data-caprover-theme="porcelain"] .app-details-heading h2 {
+    font-family: 'Manrope', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 40px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="porcelain"] .workspace-header,
+html[data-caprover-theme="porcelain"] .sidebar-brand {
+    height: 64px;
+    border-bottom: 0;
+}
+html[data-caprover-theme="porcelain"] .sidebar-brand {
+    font-size: 22px;
+    font-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .workspace-layout {
+    border-inline-start: 0;
+}
+html[data-caprover-theme="porcelain"] .sidebar-content .ant-menu-item-selected {
+    background: transparent;
+    font-weight: 700;
+}
+html[data-caprover-theme="porcelain"] .sidebar-content .ant-menu-item-selected .ant-menu-title-content {
+    text-decoration: underline;
+    text-underline-offset: 7px;
+    text-decoration-thickness: 1px;
+}
+html[data-caprover-theme="porcelain"] #main-content-layout {
+    padding: 40px 36px;
+}
+html[data-caprover-theme="porcelain"] .apps-heading {
+    flex-wrap: wrap;
+    row-gap: 20px;
+}
+html[data-caprover-theme="porcelain"] .apps-heading h1 {
+    flex-basis: 100%;
+}
+html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head .ant-card-head-wrapper {
+    align-items: flex-end;
+}
+html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head {
+    margin-bottom: 36px;
+}
+html[data-caprover-theme="porcelain"] .apps-page .ant-table-wrapper {
+    border: 0;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="porcelain"] .apps-page .ant-table-thead > tr > th {
+    background: transparent;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    border-bottom: 1px solid var(--ant-color-border);
+}
+html[data-caprover-theme="porcelain"] .project-manager .ant-tree {
+    background: transparent;
+}
+html[data-caprover-theme="porcelain"] .page-heading {
+    margin-bottom: 32px;
+}
+html[data-caprover-theme="porcelain"] .form-section-title {
+    font-size: 18px;
+    font-weight: 500;
+}
+html[data-caprover-theme="porcelain"] .app-details-actions {
+    border: 0;
+    border-top: 1px solid var(--ant-color-border);
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="porcelain"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="porcelain"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="porcelain"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="porcelain"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}

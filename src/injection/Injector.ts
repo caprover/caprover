@@ -145,7 +145,12 @@ export function injectUserForBuildTrigger() {
 
                 if (!tokenMatches) {
                     Logger.e('Token mismatch for app build')
-                    next()
+                    res.send(
+                        new BaseApi(
+                            ApiStatusCodes.STATUS_ERROR_NOT_AUTHORIZED,
+                            'The request is not authorized.'
+                        )
+                    )
                     return
                 }
 

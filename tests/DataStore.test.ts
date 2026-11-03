@@ -21,9 +21,17 @@ describe('DataStore config validation', () => {
         const malformedConfig = '{"namespace":"captain",}'
         fs.writeFileSync(configPath, malformedConfig)
 
-        expect(() => validateConfigFile(configPath)).toThrow(
-            `Cannot start CapRover because ${configPath} contains invalid JSON.`
+        let validationError: Error | undefined
+        try {
+            validateConfigFile(configPath)
+        } catch (error) {
+            validationError = error as Error
+        }
+
+        expect(validationError?.message).toBe(
+            `Cannot start CapRover because ${configPath} contains invalid JSON. Fix the file or restore it from a backup, then restart CapRover.`
         )
+        expect(validationError?.cause).toBeInstanceOf(SyntaxError)
         expect(fs.readFileSync(configPath, 'utf8')).toBe(malformedConfig)
     })
 

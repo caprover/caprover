@@ -10,7 +10,7 @@ function isNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 50 &&
-        /^[a-z]/.test(name) &&
+        /^[a-z0-9]/.test(name) &&
         /[a-z0-9]$/.test(name) &&
         /^[a-z0-9\-]+$/.test(name) &&
         name.indexOf('--') < 0
@@ -128,8 +128,7 @@ class ProjectsDataStore {
         return Promise.resolve()
             .then(function () {
                 return self.data.get(`${PROJECTS_DEFINITIONS}.${projectId}`) as
-                    | ProjectDefinition
-                    | undefined
+                    ProjectDefinition | undefined
             })
             .then(function (project) {
                 if (!project) {

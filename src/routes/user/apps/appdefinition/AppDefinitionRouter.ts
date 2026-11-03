@@ -322,8 +322,7 @@ router.post('/update/', function (req, res, next) {
     const containerHttpPort = req.body.containerHttpPort
     const httpAuth = req.body.httpAuth
     const appDeployTokenConfig = req.body.appDeployTokenConfig as
-        | AppDeployTokenConfig
-        | undefined
+        AppDeployTokenConfig | undefined
     const description = req.body.description
 
     return updateAppDefinition(

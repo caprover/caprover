@@ -1,7 +1,7 @@
-import request = require('request')
 import ApiStatusCodes from '../api/ApiStatusCodes'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { ITemplate } from '../models/OtherTypes'
+import { getText } from './HttpUtils'
 import Logger from './Logger'
 
 function getTagsForImage(
@@ -14,27 +14,25 @@ function getTagsForImage(
     }
 
     return new Promise<string[]>(function (resolve, reject) {
-        request(
-            url!,
-
-            function (error, response, body) {
-                if (error || !body) {
-                    Logger.e(error)
-                    reject(error)
+        getText(url!)
+            .then(function (body) {
+                if (!body) {
+                    reject(new Error('Received empty response from Docker Hub'))
                     return
                 }
 
+                let parsedBody: any
                 try {
                     // Sometimes Docker server is down and it crashes Captain!
-                    body = JSON.parse(body)
+                    parsedBody = JSON.parse(body)
                 } catch (e) {
                     Logger.e(e)
                 }
 
                 let results: any
 
-                if (body) {
-                    results = body.results
+                if (parsedBody) {
+                    results = parsedBody.results
                 }
 
                 if (!results) {
@@ -51,14 +49,19 @@ function getTagsForImage(
                     allTags.push(results[idx].name)
                 }
 
-                if (body.next) {
-                    resolve(getTagsForImage(imageBaseName, body.next, allTags))
+                if (parsedBody.next) {
+                    resolve(
+                        getTagsForImage(imageBaseName, parsedBody.next, allTags)
+                    )
                     return
                 }
 
                 resolve(allTags)
-            }
-        )
+            })
+            .catch(function (error) {
+                Logger.e(error)
+                reject(error)
+            })
     })
 }
 

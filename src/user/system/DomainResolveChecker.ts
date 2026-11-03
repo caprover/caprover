@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
 import CaptainConstants from '../../utils/CaptainConstants'
+import { getText } from '../../utils/HttpUtils'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import CertbotManager from './CertbotManager'
 import LoadBalancerManager from './LoadBalancerManager'
-import request = require('request')
 import fs = require('fs-extra')
 
 export default class DomainResolveChecker {
@@ -64,15 +64,12 @@ export default class DomainResolveChecker {
                 return new Promise<void>(function (resolve, reject) {
                     const url = `http://${domainName}:${CaptainConstants.configs.nginxPortNumber80}${captainConfirmationPath}`
 
-                    request(
-                        url,
-
-                        function (error, response, body) {
-                            if (error || !body || body !== randomUuid) {
+                    getText(url)
+                        .then(function (body) {
+                            if (!body || body !== randomUuid) {
                                 Logger.e(
                                     `Verification Failed for ${domainName}`
                                 )
-                                Logger.e(`Error        ${error}`)
                                 Logger.e(`body         ${body}`)
                                 Logger.e(`randomUuid   ${randomUuid}`)
                                 reject(
@@ -85,8 +82,17 @@ export default class DomainResolveChecker {
                             }
 
                             resolve()
-                        }
-                    )
+                        })
+                        .catch(function (error) {
+                            Logger.e(`Verification Failed for ${domainName}`)
+                            Logger.e(`Error        ${error}`)
+                            reject(
+                                ApiStatusCodes.createError(
+                                    ApiStatusCodes.VERIFICATION_FAILED,
+                                    'Verification Failed.'
+                                )
+                            )
+                        })
                 })
             })
     }
@@ -103,24 +109,32 @@ export default class DomainResolveChecker {
 
             Logger.d(`Sending request to ${url}`)
 
-            request(url, function (error, response, body) {
-                if (
-                    error ||
-                    !body ||
-                    body !==
-                        self.loadBalancerManager.getCaptainPublicRandomKey()
-                ) {
+            getText(url)
+                .then(function (body) {
+                    if (
+                        !body ||
+                        body !==
+                            self.loadBalancerManager.getCaptainPublicRandomKey()
+                    ) {
+                        reject(
+                            ApiStatusCodes.createError(
+                                ApiStatusCodes.VERIFICATION_FAILED,
+                                'Verification Failed.'
+                            )
+                        )
+                        return
+                    }
+
+                    resolve()
+                })
+                .catch(function () {
                     reject(
                         ApiStatusCodes.createError(
                             ApiStatusCodes.VERIFICATION_FAILED,
                             'Verification Failed.'
                         )
                     )
-                    return
-                }
-
-                resolve()
-            })
+                })
         })
     }
 }

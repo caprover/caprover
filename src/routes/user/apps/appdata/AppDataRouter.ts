@@ -71,7 +71,7 @@ router.post('/:appName/', function (req, res, next) {
 })
 
 // uploadCaptainDefinitionContent
-router.post(
+router.post<{ appName: string }>(
     '/:appName/',
     upload.single('sourceFile'),
     function (req, res, next) {

@@ -1,0 +1,30 @@
+name: Validate release PR
+
+on:
+    pull_request:
+        branches:
+            - release
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - edited
+
+permissions:
+    contents: read
+
+jobs:
+    validate-release-pr:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.pull_request.head.sha }}
+            - name: Validate release PR
+              env:
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+                  PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+              run: ./release/validate-release-pr.sh
+            - name: Check release version availability
+              run: ./release/validate-version.sh

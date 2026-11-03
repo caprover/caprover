@@ -11,10 +11,10 @@ import { IServerBlockDetails } from '../../models/IServerBlockDetails'
 import LoadBalancerInfo from '../../models/LoadBalancerInfo'
 import { AnyError } from '../../models/OtherTypes'
 import CaptainConstants from '../../utils/CaptainConstants'
+import { getText } from '../../utils/HttpUtils'
 import Logger from '../../utils/Logger'
 import CertbotManager from './CertbotManager'
 import fs = require('fs-extra')
-import request = require('request')
 const exec = util.promisify(chileProcess.exec)
 
 const defaultPageTemplate = fs
@@ -439,8 +439,46 @@ class LoadBalancerManager {
         return new Promise<LoadBalancerInfo>(function (resolve, reject) {
             const url = `http://${CaptainConstants.nginxServiceName}/nginx_status`
 
-            request(url, function (error, response, body) {
-                if (error || !body) {
+            getText(url).then(
+                function (body) {
+                    if (!body) {
+                        reject(
+                            ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Request to nginx Failed.'
+                            )
+                        )
+                        return
+                    }
+
+                    try {
+                        const data = new LoadBalancerInfo()
+                        const lines = body.split('\n')
+
+                        data.activeConnections = Number(
+                            lines[0].split(' ')[2].trim()
+                        )
+
+                        data.accepted = Number(lines[2].split(' ')[1].trim())
+                        data.handled = Number(lines[2].split(' ')[2].trim())
+                        data.total = Number(lines[2].split(' ')[3].trim())
+
+                        data.reading = Number(lines[3].split(' ')[1].trim())
+                        data.writing = Number(lines[3].split(' ')[3].trim())
+                        data.waiting = Number(lines[3].split(' ')[5].trim())
+
+                        resolve(data)
+                    } catch (error) {
+                        Logger.e(error)
+                        reject(
+                            ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                'Parser Failed. See internal logs...'
+                            )
+                        )
+                    }
+                },
+                function (error) {
                     Logger.e(`Error        ${error}`)
                     reject(
                         ApiStatusCodes.createError(
@@ -448,36 +486,8 @@ class LoadBalancerManager {
                             'Request to nginx Failed.'
                         )
                     )
-                    return
                 }
-
-                try {
-                    const data = new LoadBalancerInfo()
-                    const lines = body.split('\n')
-
-                    data.activeConnections = Number(
-                        lines[0].split(' ')[2].trim()
-                    )
-
-                    data.accepted = Number(lines[2].split(' ')[1].trim())
-                    data.handled = Number(lines[2].split(' ')[2].trim())
-                    data.total = Number(lines[2].split(' ')[3].trim())
-
-                    data.reading = Number(lines[3].split(' ')[1].trim())
-                    data.writing = Number(lines[3].split(' ')[3].trim())
-                    data.waiting = Number(lines[3].split(' ')[5].trim())
-
-                    resolve(data)
-                } catch (error) {
-                    Logger.e(error)
-                    reject(
-                        ApiStatusCodes.createError(
-                            ApiStatusCodes.STATUS_ERROR_GENERIC,
-                            'Parser Failed. See internal logs...'
-                        )
-                    )
-                }
-            })
+            )
         })
     }
 
@@ -969,26 +979,23 @@ class LoadBalancerManager {
             1000 * 3600 * 20.3
         )
 
-        return self.certbotManager
-            .renewAllCerts() //
+        return self
+            .getActiveSslDomains()
+            .then(function (activeDomains) {
+                return self.certbotManager.deleteExpiredOrphanedCertificates(
+                    activeDomains
+                )
+            })
+            .catch(function (error) {
+                // Cleanup must never affect certificate renewal or NGINX reload.
+                Logger.e(`Orphaned certificate cleanup failed: ${error}`)
+            })
+            .then(function () {
+                return self.certbotManager.renewAllCerts()
+            })
             .then(function () {
                 Logger.d('Updating Load Balancer - renewAllCerts')
                 return self.rePopulateNginxConfigFile()
-            })
-            .then(function () {
-                return self
-                    .getActiveSslDomains()
-                    .then(function (activeDomains) {
-                        return self.certbotManager.logExpiringOrphanedCertificates(
-                            activeDomains
-                        )
-                    })
-                    .catch(function (error) {
-                        // Observation must never affect certificate renewal or NGINX reload.
-                        Logger.e(
-                            `Orphaned certificate observation failed (no action taken): ${error}`
-                        )
-                    })
             })
     }
 }

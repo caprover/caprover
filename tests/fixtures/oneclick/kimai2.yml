@@ -1,0 +1,101 @@
+captainVersion: 4
+services:
+    # kimai FPM
+    $$cap_appname-fpm:
+        depends_on:
+            - $$cap_appname-db
+        image: kimai/kimai2:$$cap_kimai_version
+        restart: 'always'
+        environment:
+            ADMINMAIL: $$cap_kimai-adminmail
+            ADMINPASS: $$cap_kimai-adminpass
+            MAILER_URL: $$cap_kimai-mailerurl
+            MAILER_FROM: $$cap_kimai-mailerfrom
+            DATABASE_URL: mysql://$$cap_mariadb-user:$$cap_mariadb-pass@srv-captain--$$cap_appname-db/$$cap_mariadb-db
+            TRUSTED_HOSTS: $$cap_appname.$$cap_root_domain,nginx,localhost,127.0.0.1
+        volumes:
+            - $$cap_appname-public:/opt/kimai/public
+        caproverExtra:
+            notExposeAsWebApp: 'true'
+    # mariadb
+    $$cap_appname-db:
+        image: mariadb:$$cap_mariadb_version
+        environment:
+            MYSQL_DATABASE: $$cap_mariadb-db
+            MYSQL_USER: $$cap_mariadb-user
+            MYSQL_PASSWORD: $$cap_mariadb-pass
+            MYSQL_ROOT_PASSWORD: $$cap_mariadb-rootpass
+        volumes:
+            - $$cap_appname-db-data:/var/lib/mysql
+        restart: unless-stopped
+        caproverExtra:
+            notExposeAsWebApp: 'true'
+    $$cap_appname:
+        image: lcxat/nginx-fpm-reverse-proxy:$$cap_nginx_version
+        environment:
+            FPM_NGINX_HOST: srv-captain--$$cap_appname-fpm
+        volumes:
+            - $$cap_appname-public:/opt/kimai/public:ro
+        depends_on:
+            - $$cap_appname-fpm
+        restart: unless-stopped
+caproverOneClickApp:
+    variables:
+        - id: $$cap_kimai_version
+          label: Version Tag
+          description: Check out their Docker page for the valid tags https://hub.docker.com/r/kimai/kimai2/tags
+          defaultValue: 'fpm-1.15.2-prod'
+          validRegex: /^([^\s^\/])+$/
+        - id: $$cap_mariadb_version
+          label: mariaDB Version
+          defaultValue: '10'
+          description: Check out their docker page for the valid tags https://hub.docker.com/_/mariadb
+          validRegex: /^([^\s^\/])+$/
+        - id: $$cap_nginx_version
+          label: nginx fpm Version
+          defaultValue: '1.21.3'
+          description: Check out their docker page for the valid tags https://hub.docker.com/r/lcxat/nginx-fpm-reverse-proxy/tags
+          validRegex: /^([^\s^\/])+$/
+        - id: $$cap_kimai-adminmail
+          label: Admin
+          description: Admin User Email
+          defaultValue: admin@admin.local
+        - id: $$cap_kimai-adminpass
+          label: Password
+          description: Admin Password
+          defaultValue: $$cap_gen_random_hex(32)
+        - id: $$cap_kimai-mailerurl
+          label: Mail URL
+          description: Mail URL, check https://www.kimai.org/documentation/emails.html for details
+          defaultValue: smtp://localhost:25?encryption=&auth_mode=
+        - id: $$cap_kimai-mailerfrom
+          lable: Mail From
+          description: an application wide “from” address for all emails
+          defaultValue: kimai@admin.local
+        - id: $$cap_mariadb-db
+          label: Database Name
+          description: Database name for kimai
+          defaultValue: 'kimai'
+        - id: $$cap_mariadb-user
+          label: mariadb User
+          description: Database User for kimai
+          defaultValue: 'kimaiuser'
+        - id: $$cap_mariadb-pass
+          label: mariadb database user password
+          description: Super secret database user password
+          defaultValue: $$cap_gen_random_hex(32)
+        - id: $$cap_mariadb-rootpass
+          label: mariadb Root password
+          description: Super secret database user password
+          defaultValue: $$cap_gen_random_hex(32)
+    instructions:
+        start: |-
+            With Kimai, the boring process of feeding Excel spreadsheets with your working hours is not only simplified, it also offers dozens of other exciting features that you don't even know you're missing so far!
+        end: |-
+            Aaaand you're done! 😄
+            Your service is available at http://$$cap_appname.$$cap_root_domain
+            -------------------------------------------------------------------
+    displayName: Kimai
+    isOfficial: false
+    description: With Kimai, the boring process of feeding spreadsheets with your working hours is not only simplified, it also offers dozens of other exciting features that you don't even know you're missing!
+    documentation: https://www.kimai.org/documentation/

@@ -1,0 +1,41 @@
+captainVersion: 4
+services:
+    $$cap_appname:
+        image: ghcr.io/home-assistant/home-assistant:$$cap_myapp_version
+        volumes:
+            - $$cap_appname-config:/config
+            - /etc/localtime:/etc/localtime:ro
+            - /run/dbus:/run/dbus:ro
+        caproverExtra:
+            containerHttpPort: '8123'
+            websocketSupport: 'true'
+caproverOneClickApp:
+    variables:
+        - id: $$cap_myapp_version
+          label: Home Assistant version
+          defaultValue: '2025.2.1'
+          description: Check out their GitHub page for the valid tags https://github.com/home-assistant/core/pkgs/container/home-assistant
+          validRegex: '/.{1,}/'
+    instructions:
+        start: |-
+            Open source home automation that puts local control and privacy first. Powered by a worldwide community of tinkerers and DIY enthusiasts. Perfect to run on a Raspberry Pi or a local server. Note that HomeAssistant works best as a standalone app. The Docker Container installation method has some limitations. See https://www.home-assistant.io/installation/#advanced-installation-methods
+        end: |-
+            Done!
+
+            To work properly with reverse proxies edit:
+            `nano /var/lib/docker/volumes/captain--$$cap_appname-config/_data/configuration.yaml`
+            Add:
+            ```yml
+            http:
+              use_x_forwarded_for: true
+              trusted_proxies:
+                - 10.0.1.0/24
+                - 127.0.0.0/24
+                - ::1
+            ```
+
+            See https://www.home-assistant.io/integrations/http/#reverse-proxies for more information
+    displayName: Home Assistant
+    isOfficial: true
+    description: 🏡 Open source home automation that puts local control and privacy first.
+    documentation: This docker-compose is taken from https://www.home-assistant.io/installation/generic-x86-64#docker-compose

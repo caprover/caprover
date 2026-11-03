@@ -15,11 +15,14 @@ const WEBROOT_PATH_IN_CAPTAIN =
     CaptainConstants.nginxDomainSpecificHtmlDir
 
 const shouldUseStaging = false // CaptainConstants.isDebug;
-const ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS = 48 * 60 * 60 * 1000
+const ORPHAN_CERTIFICATE_EXPIRY_GRACE_PERIOD_MS = 24 * 60 * 60 * 1000
 const CERTBOT_RENEWAL_CONFIG_DIRECTORY =
     CaptainConstants.letsEncryptEtcPath + '/renewal'
 
-export function isExpiringOrphanedCertificate(
+/**
+ * Returns whether an inactive certificate has been expired for at least one day.
+ */
+export function isExpiredOrphanedCertificateEligibleForDeletion(
     certificateName: string,
     activeDomains: string[],
     expiryDate: number,
@@ -31,7 +34,7 @@ export function isExpiringOrphanedCertificate(
 
     return (
         !activeDomainSet.has(certificateName.toLowerCase()) &&
-        expiryDate <= currentTime + ORPHAN_CERTIFICATE_EXPIRY_THRESHOLD_MS
+        expiryDate <= currentTime - ORPHAN_CERTIFICATE_EXPIRY_GRACE_PERIOD_MS
     )
 }
 
@@ -256,28 +259,47 @@ class CertbotManager {
         this.isOperationInProcess = false
     }
 
-    runCommand(cmd: string[]) {
-        const dockerApi = this.dockerApi
+    private runWithLock<T>(operation: () => Promise<T>) {
         const self = this
+        let lockAcquired = false
 
-        return Promise.resolve().then(function () {
-            self.lock()
+        return Promise.resolve()
+            .then(function () {
+                self.lock()
+                lockAcquired = true
+                return operation()
+            })
+            .then(function (result) {
+                self.unlock()
+                return result
+            })
+            .catch(function (error) {
+                if (lockAcquired) {
+                    self.unlock()
+                }
+                throw error
+            })
+    }
 
-            const nonInterActiveCommand = [...cmd, '--non-interactive']
-            return dockerApi
-                .executeCommand(
-                    CaptainConstants.certbotServiceName,
-                    nonInterActiveCommand
-                )
-                .then(function (data) {
-                    self.unlock()
-                    Logger.dev(data)
-                    return data
-                })
-                .catch(function (error) {
-                    self.unlock()
-                    throw error
-                })
+    private runCommandWithoutLock(cmd: string[]) {
+        const dockerApi = this.dockerApi
+        const nonInterActiveCommand = [...cmd, '--non-interactive']
+
+        return dockerApi
+            .executeCommand(
+                CaptainConstants.certbotServiceName,
+                nonInterActiveCommand
+            )
+            .then(function (data) {
+                Logger.dev(data)
+                return data
+            })
+    }
+
+    runCommand(cmd: string[]) {
+        const self = this
+        return self.runWithLock(function () {
+            return self.runCommandWithoutLock(cmd)
         })
     }
 
@@ -288,7 +310,7 @@ class CertbotManager {
             })
     }
 
-    logExpiringOrphanedCertificates(activeDomains: string[]) {
+    deleteExpiredOrphanedCertificates(activeDomains: string[]) {
         const self = this
 
         return fs
@@ -314,34 +336,58 @@ class CertbotManager {
                                 CaptainConstants.letsEncryptEtcPath +
                                 `/live/${certificateName}/cert.pem`
 
-                            return fs
-                                .readFile(certificatePath)
-                                .then(function (certificatePem) {
-                                    const certificate = new X509Certificate(
-                                        certificatePem
-                                    )
-                                    const expiryDate = Date.parse(
-                                        certificate.validTo
-                                    )
+                            return self
+                                .runWithLock(function () {
+                                    return fs
+                                        .readFile(certificatePath)
+                                        .then(function (certificatePem) {
+                                            const certificate =
+                                                new X509Certificate(
+                                                    certificatePem
+                                                )
+                                            const expiryDate = Date.parse(
+                                                certificate.validTo
+                                            )
 
-                                    if (
-                                        Number.isNaN(expiryDate) ||
-                                        !isExpiringOrphanedCertificate(
-                                            certificateName,
-                                            activeDomains,
-                                            expiryDate
-                                        )
-                                    ) {
-                                        return
-                                    }
+                                            if (
+                                                Number.isNaN(expiryDate) ||
+                                                !isExpiredOrphanedCertificateEligibleForDeletion(
+                                                    certificateName,
+                                                    activeDomains,
+                                                    expiryDate
+                                                )
+                                            ) {
+                                                return
+                                            }
 
-                                    Logger.d(
-                                        `Orphaned certificate eligible for deletion (no action taken): ${certificateName}`
-                                    )
+                                            return self
+                                                .runCommandWithoutLock([
+                                                    'certbot',
+                                                    'delete',
+                                                    '--cert-name',
+                                                    certificateName,
+                                                ])
+                                                .then(function (output) {
+                                                    const successMessage = `Deleted all files relating to certificate ${certificateName}.`
+                                                    if (
+                                                        !output.includes(
+                                                            successMessage
+                                                        )
+                                                    ) {
+                                                        throw new Error(
+                                                            `Unexpected output from Certbot while deleting ${certificateName}: ${output}`
+                                                        )
+                                                    }
+
+                                                    Logger.d(
+                                                        `Deleted orphaned certificate more than 24 hours after expiration: ${certificateName}`
+                                                    )
+                                                })
+                                        })
                                 })
                                 .catch(function (error) {
                                     Logger.e(
-                                        `Skipping orphan candidate check for certificate ${certificateName}: ${error}`
+                                        `Failed to delete orphaned certificate ${certificateName}: ${error}`
                                     )
                                 })
                         })

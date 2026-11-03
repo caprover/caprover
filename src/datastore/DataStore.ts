@@ -49,7 +49,8 @@ export function validateConfigFile(configPath: string) {
     } catch (error) {
         if (error instanceof SyntaxError) {
             throw new Error(
-                `Cannot start CapRover because ${configPath} contains invalid JSON. Fix the file or restore it from a backup, then restart CapRover.`
+                `Cannot start CapRover because ${configPath} contains invalid JSON. Fix the file or restore it from a backup, then restart CapRover.`,
+                { cause: error }
             )
         }
 

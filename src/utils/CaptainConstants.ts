@@ -2,6 +2,21 @@ import fs = require('fs-extra')
 import path = require('path')
 import EnvVars from './EnvVars'
 
+const RELEASE_CONFIG_CONTENT = fs.readFileSync(
+    path.join(__dirname, '../../release/release.conf'),
+    'utf8'
+)
+
+function getReleaseConfigValue(key: string) {
+    const match = new RegExp(`^${key}=([^\\r\\n]+)$`, 'm').exec(
+        RELEASE_CONFIG_CONTENT
+    )
+    if (!match) {
+        throw new Error(`Missing release config value: ${key}`)
+    }
+    return match[1]
+}
+
 const CAPTAIN_BASE_DIRECTORY = EnvVars.CAPTAIN_BASE_DIRECTORY || '/captain'
 const CAPTAIN_DATA_DIRECTORY = CAPTAIN_BASE_DIRECTORY + '/data' // data that sits here can be backed up
 const CAPTAIN_ROOT_DIRECTORY_TEMP = CAPTAIN_BASE_DIRECTORY + '/temp'
@@ -15,9 +30,9 @@ const CONSTANT_FILE_OVERRIDE_USER =
     CAPTAIN_DATA_DIRECTORY + '/config-override.json'
 
 const configs = {
-    publishedNameOnDockerHub: 'caprover/caprover',
+    publishedNameOnDockerHub: getReleaseConfigValue('CAPROVER_IMAGE_NAME'),
 
-    version: '1.15.5',
+    version: getReleaseConfigValue('CAPROVER_VERSION'),
 
     defaultMaxLogSize: '512m',
 

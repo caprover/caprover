@@ -56,8 +56,7 @@ router.post('/update/', function (req, res, next) {
         InjectionExtractor.extractUserFromInjected(res).user.dataStore
 
     const projectDefinition = req.body.projectDefinition as
-        | ProjectDefinition
-        | undefined
+        ProjectDefinition | undefined
 
     Promise.resolve()
         .then(function () {

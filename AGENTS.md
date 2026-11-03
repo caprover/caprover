@@ -19,6 +19,36 @@ Keep changes narrowly scoped. Do not add API fields, configuration, or abstracti
 
 The frontend is maintained in `caprover/caprover-frontend`. User-facing documentation is maintained in `caprover/caprover-website`.
 
+For releases, hotfixes, and backmerges, follow [RELEASING.md](RELEASING.md).
+
+## Code design and consistency
+
+- **Inspect neighboring code first:** read the closest routes, managers, models, helpers, callers,
+  and tests. Independently outline the simplest complete implementation using existing patterns.
+- Match local conventions for naming, file structure, promises, error handling, and dependency
+  ownership. If a similar feature already exists, follow its pattern unless a change is justified.
+- Treat the closest analogous code as the primary style reference. A pattern used elsewhere in the
+  repository does not justify changing the established style of the class or feature being edited.
+  Match control-flow shape as well as syntax, including promise chaining, dependency capture,
+  callback style, and where validation occurs.
+- For each new file, identify an existing file with the same responsibility and mirror its directory
+  placement, imports, route shape, naming, and test structure. Do not invent a parallel convention.
+- Favor **KISS, YAGNI, and proportionate DRY**. Add abstractions only for concrete reuse or a
+  clear reduction in complexity. Avoid one-off wrappers, generic frameworks, and redundant state.
+- Keep responsibilities in their established layers. Avoid routing routine work through unrelated
+  managers or adding coordination and indirection where a direct call is sufficient.
+- Prefer concise control flow. Consolidate identical branches and state transitions; avoid copied
+  conditionals, unnecessary special cases, and scattered hardcoded status strings.
+- Maintain a single source of truth for API models, validation rules, supported Compose fields,
+  and capability lists. Trace contract changes across the backend, `caprover-api`, frontend,
+  and one-click templates; update every affected consumer and relevant test.
+- Use existing TypeScript models and explicit types at API and domain boundaries. Avoid `any`,
+  unsafe casts, speculative generics, and ambiguous untyped return contracts.
+- Map public API responses deliberately when summary and detail shapes differ. Avoid broad object
+  spreads that can expose a future internal or detail-only field through another endpoint.
+- Handle asynchronous failures, concurrent operations, retries, and legacy inputs deliberately.
+  Avoid arbitrary sleeps as synchronization; verify actual Docker/control-plane outcomes.
+
 ## Change constraints
 
 - Preserve API v2 response shapes, status handling, and compatibility with existing installations.
@@ -29,9 +59,30 @@ The frontend is maintained in `caprover/caprover-frontend`. User-facing document
 - Keep routes thin. Use the existing managers, `InjectionExtractor`, `ApiStatusCodes`, `BaseApi`, and `Logger` patterns instead of parallel mechanisms.
 - Add focused regression tests for behavior changes and failure paths. Avoid unrelated refactors or style-only changes.
 
+## Review checklist
+
+1. Identify the simplest implementation consistent with nearby code **before** accepting the
+   PR's chosen architecture. Compare the submitted design against that baseline.
+2. Question each new abstraction, helper, repeated condition, state owner, and cross-layer
+   dependency. Explain when an existing method or pattern would be simpler.
+3. Trace correctness end to end: request validation, typed response, persistence, Docker
+   behavior, compatibility, errors, races, and regression tests. Validate assumptions in code.
+4. Report actionable findings with file/line, concrete impact, and the smallest viable fix.
+   Separate merge blockers from optional improvements; avoid opinion-only refactoring.
+5. Report tests and runtime checks actually performed. Mocked tests alone do not establish
+   correctness of host filesystem, Docker, or multi-node behavior.
+6. After implementation, review the complete final diff again as an unfamiliar reviewer. Do not
+   rely on the implementation plan or an earlier incremental review. Re-open the nearest analogous
+   files and compare layering, call direction, promise style, control flow, names, imports, response
+   construction, and tests.
+7. Inspect `git status --short` as part of the final review so new and untracked files receive the
+   same scrutiny as modified files. Resolve every unexplained style deviation before handoff.
+8. Treat formatter, lint, build, and test success as correctness signals, not proof of code-style
+   consistency. Report any intentional difference from neighboring code and its reason.
+
 ## Validation
 
-Use Node.js 22.
+Use Node.js 24.
 
 ```bash
 npm ci
@@ -42,3 +93,7 @@ npm test -- --runInBand
 ```
 
 Run the narrowest relevant Jest test while iterating, then the full suite before handoff. `npm run build` includes TypeScript compilation and circular-dependency detection.
+
+The repository formatter and lint scripts currently cover `src/**/*.ts`. Explicitly run Prettier
+and ESLint on changed TypeScript files outside `src`, especially new tests. Run `git diff --check`
+and inspect `git status --short` before handoff.

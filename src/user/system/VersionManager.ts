@@ -1,7 +1,8 @@
-import request = require('request')
 import axios from 'axios'
+import ApiStatusCodes from '../../api/ApiStatusCodes'
 import DockerApi from '../../docker/DockerApi'
 import CaptainConstants from '../../utils/CaptainConstants'
+import { getText } from '../../utils/HttpUtils'
 import Logger from '../../utils/Logger'
 import DockerRegistryHelper from '../DockerRegistryHelper'
 
@@ -19,6 +20,7 @@ class VersionManager {
         latestVersion: string
         changeLogMessage: string
         canUpdate: boolean
+        minDockerApiVersion?: string
     }> {
         // reach out to api.v2.caprover.com/v2/versionInfo?currentVersion=1.5.3
         // response should be currentVersion, latestVersion, canUpdate, and changeLogMessage
@@ -29,6 +31,7 @@ class VersionManager {
                     params: {
                         currentVersion: currentVersion,
                     },
+                    timeout: 10000,
                 })
             })
             .then(function (responseObj) {
@@ -47,6 +50,9 @@ class VersionManager {
                     latestVersion: data.latestVersion + '',
                     changeLogMessage: data.changeLogMessage + '',
                     canUpdate: !!data.canUpdate,
+                    minDockerApiVersion: data.minDockerApiVersion
+                        ? String(data.minDockerApiVersion).trim()
+                        : undefined,
                 }
             })
             .catch(function (error) {
@@ -77,35 +83,34 @@ class VersionManager {
 
         const url = `https://hub.docker.com/v2/repositories/${CaptainConstants.configs.publishedNameOnDockerHub}/tags`
 
-        return new Promise<string[]>(function (resolve, reject) {
-            request(
-                url,
+        const tagListPromise = CaptainConstants.isDebug
+            ? Promise.resolve(['v0.0.1'])
+            : getText(url).then(function (body) {
+                  let response: { results?: Array<{ name?: unknown }> } | null
 
-                function (error, response, body) {
-                    if (CaptainConstants.isDebug) {
-                        resolve(['v0.0.1'])
-                        return
-                    }
+                  try {
+                      response = JSON.parse(body)
+                  } catch (error) {
+                      throw new Error(
+                          'Received invalid JSON for version list from Docker Hub.',
+                          { cause: error }
+                      )
+                  }
 
-                    if (error) {
-                        reject(error)
-                    } else if (!body || !JSON.parse(body).results) {
-                        reject(
-                            new Error(
-                                'Received empty body or no result for version list on docker hub.'
-                            )
-                        )
-                    } else {
-                        const results = JSON.parse(body).results
-                        const tags = []
-                        for (let idx = 0; idx < results.length; idx++) {
-                            tags.push(results[idx].name)
-                        }
-                        resolve(tags)
-                    }
-                }
-            )
-        }).then(function (tagList) {
+                  if (!response || !Array.isArray(response.results)) {
+                      throw new Error(
+                          'Received empty body or no result for version list from Docker Hub.'
+                      )
+                  }
+
+                  return response.results
+                      .map((result) => result.name)
+                      .filter(
+                          (name): name is string => typeof name === 'string'
+                      )
+              })
+
+        return tagListPromise.then(function (tagList) {
             const currentVersion = CaptainConstants.configs.version.split('.')
             let latestVersion = CaptainConstants.configs.version.split('.')
 
@@ -118,25 +123,22 @@ class VersionManager {
                     continue
                 }
 
-                if (Number(tag[0]) > Number(currentVersion[0])) {
+                if (Number(tag[0]) > Number(latestVersion[0])) {
                     canUpdate = true
                     latestVersion = tag
-                    break
                 } else if (
-                    Number(tag[0]) === Number(currentVersion[0]) &&
-                    Number(tag[1]) > Number(currentVersion[1])
+                    Number(tag[0]) === Number(latestVersion[0]) &&
+                    Number(tag[1]) > Number(latestVersion[1])
                 ) {
                     canUpdate = true
                     latestVersion = tag
-                    break
                 } else if (
-                    Number(tag[0]) === Number(currentVersion[0]) &&
-                    Number(tag[1]) === Number(currentVersion[1]) &&
-                    Number(tag[2]) > Number(currentVersion[2])
+                    Number(tag[0]) === Number(latestVersion[0]) &&
+                    Number(tag[1]) === Number(latestVersion[1]) &&
+                    Number(tag[2]) > Number(latestVersion[2])
                 ) {
                     canUpdate = true
                     latestVersion = tag
-                    break
                 }
             }
 
@@ -156,6 +158,9 @@ class VersionManager {
         const self = this
         const providedImageName = `${CaptainConstants.configs.publishedNameOnDockerHub}:${versionTag}`
         return Promise.resolve()
+            .then(function () {
+                return self.verifyHostSupportsVersion(versionTag)
+            })
             .then(function () {
                 return dockerRegistryHelper.getDockerAuthObjectForImageName(
                     providedImageName
@@ -182,6 +187,54 @@ class VersionManager {
                     undefined,
                     undefined
                 )
+            })
+    }
+
+    private verifyHostSupportsVersion(versionTag: string) {
+        const self = this
+        if (
+            CaptainConstants.configs.publishedNameOnDockerHub !==
+            'caprover/caprover'
+        ) {
+            return Promise.resolve()
+        }
+
+        return self
+            .getCaptainImageTagsFromOfficialApi(
+                CaptainConstants.configs.version
+            )
+            .then(function (versionInfo) {
+                const minRequiredApiVersion = versionInfo.minDockerApiVersion
+                if (
+                    versionInfo.latestVersion !== versionTag ||
+                    !minRequiredApiVersion
+                ) {
+                    return
+                }
+
+                return self.dockerApi
+                    .getDockerVersion()
+                    .then(function (dockerVersion) {
+                        const hostApiVersion = dockerVersion.ApiVersion
+                        const [hostMajor, hostMinor] = hostApiVersion
+                            .split('.')
+                            .map(Number)
+                        const [requiredMajor, requiredMinor] =
+                            minRequiredApiVersion
+                                .replace(/^v/, '')
+                                .split('.')
+                                .map(Number)
+                        if (
+                            hostMajor < requiredMajor ||
+                            (hostMajor === requiredMajor &&
+                                hostMinor < requiredMinor)
+                        ) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.STATUS_ERROR_GENERIC,
+                                `Cannot update to Captain ${versionTag}: it requires Docker API ${minRequiredApiVersion}, but this host only supports Docker API ${hostApiVersion}. Please update Docker Engine on the host first.`
+                            )
+                        }
+                    })
             })
     }
 

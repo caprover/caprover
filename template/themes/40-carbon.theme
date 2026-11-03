@@ -1,0 +1,288 @@
+###CapRoverTheme.name:
+Carbon
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'IBM Plex Sans', Arial, sans-serif",
+        fontFamilyCode: "'IBM Plex Mono', Consolas, monospace",
+        fontSize: 13,
+        fontSizeHeading1: 38,
+        fontSizeHeading2: 32,
+        fontSizeHeading3: 30,
+        fontSizeHeading4: 26,
+        fontSizeHeading5: 15,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#AA9ACA' : '#675C89',
+        colorPrimaryHover: isDarkMode ? '#B7A9D2' : '#5F557E',
+        colorPrimaryActive: isDarkMode ? '#9B8CB8' : '#574D73',
+        colorLink: isDarkMode ? '#BFB3D7' : '#675C89',
+        colorLinkHover: isDarkMode ? '#C8BDDD' : '#5F557E',
+        colorLinkActive: isDarkMode ? '#AA9ACA' : '#574D73',
+        colorBgLayout: isDarkMode ? '#111216' : '#F3F4F7',
+        colorBgContainer: isDarkMode ? '#1A1C21' : '#FFFFFF',
+        colorBgElevated: isDarkMode ? '#24262D' : '#FAFAFC',
+        colorBgSpotlight: isDarkMode ? '#24262D' : '#111216',
+        colorBgContainerDisabled: isDarkMode ? '#282830' : '#F0EEF5',
+        colorText: isDarkMode ? '#EDEEF2' : '#20232B',
+        colorTextSecondary: isDarkMode ? '#A5A7B2' : '#626875',
+        colorTextPlaceholder: isDarkMode ? '#A5A7B2' : '#626875',
+        colorTextDisabled: isDarkMode ? '#A5A7B2' : '#626875',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#373944' : '#D8DBE2',
+        colorBorderSecondary: isDarkMode ? '#2D3038' : '#E5E7EC',
+        colorFillAlter: isDarkMode ? '#282830' : '#F0EEF5',
+        colorBgTextHover: isDarkMode ? '#282830' : '#F0EEF5',
+        colorBgTextActive: isDarkMode ? '#2D2938' : '#E9E5F3',
+        colorSuccess: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessText: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E77681' : '#971D2D',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 1,
+        borderRadiusLG: 2,
+        borderRadiusSM: 0,
+        lineWidth: 1,
+        lineType: 'solid',
+        controlHeight: 32,
+        controlOutline: isDarkMode ? '#AA9ACA' : '#675C89',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#282830' : '#F0EEF5',
+        controlItemBgActive: isDarkMode ? '#2D2938' : '#E9E5F3',
+        boxShadow: isDarkMode ? '0 12px 30px rgba(0,0,0,0.36)' : '0 10px 26px rgba(27,31,39,0.10)',
+        boxShadowSecondary: isDarkMode ? '0 12px 30px rgba(0,0,0,0.36)' : '0 10px 26px rgba(27,31,39,0.10)',
+        boxShadowTertiary: 'none',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            siderBg: isDarkMode ? '#15171C' : '#ECEEF2',
+            lightSiderBg: isDarkMode ? '#15171C' : '#ECEEF2',
+            triggerBg: isDarkMode ? '#15171C' : '#ECEEF2',
+            lightTriggerBg: isDarkMode ? '#15171C' : '#ECEEF2',
+            footerBg: isDarkMode ? '#15171C' : '#ECEEF2',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#24262D' : '#FAFAFC',
+            itemColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            itemHoverBg: isDarkMode ? '#282830' : '#F0EEF5',
+            itemHoverColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            itemSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            itemSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            itemHeight: 32,
+            itemMarginInline: 4,
+            itemMarginBlock: 2,
+            itemBorderRadius: 1,
+        },
+        Tree: {
+            titleHeight: 28,
+            nodeHoverBg: isDarkMode ? '#282830' : '#F0EEF5',
+            nodeHoverColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            nodeSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            nodeSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            directoryNodeSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            directoryNodeSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            headerHeight: 48,
+            headerFontSize: 15,
+            bodyPadding: 18,
+            headerPadding: 18,
+            extraColor: isDarkMode ? '#A5A7B2' : '#626875',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#111216' : '#F3F4F7',
+            headerColor: isDarkMode ? '#A5A7B2' : '#626875',
+            headerSplitColor: isDarkMode ? '#2D3038' : '#E5E7EC',
+            borderColor: isDarkMode ? '#2D3038' : '#E5E7EC',
+            rowHoverBg: isDarkMode ? '#282830' : '#F0EEF5',
+            rowSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            rowSelectedHoverBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#282830' : '#F0EEF5',
+            cellPaddingBlockMD: 9,
+            cellPaddingInlineMD: 16,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#111216' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#111216' : '#FFFFFF',
+            primaryShadow: 'none',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            defaultColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            defaultBorderColor: isDarkMode ? '#373944' : '#D8DBE2',
+            defaultHoverColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            defaultHoverBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            defaultActiveColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            defaultActiveBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            paddingInline: 12,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            hoverBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            addonBg: isDarkMode ? '#282830' : '#F0EEF5',
+            hoverBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            activeBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            activeShadow: isDarkMode ? '0 0 0 3px rgba(170,154,202,0.25)' : '0 0 0 3px rgba(103,92,137,0.23)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#1A1C21' : '#FFFFFF',
+            optionSelectedBg: isDarkMode ? '#2D2938' : '#E9E5F3',
+            optionSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            optionActiveBg: isDarkMode ? '#282830' : '#F0EEF5',
+            hoverBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            activeBorderColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            activeOutlineColor: isDarkMode ? '#AA9ACA' : '#675C89',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 22,
+            inkBarColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            itemSelectedColor: isDarkMode ? '#AA9ACA' : '#675C89',
+            itemHoverColor: isDarkMode ? '#AA9ACA' : '#675C89',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#282830' : '#F0EEF5',
+            defaultColor: isDarkMode ? '#EDEEF2' : '#20232B',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            itemMarginBottom: 16,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#24262D' : '#FAFAFC',
+            contentBg: isDarkMode ? '#24262D' : '#FAFAFC',
+            footerBg: isDarkMode ? '#24262D' : '#FAFAFC',
+            titleColor: isDarkMode ? '#EDEEF2' : '#20232B',
+            titleFontSize: 18,
+            paddingMD: 18,
+            paddingContentHorizontalLG: 18,
+        },
+        Alert: {
+            defaultPadding: '10px 14px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600;700&amp;display=swap" />
+<style>
+html[data-caprover-theme="carbon"] {
+    --caprover-shell-radius: 0px;
+    --caprover-surface-radius: 2px;
+    --caprover-control-radius: 1px;
+    --caprover-border-width: 1px;
+    --caprover-surface-shadow: none;
+    --caprover-heading-tracking: -0.02em;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="carbon"] .page-heading h1,
+html[data-caprover-theme="carbon"] .apps-heading h1,
+html[data-caprover-theme="carbon"] .app-details-heading h2 {
+    font-family: 'IBM Plex Sans', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 30px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="carbon"] .app-shell.full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+}
+html[data-caprover-theme="carbon"] .workspace-header,
+html[data-caprover-theme="carbon"] .sidebar-brand {
+    height: 42px;
+}
+html[data-caprover-theme="carbon"] .sidebar-brand {
+    font-size: 16px;
+    letter-spacing: 0.04em;
+}
+html[data-caprover-theme="carbon"] .sidebar-section-label,
+html[data-caprover-theme="carbon"] .sidebar-content .ant-menu-item-group-title {
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+}
+html[data-caprover-theme="carbon"] .sidebar-content .ant-menu-item-selected {
+    border-inline-start: 3px solid var(--ant-color-primary);
+}
+html[data-caprover-theme="carbon"] #main-content-layout {
+    padding: 20px;
+}
+html[data-caprover-theme="carbon"] .apps-page > .ant-card-head {
+    border-bottom: 2px solid var(--ant-color-border);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+html[data-caprover-theme="carbon"] .apps-heading h1,
+html[data-caprover-theme="carbon"] .page-heading h1 {
+    text-transform: uppercase;
+}
+html[data-caprover-theme="carbon"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+html[data-caprover-theme="carbon"] .project-manager .ant-tree,
+html[data-caprover-theme="carbon"] .app-tag,
+html[data-caprover-theme="carbon"] .count-badge,
+html[data-caprover-theme="carbon"] .metric-description {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+}
+html[data-caprover-theme="carbon"] .app-name-link {
+    font-weight: 600;
+}
+html[data-caprover-theme="carbon"] .app-details-actions {
+    box-shadow: none;
+    border-top-width: 2px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="carbon"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="carbon"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="carbon"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="carbon"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}

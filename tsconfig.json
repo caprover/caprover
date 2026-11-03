@@ -6,10 +6,9 @@
         "outDir": "./built",
         "noImplicitAny": true,
         "sourceMap": true,
-        "allowJs": true,
         "esModuleInterop": true,
         "noUnusedLocals": true,
-        "target": "ES2018"
+        "target": "ES2022"
     },
     "include": ["./src/**/*"]
 }

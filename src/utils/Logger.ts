@@ -1,6 +1,6 @@
-import moment from 'moment'
 import { AnyError } from '../models/OtherTypes'
 import CaptainConstants from './CaptainConstants'
+import { formatLogDate } from './DateUtils'
 
 function errorize(error: AnyError) {
     if (!(error instanceof Error)) {
@@ -11,7 +11,7 @@ function errorize(error: AnyError) {
 }
 
 function getTime() {
-    return `[36m${moment().format('MMMM Do YYYY, h:mm:ss.SSS a    ')}[0m`
+    return `[36m${formatLogDate(new Date())}[0m`
 }
 
 class Logger {

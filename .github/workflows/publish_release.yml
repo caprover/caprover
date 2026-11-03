@@ -5,14 +5,21 @@ on:
         branches:
             - release
 
+concurrency:
+    group: production-release
+    queue: max
+
+permissions:
+    contents: read
+
 jobs:
     run-pre-checks:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v5
               with:
-                  node-version: 22
+                  node-version: 24
             - run: |
                   sudo bash -c "mkdir /captain && chown -R `whoami` /captain"
                   npm ci
@@ -20,15 +27,62 @@ jobs:
                   npm run lint
                   npm run formatter
                   npm run test
-    build-publish-docker-hub:
+    prepare-frontend:
         needs: run-pre-checks
         runs-on: ubuntu-latest
         steps:
-            - uses: azure/docker-login@v1
+            - uses: actions/checkout@v4
+            - name: Build release frontend
+              shell: bash
+              run: ./release/build-and-push.sh release frontend
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: release-frontend
+                  path: dist-frontend
+                  if-no-files-found: error
+                  retention-days: 1
+    build-publish-docker-hub:
+        needs: prepare-frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                  name: release-frontend
+                  path: dist-frontend
+            - name: Prepare multi-platform builder
+              shell: bash
+              run: ./release/build-and-push.sh release docker-setup
+            - uses: docker/login-action@v3
               with:
                   username: ${{ secrets.REGISTRY_USERNAME }}
                   password: ${{ secrets.REGISTRY_PASSWORD }}
-            - uses: actions/checkout@v1
             - name: Build and Push Release to DockerHub
               shell: bash
-              run: ./dev-scripts/build_and_push_release.sh
+              run: ./release/build-and-push.sh release publish
+    draft-github-release:
+        needs: build-publish-docker-hub
+        permissions:
+            contents: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create draft GitHub release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              shell: bash
+              run: ./release/create-draft-release.sh
+    backmerge-release:
+        needs: draft-github-release
+        permissions:
+            actions: write
+            contents: write
+            pull-requests: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Open release backmerge PR
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              shell: bash
+              run: ./release/create-backmerge-pr.sh

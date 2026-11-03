@@ -11,6 +11,7 @@ import { ICaptainDefinition } from '../../models/ICaptainDefinition'
 import { IDockerComposeService } from '../../models/IOneClickAppModels'
 import { ProjectDefinition } from '../../models/ProjectDefinition'
 import DockerComposeToServiceOverride from '../../utils/DockerComposeToServiceOverride'
+import composeAppConfig from '../../utils/ComposeAppConfig'
 import Utils from '../../utils/Utils'
 import ServiceManager from '../ServiceManager'
 
@@ -143,40 +144,16 @@ export default class OneClickAppDeploymentHelper {
                         },
                     ]
 
-                    const vols = dockerComposeService.volumes || []
-                    for (let i = 0; i < vols.length; i++) {
-                        const elements = vols[i].split(':')
-                        if (elements[0].startsWith('/')) {
-                            appDef.volumes.push({
-                                hostPath: elements[0],
-                                containerPath: elements[1],
-                            })
-                        } else {
-                            appDef.volumes.push({
-                                volumeName: elements[0],
-                                containerPath: elements[1],
-                            })
-                        }
-                    }
-
-                    appDef.ports = appDef.ports || []
-                    const ports = dockerComposeService.ports || []
-                    for (let i = 0; i < ports.length; i++) {
-                        const elements = ports[i].split(':')
-                        appDef.ports.push({
-                            hostPort: Number(elements[0]),
-                            containerPort: Number(elements[1]),
-                        })
-                    }
-
-                    appDef.envVars = appDef.envVars || []
-                    const environment = dockerComposeService.environment || {}
-                    Object.keys(environment).forEach(function (envKey) {
-                        appDef.envVars.push({
-                            key: envKey,
-                            value: environment[envKey],
-                        })
-                    })
+                    const config = composeAppConfig(
+                        dockerComposeService,
+                        `services.${appName}`
+                    )
+                    appDef.volumes.push(...config.volumes)
+                    appDef.ports = [...(appDef.ports || []), ...config.ports]
+                    appDef.envVars = [
+                        ...(appDef.envVars || []),
+                        ...config.envVars,
+                    ]
 
                     const overrideYaml =
                         DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(

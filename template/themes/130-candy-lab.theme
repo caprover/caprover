@@ -1,0 +1,311 @@
+###CapRoverTheme.name:
+Candy Lab
+
+###CapRoverTheme.content:
+{
+    algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+        fontFamily: "'Nunito Sans', Arial, sans-serif",
+        fontFamilyCode: "'SFMono-Regular', Consolas, monospace",
+        fontSize: 15,
+        fontSizeHeading1: 46,
+        fontSizeHeading2: 40,
+        fontSizeHeading3: 38,
+        fontSizeHeading4: 34,
+        fontSizeHeading5: 17,
+        fontWeightStrong: 600,
+        colorPrimary: isDarkMode ? '#DE9CFF' : '#8B42B8',
+        colorPrimaryHover: isDarkMode ? '#E3ABFF' : '#803DA9',
+        colorPrimaryActive: isDarkMode ? '#CB8EEA' : '#75379B',
+        colorLink: isDarkMode ? '#E6B5FF' : '#8B42B8',
+        colorLinkHover: isDarkMode ? '#EABFFF' : '#803DA9',
+        colorLinkActive: isDarkMode ? '#DE9CFF' : '#75379B',
+        colorBgLayout: isDarkMode ? '#241329' : '#FCF7FF',
+        colorBgContainer: isDarkMode ? '#351D3C' : '#FFFFFF',
+        colorBgElevated: isDarkMode ? '#47254F' : '#FFF9FE',
+        colorBgSpotlight: isDarkMode ? '#47254F' : '#241329',
+        colorBgContainerDisabled: isDarkMode ? '#452650' : '#F7EDFD',
+        colorText: isDarkMode ? '#FFF0FE' : '#3F244B',
+        colorTextSecondary: isDarkMode ? '#D2AAD7' : '#795C87',
+        colorTextPlaceholder: isDarkMode ? '#D2AAD7' : '#795C87',
+        colorTextDisabled: isDarkMode ? '#D2AAD7' : '#866B91',
+        colorTextLightSolid: '#FFFFFF',
+        colorBorder: isDarkMode ? '#6B4770' : '#E7D5EE',
+        colorBorderSecondary: isDarkMode ? '#55365E' : '#F0E4F4',
+        colorFillAlter: isDarkMode ? '#452650' : '#F7EDFD',
+        colorBgTextHover: isDarkMode ? '#452650' : '#F7EDFD',
+        colorBgTextActive: isDarkMode ? '#552D65' : '#F2E5FC',
+        colorSuccess: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessText: isDarkMode ? '#6ADEAE' : '#1E7452',
+        colorSuccessBg: isDarkMode ? '#16372A' : '#E8F5ED',
+        colorSuccessBorder: isDarkMode ? '#357757' : '#A7D9BE',
+        colorWarning: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningText: isDarkMode ? '#FFCC70' : '#9A6200',
+        colorWarningBg: isDarkMode ? '#3B301C' : '#FFF5DD',
+        colorWarningBorder: isDarkMode ? '#8C6931' : '#E5C37C',
+        colorError: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorHover: isDarkMode ? '#FF949E' : '#A62032',
+        colorErrorActive: isDarkMode ? '#E97683' : '#971D2D',
+        colorErrorText: isDarkMode ? '#FF818D' : '#B42336',
+        colorErrorBg: isDarkMode ? '#402128' : '#FDEBEC',
+        colorErrorBorder: isDarkMode ? '#9A4251' : '#E6A9B1',
+        colorInfo: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoText: isDarkMode ? '#79C5FF' : '#1665A8',
+        colorInfoBg: isDarkMode ? '#1B3548' : '#E9F4FE',
+        colorInfoBorder: isDarkMode ? '#3D789A' : '#A5C9E7',
+        borderRadius: 16,
+        borderRadiusLG: 24,
+        borderRadiusSM: 10,
+        lineWidth: 2,
+        lineType: 'solid',
+        controlHeight: 42,
+        controlOutline: isDarkMode ? '#DE9CFF' : '#8B42B8',
+        controlOutlineWidth: 2,
+        lineWidthFocus: 2,
+        controlItemBgHover: isDarkMode ? '#452650' : '#F7EDFD',
+        controlItemBgActive: isDarkMode ? '#552D65' : '#F2E5FC',
+        boxShadow: isDarkMode ? '0 20px 50px rgba(0,0,0,0.42)' : '0 18px 48px rgba(117,47,156,0.18)',
+        boxShadowSecondary: isDarkMode ? '0 20px 50px rgba(0,0,0,0.42)' : '0 18px 48px rgba(117,47,156,0.18)',
+        boxShadowTertiary: isDarkMode ? '0 9px 28px rgba(0,0,0,0.30)' : '0 8px 24px rgba(120,58,158,0.10)',
+    },
+    components: {
+        Layout: {
+            headerBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            siderBg: isDarkMode ? '#2A1732' : '#F7ECFC',
+            lightSiderBg: isDarkMode ? '#2A1732' : '#F7ECFC',
+            triggerBg: isDarkMode ? '#2A1732' : '#F7ECFC',
+            lightTriggerBg: isDarkMode ? '#2A1732' : '#F7ECFC',
+            footerBg: isDarkMode ? '#2A1732' : '#F7ECFC',
+        },
+        Menu: {
+            itemBg: 'transparent',
+            popupBg: isDarkMode ? '#47254F' : '#FFF9FE',
+            itemColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            itemHoverBg: isDarkMode ? '#452650' : '#F7EDFD',
+            itemHoverColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            itemSelectedBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            itemSelectedColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            itemHeight: 44,
+            itemMarginInline: 8,
+            itemMarginBlock: 2,
+            itemBorderRadius: 16,
+        },
+        Tree: {
+            titleHeight: 40,
+            nodeHoverBg: isDarkMode ? '#452650' : '#F7EDFD',
+            nodeHoverColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            nodeSelectedBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            nodeSelectedColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            directoryNodeSelectedBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            directoryNodeSelectedColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+        },
+        Card: {
+            headerBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            headerHeight: 52,
+            headerFontSize: 15,
+            bodyPadding: 26,
+            headerPadding: 26,
+            extraColor: isDarkMode ? '#D2AAD7' : '#795C87',
+        },
+        Table: {
+            headerBg: isDarkMode ? '#241329' : '#FCF7FF',
+            headerColor: isDarkMode ? '#D2AAD7' : '#795C87',
+            headerSplitColor: isDarkMode ? '#55365E' : '#F0E4F4',
+            borderColor: isDarkMode ? '#55365E' : '#F0E4F4',
+            rowHoverBg: isDarkMode ? '#452650' : '#F7EDFD',
+            rowSelectedBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            rowSelectedHoverBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            bodySortBg: 'transparent',
+            headerSortActiveBg: isDarkMode ? '#452650' : '#F7EDFD',
+            cellPaddingBlockMD: 18,
+            cellPaddingInlineMD: 16,
+        },
+        Button: {
+            fontWeight: 500,
+            dangerColor: isDarkMode ? '#241329' : '#FFFFFF',
+            primaryColor: isDarkMode ? '#241329' : '#FFFFFF',
+            primaryShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.32)' : '0 4px 12px rgba(139,66,184,0.20)',
+            defaultShadow: 'none',
+            dangerShadow: 'none',
+            defaultBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            defaultColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            defaultBorderColor: isDarkMode ? '#6B4770' : '#E7D5EE',
+            defaultHoverColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            defaultHoverBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            defaultActiveColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            defaultActiveBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            paddingInline: 14,
+        },
+        Input: {
+            activeBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            hoverBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            addonBg: isDarkMode ? '#452650' : '#F7EDFD',
+            hoverBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            activeBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            activeShadow: isDarkMode ? '0 0 0 3px rgba(222,156,255,0.25)' : '0 0 0 3px rgba(139,66,184,0.23)',
+        },
+        Select: {
+            selectorBg: isDarkMode ? '#351D3C' : '#FFFFFF',
+            optionSelectedBg: isDarkMode ? '#552D65' : '#F2E5FC',
+            optionSelectedColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            optionActiveBg: isDarkMode ? '#452650' : '#F7EDFD',
+            hoverBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            activeBorderColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            activeOutlineColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+        },
+        Tabs: {
+            titleFontSize: 14,
+            horizontalItemGutter: 26,
+            inkBarColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            itemSelectedColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+            itemHoverColor: isDarkMode ? '#DE9CFF' : '#8B42B8',
+        },
+        Tag: {
+            defaultBg: isDarkMode ? '#452650' : '#F7EDFD',
+            defaultColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+        },
+        Form: {
+            labelColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            itemMarginBottom: 22,
+        },
+        Modal: {
+            headerBg: isDarkMode ? '#47254F' : '#FFF9FE',
+            contentBg: isDarkMode ? '#47254F' : '#FFF9FE',
+            footerBg: isDarkMode ? '#47254F' : '#FFF9FE',
+            titleColor: isDarkMode ? '#FFF0FE' : '#3F244B',
+            titleFontSize: 28,
+            paddingMD: 26,
+            paddingContentHorizontalLG: 26,
+        },
+        Alert: {
+            defaultPadding: '12px 16px',
+            withDescriptionPadding: '16px 20px',
+        },
+        Badge: {
+            statusSize: 7,
+        },
+    },
+}
+
+###CapRoverTheme.headEmbed:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&amp;family=Fredoka:wght@400;500;600;700&amp;display=swap" />
+<style>
+html[data-caprover-theme="candy-lab"] {
+    --caprover-shell-radius: 24px;
+    --caprover-surface-radius: 22px;
+    --caprover-control-radius: 16px;
+    --caprover-border-width: 2px;
+    --caprover-surface-shadow: 0 4px 18px rgba(120, 58, 158, 0.08);
+    --caprover-heading-tracking: -0.025em;
+    --caprover-heading-weight: 600;
+}
+html[data-caprover-theme="candy-lab"][data-caprover-dark="true"] {
+    --caprover-surface-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+}
+html[data-caprover-theme="candy-lab"] .page-heading h1,
+html[data-caprover-theme="candy-lab"] .apps-heading h1,
+html[data-caprover-theme="candy-lab"] .app-details-heading h2 {
+    font-family: 'Fredoka', Arial, sans-serif;
+    font-size: clamp(26px, 2.6vw, 38px);
+    line-height: 1.2;
+}
+html[data-caprover-theme="candy-lab"] .workspace-layout,
+html[data-caprover-theme="candy-lab"] .workspace-content {
+    background: var(--ant-color-bg-layout);
+}
+html[data-caprover-theme="candy-lab"] .workspace-header {
+    height: 64px;
+    border-bottom: 2px solid var(--ant-color-border);
+}
+html[data-caprover-theme="candy-lab"] .app-sidebar .sidebar-content {
+    margin: 12px;
+    height: calc(100% - 24px);
+    overflow-y: auto;
+    border: 2px solid var(--ant-color-text);
+    border-radius: 22px;
+    background: var(--ant-color-bg-container);
+    box-shadow: 4px 4px 0 var(--ant-color-border);
+}
+html[data-caprover-theme="candy-lab"] .app-sidebar.ant-layout-sider-collapsed .sidebar-content {
+    margin: 0;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+html[data-caprover-theme="candy-lab"] .sidebar-brand {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 24px;
+    height: 64px;
+}
+html[data-caprover-theme="candy-lab"] .sidebar-content .ant-menu-item {
+    font-weight: 700;
+}
+html[data-caprover-theme="candy-lab"] .sidebar-content .ant-menu-item-selected {
+    border: 2px solid var(--ant-color-primary);
+}
+html[data-caprover-theme="candy-lab"] #main-content-layout {
+    padding: 32px;
+}
+html[data-caprover-theme="candy-lab"] .apps-page > .ant-card-head {
+    margin-bottom: 30px;
+}
+html[data-caprover-theme="candy-lab"] .apps-page .ant-table-wrapper {
+    border: 2px solid var(--ant-color-text);
+    box-shadow: 5px 5px 0 var(--ant-color-border);
+}
+html[data-caprover-theme="candy-lab"] .apps-page .ant-table-thead > tr > th {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 17px;
+    font-weight: 500;
+}
+html[data-caprover-theme="candy-lab"] .ant-btn-primary {
+    box-shadow: 0 4px 0 var(--ant-color-primary-active);
+    font-weight: 700;
+}
+html[data-caprover-theme="candy-lab"] .ant-btn-primary:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--ant-color-primary-active);
+}
+html[data-caprover-theme="candy-lab"] .count-badge {
+    border: 2px solid var(--ant-color-primary);
+    min-width: 28px;
+    height: 28px;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+}
+html[data-caprover-theme="candy-lab"] .form-section-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 23px;
+}
+html[data-caprover-theme="candy-lab"] .ant-modal-content {
+    border: 2px solid var(--ant-color-text);
+}
+html[data-caprover-theme="candy-lab"] .ant-modal-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28px;
+}
+@media (max-width: 767px) {
+    html[data-caprover-theme="candy-lab"] #main-content-layout {
+        padding: 24px 16px;
+    }
+    html[data-caprover-theme="candy-lab"] .app-shell.full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="candy-lab"] .workspace-layout {
+        border: 0;
+        border-radius: 0;
+    }
+    html[data-caprover-theme="candy-lab"] .apps-page > .ant-card-head {
+        padding: 0 0 20px;
+    }
+}
+</style>
+
+###CapRoverTheme.extra:
+{}

@@ -54,7 +54,7 @@ export function isNameAllowed(name: string) {
  * example valid names: my-volume, My.Volume, my_volume, myvolume123, my.volume-name_123, myvolume
  * example invalid names: -myvolume, .myvolume, my..volume, my--volume, my volume (space), my@volume, (special characters)
  */
-function isDockerVolumeNameAllowed(name: string) {
+export function isDockerVolumeNameAllowed(name: string) {
     const isNameFormattingOk =
         !!name &&
         name.length < 256 &&
@@ -217,7 +217,7 @@ class AppsDataStore {
             .then(function () {
                 let passwordToBeEncrypted = ''
                 let sshKeyToBeEncrypted = ''
-                let pushWebhook = app.appPushWebhook
+                const pushWebhook = app.appPushWebhook
                 if (
                     pushWebhook &&
                     pushWebhook.pushWebhookToken &&
@@ -230,9 +230,6 @@ class AppsDataStore {
                     sshKeyToBeEncrypted = pushWebhook.repoInfo.sshKey || ''
                     pushWebhook.repoInfo.password = ''
                     pushWebhook.repoInfo.sshKey = ''
-                } else {
-                    // some required data is missing. We drop the push data
-                    pushWebhook = undefined
                 }
 
                 const appToSave: IAppDefSaved = <IAppDefSaved>app
@@ -258,7 +255,7 @@ class AppsDataStore {
         if (!isNameAllowed(appName)) {
             throw ApiStatusCodes.createError(
                 ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
+                'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed, up to 49 characters'
             )
         }
 
@@ -494,26 +491,54 @@ class AppsDataStore {
     addCustomDomainForApp(appName: string, customDomain: string) {
         const self = this
 
-        return this.getAppDefinition(appName).then(function (app) {
-            app.customDomain = app.customDomain || []
+        return this.ensureCustomDomainIsAvailable(appName, customDomain)
+            .then(function () {
+                return self.getAppDefinition(appName)
+            })
+            .then(function (app) {
+                app.customDomain = app.customDomain || []
 
-            if (app.customDomain.length > 0) {
-                for (let idx = 0; idx < app.customDomain.length; idx++) {
-                    if (app.customDomain[idx].publicDomain === customDomain) {
-                        throw ApiStatusCodes.createError(
-                            ApiStatusCodes.ILLEGAL_PARAMETER,
-                            `App already has customDomain: ${customDomain} attached to app ${appName}`
-                        )
+                if (app.customDomain.length > 0) {
+                    for (let idx = 0; idx < app.customDomain.length; idx++) {
+                        if (
+                            app.customDomain[idx].publicDomain === customDomain
+                        ) {
+                            throw ApiStatusCodes.createError(
+                                ApiStatusCodes.ILLEGAL_PARAMETER,
+                                `App already has customDomain: ${customDomain} attached to app ${appName}`
+                            )
+                        }
                     }
                 }
-            }
 
-            app.customDomain.push({
-                publicDomain: customDomain,
-                hasSsl: false,
+                app.customDomain.push({
+                    publicDomain: customDomain,
+                    hasSsl: false,
+                })
+
+                return self.saveApp(appName, app)
             })
+    }
 
-            return self.saveApp(appName, app)
+    ensureCustomDomainIsAvailable(appName: string, customDomain: string) {
+        return this.getAppDefinitions().then(function (apps) {
+            for (const existingAppName of Object.keys(apps)) {
+                if (existingAppName === appName) continue
+
+                const domainOwner = (
+                    apps[existingAppName].customDomain || []
+                ).find(
+                    (domain) =>
+                        domain.publicDomain.toLowerCase() ===
+                        customDomain.toLowerCase()
+                )
+                if (domainOwner) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.ILLEGAL_PARAMETER,
+                        `Custom domain ${customDomain} is already attached to app ${existingAppName}`
+                    )
+                }
+            }
         })
     }
 
@@ -832,6 +857,10 @@ class AppsDataStore {
                         appObj.ports.push({
                             hostPort: hostPort,
                             containerPort: containerPort,
+                            ...(obj.protocol ? { protocol: obj.protocol } : {}),
+                            ...(obj.publishMode
+                                ? { publishMode: obj.publishMode }
+                                : {}),
                         })
                     }
                 }
@@ -929,7 +958,7 @@ class AppsDataStore {
                 reject(
                     ApiStatusCodes.createError(
                         ApiStatusCodes.STATUS_ERROR_BAD_NAME,
-                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed'
+                        'App Name is not allowed. Only lowercase letters, numbers and single hyphens are allowed, up to 49 characters'
                     )
                 )
                 return
@@ -964,7 +993,7 @@ class AppsDataStore {
                 hasDefaultSubDomainSsl: false,
                 redirectDomain: '',
                 forceSsl: false,
-                websocketSupport: false,
+                websocketSupport: true,
             }
 
             resolve(defaultAppDefinition)

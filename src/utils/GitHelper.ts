@@ -1,7 +1,7 @@
 import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import git from 'simple-git'
+import { simpleGit as git } from 'simple-git'
 import * as util from 'util'
 import * as uuid from 'uuid'
 import CaptainConstants from './CaptainConstants'
@@ -28,7 +28,6 @@ export default class GitHelper {
 
     static getLastHash(directory: string) {
         return git(directory) //
-            .silent(true) //
             .raw(['rev-parse', 'HEAD']) //
     }
 
@@ -74,8 +73,12 @@ export default class GitHelper {
                     )
                 })
                 .then(function () {
-                    return git() //
-                        .silent(true) //
+                    return git({
+                        allowEnvironment: ['GIT_SSH_COMMAND'],
+                        unsafe: {
+                            allowUnsafeSshCommand: true,
+                        },
+                    })
                         .env('GIT_SSH_COMMAND', `ssh -i ${SSH_KEY_PATH}`) //
                         .raw([
                             'clone',
@@ -87,6 +90,9 @@ export default class GitHelper {
                         ])
                 })
                 .then(function () {
+                    //
+                })
+                .finally(function () {
                     return fs.remove(SSH_KEY_PATH)
                 })
         } else {
@@ -99,7 +105,6 @@ export default class GitHelper {
             const remote = `${SCHEME}://${USER}:${PASS}@${REPO_PATH}`
             Logger.dev(`Cloning HTTPS ${remote}`)
             return git() //
-                .silent(true) //
                 .raw([
                     'clone',
                     '--recurse-submodules',

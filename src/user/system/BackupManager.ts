@@ -1,7 +1,6 @@
 import SshClientImport = require('ssh2')
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import * as fs from 'fs-extra'
-import moment from 'moment'
 import * as path from 'path'
 import * as tar from 'tar'
 import ApiStatusCodes from '../../api/ApiStatusCodes'
@@ -12,6 +11,7 @@ import { BackupMeta, RestoringInfo } from '../../models/BackupMeta'
 import { IHashMapGeneric } from '../../models/ICacheGeneric'
 import { ServerDockerInfo } from '../../models/ServerDockerInfo'
 import CaptainConstants from '../../utils/CaptainConstants'
+import { formatBackupDate } from '../../utils/DateUtils'
 import Logger from '../../utils/Logger'
 import Utils from '../../utils/Utils'
 import Authenticator from '../Authenticator'
@@ -33,6 +33,36 @@ export interface IBackupCallbacks {
 }
 
 const BACKUP_META_DATA_ABS_PATH = `${CaptainConstants.restoreDirectoryPath}/meta/${BACKUP_JSON}`
+
+export function copyCaptainDataForBackup(
+    sourceDirectory: string,
+    destinationDirectory: string
+): Promise<void> {
+    return fs
+        .ensureDir(destinationDirectory)
+        .then(
+            () =>
+                new Promise<void>((resolve, reject) => {
+                    // -R (not -r) with -P keeps dangling/symlinked certs
+                    // as symlinks on BSD cp (macOS) too. BSD's lowercase
+                    // -r implies following symlinks for compatibility,
+                    // which throws ENOENT on a broken link; GNU cp (Linux)
+                    // never followed them either way.
+                    execFile(
+                        'cp',
+                        ['-RPp', `${sourceDirectory}/.`, destinationDirectory],
+                        (error) => {
+                            if (error) {
+                                reject(error)
+                                return
+                            }
+                            resolve()
+                        }
+                    )
+                })
+        )
+        .then(() => fs.remove(path.join(destinationDirectory, 'shared-logs')))
+}
 export default class BackupManager {
     private longOperationInProgress: boolean
 
@@ -596,6 +626,8 @@ export default class BackupManager {
     }
 
     private extractBackupContentAndRemoveTar() {
+        const self = this
+
         if (!fs.statSync(CaptainConstants.restoreTarFilePath).isFile())
             throw new Error('restore tar file is not a file!!')
 
@@ -610,11 +642,72 @@ export default class BackupManager {
                         cwd: CaptainConstants.restoreDirectoryPath,
                     })
                     .then(function () {
+                        return self.normalizeMalformedBackupDataLayoutIfNeeded()
+                    })
+                    .then(function () {
                         return fs.remove(CaptainConstants.restoreTarFilePath)
                     })
                     .then(function () {
                         return Promise.resolve(true)
                     })
+            })
+    }
+
+    private normalizeMalformedBackupDataLayoutIfNeeded() {
+        const dataDirectory = path.join(
+            CaptainConstants.restoreDirectoryPath,
+            'data'
+        )
+        const expectedConfigPath = path.join(
+            dataDirectory,
+            'config-captain.json'
+        )
+        const malformedDataDirectory = path.join(dataDirectory, 'data')
+        const malformedConfigPath = path.join(
+            malformedDataDirectory,
+            'config-captain.json'
+        )
+
+        if (
+            fs.pathExistsSync(expectedConfigPath) ||
+            !fs.pathExistsSync(malformedConfigPath)
+        ) {
+            return Promise.resolve()
+        }
+
+        // Backward compatibility for malformed backups likely introduced by:
+        // https://github.com/caprover/caprover/pull/2336
+        // https://github.com/caprover/caprover/commit/1b89d9123ba535070b1d95cc1832e8a38eacd157
+        //
+        // That change pre-created the backup destination before running
+        // "cp -rp /captain/data <destination>", which caused GNU cp to place
+        // the data directory itself inside the destination. Those backups
+        // therefore contain data/data/config-captain.json instead of the
+        // expected data/config-captain.json. The shared-logs exclusion in the
+        // same change also targeted the outer directory, so malformed backups
+        // can contain data/data/shared-logs even though those logs were meant
+        // to be excluded.
+        Logger.d(
+            'Detected malformed backup data/data layout. Normalizing before restore.'
+        )
+
+        return fs
+            .remove(path.join(malformedDataDirectory, 'shared-logs'))
+            .then(function () {
+                return fs.readdir(malformedDataDirectory)
+            })
+            .then(function (entries) {
+                return Promise.all(
+                    entries.map(function (entry) {
+                        return fs.move(
+                            path.join(malformedDataDirectory, entry),
+                            path.join(dataDirectory, entry)
+                        )
+                    })
+                )
+            })
+            .then(function () {
+                return fs.remove(malformedDataDirectory)
             })
     }
 
@@ -669,13 +762,10 @@ export default class BackupManager {
 
                         // We cannot use fs.copy as it doesn't properly copy the broken SymLink which might exist in LetsEncrypt
                         // https://github.com/jprichardson/node-fs-extra/issues/638
-                        return new Promise(function (resolve, reject) {
-                            const child = exec(
-                                `mkdir -p ${dest} && cp -rp  ${CaptainConstants.captainDataDirectory} ${dest} && mkdir -p ${dest}/shared-logs && rm -rf ${dest}/shared-logs`
-                            )
-                            child.addListener('error', reject)
-                            child.addListener('exit', resolve)
-                        })
+                        return copyCaptainDataForBackup(
+                            CaptainConstants.captainDataDirectory,
+                            dest
+                        )
                     })
                     .then(function () {
                         return iBackupCallbacks.getNodesInfo()
@@ -738,12 +828,12 @@ export default class BackupManager {
                         // https://github.com/caprover/caprover/issues/1257
                         const hostSegment = hostname ? `-host-${hostname}` : ''
 
-                        const now = moment()
+                        const now = new Date()
                         const newName = `${
                             CaptainConstants.captainDownloadsDirectory
-                        }/${namespace}/caprover-backup-${`${now.format(
-                            'YYYY_MM_DD-HH_mm_ss'
-                        )}-${now.valueOf()}`}${`-ip-${mainIP}${hostSegment}.tar`}`
+                        }/${namespace}/caprover-backup-${`${formatBackupDate(
+                            now
+                        )}-${now.getTime()}`}${`-ip-${mainIP}${hostSegment}.tar`}`
                         fs.moveSync(tarFilePath, newName)
 
                         setTimeout(

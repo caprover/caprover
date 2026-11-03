@@ -20,9 +20,25 @@ export interface IOneClickVariable {
 
 export interface IDockerComposeService {
     image?: string
-    volumes?: string[]
-    ports?: string[]
-    environment?: IHashMapGeneric<string>
+    volumes?: (
+        | string
+        | {
+              type: 'volume' | 'bind'
+              source: string
+              target: string
+              read_only?: boolean
+          }
+    )[]
+    ports?: (
+        | string
+        | {
+              target: number | string
+              published: number | string
+              protocol?: 'tcp' | 'udp'
+              mode?: 'ingress' | 'host'
+          }
+    )[]
+    environment?: IHashMapGeneric<string | number | boolean | null> | string[]
     depends_on?: string[]
     hostname?: string
     cap_add?: string[]

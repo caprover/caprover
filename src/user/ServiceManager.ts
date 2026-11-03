@@ -12,6 +12,7 @@ import {
     RepoInfo,
 } from '../models/AppDefinition'
 import { DockerAuthObj } from '../models/DockerAuthObj'
+import { AppRuntimeDetails, AppsRuntimeResponse } from '../models/AppRuntime'
 import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { IImageSource } from '../models/IImageSource'
 import { PreDeployFunction } from '../models/OtherTypes'
@@ -176,6 +177,16 @@ class ServiceManager {
         const self = this
         const dataStore = this.dataStore
         let deployedVersion: number
+        let hasAdvancedBuildQueue = false
+
+        function advanceBuildQueueOnce() {
+            if (hasAdvancedBuildQueue) {
+                return
+            }
+
+            hasAdvancedBuildQueue = true
+            self.onBuildFinished(appName)
+        }
 
         return Promise.resolve() //
             .then(function () {
@@ -208,7 +219,7 @@ class ServiceManager {
                     )
             })
             .then(function () {
-                self.onBuildFinished(appName)
+                advanceBuildQueueOnce()
 
                 self.eventLogger.trackEvent(
                     CapRoverEventFactory.create(
@@ -222,7 +233,7 @@ class ServiceManager {
                 return self.ensureServiceInitedAndUpdated(appName)
             })
             .catch(function (error) {
-                self.onBuildFinished(appName)
+                advanceBuildQueueOnce()
                 return new Promise<void>(function (resolve, reject) {
                     self.logBuildFailed(appName, error)
                     reject(error)
@@ -237,7 +248,13 @@ class ServiceManager {
         Promise.resolve().then(function () {
             const newBuild = self.queuedBuilds.shift()
             if (newBuild)
-                self.startDeployingNewVersion(newBuild.appName, newBuild.source)
+                self.startDeployingNewVersion(
+                    newBuild.appName,
+                    newBuild.source
+                ).then(
+                    newBuild.promiseToSave.resolve,
+                    newBuild.promiseToSave.reject
+                )
         })
     }
 
@@ -289,6 +306,11 @@ class ServiceManager {
         const self = this
 
         return Promise.resolve()
+            .then(function () {
+                return self.dataStore
+                    .getAppsDataStore()
+                    .ensureCustomDomainIsAvailable(appName, customDomain)
+            })
             .then(function () {
                 const rootDomain = self.dataStore.getRootDomain()
 
@@ -867,6 +889,70 @@ class ServiceManager {
             isBuildFailed:
                 self.buildLogsManager.getAppBuildLogs(appName).isBuildFailed,
         }
+    }
+
+    getAppsRuntime(): Promise<AppsRuntimeResponse> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const dockerApi = this.dockerApi
+        let appNames: string[]
+
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+                appNames = Object.keys(apps)
+                return dockerApi.getServiceRuntimes(
+                    appNames.map(function (appName) {
+                        return appsDataStore.getServiceName(
+                            appName,
+                            !!apps[appName].isLegacyAppName
+                        )
+                    })
+                )
+            })
+            .then(function (runtimes) {
+                return {
+                    apps: runtimes.map(function (runtime, index) {
+                        return {
+                            appName: appNames[index],
+                            status: runtime.status,
+                            desiredInstances: runtime.desiredInstances,
+                            runningInstances: runtime.runningInstances,
+                            currentTasks: runtime.currentTasks,
+                            latestFailure: runtime.latestFailure,
+                            error: runtime.error,
+                        }
+                    }),
+                }
+            })
+    }
+
+    getAppRuntime(appName: string): Promise<AppRuntimeDetails> {
+        const appsDataStore = this.dataStore.getAppsDataStore()
+        const dockerApi = this.dockerApi
+
+        return Promise.resolve()
+            .then(function () {
+                return appsDataStore.getAppDefinitions()
+            })
+            .then(function (apps) {
+                if (!Object.prototype.hasOwnProperty.call(apps, appName)) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.NOT_FOUND,
+                        'App not found'
+                    )
+                }
+                const app = apps[appName]
+                const serviceName = appsDataStore.getServiceName(
+                    appName,
+                    !!app.isLegacyAppName
+                )
+                return dockerApi.getServiceRuntimes([serviceName])
+            })
+            .then(function (runtimes) {
+                return { appName, ...runtimes[0] }
+            })
     }
 
     logBuildFailed(appName: string, error: string) {
