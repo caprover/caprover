@@ -2,7 +2,12 @@
 
 Available as `edge`
 
+- TBD
+
+## [1.16.0] - 2026-11-03
+
 - New: Redesigned dashboard with Overview, guided Setup, and reorganized Settings [PR-250](https://github.com/caprover/caprover-frontend/pull/250) [PR-247](https://github.com/caprover/caprover-frontend/pull/247) [PR-255](https://github.com/caprover/caprover-frontend/pull/255) [PR-256](https://github.com/caprover/caprover-frontend/pull/256)
+- New: Safer server installer with preflight diagnostics and clearer interactive prompts [9c10774](https://github.com/caprover/caprover/commit/9c107744)
 - New: App runtime health and diagnostics, including instance counts and task history [PR-2522](https://github.com/caprover/caprover/pull/2522) [PR-246](https://github.com/caprover/caprover-frontend/pull/246)
 - New: Disk usage monitoring with persistent low-space alerts [PR-2520](https://github.com/caprover/caprover/pull/2520) [PR-241](https://github.com/caprover/caprover-frontend/pull/241)
 - New: Eleven built-in light and dark themes with improved theme switching [PR-2530](https://github.com/caprover/caprover/pull/2530) [PR-2531](https://github.com/caprover/caprover/pull/2531) [PR-251](https://github.com/caprover/caprover-frontend/pull/251)
