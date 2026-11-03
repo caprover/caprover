@@ -13,8 +13,8 @@ fi
 
 BACKMERGE_BRANCH="backmerge-v$CAPROVER_VERSION"
 BACKMERGE_BRANCH_SHA="$(
-    gh api "/repos/$GITHUB_REPOSITORY/git/ref/heads/$BACKMERGE_BRANCH" \
-        --jq '.object.sha' 2>/dev/null || true
+    gh api "/repos/$GITHUB_REPOSITORY/git/matching-refs/heads/$BACKMERGE_BRANCH" \
+        --jq "map(select(.ref == \"refs/heads/$BACKMERGE_BRANCH\")) | .[0].object.sha // empty"
 )"
 
 if [ -n "$BACKMERGE_BRANCH_SHA" ]; then
