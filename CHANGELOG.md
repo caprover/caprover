@@ -2,7 +2,7 @@
 
 Available as `edge`
 
-- TBD
+- Fixed: Dashboard background staying white in dark mode [PR-274](https://github.com/caprover/caprover-frontend/pull/274)
 
 ## [1.16.0] - 2026-11-03
 
