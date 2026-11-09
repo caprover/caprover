@@ -31,6 +31,17 @@ function replaceWith(
     return mainString.split(replaceThis).join(withThis)
 }
 
+// Values are inserted into the stringified template, so they must be valid inside a JSON string.
+// Values that already are, including ones escaped by hand such as \", are kept as they are.
+function escapeForJsonString(value: string) {
+    try {
+        JSON.parse(`"${value}"`)
+        return value
+    } catch (error) {
+        return JSON.stringify(value).slice(1, -1)
+    }
+}
+
 export default class OneClickAppDeployManager {
     private deploymentHelper: OneClickAppDeploymentHelper
     private template: IOneClickTemplate | undefined
@@ -82,7 +93,7 @@ export default class OneClickAppDeployManager {
             const element = template.caproverOneClickApp.variables[index]
             stringified = replaceWith(
                 element.id,
-                values[element.id] || '',
+                escapeForJsonString(values[element.id] || ''),
                 stringified
             )
         }

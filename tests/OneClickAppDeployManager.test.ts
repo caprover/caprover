@@ -353,6 +353,53 @@ describe('OneClickAppDeployManager', () => {
             expect(JSON.stringify(withVariables)).toBe(snapshot)
         })
 
+        test.each([
+            ['a JSON array', '["matrix.org"]', '["matrix.org"]'],
+            ['a lone quote', '"', '"'],
+            ['a backslash path', 'C:\\data\\files', 'C:\\data\\files'],
+            ['a multi-line value', 'line1\nline2', 'line1\nline2'],
+            [
+                'a value escaped by hand',
+                '{\\"text\\": \\"{{.Text}}\\"}',
+                '{"text": "{{.Text}}"}',
+            ],
+        ])(
+            'substitutes %s into the template',
+            async (_case, value, expected) => {
+                const withVariable: IOneClickTemplate = JSON.parse(
+                    JSON.stringify(template)
+                )
+                withVariable.services[ONE_CLICK_APP_NAME_VAR_NAME] = {
+                    image: 'nginx',
+                    environment: ['VALUE=$$cap_value'],
+                }
+                withVariable.caproverOneClickApp.variables.push({
+                    id: '$$cap_value',
+                    label: 'value',
+                })
+                new OneClickAppDeployManager(
+                    {
+                        getAppsDataStore: () => ({
+                            nameAllowedOrThrow: jest.fn(),
+                        }),
+                    } as any,
+                    {} as any,
+                    jest.fn()
+                ).startDeployProcess(withVariable, [
+                    { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                    { key: '$$cap_value', value },
+                ])
+                await new Promise((resolve) => setImmediate(resolve))
+                expect(creates[2]).toHaveBeenCalledWith(
+                    'my-app',
+                    expect.objectContaining({
+                        environment: [`VALUE=${expected}`],
+                    }),
+                    'my-app'
+                )
+            }
+        )
+
         test('an error that is not about a name is thrown, not reported as one', () => {
             const manager = new OneClickAppDeployManager(
                 {} as any,
