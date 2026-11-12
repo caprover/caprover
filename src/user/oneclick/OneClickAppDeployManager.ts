@@ -31,15 +31,10 @@ function replaceWith(
     return mainString.split(replaceThis).join(withThis)
 }
 
-// Values are inserted into the stringified template, so they must be valid inside a JSON string.
-// Values that already are, including ones escaped by hand such as \", are kept as they are.
+// Values are inserted into the stringified template, so they are JSON-escaped to keep them as entered.
+// Quotes escaped by hand (\") keep working, and non-string values from the API are converted first.
 function escapeForJsonString(value: string) {
-    try {
-        JSON.parse(`"${value}"`)
-        return value
-    } catch (error) {
-        return JSON.stringify(value).slice(1, -1)
-    }
+    return JSON.stringify(`${value}`.split('\\"').join('"')).slice(1, -1)
 }
 
 export default class OneClickAppDeployManager {

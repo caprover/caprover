@@ -357,6 +357,8 @@ describe('OneClickAppDeployManager', () => {
             ['a JSON array', '["matrix.org"]', '["matrix.org"]'],
             ['a lone quote', '"', '"'],
             ['a backslash path', 'C:\\data\\files', 'C:\\data\\files'],
+            ['a path with JSON escapes', 'C:\\new\\files', 'C:\\new\\files'],
+            ['a regex', '^\\bword\\b$', '^\\bword\\b$'],
             ['a multi-line value', 'line1\nline2', 'line1\nline2'],
             [
                 'a value escaped by hand',
