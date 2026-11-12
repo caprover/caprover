@@ -354,20 +354,22 @@ describe('OneClickAppDeployManager', () => {
         })
 
         test.each([
-            ['a JSON array', '["matrix.org"]', '["matrix.org"]'],
-            ['a lone quote', '"', '"'],
-            ['a backslash path', 'C:\\data\\files', 'C:\\data\\files'],
-            ['a path with JSON escapes', 'C:\\new\\files', 'C:\\new\\files'],
-            ['a regex', '^\\bword\\b$', '^\\bword\\b$'],
-            ['a multi-line value', 'line1\nline2', 'line1\nline2'],
-            [
-                'a value escaped by hand',
-                '{\\"text\\": \\"{{.Text}}\\"}',
-                '{"text": "{{.Text}}"}',
-            ],
+            { name: 'a JSON array', value: '["matrix.org"]' },
+            { name: 'a lone quote', value: '"' },
+            { name: 'a backslash path', value: 'C:\\data\\files' },
+            { name: 'a path with JSON escapes', value: 'C:\\new\\files' },
+            { name: 'a regex', value: '^\\bword\\b$' },
+            { name: 'a multi-line value', value: 'line1\nline2' },
+            { name: 'a backslash-quote pair', value: 'C:\\data\\"secret' },
+            {
+                name: 'an unchanged default escaped by hand',
+                value: '{\\"text\\": \\"{{.Text}}\\"}',
+                defaultValue: '{\\"text\\": \\"{{.Text}}\\"}',
+                expected: '{"text": "{{.Text}}"}',
+            },
         ])(
-            'substitutes %s into the template',
-            async (_case, value, expected) => {
+            'substitutes $name into the template',
+            async ({ value, defaultValue, expected = value }) => {
                 const withVariable: IOneClickTemplate = JSON.parse(
                     JSON.stringify(template)
                 )
@@ -378,6 +380,7 @@ describe('OneClickAppDeployManager', () => {
                 withVariable.caproverOneClickApp.variables.push({
                     id: '$$cap_value',
                     label: 'value',
+                    defaultValue,
                 })
                 new OneClickAppDeployManager(
                     {
