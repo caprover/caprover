@@ -22,7 +22,7 @@ Teal Zen
 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'`,
         borderRadius: 20,
         lineWidth: 2,
-        colorBgLayout: '#dadada',
+        colorBgLayout: isDarkMode ? '#000000' : '#ffffff',
     },
 }
 
