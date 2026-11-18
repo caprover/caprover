@@ -7,9 +7,11 @@ Only the last version receives security patches. To receive the security patches
 
 Treat the CapRover administrator password and admin session as credentials for full control of the host. By design, administrators can deploy containers and bind-mount host directories, including the host filesystem root. Host access through these capabilities is expected behavior and is out of scope for vulnerability reports.
 
-Reports that require an administrator to deliberately plant a malicious configuration are also out of scope when the only result is access the administrator already has. This includes reports where an app deployment token or build webhook triggers the planted configuration after the admin session ends.
+Reports that require an administrator to deliberately grant the attacker access or prepare a malicious configuration are out of scope when that step supplies the access being claimed. Examples include an administrator opening a port specifically to expose an otherwise private privileged service to the attacker, or planting a malicious setting for an app token or build webhook to trigger later.
 
-Please report ways to gain admin or host access without existing administrator privileges, including cases where routine administrator actions process attacker-controlled input. If your report involves an app token or webhook, describe what the attacker starts with, what a normally configured instance requires, and how the attacker gains control of any required setting.
+Remote code execution in the CapRover control plane or on the host through a crafted app token or a request authenticated with a valid app token is in scope when a non-admin attacker can achieve it on a normally configured instance. Routine setup, such as enabling an app token for CI, and routine administrator actions that process attacker-controlled input are valid prerequisites.
+
+For app token or webhook reports, state what access the attacker starts with, which normal settings are required, and how the attacker controls any input or setting needed to cross the privilege boundary.
 
 ## Reporting a Vulnerability
 
