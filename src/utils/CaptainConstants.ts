@@ -62,7 +62,7 @@ const configs = {
 
     appPlaceholderImageName: 'caprover/caprover-placeholder-app:latest',
 
-    nginxImageName: 'nginx:1.31',
+    nginxImageName: 'nginx:1.31.9',
 
     defaultEmail: 'runner@caprover.com',
 

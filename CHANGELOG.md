@@ -4,6 +4,10 @@ Available as `edge`
 
 - Fixed: Dashboard background staying white in dark mode [PR-274](https://github.com/caprover/caprover-frontend/pull/274)
 
+## [1.16.1] - 2026-11-18
+
+- Security: Upgrade NGINX to 1.31.9 to address CVE-2026-123007 and CVE-2026-123633
+
 ## [1.16.0] - 2026-11-03
 
 - New: Redesigned dashboard with Overview, guided Setup, and reorganized Settings [PR-250](https://github.com/caprover/caprover-frontend/pull/250) [PR-247](https://github.com/caprover/caprover-frontend/pull/247) [PR-255](https://github.com/caprover/caprover-frontend/pull/255) [PR-256](https://github.com/caprover/caprover-frontend/pull/256)
