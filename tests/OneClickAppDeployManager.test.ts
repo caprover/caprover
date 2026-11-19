@@ -357,8 +357,17 @@ describe('OneClickAppDeployManager', () => {
             { name: 'a JSON array', value: '["matrix.org"]' },
             { name: 'a lone quote', value: '"' },
             { name: 'a backslash path', value: 'C:\\data\\files' },
-            { name: 'a path with JSON escapes', value: 'C:\\new\\files' },
-            { name: 'a regex', value: '^\\bword\\b$' },
+            // Values that are already valid JSON string contents are decoded, as before
+            {
+                name: 'a path with valid JSON escapes',
+                value: 'C:\\new\\files',
+                expected: 'C:\new\files',
+            },
+            {
+                name: 'a regex with valid JSON escapes',
+                value: '^\\bword\\b$',
+                expected: '^\bword\b$',
+            },
             { name: 'a multi-line value', value: 'line1\nline2' },
             { name: 'a backslash-quote pair', value: 'C:\\data\\"secret' },
             {
@@ -366,6 +375,12 @@ describe('OneClickAppDeployManager', () => {
                 value: '{\\"text\\": \\"{{.Text}}\\"}',
                 defaultValue: '{\\"text\\": \\"{{.Text}}\\"}',
                 expected: '{"text": "{{.Text}}"}',
+            },
+            {
+                name: 'an override escaped by hand with an empty default',
+                value: '{\\"text\\":\\"hello\\"}',
+                defaultValue: '',
+                expected: '{"text":"hello"}',
             },
         ])(
             'substitutes $name into the template',

@@ -31,14 +31,15 @@ function replaceWith(
     return mainString.split(replaceThis).join(withThis)
 }
 
-// Values are inserted into the stringified template, so they are JSON-escaped to keep them as entered.
-// Some template defaults escape quotes by hand (\"), so an unchanged default is unescaped first.
-// Non-string values from the API are converted to strings.
-function escapeForJsonString(value: string, defaultValue?: string) {
-    const raw = `${value}`
-    return JSON.stringify(
-        raw === defaultValue ? raw.split('\\"').join('"') : raw
-    ).slice(1, -1)
+// Values are inserted into the stringified template, so they must be valid inside a JSON string.
+// Values that already are, including ones escaped by hand such as \", are kept as they are.
+function escapeForJsonString(value: string) {
+    try {
+        JSON.parse(`"${value}"`)
+        return value
+    } catch (error) {
+        return JSON.stringify(value).slice(1, -1)
+    }
 }
 
 export default class OneClickAppDeployManager {
@@ -92,10 +93,7 @@ export default class OneClickAppDeployManager {
             const element = template.caproverOneClickApp.variables[index]
             stringified = replaceWith(
                 element.id,
-                escapeForJsonString(
-                    values[element.id] || '',
-                    element.defaultValue
-                ),
+                escapeForJsonString(values[element.id] || ''),
                 stringified
             )
         }
