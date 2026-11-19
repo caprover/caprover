@@ -211,7 +211,8 @@ describe('VersionManager', () => {
             await expect(
                 new VersionManager().updateCaptain('1.16.0', registryHelper)
             ).rejects.toThrow(
-                'Cannot update to Captain 1.16.0: it requires Docker API v1.46, but this host only supports Docker API 1.44. Please update Docker Engine on the host first.'
+                'Cannot update to Captain 1.16.0: it requires Docker API v1.46, but this host only supports Docker API 1.44. Please update Docker Engine on the host first. ' +
+                    'If you use a dockerApiVersion override, see https://caprover.com/docs/server/upgrade#docker-api-compatibility'
             )
             expect(dockerApiMock.pullImage).not.toHaveBeenCalled()
             expect(dockerApiMock.updateService).not.toHaveBeenCalled()
