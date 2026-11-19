@@ -231,7 +231,8 @@ class VersionManager {
                         ) {
                             throw ApiStatusCodes.createError(
                                 ApiStatusCodes.STATUS_ERROR_GENERIC,
-                                `Cannot update to Captain ${versionTag}: it requires Docker API ${minRequiredApiVersion}, but this host only supports Docker API ${hostApiVersion}. Please update Docker Engine on the host first.`
+                                `Cannot update to Captain ${versionTag}: it requires Docker API ${minRequiredApiVersion}, but this host only supports Docker API ${hostApiVersion}. Please update Docker Engine on the host first. ` +
+                                    'If you use a dockerApiVersion override, see https://caprover.com/docs/server/upgrade#docker-api-compatibility'
                             )
                         }
                     })
