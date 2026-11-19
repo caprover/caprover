@@ -353,6 +353,73 @@ describe('OneClickAppDeployManager', () => {
             expect(JSON.stringify(withVariables)).toBe(snapshot)
         })
 
+        test.each([
+            { name: 'a JSON array', value: '["matrix.org"]' },
+            { name: 'a lone quote', value: '"' },
+            { name: 'a backslash path', value: 'C:\\data\\files' },
+            // Values that are already valid JSON string contents are decoded, as before
+            {
+                name: 'a path with valid JSON escapes',
+                value: 'C:\\new\\files',
+                expected: 'C:\new\files',
+            },
+            {
+                name: 'a regex with valid JSON escapes',
+                value: '^\\bword\\b$',
+                expected: '^\bword\b$',
+            },
+            { name: 'a multi-line value', value: 'line1\nline2' },
+            { name: 'a backslash-quote pair', value: 'C:\\data\\"secret' },
+            {
+                name: 'an unchanged default escaped by hand',
+                value: '{\\"text\\": \\"{{.Text}}\\"}',
+                defaultValue: '{\\"text\\": \\"{{.Text}}\\"}',
+                expected: '{"text": "{{.Text}}"}',
+            },
+            {
+                name: 'an override escaped by hand with an empty default',
+                value: '{\\"text\\":\\"hello\\"}',
+                defaultValue: '',
+                expected: '{"text":"hello"}',
+            },
+        ])(
+            'substitutes $name into the template',
+            async ({ value, defaultValue, expected = value }) => {
+                const withVariable: IOneClickTemplate = JSON.parse(
+                    JSON.stringify(template)
+                )
+                withVariable.services[ONE_CLICK_APP_NAME_VAR_NAME] = {
+                    image: 'nginx',
+                    environment: ['VALUE=$$cap_value'],
+                }
+                withVariable.caproverOneClickApp.variables.push({
+                    id: '$$cap_value',
+                    label: 'value',
+                    defaultValue,
+                })
+                new OneClickAppDeployManager(
+                    {
+                        getAppsDataStore: () => ({
+                            nameAllowedOrThrow: jest.fn(),
+                        }),
+                    } as any,
+                    {} as any,
+                    jest.fn()
+                ).startDeployProcess(withVariable, [
+                    { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+                    { key: '$$cap_value', value },
+                ])
+                await new Promise((resolve) => setImmediate(resolve))
+                expect(creates[2]).toHaveBeenCalledWith(
+                    'my-app',
+                    expect.objectContaining({
+                        environment: [`VALUE=${expected}`],
+                    }),
+                    'my-app'
+                )
+            }
+        )
+
         test('an error that is not about a name is thrown, not reported as one', () => {
             const manager = new OneClickAppDeployManager(
                 {} as any,
