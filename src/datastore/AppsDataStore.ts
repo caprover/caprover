@@ -721,7 +721,8 @@ class AppsDataStore {
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
-        appDeployTokenConfig: AppDeployTokenConfig
+        appDeployTokenConfig: AppDeployTokenConfig,
+        hasPersistentData?: boolean
     ) {
         const self = this
         let appObj: IAppDef
@@ -791,6 +792,9 @@ class AppsDataStore {
                 appObj.forceSsl = !!forceSsl
                 appObj.websocketSupport = !!websocketSupport
                 appObj.nodeId = nodeId
+                if (hasPersistentData !== undefined) {
+                    appObj.hasPersistentData = !!hasPersistentData
+                }
                 appObj.customNginxConfig = customNginxConfig
                 appObj.redirectDomain = redirectDomain
                 appObj.preDeployFunction = preDeployFunction
