@@ -333,12 +333,27 @@ class LoadBalancerManager {
                           )
                         : undefined
 
+                    // Redirect to https when the target domain has a certificate.
+                    // Otherwise an https request goes through a plain http hop.
+                    const redirectDomainHasSsl =
+                        webApp.redirectDomain ===
+                        serverWithSubDomain.publicDomain
+                            ? !!serverWithSubDomain.hasSsl
+                            : (webApp.customDomain || []).some(
+                                  (d) =>
+                                      d.publicDomain ===
+                                          webApp.redirectDomain && !!d.hasSsl
+                              )
+                    const redirectToPath = `${
+                        redirectDomainHasSsl ? 'https' : 'http'
+                    }://${webApp.redirectDomain}`
+
                     if (
                         webApp.redirectDomain &&
                         serverWithSubDomain.publicDomain !==
                             webApp.redirectDomain
                     ) {
-                        serverWithSubDomain.redirectToPath = `http://${webApp.redirectDomain}`
+                        serverWithSubDomain.redirectToPath = redirectToPath
                     }
 
                     serverWithSubDomain.gzipOn =
@@ -379,7 +394,7 @@ class LoadBalancerManager {
                                 newServerBlock.publicDomain !==
                                     webApp.redirectDomain
                             ) {
-                                newServerBlock.redirectToPath = `http://${webApp.redirectDomain}`
+                                newServerBlock.redirectToPath = redirectToPath
                             }
                             servers.push(newServerBlock)
                         }
