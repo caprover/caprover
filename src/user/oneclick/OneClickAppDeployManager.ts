@@ -277,7 +277,10 @@ export default class OneClickAppDeployManager {
 
                 const service = servicesMap[appName]
 
-                const dependsOn = service.depends_on || []
+                const rawDependsOn = service.depends_on || []
+                const dependsOn = Array.isArray(rawDependsOn)
+                    ? rawDependsOn
+                    : Object.keys(rawDependsOn)
 
                 for (let index = 0; index < dependsOn.length; index++) {
                     const element = dependsOn[index]
