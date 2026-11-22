@@ -39,7 +39,7 @@ export interface IDockerComposeService {
           }
     )[]
     environment?: IHashMapGeneric<string | number | boolean | null> | string[]
-    depends_on?: string[]
+    depends_on?: string[] | Record<string, unknown>
     hostname?: string
     cap_add?: string[]
     command?: string | string[]
