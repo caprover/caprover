@@ -162,6 +162,48 @@ describe('OneClickAppDeployManager', () => {
             ])
         })
 
+        test.each([
+            ['list', ['db']],
+            ['mapping (service_started)', { db: { condition: 'service_started' } }],
+            ['mapping (service_healthy)', { db: { condition: 'service_healthy' } }],
+        ] as [string, string[] | Record<string, unknown>][])(
+            'deploys dependencies first with %s depends_on',
+            async (_format, dependsOn) => {
+                const composeTemplate: IOneClickTemplate = {
+                    captainVersion: 4,
+                    services: {
+                        api: { image: 'nginx', depends_on: dependsOn },
+                        db: { image: 'postgres:17' },
+                    },
+                    caproverOneClickApp: {
+                        displayName: 'Docker Compose',
+                        instructions: { start: '', end: 'done' },
+                        variables: [],
+                    },
+                }
+                const states = jest.fn()
+                new OneClickAppDeployManager(
+                    {
+                        getAppsDataStore: () => ({
+                            nameAllowedOrThrow: jest.fn(),
+                        }),
+                    } as any,
+                    {} as any,
+                    states
+                ).startDeployProcess(composeTemplate)
+                await new Promise((resolve) => setImmediate(resolve))
+
+                expect(creates[1].mock.calls.map((call) => call[0])).toEqual([
+                    'db',
+                    'api',
+                ])
+                expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
+                    error: '',
+                    successMessage: 'done',
+                })
+            }
+        )
+
         test('unsupported options in a later service fail before any project or app is created', () => {
             const onDeploymentStateChanged = jest.fn()
             const invalidTemplate = JSON.parse(JSON.stringify(template))
