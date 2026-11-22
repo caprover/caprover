@@ -2,7 +2,13 @@
 
 Available as `edge`
 
-- Fixed: Dashboard background staying white in dark mode [PR-274](https://github.com/caprover/caprover-frontend/pull/274)
+- Improved: Redesigned the app Deployment tab with an active deployment summary, paginated history, and separate controls for each deployment method [PR-276](https://github.com/caprover/caprover-frontend/pull/276)
+- Improved: Made the Apps table sortable by configured instance count, with running instances breaking ties [PR-275](https://github.com/caprover/caprover-frontend/pull/275)
+- Improved: Added a link to Docker API compatibility guidance when an upgrade requires a newer Docker API [PR-2556](https://github.com/caprover/caprover/pull/2556)
+- Fixed: App domain redirects now go directly to HTTPS when the target domain has SSL enabled [PR-2557](https://github.com/caprover/caprover/pull/2557)
+- Fixed: One-click deployments failing when variable values contain quotes, backslashes, or line breaks that break template parsing [PR-2549](https://github.com/caprover/caprover/pull/2549)
+- Fixed: Dashboard and Teal Zen layout backgrounds using light colors in dark mode [PR-274](https://github.com/caprover/caprover-frontend/pull/274) [PR-2550](https://github.com/caprover/caprover/pull/2550)
+- Update: Removed the CapRover-specific appendix from the Apache 2.0 license [309b588](https://github.com/caprover/caprover/commit/309b588425128f1d0d105373c3f90979a26bae5e)
 
 ## [1.16.1] - 2026-11-18
 
