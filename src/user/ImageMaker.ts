@@ -46,6 +46,7 @@ import { IHashMapGeneric } from '../models/ICacheGeneric'
 import { ICaptainDefinition } from '../models/ICaptainDefinition'
 import { IImageSource } from '../models/IImageSource'
 import { AnyError } from '../models/OtherTypes'
+import { getCapRoverBuiltImageRepo } from '../utils/BuiltImageName'
 import CaptainConstants from '../utils/CaptainConstants'
 import GitHelper from '../utils/GitHelper'
 import BuildLog from './BuildLog'
@@ -112,9 +113,10 @@ export default class ImageMaker {
         const rawDir = `${baseDir}/${RAW_SOURCE_DIRECTORY}`
         const tarFilePath = `${baseDir}/${TAR_FILE_NAME_READY_FOR_DOCKER}`
 
-        const baseImageNameWithoutVerAndReg = `img-${this.namespace}-${
-            appName // img-captain-myapp
-        }`
+        const baseImageNameWithoutVerAndReg = getCapRoverBuiltImageRepo(
+            this.namespace,
+            appName
+        )
         let fullImageName = '' // repo.domain.com:998/username/reponame:8
 
         return Promise.resolve() //

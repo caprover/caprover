@@ -2,6 +2,7 @@ import ApiStatusCodes from '../api/ApiStatusCodes'
 import DataStore from '../datastore/DataStore'
 import RegistriesDataStore from '../datastore/RegistriesDataStore'
 import DockerApi from '../docker/DockerApi'
+import { IAppVersion } from '../models/AppDefinition'
 import { DockerAuthObj, DockerRegistryConfig } from '../models/DockerAuthObj'
 import {
     IRegistryInfo,
@@ -9,6 +10,7 @@ import {
     IRegistryTypes,
 } from '../models/IRegistryInfo'
 import { AnyError } from '../models/OtherTypes'
+import { rewriteCapRoverBuiltImageName } from '../utils/BuiltImageName'
 import Logger from '../utils/Logger'
 import Utils from '../utils/Utils'
 import BuildLog from './BuildLog'
@@ -107,6 +109,115 @@ class DockerRegistryHelper {
                         return fullImageName
                     })
             })
+    }
+
+    retagAndPushImagesForAppRename(
+        versions: IAppVersion[],
+        namespace: string,
+        oldAppName: string,
+        newAppName: string,
+        buildLogs: BuildLog
+    ) {
+        const self = this
+        const alreadyRetagged: { [imageName: string]: boolean } = {}
+
+        return Promise.resolve() //
+            .then(function () {
+                return self.getAllRegistries()
+            })
+            .then(function (registries) {
+                let chain = Promise.resolve()
+
+                versions.forEach(function (version) {
+                    const oldImageName = version.deployedImageName
+                    if (!oldImageName) {
+                        return
+                    }
+
+                    const newImageName = rewriteCapRoverBuiltImageName(
+                        oldImageName,
+                        namespace,
+                        oldAppName,
+                        newAppName
+                    )
+
+                    if (
+                        newImageName === oldImageName ||
+                        alreadyRetagged[oldImageName]
+                    ) {
+                        return
+                    }
+
+                    alreadyRetagged[oldImageName] = true
+
+                    chain = chain
+                        .then(function () {
+                            Logger.d(
+                                `Retagging image for renamed app: ${oldImageName} -> ${newImageName}`
+                            )
+                            return self.retagImagePossiblyPulling(
+                                oldImageName,
+                                newImageName
+                            )
+                        })
+                        .then(function () {
+                            const matchingRegistry = registries.find(
+                                function (registry) {
+                                    return newImageName.startsWith(
+                                        `${registry.registryDomain}/`
+                                    )
+                                }
+                            )
+
+                            if (!matchingRegistry) {
+                                return
+                            }
+
+                            return self
+                                .getDockerAuthObjectForImageName(newImageName)
+                                .then(function (authObj) {
+                                    if (!authObj) {
+                                        throw new Error(
+                                            'Docker Auth Object is NULL just after re-tagging! Something is wrong!'
+                                        )
+                                    }
+
+                                    return self.dockerApi.pushImage(
+                                        newImageName,
+                                        authObj,
+                                        buildLogs
+                                    )
+                                })
+                        })
+                })
+
+                return chain
+            })
+    }
+
+    private retagImagePossiblyPulling(
+        oldImageName: string,
+        newImageName: string
+    ) {
+        const self = this
+
+        return self.dockerApi.retag(oldImageName, newImageName).catch(function (
+            error: AnyError
+        ) {
+            Logger.d(
+                `Local retag failed for ${oldImageName}, pulling before retrying`
+            )
+            Logger.e(error)
+
+            return self
+                .getDockerAuthObjectForImageName(oldImageName)
+                .then(function (authObj) {
+                    return self.dockerApi.pullImage(oldImageName, authObj)
+                })
+                .then(function () {
+                    return self.dockerApi.retag(oldImageName, newImageName)
+                })
+        })
     }
 
     getDockerAuthObjectForImageName(
