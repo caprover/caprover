@@ -158,6 +158,7 @@ export interface UpdateAppDefinitionParams {
     repoInfo?: RepoInfo | any
     customNginxConfig?: string
     redirectDomain?: string
+    redirectDomainStatusCode?: number | string
     preDeployFunction?: string
     serviceUpdateOverride?: string
     websocketSupport?: boolean
@@ -211,6 +212,7 @@ export async function patchAppDefinition(
         repoInfo: existingApp.appPushWebhook?.repoInfo,
         customNginxConfig: existingApp.customNginxConfig,
         redirectDomain: existingApp.redirectDomain,
+        redirectDomainStatusCode: existingApp.redirectDomainStatusCode,
         preDeployFunction: existingApp.preDeployFunction,
         serviceUpdateOverride: existingApp.serviceUpdateOverride,
         websocketSupport: existingApp.websocketSupport,
@@ -254,6 +256,7 @@ export async function updateAppDefinition(
         repoInfo: inputRepoInfo,
         customNginxConfig,
         redirectDomain,
+        redirectDomainStatusCode,
         preDeployFunction,
         serviceUpdateOverride,
         websocketSupport,
@@ -272,6 +275,23 @@ export async function updateAppDefinition(
     const normalizedForceSsl = !!forceSsl
     const normalizedWebsocketSupport = !!websocketSupport
     const normalizedRedirectDomain = `${redirectDomain || ''}`
+    // Older clients omit this field; undefined keeps the stored value.
+    const normalizedRedirectDomainStatusCode =
+        redirectDomainStatusCode === undefined ||
+        redirectDomainStatusCode === null ||
+        redirectDomainStatusCode === ''
+            ? undefined
+            : Number(redirectDomainStatusCode)
+    if (
+        normalizedRedirectDomainStatusCode !== undefined &&
+        normalizedRedirectDomainStatusCode !== 301 &&
+        normalizedRedirectDomainStatusCode !== 302
+    ) {
+        throw ApiStatusCodes.createError(
+            ApiStatusCodes.ILLEGAL_PARAMETER,
+            'redirectDomainStatusCode must be 301 or 302'
+        )
+    }
     const normalizedPreDeployFunction = `${preDeployFunction || ''}`
     const normalizedServiceUpdateOverride = `${serviceUpdateOverride || ''}`
 
@@ -363,7 +383,8 @@ export async function updateAppDefinition(
         normalizedPreDeployFunction,
         normalizedServiceUpdateOverride,
         normalizedWebsocketSupport,
-        normalizedDeployTokenConfig
+        normalizedDeployTokenConfig,
+        normalizedRedirectDomainStatusCode
     )
 
     Logger.d(`AppName is updated: ${appName}`)

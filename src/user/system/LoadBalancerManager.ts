@@ -347,6 +347,8 @@ class LoadBalancerManager {
                     const redirectToPath = `${
                         redirectDomainHasSsl ? 'https' : 'http'
                     }://${webApp.redirectDomain}`
+                    const redirectStatusCode =
+                        webApp.redirectDomainStatusCode === 301 ? 301 : 302
 
                     if (
                         webApp.redirectDomain &&
@@ -354,6 +356,8 @@ class LoadBalancerManager {
                             webApp.redirectDomain
                     ) {
                         serverWithSubDomain.redirectToPath = redirectToPath
+                        serverWithSubDomain.redirectStatusCode =
+                            redirectStatusCode
                     }
 
                     serverWithSubDomain.gzipOn =
@@ -395,6 +399,8 @@ class LoadBalancerManager {
                                     webApp.redirectDomain
                             ) {
                                 newServerBlock.redirectToPath = redirectToPath
+                                newServerBlock.redirectStatusCode =
+                                    redirectStatusCode
                             }
                             servers.push(newServerBlock)
                         }

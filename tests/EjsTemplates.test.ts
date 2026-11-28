@@ -72,3 +72,27 @@ describe('EJS nginx templates', () => {
         expect(ejs.render(template, data)).toBeTruthy()
     })
 })
+
+describe('server block redirect', () => {
+    const template = fs.readFileSync(
+        path.join(__dirname, '..', 'template', 'server-block-conf.ejs'),
+        'utf8'
+    )
+    const serverBlock = templates.find(
+        ([name]) => name === 'server-block-conf.ejs'
+    )![1].s as Record<string, unknown>
+
+    test.each([301, 302])('returns %i to the redirect domain', (code) => {
+        const rendered = ejs.render(template, {
+            s: {
+                ...serverBlock,
+                redirectToPath: 'https://www.example.com',
+                redirectStatusCode: code,
+            },
+        })
+        expect(rendered).toContain(
+            `return ${code} https://www.example.com$request_uri;`
+        )
+        expect(rendered).not.toContain('proxy_pass')
+    })
+})

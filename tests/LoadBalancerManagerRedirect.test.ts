@@ -3,10 +3,7 @@ import type DockerApi from '../src/docker/DockerApi'
 import type CertbotManager from '../src/user/system/CertbotManager'
 import LoadBalancerManager from '../src/user/system/LoadBalancerManager'
 
-async function getRedirects(
-    webApp: Record<string, unknown>,
-    hasRootSsl = true
-) {
+async function getServers(webApp: Record<string, unknown>, hasRootSsl = true) {
     const dataStore = {
         getAppsDataStore: () => ({
             getAppDefinitions: async () => ({ web: webApp }),
@@ -14,14 +11,30 @@ async function getRedirects(
         }),
         getGoAccessInfo: async () => ({ isEnabled: false }),
     } as unknown as DataStore
-    const servers = await new LoadBalancerManager(
+    return new LoadBalancerManager(
         {} as DockerApi,
         {} as CertbotManager,
         dataStore
     ).getAppsServerConfig(dataStore, '', hasRootSsl, 'root.example.com')
+}
+
+async function getRedirects(
+    webApp: Record<string, unknown>,
+    hasRootSsl = true
+) {
     const redirects: Record<string, string | undefined> = {}
-    servers.forEach((s) => (redirects[s.publicDomain] = s.redirectToPath))
+    ;(await getServers(webApp, hasRootSsl)).forEach(
+        (s) => (redirects[s.publicDomain] = s.redirectToPath)
+    )
     return redirects
+}
+
+async function getStatusCodes(webApp: Record<string, unknown>) {
+    const codes: Record<string, number | undefined> = {}
+    ;(await getServers(webApp)).forEach(
+        (s) => (codes[s.publicDomain] = s.redirectStatusCode)
+    )
+    return codes
 }
 
 const app = (redirectDomain: string, targetHasSsl: boolean) => ({
@@ -55,5 +68,25 @@ describe('redirect all domains', () => {
         expect((await getRedirects(target, false))['example.com']).toBe(
             'http://web.root.example.com'
         )
+    })
+
+    test('defaults to 302 when no status code is set', async () => {
+        expect(await getStatusCodes(app('www.example.com', true))).toEqual({
+            'web.root.example.com': 302,
+            'www.example.com': undefined,
+            'example.com': 302,
+        })
+    })
+
+    test('uses 301 when it is set on the app', async () => {
+        const target = {
+            ...app('www.example.com', true),
+            redirectDomainStatusCode: 301,
+        }
+        expect(await getStatusCodes(target)).toEqual({
+            'web.root.example.com': 301,
+            'www.example.com': undefined,
+            'example.com': 301,
+        })
     })
 })
