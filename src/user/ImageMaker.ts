@@ -601,9 +601,24 @@ export default class ImageMaker {
             .then(function (dockerIgnoreContent) {
                 // The Docker CLI applies .dockerignore before it sends the build context,
                 // but the Docker API does not, so the context is filtered here.
+                // @balena/dockerignore copies + ( ) { } | into a regular expression, while Docker
+                // matches them literally, so they are escaped unless they already are.
                 const rules = dockerIgnore({ ignorecase: false }).add(
-                    dockerIgnoreContent
+                    dockerIgnoreContent.replace(/\\.|[+(){}|]/g, (match) =>
+                        match.length === 1 ? `\\${match}` : match
+                    )
                 )
+
+                // The rules compile on first use, and tar calls the filter outside this
+                // promise, so an invalid pattern such as an unclosed [ is reported here.
+                try {
+                    rules.ignores(DOCKER_FILE)
+                } catch (error) {
+                    throw ApiStatusCodes.createError(
+                        ApiStatusCodes.BUILD_ERROR,
+                        `Invalid ${DOCKER_IGNORE_FILE}: ${error}`
+                    )
+                }
 
                 // Like the Docker CLI, an ignored directory is still walked when an
                 // exception (!pattern) can re-include something inside it.
