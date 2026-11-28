@@ -102,3 +102,41 @@ test('removes the temporary SSH key when cloning fails', async () => {
     const sshKeyPath = env.mock.calls[0][1].replace('ssh -i ', '')
     expect(fs.remove).toHaveBeenCalledWith(sshKeyPath)
 })
+
+test('removes the HTTPS credentials from the remotes after cloning', async () => {
+    const raw = jest.fn().mockResolvedValue('')
+    configureGitMock(raw)
+
+    await GitHelper.clone(
+        'user',
+        'p@ss',
+        '',
+        'https://github.com/caprover/caprover.git',
+        'master',
+        '/tmp/repository'
+    )
+
+    expect(raw.mock.calls).toEqual([
+        [
+            [
+                'clone',
+                '--recurse-submodules',
+                '-b',
+                'master',
+                'https://user:p%40ss@github.com/caprover/caprover.git',
+                '/tmp/repository',
+            ],
+        ],
+        [
+            [
+                'remote',
+                'set-url',
+                'origin',
+                'https://github.com/caprover/caprover.git',
+            ],
+        ],
+        [['submodule', 'sync', '--quiet', '--recursive']],
+    ])
+    expect(mockedGit).toHaveBeenNthCalledWith(2, '/tmp/repository')
+    expect(mockedGit).toHaveBeenNthCalledWith(3, '/tmp/repository')
+})

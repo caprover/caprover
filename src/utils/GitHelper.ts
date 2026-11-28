@@ -114,6 +114,21 @@ export default class GitHelper {
                     directory,
                 ])
                 .then(function () {
+                    // The clone stores the remote, credentials included, in .git/config and in
+                    // the submodules' configs, and a Dockerfile's COPY can put .git in the image.
+                    return git(directory) //
+                        .raw([
+                            'remote',
+                            'set-url',
+                            'origin',
+                            `${SCHEME}://${REPO_PATH}`,
+                        ])
+                })
+                .then(function () {
+                    return git(directory) //
+                        .raw(['submodule', 'sync', '--quiet', '--recursive'])
+                })
+                .then(function () {
                     //
                 })
         }
