@@ -14,6 +14,7 @@ export interface IServerBlockDetails {
     customErrorPagesDirectory: string
     staticWebRoot: string
     redirectToPath?: string
+    redirectStatusCode?: number
     logAccessPath?: string
     gzipOn?: boolean
     gzipTypes?: string

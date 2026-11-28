@@ -655,7 +655,8 @@ class ServiceManager {
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
-        appDeployTokenConfig: AppDeployTokenConfig
+        appDeployTokenConfig: AppDeployTokenConfig,
+        redirectDomainStatusCode: number | undefined
     ) {
         const self = this
         const dataStore = this.dataStore
@@ -795,7 +796,8 @@ class ServiceManager {
                         preDeployFunction,
                         serviceUpdateOverride,
                         websocketSupport,
-                        appDeployTokenConfig
+                        appDeployTokenConfig,
+                        redirectDomainStatusCode
                     )
             })
             .then(function () {
@@ -845,7 +847,9 @@ class ServiceManager {
                                 existingAppDefinition.websocketSupport,
                                 existingAppDefinition.appDeployTokenConfig || {
                                     enabled: false,
-                                }
+                                },
+                                existingAppDefinition.redirectDomainStatusCode ||
+                                    302
                             )
                             .then(function () {
                                 self.reloadLoadBalancer()

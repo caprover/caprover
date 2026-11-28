@@ -97,7 +97,7 @@ describe('patchAppDefinition', () => {
         // 10=containerHttpPort, 11=httpAuth, 12=forceSsl, 13=ports,
         // 14=repoInfo, 15=customNginxConfig, 16=redirectDomain,
         // 17=preDeployFunction, 18=serviceUpdateOverride, 19=websocketSupport,
-        // 20=appDeployTokenConfig
+        // 20=appDeployTokenConfig, 21=redirectDomainStatusCode
         const args = capturedUpdateArgs
         expect(args[0]).toBe('my-app') // appName
         expect(args[3]).toBe(1) // instanceCount — patched
@@ -117,6 +117,9 @@ describe('patchAppDefinition', () => {
 
         // websocketSupport (arg 19) preserved
         expect(args[19]).toBe(true)
+
+        // redirectDomainStatusCode (arg 21) stays unset
+        expect(args[21]).toBeUndefined()
     })
 
     it('should preserve env vars when scaling to zero', async () => {
@@ -237,5 +240,48 @@ describe('patchAppDefinition', () => {
         expect(args[5]).toEqual(mockExistingApp.envVars)
         expect(args[12]).toBe(true) // forceSsl
         expect(args[2]).toBe('My test app') // description
+    })
+
+    it('should preserve an existing 301 redirect status code', async () => {
+        jest.spyOn(mockDataStore, 'getAppsDataStore').mockReturnValueOnce({
+            getAppDefinition: jest.fn().mockResolvedValue({
+                ...mockExistingApp,
+                redirectDomainStatusCode: 301,
+            }),
+        })
+
+        await patchAppDefinition(
+            'my-app',
+            { appName: 'my-app', instanceCount: 1 },
+            mockDataStore,
+            mockServiceManager
+        )
+
+        expect(capturedUpdateArgs[21]).toBe(301)
+    })
+
+    it('should accept a redirect status code sent as a string', async () => {
+        await patchAppDefinition(
+            'my-app',
+            { appName: 'my-app', redirectDomainStatusCode: '301' },
+            mockDataStore,
+            mockServiceManager
+        )
+
+        expect(capturedUpdateArgs[21]).toBe(301)
+    })
+
+    it('should reject a redirect status code other than 301 or 302', async () => {
+        await expect(
+            patchAppDefinition(
+                'my-app',
+                { appName: 'my-app', redirectDomainStatusCode: 307 },
+                mockDataStore,
+                mockServiceManager
+            )
+        ).rejects.toMatchObject({
+            message: 'redirectDomainStatusCode must be 301 or 302',
+        })
+        expect(mockServiceManager.updateAppDefinition).not.toHaveBeenCalled()
     })
 })

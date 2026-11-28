@@ -721,7 +721,8 @@ class AppsDataStore {
         preDeployFunction: string,
         serviceUpdateOverride: string,
         websocketSupport: boolean,
-        appDeployTokenConfig: AppDeployTokenConfig
+        appDeployTokenConfig: AppDeployTokenConfig,
+        redirectDomainStatusCode?: number
     ) {
         const self = this
         let appObj: IAppDef
@@ -793,6 +794,9 @@ class AppsDataStore {
                 appObj.nodeId = nodeId
                 appObj.customNginxConfig = customNginxConfig
                 appObj.redirectDomain = redirectDomain
+                if (redirectDomainStatusCode !== undefined) {
+                    appObj.redirectDomainStatusCode = redirectDomainStatusCode
+                }
                 appObj.preDeployFunction = preDeployFunction
                 appObj.serviceUpdateOverride = serviceUpdateOverride
                 appObj.description = description

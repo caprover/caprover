@@ -76,6 +76,7 @@ export interface IAppDefinitionBase {
     serviceUpdateOverride?: string
     customNginxConfig?: string
     redirectDomain?: string
+    redirectDomainStatusCode?: number
     networks: string[]
     customDomain: IAppCustomDomain[]
     tags?: IAppTag[]
