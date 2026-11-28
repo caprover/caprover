@@ -225,6 +225,122 @@ describe('reportAnalyticsOnAppDeploy', () => {
             expect(unusedFields).toEqual([])
         })
 
+        test('should treat entrypoint as unconsumed under legacy semantics', () => {
+            for (const template of [
+                {
+                    captainVersion: 4,
+                    services: {
+                        app: {
+                            image: 'nginx:latest',
+                            entrypoint: ['/bin/sh', '-c'],
+                            command: ['echo secret-token'],
+                        },
+                    },
+                },
+                {
+                    services: {
+                        app: {
+                            image: 'nginx:latest',
+                            entrypoint: '/bin/sh -c',
+                        },
+                    },
+                },
+            ]) {
+                trackedEvents = []
+                reportAnalyticsOnAppDeploy(
+                    'TEMPLATE_ONE_CLICK',
+                    template,
+                    mockEventLogger
+                )
+                expect(trackedEvents[0].eventMetadata.unusedFields).toEqual([
+                    'entrypoint',
+                ])
+                expect(JSON.stringify(trackedEvents[0])).not.toContain(
+                    'secret-token'
+                )
+            }
+        })
+
+        test('should treat entrypoint as consumed under standard semantics (v5 and DOCKER_COMPOSE)', () => {
+            for (const [templateName, template] of [
+                [
+                    'TEMPLATE_ONE_CLICK',
+                    {
+                        captainVersion: 5,
+                        services: {
+                            app: {
+                                image: 'nginx:latest',
+                                entrypoint: ['/bin/sh', '-ec'],
+                                command: ['echo secret-password'],
+                                restart: 'always',
+                            },
+                        },
+                    },
+                ],
+                [
+                    'DOCKER_COMPOSE',
+                    {
+                        captainVersion: 4,
+                        services: {
+                            app: {
+                                image: 'nginx:latest',
+                                entrypoint: ['/bin/sh', '-ec'],
+                                command: ['echo secret-password'],
+                                restart: 'always',
+                            },
+                        },
+                    },
+                ],
+                [
+                    'DOCKER_COMPOSE',
+                    {
+                        services: {
+                            app: {
+                                image: 'nginx:latest',
+                                entrypoint: '/bin/sh -ec',
+                                command: 'echo secret-password',
+                                restart: 'always',
+                            },
+                        },
+                    },
+                ],
+            ] as const) {
+                trackedEvents = []
+                reportAnalyticsOnAppDeploy(
+                    templateName,
+                    template,
+                    mockEventLogger
+                )
+                expect(trackedEvents[0].eventMetadata.unusedFields).toEqual([
+                    'restart',
+                ])
+                expect(JSON.stringify(trackedEvents[0])).not.toContain(
+                    'secret-password'
+                )
+            }
+        })
+
+        test('should not throw for unsupported future captainVersion in analytics', () => {
+            expect(() => {
+                reportAnalyticsOnAppDeploy(
+                    'TEMPLATE_ONE_CLICK',
+                    {
+                        captainVersion: 99,
+                        services: {
+                            app: {
+                                image: 'nginx:latest',
+                                entrypoint: ['/bin/sh'],
+                            },
+                        },
+                    },
+                    mockEventLogger
+                )
+            }).not.toThrow()
+            expect(trackedEvents[0].eventMetadata.unusedFields).toEqual([
+                'entrypoint',
+            ])
+        })
+
         test('should handle multiple services with mixed fields', () => {
             const templateName = 'DOCKER_COMPOSE'
             const template = {

@@ -42,7 +42,8 @@ export interface IDockerComposeService {
     depends_on?: string[] | Record<string, unknown>
     hostname?: string
     cap_add?: string[]
-    command?: string | string[]
+    command?: string | string[] | null
+    entrypoint?: string | string[] | null
 
     // These are CapRover property, not DockerCompose. We use this instead of image if we need to extend the image.
     caproverExtra?: {

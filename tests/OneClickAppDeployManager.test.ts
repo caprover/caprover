@@ -147,7 +147,10 @@ describe('OneClickAppDeployManager', () => {
                 },
             }
             const states = jest.fn()
-            const appsDataStore = new AppsDataStore({ get: jest.fn() } as any, 'captain')
+            const appsDataStore = new AppsDataStore(
+                { get: jest.fn() } as any,
+                'captain'
+            )
             new OneClickAppDeployManager(
                 { getAppsDataStore: () => appsDataStore } as any,
                 {} as any,
@@ -164,8 +167,14 @@ describe('OneClickAppDeployManager', () => {
 
         test.each([
             ['list', ['db']],
-            ['mapping (service_started)', { db: { condition: 'service_started' } }],
-            ['mapping (service_healthy)', { db: { condition: 'service_healthy' } }],
+            [
+                'mapping (service_started)',
+                { db: { condition: 'service_started' } },
+            ],
+            [
+                'mapping (service_healthy)',
+                { db: { condition: 'service_healthy' } },
+            ],
         ] as [string, string[] | Record<string, unknown>][])(
             'deploys dependencies first with %s depends_on',
             async (_format, dependsOn) => {
@@ -386,7 +395,8 @@ describe('OneClickAppDeployManager', () => {
                     ],
                     command: ['run', '--verbose'],
                 },
-                'my-app'
+                'my-app',
+                'legacy'
             )
             expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
                 error: '',
@@ -457,7 +467,8 @@ describe('OneClickAppDeployManager', () => {
                     expect.objectContaining({
                         environment: [`VALUE=${expected}`],
                     }),
-                    'my-app'
+                    'my-app',
+                    'legacy'
                 )
             }
         )
@@ -475,5 +486,125 @@ describe('OneClickAppDeployManager', () => {
             ).toThrow(TypeError)
             creates.forEach((create) => expect(create).not.toHaveBeenCalled())
         })
+
+        test.each([
+            ['v4 template', 4, 'OFFICIAL_REDIS', 'legacy'],
+            ['v5 template', 5, 'OFFICIAL_REDIS', 'standard'],
+            ['direct Docker Compose with v4', 4, 'DOCKER_COMPOSE', 'standard'],
+            ['direct Docker Compose with v5', 5, 'DOCKER_COMPOSE', 'standard'],
+        ] as const)(
+            'propagates %s execution semantics (%s) to deployment helper',
+            async (_label, captainVersion, templateName, expectedSemantics) => {
+                const versionedTemplate: IOneClickTemplate = {
+                    ...JSON.parse(JSON.stringify(template)),
+                    captainVersion,
+                }
+                const states = jest.fn()
+                new OneClickAppDeployManager(
+                    {
+                        getAppsDataStore: () => ({
+                            nameAllowedOrThrow: jest.fn(),
+                        }),
+                    } as any,
+                    {} as any,
+                    states
+                ).startDeployProcess(
+                    versionedTemplate,
+                    [{ key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' }],
+                    templateName
+                )
+                await new Promise((resolve) => setImmediate(resolve))
+
+                expect(creates[2]).toHaveBeenCalledTimes(2)
+                expect(creates[2].mock.calls[0][3]).toBe(expectedSemantics)
+                expect(creates[2].mock.calls[1][3]).toBe(expectedSemantics)
+                expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
+                    error: '',
+                    successMessage: 'done',
+                })
+            }
+        )
+
+        test('rejects unsupported future captainVersion before creating resources', () => {
+            const onDeploymentStateChanged = jest.fn()
+            const futureTemplate: IOneClickTemplate = {
+                ...JSON.parse(JSON.stringify(template)),
+                captainVersion: 6,
+            }
+            new OneClickAppDeployManager(
+                {} as any,
+                {} as any,
+                onDeploymentStateChanged
+            ).startDeployProcess(futureTemplate, [
+                { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
+            ])
+            expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                steps: ['Parsing the template'],
+                error: 'Unsupported captainVersion: 6. Supported versions are up to 5.',
+                currentStep: 0,
+            })
+            creates.forEach((create) => expect(create).not.toHaveBeenCalled())
+        })
+
+        test.each([
+            [
+                'malformed command quoting in v5',
+                5,
+                'TEMPLATE_ONE_CLICK',
+                { command: 'sh -c "unclosed' },
+                'services.my-app-worker.command: unterminated double quote',
+            ],
+            [
+                'invalid entrypoint type in direct Docker Compose',
+                4,
+                'DOCKER_COMPOSE',
+                { entrypoint: 42 },
+                'services.my-app-worker.entrypoint: expected a string or an array of strings',
+            ],
+            [
+                'non-string command array element in v5',
+                5,
+                'TEMPLATE_ONE_CLICK',
+                { command: ['echo', 123] },
+                'services.my-app-worker.command[1]: expected a string',
+            ],
+            [
+                'unsupported empty command without entrypoint in direct Docker Compose',
+                4,
+                'DOCKER_COMPOSE',
+                { command: [] },
+                'services.my-app-worker.command: clearing the image default command without setting entrypoint is not supported by Docker Swarm',
+            ],
+        ])(
+            'rejects %s before creating any project or app',
+            (_case, captainVersion, templateName, badFields, expectedError) => {
+                const onDeploymentStateChanged = jest.fn()
+                const invalidTemplate = JSON.parse(JSON.stringify(template))
+                invalidTemplate.captainVersion = captainVersion
+                Object.assign(
+                    invalidTemplate.services[
+                        `${ONE_CLICK_APP_NAME_VAR_NAME}-worker`
+                    ],
+                    badFields
+                )
+                new OneClickAppDeployManager(
+                    {} as any,
+                    {} as any,
+                    onDeploymentStateChanged
+                ).startDeployProcess(
+                    invalidTemplate,
+                    [{ key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' }],
+                    templateName
+                )
+                expect(onDeploymentStateChanged).toHaveBeenCalledWith({
+                    steps: ['Parsing the template'],
+                    error: expectedError,
+                    currentStep: 0,
+                })
+                creates.forEach((create) =>
+                    expect(create).not.toHaveBeenCalled()
+                )
+            }
+        )
     })
 })

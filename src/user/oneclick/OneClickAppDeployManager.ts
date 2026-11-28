@@ -7,6 +7,10 @@ import {
 import { OneClickAppValuePair } from '../../models/OneClickApp'
 import Utils from '../../utils/Utils'
 import composeAppConfig from '../../utils/ComposeAppConfig'
+import DockerComposeToServiceOverride, {
+    ComposeExecutionSemantics,
+    resolveComposeExecutionSemantics,
+} from '../../utils/DockerComposeToServiceOverride'
 import ServiceManager from '../ServiceManager'
 import OneClickAppDeploymentHelper from './OneClickAppDeploymentHelper'
 export const ONE_CLICK_APP_NAME_VAR_NAME = '$$cap_appname'
@@ -60,7 +64,8 @@ export default class OneClickAppDeployManager {
 
     startDeployProcess(
         template: IOneClickTemplate,
-        valuesArray: OneClickAppValuePair[] = []
+        valuesArray: OneClickAppValuePair[] = [],
+        templateName?: string
     ) {
         const self = this
         let stringified = JSON.stringify(template)
@@ -110,7 +115,12 @@ export default class OneClickAppDeployManager {
         }
 
         // Validate every service before dependency sorting or creating resources.
+        let executionSemantics: ComposeExecutionSemantics
         try {
+            executionSemantics = resolveComposeExecutionSemantics(
+                this.template!.captainVersion,
+                templateName
+            )
             const services = this.template!.services
             if (
                 !services ||
@@ -121,6 +131,11 @@ export default class OneClickAppDeployManager {
             }
             for (const [name, service] of Object.entries(services)) {
                 composeAppConfig(service, `services.${name}`)
+                DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
+                    service,
+                    executionSemantics,
+                    `services.${name}`
+                )
             }
         } catch (error) {
             this.onDeploymentStateChanged({
@@ -191,7 +206,8 @@ export default class OneClickAppDeployManager {
                         appToDeploy.appName,
                         appToDeploy.service,
                         capAppName,
-                        projectMemoryCache
+                        projectMemoryCache,
+                        executionSemantics
                     )
                 )
             }
@@ -323,7 +339,8 @@ export default class OneClickAppDeployManager {
         appName: string,
         dockerComposeService: IDockerComposeService,
         capAppName: string,
-        projectMemoryCache: { projectId: string }
+        projectMemoryCache: { projectId: string },
+        executionSemantics: ComposeExecutionSemantics
     ): IDeploymentStep[] {
         const promises: IDeploymentStep[] = []
         const self = this
@@ -345,7 +362,8 @@ export default class OneClickAppDeployManager {
                 return self.deploymentHelper.createConfigurationPromise(
                     appName,
                     dockerComposeService,
-                    capAppName
+                    capAppName,
+                    executionSemantics
                 )
             },
         })
