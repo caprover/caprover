@@ -10,7 +10,9 @@ import { IAppDef } from '../../models/AppDefinition'
 import { ICaptainDefinition } from '../../models/ICaptainDefinition'
 import { IDockerComposeService } from '../../models/IOneClickAppModels'
 import { ProjectDefinition } from '../../models/ProjectDefinition'
-import DockerComposeToServiceOverride from '../../utils/DockerComposeToServiceOverride'
+import DockerComposeToServiceOverride, {
+    ComposeExecutionSemantics,
+} from '../../utils/DockerComposeToServiceOverride'
 import composeAppConfig from '../../utils/ComposeAppConfig'
 import Utils from '../../utils/Utils'
 import ServiceManager from '../ServiceManager'
@@ -115,7 +117,8 @@ export default class OneClickAppDeploymentHelper {
     createConfigurationPromise(
         appName: string,
         dockerComposeService: IDockerComposeService,
-        capAppName: string
+        capAppName: string,
+        executionSemantics: ComposeExecutionSemantics
     ) {
         const self = this
         return Promise.resolve().then(function () {
@@ -157,7 +160,9 @@ export default class OneClickAppDeploymentHelper {
 
                     const overrideYaml =
                         DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
-                            dockerComposeService
+                            dockerComposeService,
+                            executionSemantics,
+                            `services.${appName}`
                         )
 
                     if (overrideYaml) {

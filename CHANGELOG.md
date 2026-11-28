@@ -2,6 +2,7 @@
 
 Available as `edge`
 
+- Improved: Docker Compose deployments now support standard `command` and `entrypoint` semantics. Introduced One-Click App v5 template support while preserving compatibility with existing v4 templates and previously deployed applications. Third-party One-Click App maintainers adopting `captainVersion: 5` should migrate intentional legacy entrypoint overrides from `command` to `entrypoint`.
 - Improved: Redesigned the app Deployment tab with an active deployment summary, paginated history, and separate controls for each deployment method [PR-276](https://github.com/caprover/caprover-frontend/pull/276)
 - Improved: Made the Apps table sortable by configured instance count, with running instances breaking ties [PR-275](https://github.com/caprover/caprover-frontend/pull/275)
 - Improved: Added a link to Docker API compatibility guidance when an upgrade requires a newer Docker API [PR-2556](https://github.com/caprover/caprover/pull/2556)

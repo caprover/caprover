@@ -225,6 +225,69 @@ describe('reportAnalyticsOnAppDeploy', () => {
             expect(unusedFields).toEqual([])
         })
 
+        test.each([
+            [
+                'v4 one-click (legacy)',
+                'TEMPLATE_ONE_CLICK',
+                4,
+                ['entrypoint', 'restart'],
+            ],
+            [
+                'unversioned one-click (legacy)',
+                'TEMPLATE_ONE_CLICK',
+                undefined,
+                ['entrypoint', 'restart'],
+            ],
+            [
+                'unsupported future version (does not throw)',
+                'TEMPLATE_ONE_CLICK',
+                99,
+                ['entrypoint', 'restart'],
+            ],
+            ['v5 one-click (standard)', 'TEMPLATE_ONE_CLICK', 5, ['restart']],
+            [
+                'DOCKER_COMPOSE with v4 (standard)',
+                'DOCKER_COMPOSE',
+                4,
+                ['restart'],
+            ],
+            [
+                'DOCKER_COMPOSE unversioned (standard)',
+                'DOCKER_COMPOSE',
+                undefined,
+                ['restart'],
+            ],
+        ] as [string, string, number | undefined, string[]][])(
+            'handles entrypoint analytics for %s without leaking values',
+            (_label, templateName, captainVersion, expectedUnused) => {
+                const template = {
+                    ...(captainVersion !== undefined ? { captainVersion } : {}),
+                    services: {
+                        app: {
+                            image: 'nginx:latest',
+                            entrypoint: ['/bin/sh', '-ec'],
+                            command: ['echo secret-password'],
+                            restart: 'always',
+                        },
+                    },
+                }
+
+                expect(() =>
+                    reportAnalyticsOnAppDeploy(
+                        templateName,
+                        template,
+                        mockEventLogger
+                    )
+                ).not.toThrow()
+                expect(trackedEvents[0].eventMetadata.unusedFields).toEqual(
+                    expectedUnused
+                )
+                expect(JSON.stringify(trackedEvents[0])).not.toContain(
+                    'secret-password'
+                )
+            }
+        )
+
         test('should handle multiple services with mixed fields', () => {
             const templateName = 'DOCKER_COMPOSE'
             const template = {

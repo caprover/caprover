@@ -11,16 +11,57 @@ import {
 import OneClickAppDeployManager from '../../../user/oneclick/OneClickAppDeployManager'
 import { OneClickDeploymentJobRegistry } from '../../../user/oneclick/OneClickDeploymentJobRegistry'
 import CaptainConstants from '../../../utils/CaptainConstants'
+import {
+    ComposeExecutionSemantics,
+    DOCKER_COMPOSE_TEMPLATE_NAME,
+    resolveComposeExecutionSemantics,
+} from '../../../utils/DockerComposeToServiceOverride'
 import Logger from '../../../utils/Logger'
 
 const router = express.Router()
 const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 
-const VERSION = `v4`
+const PREFERRED_CATALOG_VERSION = 'v5'
+const LEGACY_CATALOG_VERSION = 'v4'
 
 const HEADERS = {} as any
 HEADERS[CaptainConstants.headerCapRoverVersion] =
     CaptainConstants.configs.version
+
+const LEGACY_CONSUMED_DOCKER_SERVICE_FIELDS = [
+    'image',
+    'environment',
+    'ports',
+    'volumes',
+    'depends_on',
+    'hostname',
+    'command',
+    'cap_add',
+]
+
+const STANDARD_CONSUMED_DOCKER_SERVICE_FIELDS = [
+    ...LEGACY_CONSUMED_DOCKER_SERVICE_FIELDS,
+    'entrypoint',
+]
+
+function fetchCatalogResource(baseUrl: string, resourcePath: string) {
+    const getVersion = (version: 'v5' | 'v4') => {
+        const url = `${baseUrl}/${version}/${resourcePath}`
+        return axios.get(url, { headers: HEADERS }).then(function (response) {
+            return { version, data: response.data, url }
+        })
+    }
+
+    return getVersion(PREFERRED_CATALOG_VERSION).catch(function (err: unknown) {
+        if (
+            (err as { response?: { status?: number } })?.response?.status !==
+            404
+        ) {
+            throw err
+        }
+        return getVersion(LEGACY_CATALOG_VERSION)
+    })
+}
 
 interface IOneClickAppIdentifier {
     baseUrl: string
@@ -50,13 +91,13 @@ router.post('/repositories/insert', function (req, res, next) {
                     `Repository URL already exists: ${apiBaseUrl}`
                 )
 
-            return axios
-                .get(apiBaseUrl + `/${VERSION}/list`)
-                .then(function (axiosResponse) {
-                    return axiosResponse.data.oneClickApps as any[]
-                })
-                .then(function (apps: any[]) {
-                    if (!apps || !apps.length)
+            return fetchCatalogResource(apiBaseUrl, 'list')
+                .then(function ({ data, url }) {
+                    const apps = data?.oneClickApps
+                    if (!Array.isArray(apps)) {
+                        throw new Error(`Invalid app list response from ${url}`)
+                    }
+                    if (!apps.length)
                         throw new Error(
                             `No apps were retrieved from ${apiBaseUrl}`
                         )
@@ -159,16 +200,15 @@ router.get('/template/list', function (req, res, next) {
             )
 
             urls.forEach((apiBaseUrl) => {
-                const p = axios({
-                    method: 'get',
-                    url: apiBaseUrl + `/${VERSION}/list`,
-                    headers: HEADERS,
-                })
-                    .then(function (axiosResponse) {
-                        return axiosResponse.data.oneClickApps as any[]
-                    })
-                    .then(function (apps: any[]) {
-                        return apps.map((element) => {
+                const p = fetchCatalogResource(apiBaseUrl, 'list')
+                    .then(function ({ version, data, url }) {
+                        const apps = data?.oneClickApps
+                        if (!Array.isArray(apps)) {
+                            throw new Error(
+                                `Invalid app list response from ${url}`
+                            )
+                        }
+                        return apps.map((element: any) => {
                             const ret: IOneClickAppIdentifier = {
                                 baseUrl: apiBaseUrl,
                                 name: element.name,
@@ -182,7 +222,7 @@ router.get('/template/list', function (req, res, next) {
                                     (element.logoUrl.startsWith('http://') ||
                                         element.logoUrl.startsWith('https://'))
                                         ? element.logoUrl
-                                        : `${apiBaseUrl}/${VERSION}/logos/${element.logoUrl}`,
+                                        : `${apiBaseUrl}/${version}/logos/${element.logoUrl}`,
                             }
                             return ret
                         })
@@ -237,9 +277,6 @@ router.get('/template/app', function (req, res, next) {
                     'Unknown base URL '
                 )
 
-            const appUrl = `${baseDomain}/${VERSION}/apps/${appName}`
-            Logger.d(`retrieving app at: ${appUrl}`)
-
             // Only log the official repo events
             if (baseDomain === DEFAULT_ONE_CLICK_BASE_URL) {
                 eventLogger.trackEvent(
@@ -252,13 +289,24 @@ router.get('/template/app', function (req, res, next) {
                 )
             }
 
-            return axios({
-                method: 'get',
-                url: appUrl,
-                headers: HEADERS,
-            }).then(function (responseObject) {
-                return responseObject.data
-            })
+            Logger.d(`retrieving app ${appName} from ${baseDomain}`)
+            return fetchCatalogResource(baseDomain, `apps/${appName}`).then(
+                function ({ data, url }) {
+                    if (
+                        !data ||
+                        typeof data !== 'object' ||
+                        Array.isArray(data) ||
+                        !data.services ||
+                        typeof data.services !== 'object' ||
+                        Array.isArray(data.services)
+                    ) {
+                        throw new Error(
+                            `Invalid app template response from ${url}`
+                        )
+                    }
+                    return data
+                }
+            )
         })
         .then(function (appTemplate) {
             const baseApi = new BaseApi(
@@ -322,7 +370,11 @@ router.post('/deploy', function (req, res, next) {
                             `Deployment state: ${JSON.stringify(deploymentState, null, 2)}`
                         )
                     }
-                ).startDeployProcess(template, normalizedValues)
+                ).startDeployProcess(
+                    template,
+                    normalizedValues,
+                    typeof templateName === 'string' ? templateName : undefined
+                )
             } catch (error) {
                 deploymentJobRegistry.removeJob(jobId)
                 throw error
@@ -395,17 +447,28 @@ export function reportAnalyticsOnAppDeploy(
     const unusedDockerServiceFieldNames: string[] = []
     if (
         templateName === 'TEMPLATE_ONE_CLICK' ||
-        templateName === 'DOCKER_COMPOSE'
+        templateName === DOCKER_COMPOSE_TEMPLATE_NAME
     ) {
+        let executionSemantics: ComposeExecutionSemantics
+        try {
+            executionSemantics = resolveComposeExecutionSemantics(
+                template?.captainVersion,
+                templateName
+            )
+        } catch {
+            executionSemantics = 'legacy'
+        }
+
+        const consumedFields =
+            executionSemantics === 'standard'
+                ? STANDARD_CONSUMED_DOCKER_SERVICE_FIELDS
+                : LEGACY_CONSUMED_DOCKER_SERVICE_FIELDS
+
         if (template?.services) {
             Object.values(template.services).forEach((service: any) => {
                 if (service && typeof service === 'object') {
                     Object.keys(service).forEach((key) => {
-                        if (
-                            !'image,environment,ports,volumes,depends_on,hostname,command,cap_add'
-                                .split(',')
-                                .includes(key)
-                        ) {
+                        if (!consumedFields.includes(key)) {
                             // log the unused keys so that we can track what to add next
                             if (!unusedDockerServiceFieldNames.includes(key)) {
                                 unusedDockerServiceFieldNames.push(key)
@@ -420,7 +483,7 @@ export function reportAnalyticsOnAppDeploy(
     // we do not want to log private repos names
     const templateNameToReport =
         templateName === 'TEMPLATE_ONE_CLICK' ||
-        templateName === 'DOCKER_COMPOSE' ||
+        templateName === DOCKER_COMPOSE_TEMPLATE_NAME ||
         (typeof templateName === 'string' &&
             templateName.startsWith('OFFICIAL_'))
             ? templateName
