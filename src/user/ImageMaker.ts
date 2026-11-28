@@ -35,6 +35,7 @@
 
 */
 
+import dockerIgnore from '@balena/dockerignore'
 import fs = require('fs-extra')
 import tar = require('tar')
 import path = require('path')
@@ -55,6 +56,7 @@ import TemplateHelper from './TemplateHelper'
 const RAW_SOURCE_DIRECTORY = 'source_files'
 const TAR_FILE_NAME_READY_FOR_DOCKER = 'image.tar'
 const DOCKER_FILE = 'Dockerfile'
+const DOCKER_IGNORE_FILE = '.dockerignore'
 
 export class BuildLogsManager {
     private buildLogs: IHashMapGeneric<BuildLog>
@@ -587,12 +589,58 @@ export default class ImageMaker {
         sourceDirectory: string,
         tarFilePath: string
     ) {
+        const dockerIgnorePath = path.join(sourceDirectory, DOCKER_IGNORE_FILE)
+
         return Promise.resolve() //
             .then(function () {
+                return fs.pathExists(dockerIgnorePath)
+            })
+            .then(function (exists) {
+                return exists ? fs.readFile(dockerIgnorePath, 'utf8') : ''
+            })
+            .then(function (dockerIgnoreContent) {
+                // The Docker CLI applies .dockerignore before it sends the build context,
+                // but the Docker API does not, so the context is filtered here.
+                const rules = dockerIgnore({ ignorecase: false }).add(
+                    dockerIgnoreContent
+                )
+
+                // Like the Docker CLI, an ignored directory is still walked when an
+                // exception (!pattern) can re-include something inside it.
+                const exceptions = dockerIgnoreContent
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line.startsWith('!'))
+                    .map((line) =>
+                        path.posix
+                            .normalize(line.substring(1).trim())
+                            .replace(/^\//, '')
+                    )
+
                 return tar.c(
                     {
                         file: tarFilePath,
                         cwd: sourceDirectory,
+                        filter: function (entryPath, stat) {
+                            // Like the Docker CLI, always send the Dockerfile and .dockerignore.
+                            // The builder needs them, and leaves them out of COPY if they are ignored.
+                            if (
+                                entryPath === './' ||
+                                entryPath === DOCKER_FILE ||
+                                entryPath === DOCKER_IGNORE_FILE ||
+                                !rules.ignores(entryPath)
+                            ) {
+                                return true
+                            }
+
+                            return (
+                                'isDirectory' in stat &&
+                                stat.isDirectory() &&
+                                exceptions.some((exception) =>
+                                    exception.startsWith(`${entryPath}/`)
+                                )
+                            )
+                        },
                     },
                     ['./']
                 )
