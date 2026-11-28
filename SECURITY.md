@@ -19,3 +19,5 @@ For app token or webhook reports, state what access the attacker starts with, wh
 
 Security issues are high priority and they will be addressed immediately. If you find a security issue, please do not post as a public issue, instead, please email it to us: security at caprover dot com.
 
+CapRover Team
+
