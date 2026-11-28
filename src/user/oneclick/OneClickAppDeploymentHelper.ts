@@ -118,7 +118,7 @@ export default class OneClickAppDeploymentHelper {
         appName: string,
         dockerComposeService: IDockerComposeService,
         capAppName: string,
-        executionSemantics: ComposeExecutionSemantics = 'legacy'
+        executionSemantics: ComposeExecutionSemantics
     ) {
         const self = this
         return Promise.resolve().then(function () {

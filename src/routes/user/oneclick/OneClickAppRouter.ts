@@ -24,9 +24,6 @@ const DEFAULT_ONE_CLICK_BASE_URL = 'https://oneclickapps.caprover.com'
 const PREFERRED_CATALOG_VERSION = 'v5'
 const LEGACY_CATALOG_VERSION = 'v4'
 
-type OneClickCatalogVersion =
-    typeof PREFERRED_CATALOG_VERSION | typeof LEGACY_CATALOG_VERSION
-
 const HEADERS = {} as any
 HEADERS[CaptainConstants.headerCapRoverVersion] =
     CaptainConstants.configs.version
@@ -47,61 +44,23 @@ const STANDARD_CONSUMED_DOCKER_SERVICE_FIELDS = [
     'entrypoint',
 ]
 
-function isCatalogNotFoundError(err: unknown): boolean {
-    return (
-        !!err &&
-        typeof err === 'object' &&
-        'response' in err &&
-        (err as { response?: { status?: number } }).response?.status === 404
-    )
-}
-
-function fetchWithCatalogVersionFallback<T>(
-    buildUrl: (version: OneClickCatalogVersion) => string,
-    request: (url: string) => Promise<T>
-): Promise<{ version: OneClickCatalogVersion; data: T }> {
-    return request(buildUrl(PREFERRED_CATALOG_VERSION))
-        .then(function (data): { version: OneClickCatalogVersion; data: T } {
-            return { version: PREFERRED_CATALOG_VERSION, data }
+function fetchCatalogResource(baseUrl: string, resourcePath: string) {
+    const getVersion = (version: 'v5' | 'v4') => {
+        const url = `${baseUrl}/${version}/${resourcePath}`
+        return axios.get(url, { headers: HEADERS }).then(function (response) {
+            return { version, data: response.data, url }
         })
-        .catch(function (err) {
-            if (!isCatalogNotFoundError(err)) {
-                throw err
-            }
-            return request(buildUrl(LEGACY_CATALOG_VERSION)).then(
-                function (data): { version: OneClickCatalogVersion; data: T } {
-                    return { version: LEGACY_CATALOG_VERSION, data }
-                }
-            )
-        })
-}
+    }
 
-function fetchCatalogAppList(apiBaseUrl: string) {
-    return fetchWithCatalogVersionFallback(
-        (version) => `${apiBaseUrl}/${version}/list`,
-        (url) =>
-            axios.get(url, { headers: HEADERS }).then(function (axiosResponse) {
-                const apps = axiosResponse.data?.oneClickApps
-                if (!Array.isArray(apps)) {
-                    throw new Error(`Invalid app list response from ${url}`)
-                }
-                return apps as any[]
-            })
-    )
-}
-
-function fetchCatalogAppTemplate(baseDomain: string, appName: string) {
-    return fetchWithCatalogVersionFallback(
-        (version) => `${baseDomain}/${version}/apps/${appName}`,
-        (appUrl) => {
-            Logger.d(`retrieving app at: ${appUrl}`)
-            return axios
-                .get(appUrl, { headers: HEADERS })
-                .then(function (responseObject) {
-                    return responseObject.data
-                })
+    return getVersion(PREFERRED_CATALOG_VERSION).catch(function (err: unknown) {
+        if (
+            (err as { response?: { status?: number } })?.response?.status !==
+            404
+        ) {
+            throw err
         }
-    )
+        return getVersion(LEGACY_CATALOG_VERSION)
+    })
 }
 
 interface IOneClickAppIdentifier {
@@ -132,8 +91,12 @@ router.post('/repositories/insert', function (req, res, next) {
                     `Repository URL already exists: ${apiBaseUrl}`
                 )
 
-            return fetchCatalogAppList(apiBaseUrl)
-                .then(function ({ data: apps }) {
+            return fetchCatalogResource(apiBaseUrl, 'list')
+                .then(function ({ data, url }) {
+                    const apps = data?.oneClickApps
+                    if (!Array.isArray(apps)) {
+                        throw new Error(`Invalid app list response from ${url}`)
+                    }
                     if (!apps.length)
                         throw new Error(
                             `No apps were retrieved from ${apiBaseUrl}`
@@ -237,9 +200,15 @@ router.get('/template/list', function (req, res, next) {
             )
 
             urls.forEach((apiBaseUrl) => {
-                const p = fetchCatalogAppList(apiBaseUrl)
-                    .then(function ({ version, data: apps }) {
-                        return apps.map((element) => {
+                const p = fetchCatalogResource(apiBaseUrl, 'list')
+                    .then(function ({ version, data, url }) {
+                        const apps = data?.oneClickApps
+                        if (!Array.isArray(apps)) {
+                            throw new Error(
+                                `Invalid app list response from ${url}`
+                            )
+                        }
+                        return apps.map((element: any) => {
                             const ret: IOneClickAppIdentifier = {
                                 baseUrl: apiBaseUrl,
                                 name: element.name,
@@ -320,11 +289,24 @@ router.get('/template/app', function (req, res, next) {
                 )
             }
 
-            return fetchCatalogAppTemplate(baseDomain, appName).then(function ({
-                data,
-            }) {
-                return data
-            })
+            Logger.d(`retrieving app ${appName} from ${baseDomain}`)
+            return fetchCatalogResource(baseDomain, `apps/${appName}`).then(
+                function ({ data, url }) {
+                    if (
+                        !data ||
+                        typeof data !== 'object' ||
+                        Array.isArray(data) ||
+                        !data.services ||
+                        typeof data.services !== 'object' ||
+                        Array.isArray(data.services)
+                    ) {
+                        throw new Error(
+                            `Invalid app template response from ${url}`
+                        )
+                    }
+                    return data
+                }
+            )
         })
         .then(function (appTemplate) {
             const baseApi = new BaseApi(

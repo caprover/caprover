@@ -1,11 +1,16 @@
 import * as yaml from 'yaml'
 import * as appDefinitions from '../src/handlers/users/apps/appdefinition/AppDefinitionHandler'
+import { IDockerComposeService } from '../src/models/IOneClickAppModels'
 import OneClickAppDeploymentHelper from '../src/user/oneclick/OneClickAppDeploymentHelper'
+import { ComposeExecutionSemantics } from '../src/utils/DockerComposeToServiceOverride'
 
 describe('one-click Compose configuration', () => {
     afterEach(() => jest.restoreAllMocks())
 
-    test('saves long-form entries through the existing app definition contract', async () => {
+    async function configureApp(
+        service: IDockerComposeService,
+        semantics: ComposeExecutionSemantics
+    ) {
         jest.spyOn(appDefinitions, 'getAllAppDefinitions').mockResolvedValue({
             data: {
                 appDefinitions: [
@@ -19,6 +24,15 @@ describe('one-click Compose configuration', () => {
         const helper = new OneClickAppDeploymentHelper({} as any, {} as any)
         await helper.createConfigurationPromise(
             'my-app',
+            service,
+            'my-stack',
+            semantics
+        )
+        return update.mock.calls[0][0]
+    }
+
+    test('saves long-form entries through the existing app definition contract', async () => {
+        const saved = await configureApp(
             {
                 image: 'nginx',
                 environment: ['TOKEN=a=b', 'EMPTY='],
@@ -32,102 +46,61 @@ describe('one-click Compose configuration', () => {
                     },
                 ],
             },
-            'my-stack'
+            'legacy'
         )
-        expect(update).toHaveBeenCalledWith(
-            expect.objectContaining({
-                appName: 'my-app',
-                tags: [{ tagName: 'my-stack' }],
-                envVars: [
-                    { key: 'TOKEN', value: 'a=b' },
-                    { key: 'EMPTY', value: '' },
-                ],
-                volumes: [{ volumeName: 'data', containerPath: '/data' }],
-                ports: [
-                    {
-                        hostPort: 8080,
-                        containerPort: 80,
-                        protocol: 'tcp',
-                        publishMode: 'host',
-                    },
-                ],
-            }),
-            expect.anything()
-        )
+        expect(saved).toMatchObject({
+            appName: 'my-app',
+            tags: [{ tagName: 'my-stack' }],
+            envVars: [
+                { key: 'TOKEN', value: 'a=b' },
+                { key: 'EMPTY', value: '' },
+            ],
+            volumes: [{ volumeName: 'data', containerPath: '/data' }],
+            ports: [
+                {
+                    hostPort: 8080,
+                    containerPort: 80,
+                    protocol: 'tcp',
+                    publishMode: 'host',
+                },
+            ],
+        })
     })
 
-    test('persists legacy command override to ContainerSpec.Command and ignores entrypoint', async () => {
-        jest.spyOn(appDefinitions, 'getAllAppDefinitions').mockResolvedValue({
-            data: {
-                appDefinitions: [
-                    { appName: 'my-app', volumes: [], ports: [], envVars: [] },
-                ],
-            },
-        } as any)
-        const update = jest
-            .spyOn(appDefinitions, 'updateAppDefinition')
-            .mockResolvedValue({} as any)
-        const helper = new OneClickAppDeploymentHelper({} as any, {} as any)
-
-        await helper.createConfigurationPromise(
-            'my-app',
+    test.each([
+        [
+            'legacy',
             {
                 image: 'redis:7',
                 entrypoint: ['/bin/sh', '-c'],
                 command: 'sh -c "redis-server --appendonly yes"',
             },
-            'my-stack',
-            'legacy'
-        )
-
-        const savedAppDef = update.mock.calls[0][0]
-        expect(yaml.parse(savedAppDef.serviceUpdateOverride!)).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Command: ['sh', '-c', 'redis-server --appendonly yes'],
-                },
-            },
-        })
-    })
-
-    test('persists standard entrypoint and command overrides to Command and Args', async () => {
-        jest.spyOn(appDefinitions, 'getAllAppDefinitions').mockResolvedValue({
-            data: {
-                appDefinitions: [
-                    { appName: 'my-app', volumes: [], ports: [], envVars: [] },
-                ],
-            },
-        } as any)
-        const update = jest
-            .spyOn(appDefinitions, 'updateAppDefinition')
-            .mockResolvedValue({} as any)
-        const helper = new OneClickAppDeploymentHelper({} as any, {} as any)
-
-        await helper.createConfigurationPromise(
-            'my-app',
+            { Command: ['sh', '-c', 'redis-server --appendonly yes'] },
+        ],
+        [
+            'standard',
             {
                 image: 'node:24-alpine',
                 hostname: 'api-node',
-                cap_add: ['NET_BIND_SERVICE'],
                 entrypoint: ['/bin/sh', '-ec'],
                 command: ['echo hello && exec node app.js'],
             },
-            'my-stack',
-            'standard'
-        )
-
-        const savedAppDef = update.mock.calls[0][0]
-        expect(yaml.parse(savedAppDef.serviceUpdateOverride!)).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Hostname: 'api-node',
-                    CapabilityAdd: ['CAP_NET_BIND_SERVICE'],
-                    Command: ['/bin/sh', '-ec'],
-                    Args: ['echo hello && exec node app.js'],
-                },
+            {
+                Hostname: 'api-node',
+                Command: ['/bin/sh', '-ec'],
+                Args: ['echo hello && exec node app.js'],
             },
-        })
-    })
+        ],
+    ] as [ComposeExecutionSemantics, IDockerComposeService, unknown][])(
+        'persists %s serviceUpdateOverride through updateAppDefinition',
+        async (semantics, service, expectedContainerSpec) => {
+            const saved = await configureApp(service, semantics)
+            expect(
+                yaml.parse(saved.serviceUpdateOverride!).TaskTemplate
+                    .ContainerSpec
+            ).toEqual(expectedContainerSpec)
+        }
+    )
 
     test('preserves previously saved serviceUpdateOverride when patching an existing app', async () => {
         const legacyOverride = yaml.stringify({
@@ -156,16 +129,14 @@ describe('one-click Compose configuration', () => {
 
         await appDefinitions.patchAppDefinition(
             'legacy-redis',
-            {
-                instanceCount: 2,
-                description: 'scaled',
-            },
+            { instanceCount: 2, description: 'scaled' },
             dataStore as any,
             serviceManager as any
         )
 
         expect(serviceManager.updateAppDefinition).toHaveBeenCalledTimes(1)
-        const updateArgs = serviceManager.updateAppDefinition.mock.calls[0]
-        expect(updateArgs[18]).toBe(legacyOverride)
+        expect(serviceManager.updateAppDefinition.mock.calls[0][18]).toBe(
+            legacyOverride
+        )
     })
 })

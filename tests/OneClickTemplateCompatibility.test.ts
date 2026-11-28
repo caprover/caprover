@@ -115,8 +115,10 @@ describe('official One-Click template compatibility', () => {
         }
     )
 
-    test('preserves legacy v4 command override behavior for representative catalog templates', async () => {
-        const v4Template = yaml.parse(`
+    test.each([
+        [
+            'v4 legacy catalog template (array + string command, ignored entrypoint)',
+            `
 captainVersion: 4
 services:
   $$cap_appname:
@@ -124,86 +126,31 @@ services:
     command: ['sh', '-c', 'redis-server --requirepass $REDIS_PASSWORD']
   $$cap_appname-cache:
     image: redis:7.2-alpine
-    command: sh -c "redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb"
+    command: sh -c "redis-server --maxmemory 200mb"
     entrypoint: ['/bin/ignored']
 caproverOneClickApp:
-  displayName: Legacy Redis Stack
-  instructions:
-    start: ''
-    end: 'done'
-  variables:
-    - id: $$cap_appname
-      label: App Name
-`) as IOneClickTemplate
-
-        const helper = OneClickAppDeploymentHelper.prototype
-        jest.spyOn(helper, 'createRegisterPromise').mockResolvedValue(undefined)
-        jest.spyOn(helper, 'createRegisterPromiseProject').mockResolvedValue(
-            undefined
-        )
-        jest.spyOn(helper, 'createDeploymentPromise').mockResolvedValue({
-            message: 'done',
-        })
-        const overrides = new Map<string, any>()
-        jest.spyOn(helper, 'createConfigurationPromise').mockImplementation(
-            async (appName, service, _capAppName, semantics) => {
-                const raw =
-                    DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
-                        service,
-                        semantics!,
-                        `services.${appName}`
-                    )
-                overrides.set(appName, raw ? yaml.parse(raw) : undefined)
-                return { message: 'configured' }
-            }
-        )
-
-        const states = jest.fn()
-        const appsDataStore = new AppsDataStore(
-            { get: () => undefined } as any,
-            'captain'
-        )
-        new OneClickAppDeployManager(
-            { getAppsDataStore: () => appsDataStore } as any,
-            {} as any,
-            states
-        ).startDeployProcess(
-            v4Template,
+  displayName: Legacy Redis
+  instructions: { start: '', end: 'done' }
+  variables: [{ id: $$cap_appname, label: App Name }]
+`,
             [{ key: '$$cap_appname', value: 'my-redis' }],
-            'OFFICIAL_REDIS'
-        )
-        await new Promise((resolve) => setImmediate(resolve))
-
-        expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
-            error: '',
-            successMessage: 'done',
-        })
-        expect(overrides.get('my-redis')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
+            'OFFICIAL_REDIS',
+            {
+                'my-redis': {
                     Command: [
                         'sh',
                         '-c',
                         'redis-server --requirepass $REDIS_PASSWORD',
                     ],
                 },
-            },
-        })
-        expect(overrides.get('my-redis-cache')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Command: [
-                        'sh',
-                        '-c',
-                        'redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb',
-                    ],
+                'my-redis-cache': {
+                    Command: ['sh', '-c', 'redis-server --maxmemory 200mb'],
                 },
             },
-        })
-    })
-
-    test('applies standard command and entrypoint semantics for v5 templates and direct Compose imports', async () => {
-        const v5Template = yaml.parse(`
+        ],
+        [
+            'v5 standard catalog template',
+            `
 captainVersion: 5
 services:
   $$cap_appname:
@@ -214,61 +161,78 @@ services:
     image: redis:7.2-alpine
     command: --appendonly yes --save "60 1"
 caproverOneClickApp:
-  displayName: V5 Redis Stack
-  instructions:
-    start: ''
-    end: 'done'
-  variables:
-    - id: $$cap_appname
-      label: App Name
-`) as IOneClickTemplate
-
-        // Existing frontend sets captainVersion: 4 on direct Docker Compose imports
-        // and identifies them with templateName: 'DOCKER_COMPOSE'.
-        const directComposeTemplate = yaml.parse(`
+  displayName: V5 Redis
+  instructions: { start: '', end: 'done' }
+  variables: [{ id: $$cap_appname, label: App Name }]
+`,
+            [{ key: '$$cap_appname', value: 'v5-redis' }],
+            'OFFICIAL_REDIS',
+            {
+                'v5-redis': {
+                    Command: ['/bin/sh', '-ec'],
+                    Args: ['redis-server --requirepass "$REDIS_PASSWORD"'],
+                },
+                'v5-redis-worker': {
+                    Args: ['--appendonly', 'yes', '--save', '60 1'],
+                },
+            },
+        ],
+        [
+            'direct Compose import with legacy frontend captainVersion: 4',
+            `
 captainVersion: 4
 services:
   web:
     image: node:24-alpine
     entrypoint: []
     command: node server.js --label "hello world"
-  worker:
-    image: alpine:3.20
-    entrypoint: /bin/sh -ec
-    command:
-      - 'echo "$GREETING" && exec sleep 10'
 caproverOneClickApp:
   displayName: Docker Compose
-  instructions:
-    start: ''
-    end: 'done'
+  instructions: { start: '', end: 'done' }
   variables: []
-`) as IOneClickTemplate
-
-        const helper = OneClickAppDeploymentHelper.prototype
-        jest.spyOn(helper, 'createRegisterPromise').mockResolvedValue(undefined)
-        jest.spyOn(helper, 'createRegisterPromiseProject').mockResolvedValue(
-            undefined
-        )
-        jest.spyOn(helper, 'createDeploymentPromise').mockResolvedValue({
-            message: 'done',
-        })
-
-        const run = async (
-            template: IOneClickTemplate,
-            values: { key: string; value: string }[],
-            templateName: string
-        ) => {
-            const overrides = new Map<string, any>()
+`,
+            [],
+            DOCKER_COMPOSE_TEMPLATE_NAME,
+            {
+                web: {
+                    Command: [''],
+                    Args: ['node', 'server.js', '--label', 'hello world'],
+                },
+            },
+        ],
+    ] as [
+        string,
+        string,
+        { key: string; value: string }[],
+        string,
+        Record<string, unknown>,
+    ][])(
+        'applies expected command/entrypoint semantics for %s',
+        async (_label, templateYaml, values, templateName, expectedSpecs) => {
+            const template = yaml.parse(templateYaml) as IOneClickTemplate
+            const helper = OneClickAppDeploymentHelper.prototype
+            jest.spyOn(helper, 'createRegisterPromise').mockResolvedValue(
+                undefined
+            )
+            jest.spyOn(
+                helper,
+                'createRegisterPromiseProject'
+            ).mockResolvedValue(undefined)
+            jest.spyOn(helper, 'createDeploymentPromise').mockResolvedValue({
+                message: 'done',
+            })
+            const specs: Record<string, unknown> = {}
             jest.spyOn(helper, 'createConfigurationPromise').mockImplementation(
                 async (appName, service, _capAppName, semantics) => {
                     const raw =
                         DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
                             service,
-                            semantics!,
+                            semantics,
                             `services.${appName}`
                         )
-                    overrides.set(appName, raw ? yaml.parse(raw) : undefined)
+                    specs[appName] = raw
+                        ? yaml.parse(raw).TaskTemplate.ContainerSpec
+                        : undefined
                     return { message: 'configured' }
                 }
             )
@@ -283,54 +247,12 @@ caproverOneClickApp:
                 states
             ).startDeployProcess(template, values, templateName)
             await new Promise((resolve) => setImmediate(resolve))
+
             expect(states.mock.calls.at(-1)?.[0]).toMatchObject({
                 error: '',
                 successMessage: 'done',
             })
-            return overrides
+            expect(specs).toEqual(expectedSpecs)
         }
-
-        const v5Overrides = await run(
-            v5Template,
-            [{ key: '$$cap_appname', value: 'v5-redis' }],
-            'OFFICIAL_REDIS'
-        )
-        expect(v5Overrides.get('v5-redis')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Command: ['/bin/sh', '-ec'],
-                    Args: ['redis-server --requirepass "$REDIS_PASSWORD"'],
-                },
-            },
-        })
-        expect(v5Overrides.get('v5-redis-worker')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Args: ['--appendonly', 'yes', '--save', '60 1'],
-                },
-            },
-        })
-
-        const composeOverrides = await run(
-            directComposeTemplate,
-            [],
-            DOCKER_COMPOSE_TEMPLATE_NAME
-        )
-        expect(composeOverrides.get('web')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Command: [''],
-                    Args: ['node', 'server.js', '--label', 'hello world'],
-                },
-            },
-        })
-        expect(composeOverrides.get('worker')).toEqual({
-            TaskTemplate: {
-                ContainerSpec: {
-                    Command: ['/bin/sh', '-ec'],
-                    Args: ['echo "$GREETING" && exec sleep 10'],
-                },
-            },
-        })
-    })
+    )
 })

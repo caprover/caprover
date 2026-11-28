@@ -525,28 +525,14 @@ describe('OneClickAppDeployManager', () => {
             }
         )
 
-        test('rejects unsupported future captainVersion before creating resources', () => {
-            const onDeploymentStateChanged = jest.fn()
-            const futureTemplate: IOneClickTemplate = {
-                ...JSON.parse(JSON.stringify(template)),
-                captainVersion: 6,
-            }
-            new OneClickAppDeployManager(
-                {} as any,
-                {} as any,
-                onDeploymentStateChanged
-            ).startDeployProcess(futureTemplate, [
-                { key: ONE_CLICK_APP_NAME_VAR_NAME, value: 'my-app' },
-            ])
-            expect(onDeploymentStateChanged).toHaveBeenCalledWith({
-                steps: ['Parsing the template'],
-                error: 'Unsupported captainVersion: 6. Supported versions are up to 5.',
-                currentStep: 0,
-            })
-            creates.forEach((create) => expect(create).not.toHaveBeenCalled())
-        })
-
         test.each([
+            [
+                'unsupported future captainVersion',
+                6,
+                undefined,
+                {},
+                'Unsupported captainVersion: 6. Supported versions are up to 5.',
+            ],
             [
                 'malformed command quoting in v5',
                 5,
@@ -567,6 +553,13 @@ describe('OneClickAppDeployManager', () => {
                 'TEMPLATE_ONE_CLICK',
                 { command: ['echo', 123] },
                 'services.my-app-worker.command[1]: expected a string',
+            ],
+            [
+                'NUL byte in standard command',
+                5,
+                'TEMPLATE_ONE_CLICK',
+                { command: ['echo', 'bad\0arg'] },
+                'services.my-app-worker.command[1]: argument cannot contain NUL characters',
             ],
             [
                 'unsupported empty command without entrypoint in direct Docker Compose',

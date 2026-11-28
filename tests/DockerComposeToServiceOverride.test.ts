@@ -1,13 +1,14 @@
 import * as yaml from 'yaml'
 import { IDockerComposeService } from '../src/models/IOneClickAppModels'
 import DockerComposeToServiceOverride, {
+    ComposeExecutionSemantics,
     DOCKER_COMPOSE_TEMPLATE_NAME,
     resolveComposeExecutionSemantics,
 } from '../src/utils/DockerComposeToServiceOverride'
 
-function parseOverride(
+function parseContainerSpec(
     service: IDockerComposeService,
-    semantics: 'legacy' | 'standard',
+    semantics: ComposeExecutionSemantics,
     path = 'services.app'
 ) {
     const raw =
@@ -16,7 +17,7 @@ function parseOverride(
             semantics,
             path
         )
-    return raw ? yaml.parse(raw) : undefined
+    return raw ? yaml.parse(raw).TaskTemplate.ContainerSpec : undefined
 }
 
 describe('resolveComposeExecutionSemantics', () => {
@@ -64,152 +65,73 @@ describe('resolveComposeExecutionSemantics', () => {
 
 describe('DockerComposeToServiceOverride', () => {
     describe('legacy semantics', () => {
-        test('maps string command to ContainerSpec.Command with legacy regex parser', () => {
-            expect(
-                parseOverride(
-                    {
-                        command:
-                            'sh -c "redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb"',
-                    },
-                    'legacy'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: [
-                            'sh',
-                            '-c',
-                            'redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb',
-                        ],
-                    },
+        test.each([
+            [
+                'string command (legacy regex parser)',
+                {
+                    command:
+                        'sh -c "redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb"',
                 },
-            })
-        })
-
-        test('maps array command to ContainerSpec.Command', () => {
-            expect(
-                parseOverride(
-                    {
-                        command: [
-                            'sh',
-                            '-c',
-                            'redis-server --requirepass $REDIS_PASSWORD',
-                        ],
-                    },
-                    'legacy'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: [
-                            'sh',
-                            '-c',
-                            'redis-server --requirepass $REDIS_PASSWORD',
-                        ],
-                    },
+                {
+                    Command: [
+                        'sh',
+                        '-c',
+                        'redis-server --maxmemory-policy allkeys-lru --maxmemory 200mb',
+                    ],
                 },
-            })
-        })
-
-        test('ignores entrypoint under legacy semantics', () => {
-            expect(
-                parseOverride(
-                    {
-                        entrypoint: ['/bin/sh', '-c'],
-                        command: ['echo', 'legacy'],
-                    },
-                    'legacy'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['echo', 'legacy'],
-                    },
+            ],
+            [
+                'array command',
+                {
+                    command: [
+                        'sh',
+                        '-c',
+                        'redis-server --requirepass $REDIS_PASSWORD',
+                    ],
                 },
-            })
-
-            expect(
-                parseOverride({ entrypoint: ['/bin/sh', '-c'] }, 'legacy')
-            ).toBeUndefined()
-        })
-
-        test('preserves legacy empty and omitted value handling', () => {
-            expect(parseOverride({}, 'legacy')).toBeUndefined()
-            expect(parseOverride({ command: '' }, 'legacy')).toBeUndefined()
-            expect(parseOverride({ command: null }, 'legacy')).toBeUndefined()
-            expect(parseOverride({ command: [] }, 'legacy')).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: [],
-                    },
+                {
+                    Command: [
+                        'sh',
+                        '-c',
+                        'redis-server --requirepass $REDIS_PASSWORD',
+                    ],
                 },
-            })
-        })
+            ],
+            [
+                'entrypoint ignored alongside command',
+                { entrypoint: ['/bin/sh', '-c'], command: ['echo', 'legacy'] },
+                { Command: ['echo', 'legacy'] },
+            ],
+            ['entrypoint only ignored', { entrypoint: ['/bin/sh'] }, undefined],
+            ['omitted fields', {}, undefined],
+            ['empty string command', { command: '' }, undefined],
+            ['null command', { command: null }, undefined],
+            ['empty array command', { command: [] }, { Command: [] }],
+        ] as [string, IDockerComposeService, unknown][])(
+            '%s',
+            (_label, service, expected) => {
+                expect(parseContainerSpec(service, 'legacy')).toEqual(expected)
+            }
+        )
     })
 
     describe('standard semantics', () => {
-        test('maps command only to ContainerSpec.Args', () => {
-            expect(
-                parseOverride(
-                    { command: ['redis-server', '--appendonly', 'yes'] },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Args: ['redis-server', '--appendonly', 'yes'],
-                    },
-                },
-            })
-
-            expect(
-                parseOverride(
-                    { command: 'redis-server --appendonly yes' },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Args: ['redis-server', '--appendonly', 'yes'],
-                    },
-                },
-            })
-        })
-
-        test('maps entrypoint only to ContainerSpec.Command', () => {
-            expect(
-                parseOverride({ entrypoint: ['/bin/sh', '-ec'] }, 'standard')
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/bin/sh', '-ec'],
-                    },
-                },
-            })
-
-            expect(
-                parseOverride({ entrypoint: '/bin/sh -ec' }, 'standard')
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/bin/sh', '-ec'],
-                    },
-                },
-            })
-        })
-
-        test('maps both entrypoint and command to Command and Args', () => {
-            expect(
-                parseOverride(
+        test('serializes full Swarm TaskTemplate.ContainerSpec alongside hostname and cap_add', () => {
+            const raw =
+                DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
                     {
+                        hostname: ' worker-1 ',
+                        cap_add: ['net_admin', 'CAP_SYS_TIME'],
                         entrypoint: ['/bin/sh', '-ec'],
                         command: ['echo hello && exec node app.js'],
                     },
                     'standard'
                 )
-            ).toEqual({
+            expect(yaml.parse(raw!)).toEqual({
                 TaskTemplate: {
                     ContainerSpec: {
+                        Hostname: 'worker-1',
+                        CapabilityAdd: ['CAP_NET_ADMIN', 'CAP_SYS_TIME'],
                         Command: ['/bin/sh', '-ec'],
                         Args: ['echo hello && exec node app.js'],
                     },
@@ -217,75 +139,183 @@ describe('DockerComposeToServiceOverride', () => {
             })
         })
 
-        test('preserves image defaults when fields are omitted or null', () => {
-            expect(parseOverride({}, 'standard')).toBeUndefined()
-            expect(
-                parseOverride({ entrypoint: null, command: null }, 'standard')
-            ).toBeUndefined()
-            expect(
-                parseOverride(
-                    { entrypoint: null, command: ['--port', '8080'] },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Args: ['--port', '8080'],
-                    },
+        test.each([
+            ['omitted fields', {}, undefined],
+            ['null fields', { entrypoint: null, command: null }, undefined],
+            [
+                'command array only',
+                { command: ['redis-server', '--appendonly', 'yes'] },
+                { Args: ['redis-server', '--appendonly', 'yes'] },
+            ],
+            [
+                'command string only',
+                { command: 'redis-server --appendonly yes' },
+                { Args: ['redis-server', '--appendonly', 'yes'] },
+            ],
+            [
+                'null entrypoint + command',
+                { entrypoint: null, command: ['--port', '8080'] },
+                { Args: ['--port', '8080'] },
+            ],
+            [
+                'entrypoint array only',
+                { entrypoint: ['/bin/sh', '-ec'] },
+                { Command: ['/bin/sh', '-ec'] },
+            ],
+            [
+                'entrypoint string only',
+                { entrypoint: '/bin/sh -ec' },
+                { Command: ['/bin/sh', '-ec'] },
+            ],
+            [
+                'entrypoint + null command',
+                { entrypoint: ['/usr/bin/app'], command: null },
+                { Command: ['/usr/bin/app'] },
+            ],
+            [
+                'entrypoint + empty array command suppresses image CMD',
+                { entrypoint: ['/usr/bin/app'], command: [] },
+                { Command: ['/usr/bin/app'] },
+            ],
+            [
+                'entrypoint + empty string command suppresses image CMD',
+                { entrypoint: ['/usr/bin/app'], command: '' },
+                { Command: ['/usr/bin/app'] },
+            ],
+            [
+                'entrypoint + whitespace command suppresses image CMD',
+                { entrypoint: ['/usr/bin/app'], command: '   ' },
+                { Command: ['/usr/bin/app'] },
+            ],
+            [
+                'clear entrypoint ([]) + command uses Command: [""]',
+                { entrypoint: [], command: ['/bin/app', '--serve'] },
+                { Command: [''], Args: ['/bin/app', '--serve'] },
+            ],
+            [
+                'clear entrypoint ("") + command uses Command: [""]',
+                { entrypoint: '', command: '/bin/app --serve' },
+                { Command: [''], Args: ['/bin/app', '--serve'] },
+            ],
+            [
+                'clear entrypoint ([""]) + command uses Command: [""]',
+                { entrypoint: [''], command: ['/bin/app'] },
+                { Command: [''], Args: ['/bin/app'] },
+            ],
+            [
+                'preserves single empty string arg in command array and quoted string',
+                { entrypoint: ['/usr/bin/probe'], command: [''] },
+                { Command: ['/usr/bin/probe'], Args: [''] },
+            ],
+            [
+                'preserves empty quoted string command',
+                { entrypoint: ['/usr/bin/probe'], command: '""' },
+                { Command: ['/usr/bin/probe'], Args: [''] },
+            ],
+            [
+                'preserves exact boundaries in array inputs',
+                {
+                    entrypoint: ['/bin/sh', '-c'],
+                    command: ['  spaced  arg  ', '', '$HOME', 'a && b'],
                 },
-            })
-            expect(
-                parseOverride(
-                    { entrypoint: ['/usr/bin/app'], command: null },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/usr/bin/app'],
-                    },
+                {
+                    Command: ['/bin/sh', '-c'],
+                    Args: ['  spaced  arg  ', '', '$HOME', 'a && b'],
                 },
-            })
-        })
-
-        test('clears image default CMD when entrypoint is set and command is empty', () => {
-            for (const emptyCommand of [[], '', '   ']) {
-                expect(
-                    parseOverride(
-                        {
-                            entrypoint: ['/usr/bin/app'],
-                            command: emptyCommand,
-                        },
-                        'standard'
-                    )
-                ).toEqual({
-                    TaskTemplate: {
-                        ContainerSpec: {
-                            Command: ['/usr/bin/app'],
-                        },
-                    },
-                })
+            ],
+            [
+                'handles quotes, escapes, empty args, adjacent segments',
+                {
+                    command:
+                        'cmd "hello world" \'single\' foo\\ bar baz\\"qux \\\'q\\\' "" \'\' --flag="a b" pre"mid"\'end\'',
+                },
+                {
+                    Args: [
+                        'cmd',
+                        'hello world',
+                        'single',
+                        'foo bar',
+                        'baz"qux',
+                        "'q'",
+                        '',
+                        '',
+                        '--flag=a b',
+                        'premidend',
+                    ],
+                },
+            ],
+            [
+                'handles multiline scripts and POSIX double-quote escapes',
+                {
+                    command:
+                        'sh -ec "set -e\necho \\"line 1\\"\nprintf \'a\\nb\'\nexec node app.js"',
+                },
+                {
+                    Args: [
+                        'sh',
+                        '-ec',
+                        'set -e\necho "line 1"\nprintf \'a\\nb\'\nexec node app.js',
+                    ],
+                },
+            ],
+            [
+                'handles backslash line continuations',
+                { command: 'cmd foo\\\nbar "baz\\\r\nqux"' },
+                { Args: ['cmd', 'foobar', 'bazqux'] },
+            ],
+        ] as [string, IDockerComposeService, unknown][])(
+            '%s',
+            (_label, service, expected) => {
+                expect(parseContainerSpec(service, 'standard')).toEqual(
+                    expected
+                )
             }
-        })
+        )
 
-        test('clears image default ENTRYPOINT via Command: [""] when non-empty command is provided', () => {
-            for (const emptyEntrypoint of [[], '', '   ', ['']]) {
+        test('preserves shell operators and variable references without host expansion', () => {
+            process.env.CAPROVER_COMMAND_TEST_SECRET = 'host-secret'
+            try {
                 expect(
-                    parseOverride(
+                    parseContainerSpec(
                         {
-                            entrypoint: emptyEntrypoint,
-                            command: ['/bin/app', '--serve'],
+                            command:
+                                'sh -c "echo $CAPROVER_COMMAND_TEST_SECRET && echo ${OTHER} | cat > /tmp/out; true"',
                         },
                         'standard'
                     )
                 ).toEqual({
-                    TaskTemplate: {
-                        ContainerSpec: {
-                            Command: [''],
-                            Args: ['/bin/app', '--serve'],
-                        },
-                    },
+                    Args: [
+                        'sh',
+                        '-c',
+                        'echo $CAPROVER_COMMAND_TEST_SECRET && echo ${OTHER} | cat > /tmp/out; true',
+                    ],
                 })
+                expect(
+                    parseContainerSpec(
+                        {
+                            command:
+                                'echo a && echo b | cat > /tmp/x ; echo $CAPROVER_COMMAND_TEST_SECRET',
+                        },
+                        'standard'
+                    )
+                ).toEqual({
+                    Args: [
+                        'echo',
+                        'a',
+                        '&&',
+                        'echo',
+                        'b',
+                        '|',
+                        'cat',
+                        '>',
+                        '/tmp/x',
+                        ';',
+                        'echo',
+                        '$CAPROVER_COMMAND_TEST_SECRET',
+                    ],
+                })
+            } finally {
+                delete process.env.CAPROVER_COMMAND_TEST_SECRET
             }
         })
 
@@ -322,157 +352,6 @@ describe('DockerComposeToServiceOverride', () => {
                 { entrypoint: '', command: '' },
                 'services.my-app.entrypoint: clearing both entrypoint and command leaves no command to execute',
             ],
-        ])(
-            'rejects unsupported empty-value combination %j',
-            (service, expectedError) => {
-                expect(() =>
-                    parseOverride(service, 'standard', 'services.my-app')
-                ).toThrow(expectedError)
-            }
-        )
-
-        test('handles quoted, escaped, empty, adjacent, and multiline string arguments', () => {
-            expect(
-                parseOverride(
-                    {
-                        command:
-                            "cmd \"hello world\" 'single quoted' foo\\ bar baz\\\"qux \\'single\\'",
-                    },
-                    'standard'
-                )?.TaskTemplate.ContainerSpec.Args
-            ).toEqual([
-                'cmd',
-                'hello world',
-                'single quoted',
-                'foo bar',
-                'baz"qux',
-                "'single'",
-            ])
-
-            expect(
-                parseOverride(
-                    {
-                        command: 'cmd "" \'\' --flag="a b" pre"mid"\'end\'',
-                    },
-                    'standard'
-                )?.TaskTemplate.ContainerSpec.Args
-            ).toEqual(['cmd', '', '', '--flag=a b', 'premidend'])
-
-            expect(
-                parseOverride(
-                    {
-                        command:
-                            'sh -ec "set -e\necho \\"line 1\\"\nprintf \'a\\nb\'\nexec node app.js"',
-                    },
-                    'standard'
-                )?.TaskTemplate.ContainerSpec.Args
-            ).toEqual([
-                'sh',
-                '-ec',
-                'set -e\necho "line 1"\nprintf \'a\\nb\'\nexec node app.js',
-            ])
-        })
-
-        test('preserves empty string arguments in array form and single quotes', () => {
-            expect(
-                parseOverride(
-                    {
-                        entrypoint: ['/usr/bin/probe'],
-                        command: [''],
-                    },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/usr/bin/probe'],
-                        Args: [''],
-                    },
-                },
-            })
-
-            expect(
-                parseOverride(
-                    {
-                        entrypoint: ['/usr/bin/probe'],
-                        command: '""',
-                    },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/usr/bin/probe'],
-                        Args: [''],
-                    },
-                },
-            })
-        })
-
-        test('preserves shell operators and variable references without host expansion', () => {
-            process.env.CAPROVER_COMMAND_TEST_SECRET = 'host-secret'
-            try {
-                expect(
-                    parseOverride(
-                        {
-                            command:
-                                'sh -c "echo $CAPROVER_COMMAND_TEST_SECRET && echo ${OTHER} | cat > /tmp/out; true"',
-                        },
-                        'standard'
-                    )?.TaskTemplate.ContainerSpec.Args
-                ).toEqual([
-                    'sh',
-                    '-c',
-                    'echo $CAPROVER_COMMAND_TEST_SECRET && echo ${OTHER} | cat > /tmp/out; true',
-                ])
-
-                expect(
-                    parseOverride(
-                        {
-                            command:
-                                'echo a && echo b | cat > /tmp/x ; echo $CAPROVER_COMMAND_TEST_SECRET',
-                        },
-                        'standard'
-                    )?.TaskTemplate.ContainerSpec.Args
-                ).toEqual([
-                    'echo',
-                    'a',
-                    '&&',
-                    'echo',
-                    'b',
-                    '|',
-                    'cat',
-                    '>',
-                    '/tmp/x',
-                    ';',
-                    'echo',
-                    '$CAPROVER_COMMAND_TEST_SECRET',
-                ])
-            } finally {
-                delete process.env.CAPROVER_COMMAND_TEST_SECRET
-            }
-        })
-
-        test('preserves exact argument boundaries for array-form inputs', () => {
-            expect(
-                parseOverride(
-                    {
-                        entrypoint: ['/bin/sh', '-c'],
-                        command: ['  spaced  arg  ', '', '$HOME', 'a && b'],
-                    },
-                    'standard'
-                )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Command: ['/bin/sh', '-c'],
-                        Args: ['  spaced  arg  ', '', '$HOME', 'a && b'],
-                    },
-                },
-            })
-        })
-
-        test.each([
             [
                 { entrypoint: 123 },
                 'services.my-app.entrypoint: expected a string or an array of strings',
@@ -509,40 +388,22 @@ describe('DockerComposeToServiceOverride', () => {
                 { command: 'echo "trailing\\' },
                 'services.my-app.command: unterminated double quote',
             ],
-        ])(
-            'rejects invalid syntax or types: %j',
-            (service, expectedMessage) => {
-                expect(() =>
-                    parseOverride(
-                        service as unknown as IDockerComposeService,
-                        'standard',
-                        'services.my-app'
-                    )
-                ).toThrow(expectedMessage)
-            }
-        )
-
-        test('coexists with hostname and cap_add overrides', () => {
-            expect(
-                parseOverride(
-                    {
-                        hostname: ' worker-1 ',
-                        cap_add: ['net_admin', 'CAP_SYS_TIME'],
-                        entrypoint: ['/bin/sh', '-ec'],
-                        command: ['exec app'],
-                    },
-                    'standard'
+            [
+                { command: 'echo bad\0arg' },
+                'services.my-app.command: argument cannot contain NUL characters',
+            ],
+            [
+                { entrypoint: ['/bin/sh', '-c\0'] },
+                'services.my-app.entrypoint[1]: argument cannot contain NUL characters',
+            ],
+        ])('rejects invalid input %j', (service, expectedError) => {
+            expect(() =>
+                parseContainerSpec(
+                    service as unknown as IDockerComposeService,
+                    'standard',
+                    'services.my-app'
                 )
-            ).toEqual({
-                TaskTemplate: {
-                    ContainerSpec: {
-                        Hostname: 'worker-1',
-                        CapabilityAdd: ['CAP_NET_ADMIN', 'CAP_SYS_TIME'],
-                        Command: ['/bin/sh', '-ec'],
-                        Args: ['exec app'],
-                    },
-                },
-            })
+            ).toThrow(expectedError)
         })
     })
 })

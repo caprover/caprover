@@ -6,13 +6,7 @@ export type ComposeExecutionSemantics = 'legacy' | 'standard'
 
 export const DOCKER_COMPOSE_TEMPLATE_NAME = 'DOCKER_COMPOSE'
 
-const MAX_SUPPORTED_CAPTAIN_VERSION = 5
-const STANDARD_SEMANTICS_MIN_CAPTAIN_VERSION = 5
-
-type ParsedComposeCommandField =
-    | { kind: 'inherit' }
-    | { kind: 'clear' }
-    | { kind: 'values'; values: string[] }
+const STANDARD_CAPTAIN_VERSION = 5
 
 export function resolveComposeExecutionSemantics(
     captainVersion: unknown,
@@ -39,21 +33,16 @@ export function resolveComposeExecutionSemantics(
     if (
         !Number.isInteger(parsedVersion) ||
         parsedVersion < 1 ||
-        parsedVersion > MAX_SUPPORTED_CAPTAIN_VERSION
+        parsedVersion > STANDARD_CAPTAIN_VERSION
     ) {
         throw new Error(
-            `Unsupported captainVersion: ${captainVersion}. Supported versions are up to ${MAX_SUPPORTED_CAPTAIN_VERSION}.`
+            `Unsupported captainVersion: ${captainVersion}. Supported versions are up to ${STANDARD_CAPTAIN_VERSION}.`
         )
     }
 
-    if (
-        parsedVersion >= STANDARD_SEMANTICS_MIN_CAPTAIN_VERSION ||
-        isDirectCompose
-    ) {
-        return 'standard'
-    }
-
-    return 'legacy'
+    return parsedVersion === STANDARD_CAPTAIN_VERSION || isDirectCompose
+        ? 'standard'
+        : 'legacy'
 }
 
 export default class DockerComposeToServiceOverride {
@@ -145,6 +134,7 @@ export default class DockerComposeToServiceOverride {
     ) {
         // Compose entrypoint maps to Swarm Command.
         // Compose command maps to Swarm Args (the image's CMD).
+        // Parsed representation: undefined = inherit, [] = clear, non-empty = override values.
         const entrypoint = parseStandardCommandField(
             compose.entrypoint,
             `${path}.entrypoint`,
@@ -156,40 +146,32 @@ export default class DockerComposeToServiceOverride {
             false
         )
 
-        const containerSpec: { Command?: string[]; Args?: string[] } = {}
-
-        if (entrypoint.kind === 'inherit') {
-            if (command.kind === 'clear') {
-                throw new Error(
-                    `${path}.command: clearing the image default command without setting entrypoint is not supported by Docker Swarm`
-                )
-            }
-            if (command.kind === 'values') {
-                containerSpec.Args = command.values
-            }
-        } else if (entrypoint.kind === 'values') {
-            containerSpec.Command = entrypoint.values
-            // Overriding Swarm Command without Args suppresses the image's default CMD,
-            // which matches Compose for both omitted/null and explicitly cleared command.
-            if (command.kind === 'values') {
-                containerSpec.Args = command.values
-            }
-        } else {
-            // entrypoint.kind === 'clear'
-            if (command.kind === 'clear') {
+        if (entrypoint === undefined && command?.length === 0) {
+            throw new Error(
+                `${path}.command: clearing the image default command without setting entrypoint is not supported by Docker Swarm`
+            )
+        }
+        if (entrypoint?.length === 0) {
+            if (command?.length === 0) {
                 throw new Error(
                     `${path}.entrypoint: clearing both entrypoint and command leaves no command to execute`
                 )
             }
-            if (command.kind === 'inherit') {
+            if (command === undefined) {
                 throw new Error(
                     `${path}.entrypoint: clearing the image default entrypoint requires an explicit non-empty command in Docker Swarm`
                 )
             }
+        }
+
+        const containerSpec: { Command?: string[]; Args?: string[] } = {}
+        if (entrypoint !== undefined) {
             // Swarm skips empty Command slices, so pass [""] which Docker Engine
             // uses to suppress image ENTRYPOINT/CMD inheritance and then resets to nil.
-            containerSpec.Command = ['']
-            containerSpec.Args = command.values
+            containerSpec.Command = entrypoint.length > 0 ? entrypoint : ['']
+        }
+        if (command && command.length > 0) {
+            containerSpec.Args = command
         }
 
         if (Object.keys(containerSpec).length === 0) {
@@ -238,9 +220,9 @@ function parseStandardCommandField(
     rawValue: unknown,
     fieldPath: string,
     treatSingleEmptyAsClear: boolean
-): ParsedComposeCommandField {
+): string[] | undefined {
     if (rawValue === undefined || rawValue === null) {
-        return { kind: 'inherit' }
+        return undefined
     }
 
     let values: string[]
@@ -251,6 +233,11 @@ function parseStandardCommandField(
             if (typeof entry !== 'string') {
                 throw new Error(`${fieldPath}[${index}]: expected a string`)
             }
+            if (entry.includes('\0')) {
+                throw new Error(
+                    `${fieldPath}[${index}]: argument cannot contain NUL characters`
+                )
+            }
             return entry
         })
     } else {
@@ -259,16 +246,20 @@ function parseStandardCommandField(
         )
     }
 
-    if (
-        values.length === 0 ||
-        (treatSingleEmptyAsClear && values.length === 1 && values[0] === '')
-    ) {
-        return { kind: 'clear' }
+    if (values.some((entry) => entry.includes('\0'))) {
+        throw new Error(`${fieldPath}: argument cannot contain NUL characters`)
     }
 
-    return { kind: 'values', values }
+    if (treatSingleEmptyAsClear && values.length === 1 && values[0] === '') {
+        return []
+    }
+
+    return values
 }
 
+// POSIX-style shell-word tokenizer: splits on unquoted whitespace without host env expansion
+// or command evaluation, preserves literal shell operators (unlike go-shellwords truncation),
+// and follows POSIX double-quote escape rules (only \", \\, \$, \`, and line continuations).
 function parseComposeCommandString(raw: string, fieldPath: string): string[] {
     const args: string[] = []
     let current = ''

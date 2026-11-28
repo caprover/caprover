@@ -2,7 +2,7 @@
 // (or pass `--ephemeral-swarm` on a disposable host to init/leave Swarm automatically).
 const assert = require('node:assert/strict')
 const { execFileSync } = require('node:child_process')
-const { mkdtemp, rm, writeFile } = require('node:fs/promises')
+const { mkdir, mkdtemp, rm, writeFile } = require('node:fs/promises')
 const { tmpdir } = require('node:os')
 const { join } = require('node:path')
 const Docker = require('dockerode')
@@ -11,28 +11,15 @@ const yaml = require('yaml')
 const {
     default: DockerComposeToServiceOverride,
     DOCKER_COMPOSE_TEMPLATE_NAME,
+    resolveComposeExecutionSemantics,
 } = require('../built/utils/DockerComposeToServiceOverride')
 const Utils = require('../built/utils/Utils').default
-const AppsDataStore = require('../built/datastore/AppsDataStore').default
-const OneClickAppDeployManager =
-    require('../built/user/oneclick/OneClickAppDeployManager').default
-const OneClickAppDeploymentHelper =
-    require('../built/user/oneclick/OneClickAppDeploymentHelper').default
-const AppDefinitionHandler = require('../built/handlers/users/apps/appdefinition/AppDefinitionHandler')
-const Logger = require('../built/utils/Logger').default
-
-Logger.d = () => {}
-Logger.dev = () => {}
 
 const BASE_IMAGE = 'node:24-alpine'
 const RUN_ID = `caprover-cmdtest-${Date.now().toString(36)}`
 const ALLOW_EPHEMERAL_SWARM = process.argv.includes('--ephemeral-swarm')
-
 const PROBE_SCRIPT = `#!/usr/bin/env node
-console.log(JSON.stringify({
-  argv: process.argv.slice(2),
-  testVar: process.env.TEST_VAR || ''
-}))
+console.log(JSON.stringify({ argv: process.argv.slice(2) }))
 process.on('SIGTERM', () => process.exit(0))
 process.on('SIGINT', () => process.exit(0))
 setTimeout(() => process.exit(0), 60000)
@@ -42,24 +29,36 @@ const docker = new Docker()
 const createdServices = new Set()
 const createdImages = []
 
-function dockerCli(args, opts = {}) {
-    return execFileSync('docker', args, {
+const dockerCli = (args) =>
+    execFileSync('docker', args, {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
         timeout: 120000,
-        ...opts,
     }).trim()
-}
 
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const serviceNameFor = (suffix) =>
+    `${RUN_ID}-${suffix}`.slice(0, 60).replace(/-+$/, '')
+
+const escapeComposeInterpolation = (value) => {
+    if (typeof value === 'string') return value.replace(/\$/g, () => '$$')
+    if (Array.isArray(value)) return value.map(escapeComposeInterpolation)
+    if (value && typeof value === 'object') {
+        return Object.fromEntries(
+            Object.entries(value).map(([k, v]) => [
+                k,
+                escapeComposeInterpolation(v),
+            ])
+        )
+    }
+    return value
 }
 
 async function buildTestImage(rootDir, name, dockerfileLines) {
     const tag = `${name}:${RUN_ID}`
     const dir = join(rootDir, name)
-    const fs = require('node:fs/promises')
-    await fs.mkdir(dir, { recursive: true })
+    await mkdir(dir, { recursive: true })
     await writeFile(join(dir, 'probe.js'), PROBE_SCRIPT, { mode: 0o755 })
     await writeFile(
         join(dir, 'Dockerfile'),
@@ -76,45 +75,23 @@ async function buildTestImage(rootDir, name, dockerfileLines) {
     return tag
 }
 
-function parseProbeOutput(rawLogs) {
-    const lines = rawLogs
+function inspectAndParseProbe(containerId, logs) {
+    const jsonLine = logs
         .split(/\r?\n/)
         .map((line) => line.trim())
-        .filter(Boolean)
-    const jsonLine = lines.find((line) => line.startsWith('{'))
-    if (!jsonLine) {
-        throw new Error(
-            `Expected JSON probe output in logs, got: ${JSON.stringify(rawLogs)}`
-        )
-    }
+        .find((line) => line.startsWith('{'))
+    assert.ok(jsonLine, `Missing probe JSON in logs: ${JSON.stringify(logs)}`)
+    const inspected = JSON.parse(dockerCli(['inspect', containerId]))[0]
     return {
-        lines,
-        probe: JSON.parse(jsonLine),
+        path: inspected.Path,
+        args: inspected.Args,
+        argv: JSON.parse(jsonLine).argv,
     }
-}
-
-function escapeComposeInterpolation(value) {
-    if (typeof value === 'string') {
-        return value.replace(/\$/g, () => '$$')
-    }
-    if (Array.isArray(value)) {
-        return value.map(escapeComposeInterpolation)
-    }
-    if (value && typeof value === 'object') {
-        return Object.fromEntries(
-            Object.entries(value).map(([k, v]) => [
-                k,
-                escapeComposeInterpolation(v),
-            ])
-        )
-    }
-    return value
 }
 
 async function runNativeCompose(rootDir, caseName, serviceDef) {
     const dir = join(rootDir, `compose-${caseName}`)
-    const fs = require('node:fs/promises')
-    await fs.mkdir(dir, { recursive: true })
+    await mkdir(dir, { recursive: true })
     const projectName = `${RUN_ID}-${caseName}`.replace(/[^a-z0-9_-]/g, '')
     const composeFile = join(dir, 'compose.yml')
     await writeFile(
@@ -122,55 +99,28 @@ async function runNativeCompose(rootDir, caseName, serviceDef) {
         yaml.stringify({
             services: {
                 app: {
-                    // Escape `$` as `$$` for native `docker compose` YAML interpolation
-                    // so both Compose and CapRover receive the same literal command/entrypoint values.
                     ...escapeComposeInterpolation(serviceDef),
-                    environment: {
-                        TEST_VAR: 'from-container-env',
-                        ...(serviceDef.environment || {}),
-                    },
+                    environment: { TEST_VAR: 'from-container-env' },
                 },
             },
         })
     )
-
+    const baseArgs = ['compose', '-f', composeFile, '-p', projectName]
     try {
-        dockerCli(['compose', '-f', composeFile, '-p', projectName, 'up', '-d'])
-        const containerId = dockerCli([
-            'compose',
-            '-f',
-            composeFile,
-            '-p',
-            projectName,
-            'ps',
-            '-q',
-            'app',
-        ])
+        dockerCli([...baseArgs, 'up', '-d'])
+        const containerId = dockerCli([...baseArgs, 'ps', '-q', 'app'])
         assert.ok(containerId, `No compose container started for ${caseName}`)
-
-        // Wait until the probe prints its JSON line
         let logs = ''
         for (let attempt = 0; attempt < 40; attempt++) {
             logs = dockerCli(['logs', containerId])
             if (logs.includes('"argv"')) break
             await sleep(250)
         }
-        const inspected = JSON.parse(dockerCli(['inspect', containerId]))[0]
-        return {
-            path: inspected.Path,
-            args: inspected.Args,
-            entrypoint: inspected.Config.Entrypoint,
-            cmd: inspected.Config.Cmd,
-            ...parseProbeOutput(logs),
-        }
+        return inspectAndParseProbe(containerId, logs)
     } finally {
         try {
             dockerCli([
-                'compose',
-                '-f',
-                composeFile,
-                '-p',
-                projectName,
+                ...baseArgs,
                 'down',
                 '-v',
                 '--remove-orphans',
@@ -185,44 +135,28 @@ async function runNativeCompose(rootDir, caseName, serviceDef) {
 
 async function waitForSwarmTask(serviceName, expectedEnvMarker) {
     const deadline = Date.now() + 45000
-    let lastTask = null
+    let lastTask
     while (Date.now() < deadline) {
-        const tasks = await docker.listTasks({
-            filters: { service: [serviceName] },
-        })
-        const matching = tasks
-            .filter(
-                (t) =>
-                    !expectedEnvMarker ||
-                    (t.Spec?.ContainerSpec?.Env || []).includes(
-                        expectedEnvMarker
-                    )
+        const tasks = (
+            await docker.listTasks({ filters: { service: [serviceName] } })
+        )
+            .filter((t) =>
+                (t.Spec?.ContainerSpec?.Env || []).includes(expectedEnvMarker)
             )
             .sort((a, b) => (b.Version?.Index || 0) - (a.Version?.Index || 0))
 
-        for (const task of matching) {
+        for (const task of tasks) {
             lastTask = task
             const state = task.Status?.State
             const containerId = task.Status?.ContainerStatus?.ContainerID
             if (containerId && (state === 'running' || state === 'complete')) {
                 const logs = dockerCli(['logs', containerId])
                 if (logs.includes('"argv"')) {
-                    const inspected = JSON.parse(
-                        dockerCli(['inspect', containerId])
-                    )[0]
-                    return {
-                        task,
-                        path: inspected.Path,
-                        args: inspected.Args,
-                        entrypoint: inspected.Config.Entrypoint,
-                        cmd: inspected.Config.Cmd,
-                        ...parseProbeOutput(logs),
-                    }
+                    return inspectAndParseProbe(containerId, logs)
                 }
             }
             if (state === 'failed' || state === 'rejected') {
                 return {
-                    task,
                     failed: true,
                     error: task.Status?.Err || task.Status?.Message || state,
                 }
@@ -231,136 +165,45 @@ async function waitForSwarmTask(serviceName, expectedEnvMarker) {
         await sleep(300)
     }
     throw new Error(
-        `Timed out waiting for Swarm task on ${serviceName}; last state=${lastTask?.Status?.State} err=${lastTask?.Status?.Err}`
+        `Timed out waiting for ${serviceName}; last state=${lastTask?.Status?.State} err=${lastTask?.Status?.Err}`
     )
 }
 
-async function createSwarmServiceWithOverride(
-    serviceName,
-    image,
-    overrideYaml,
-    env = ['TEST_VAR=from-container-env']
-) {
+async function runSwarmService(name, image, overrideYaml, verifyRedeploy) {
+    const env = ['TEST_VAR=from-container-env']
     const baseSpec = {
-        Name: serviceName,
+        Name: name,
         TaskTemplate: {
-            ContainerSpec: {
-                Image: image,
-                Env: env,
-            },
-            RestartPolicy: {
-                Condition: 'none',
-            },
+            ContainerSpec: { Image: image, Env: env },
+            RestartPolicy: { Condition: 'none' },
         },
-        Mode: {
-            Replicated: {
-                Replicas: 1,
-            },
-        },
+        Mode: { Replicated: { Replicas: 1 } },
     }
     const parsedOverride = Utils.convertYamlOrJsonToObject(overrideYaml)
-    const finalSpec = Utils.mergeObjects(baseSpec, parsedOverride)
-
-    await docker.createService(finalSpec)
-    createdServices.add(serviceName)
-    return waitForSwarmTask(serviceName, env[0])
-}
-
-async function updateSwarmServiceLikeCapRover(
-    serviceName,
-    overrideYaml,
-    env = ['TEST_VAR=from-container-env', 'REDEPLOY_GEN=2']
-) {
-    const service = docker.getService(serviceName)
-    const readData = await service.inspect()
-    const data = JSON.parse(JSON.stringify(readData))
-    const updatedData = data.Spec
-    updatedData.version = parseInt(data.Version.Index, 10)
-    updatedData.TaskTemplate.ContainerSpec.Env = env
-    updatedData.TaskTemplate.ForceUpdate =
-        (updatedData.TaskTemplate.ForceUpdate || 0) + 1
-    const parsedOverride = Utils.convertYamlOrJsonToObject(overrideYaml)
-    const merged = Utils.mergeObjects(updatedData, parsedOverride)
-    await service.update(merged)
-    return waitForSwarmTask(serviceName, 'REDEPLOY_GEN=2')
-}
-
-async function removeService(serviceName) {
-    if (!createdServices.has(serviceName)) return
-    try {
-        await docker.getService(serviceName).remove()
-    } catch {
-        // best effort
-    }
-    createdServices.delete(serviceName)
-}
-
-async function deployThroughCapRoverPipeline(template, values, templateName) {
-    const savedOverrides = new Map()
-    const origGetAll = AppDefinitionHandler.getAllAppDefinitions
-    const origUpdate = AppDefinitionHandler.updateAppDefinition
-    const origRegister =
-        OneClickAppDeploymentHelper.prototype.createRegisterPromise
-    const origRegisterProject =
-        OneClickAppDeploymentHelper.prototype.createRegisterPromiseProject
-    const origDeploy =
-        OneClickAppDeploymentHelper.prototype.createDeploymentPromise
-
-    AppDefinitionHandler.getAllAppDefinitions = async () => ({
-        data: {
-            appDefinitions: Array.from(savedOverrides.keys()).map(
-                (appName) => ({
-                    appName,
-                    volumes: [],
-                    ports: [],
-                    envVars: [],
-                })
-            ),
-        },
-    })
-    AppDefinitionHandler.updateAppDefinition = async (params) => {
-        savedOverrides.set(params.appName, params.serviceUpdateOverride)
-        return { message: 'saved' }
-    }
-    OneClickAppDeploymentHelper.prototype.createRegisterPromise = async (
-        appName
-    ) => {
-        savedOverrides.set(appName, undefined)
-    }
-    OneClickAppDeploymentHelper.prototype.createRegisterPromiseProject =
-        async () => {}
-    OneClickAppDeploymentHelper.prototype.createDeploymentPromise =
-        async () => {}
+    await docker.createService(Utils.mergeObjects(baseSpec, parsedOverride))
+    createdServices.add(name)
 
     try {
-        const appsDataStore = new AppsDataStore(
-            { get: () => undefined },
-            'captain'
-        )
-        const finalState = await new Promise((resolve, reject) => {
-            new OneClickAppDeployManager(
-                { getAppsDataStore: () => appsDataStore },
-                {},
-                (state) => {
-                    if (state.error) {
-                        reject(new Error(state.error))
-                    } else if (state.successMessage !== undefined) {
-                        resolve(state)
-                    }
-                }
-            ).startDeployProcess(template, values, templateName)
-        })
-        assert.equal(finalState.error, '')
-        return savedOverrides
+        const initial = await waitForSwarmTask(name, env[0])
+        if (!verifyRedeploy || initial.failed) return { initial }
+
+        const service = docker.getService(name)
+        const inspected = JSON.parse(JSON.stringify(await service.inspect()))
+        const updatedSpec = inspected.Spec
+        updatedSpec.version = parseInt(inspected.Version.Index, 10)
+        updatedSpec.TaskTemplate.ContainerSpec.Env = [...env, 'REDEPLOY_GEN=2']
+        updatedSpec.TaskTemplate.ForceUpdate =
+            (updatedSpec.TaskTemplate.ForceUpdate || 0) + 1
+        await service.update(Utils.mergeObjects(updatedSpec, parsedOverride))
+        const redeployed = await waitForSwarmTask(name, 'REDEPLOY_GEN=2')
+        return { initial, redeployed }
     } finally {
-        AppDefinitionHandler.getAllAppDefinitions = origGetAll
-        AppDefinitionHandler.updateAppDefinition = origUpdate
-        OneClickAppDeploymentHelper.prototype.createRegisterPromise =
-            origRegister
-        OneClickAppDeploymentHelper.prototype.createRegisterPromiseProject =
-            origRegisterProject
-        OneClickAppDeploymentHelper.prototype.createDeploymentPromise =
-            origDeploy
+        try {
+            await docker.getService(name).remove()
+        } catch {
+            // best effort
+        }
+        createdServices.delete(name)
     }
 }
 
@@ -384,12 +227,11 @@ async function main() {
     if (initialSwarmState !== 'active') {
         if (!ALLOW_EPHEMERAL_SWARM) {
             throw new Error(
-                `Swarm is "${initialSwarmState}". Re-run on a Swarm node or pass --ephemeral-swarm on a disposable environment.`
+                `Swarm is "${initialSwarmState}". Re-run on a Swarm node or pass --ephemeral-swarm.`
             )
         }
         dockerCli(['swarm', 'init', '--advertise-addr', '127.0.0.1'])
         initializedEphemeralSwarm = true
-        console.log('Initialized temporary local Swarm for integration test')
     }
 
     const rootDir = await mkdtemp(join(tmpdir(), 'caprover-compose-cmd-'))
@@ -407,42 +249,34 @@ async function main() {
         ])
 
         const equivalenceCases = [
-            {
-                name: 'omitted-both-img-both',
-                service: { image: imgBoth },
-                expectedArgv: ['IMG_EP', 'IMG_CMD_1', 'IMG_CMD_2'],
-            },
-            {
-                name: 'omitted-both-img-cmd-only',
-                service: { image: imgCmdOnly },
-                expectedArgv: ['IMG_CMD_ONLY'],
-            },
-            {
-                name: 'omitted-both-img-ep-only',
-                service: { image: imgEpOnly },
-                expectedArgv: ['IMG_EP_ONLY'],
-            },
-            {
-                name: 'null-both-img-both',
-                service: { image: imgBoth, entrypoint: null, command: null },
-                expectedArgv: ['IMG_EP', 'IMG_CMD_1', 'IMG_CMD_2'],
-            },
-            {
-                name: 'standard-cmd-array-img-both',
-                service: {
+            [
+                'omitted-img-both',
+                { image: imgBoth },
+                ['IMG_EP', 'IMG_CMD_1', 'IMG_CMD_2'],
+            ],
+            ['omitted-img-cmd-only', { image: imgCmdOnly }, ['IMG_CMD_ONLY']],
+            ['omitted-img-ep-only', { image: imgEpOnly }, ['IMG_EP_ONLY']],
+            [
+                'null-both',
+                { image: imgBoth, entrypoint: null, command: null },
+                ['IMG_EP', 'IMG_CMD_1', 'IMG_CMD_2'],
+            ],
+            [
+                'cmd-array',
+                {
                     image: imgBoth,
                     command: ['arg one', '', '$TEST_VAR', 'a && b'],
                 },
-                expectedArgv: ['IMG_EP', 'arg one', '', '$TEST_VAR', 'a && b'],
-            },
-            {
-                name: 'standard-cmd-string-quoting-img-both',
-                service: {
+                ['IMG_EP', 'arg one', '', '$TEST_VAR', 'a && b'],
+            ],
+            [
+                'cmd-string-quoting',
+                {
                     image: imgBoth,
                     command:
                         'plain "two words" \'\' foo\\ bar --k="v 1" \'$TEST_VAR\'',
                 },
-                expectedArgv: [
+                [
                     'IMG_EP',
                     'plain',
                     'two words',
@@ -451,307 +285,242 @@ async function main() {
                     '--k=v 1',
                     '$TEST_VAR',
                 ],
-            },
-            {
-                name: 'standard-cmd-only-img-cmd-only',
-                service: {
+            ],
+            [
+                'cmd-replaces-cmd-only',
+                {
                     image: imgCmdOnly,
                     command: ['/usr/local/bin/probe', 'REPLACED_CMD'],
                 },
-                expectedArgv: ['REPLACED_CMD'],
-            },
-            {
-                name: 'standard-ep-only-suppresses-img-cmd',
-                service: {
+                ['REPLACED_CMD'],
+            ],
+            [
+                'ep-only-suppresses-cmd',
+                {
                     image: imgBoth,
                     entrypoint: ['/usr/local/bin/probe', 'NEW_EP'],
                 },
-                expectedArgv: ['NEW_EP'],
-            },
-            {
-                name: 'standard-ep-and-empty-cmd-array-suppresses-img-cmd',
-                service: {
+                ['NEW_EP'],
+            ],
+            [
+                'ep-and-empty-cmd-array',
+                {
                     image: imgBoth,
                     entrypoint: ['/usr/local/bin/probe', 'NEW_EP'],
                     command: [],
                 },
-                expectedArgv: ['NEW_EP'],
-            },
-            {
-                name: 'standard-ep-and-empty-cmd-string-suppresses-img-cmd',
-                service: {
+                ['NEW_EP'],
+            ],
+            [
+                'ep-and-empty-cmd-str',
+                {
                     image: imgBoth,
                     entrypoint: '/usr/local/bin/probe NEW_EP',
                     command: '',
                 },
-                expectedArgv: ['NEW_EP'],
-            },
-            {
-                name: 'standard-ep-and-cmd-explicit-shell',
-                service: {
+                ['NEW_EP'],
+            ],
+            [
+                'ep-and-cmd-shell',
+                {
                     image: imgBoth,
                     entrypoint: ['/bin/sh', '-ec'],
                     command: [
                         'exec /usr/local/bin/probe "hello $TEST_VAR" "" "a && b"',
                     ],
                 },
-                expectedArgv: ['hello from-container-env', '', 'a && b'],
-            },
-            {
-                name: 'standard-clear-ep-array-with-cmd-img-both',
-                service: {
+                ['hello from-container-env', '', 'a && b'],
+            ],
+            [
+                'clear-ep-array-with-cmd',
+                {
                     image: imgBoth,
                     entrypoint: [],
                     command: ['/usr/local/bin/probe', 'DIRECT_EXEC', 'arg2'],
                 },
-                expectedArgv: ['DIRECT_EXEC', 'arg2'],
-            },
-            {
-                name: 'standard-clear-ep-string-with-cmd-img-ep-only',
-                service: {
+                ['DIRECT_EXEC', 'arg2'],
+            ],
+            [
+                'clear-ep-str-with-cmd',
+                {
                     image: imgEpOnly,
                     entrypoint: '',
                     command: '/usr/local/bin/probe "CLEARED EP" \'\'',
                 },
-                expectedArgv: ['CLEARED EP', ''],
-            },
+                ['CLEARED EP', ''],
+            ],
         ]
 
         console.log(
             '\n=== 1. Native Docker Compose vs Swarm (Standard Semantics) ==='
         )
-        for (const testCase of equivalenceCases) {
-            const composeRes = await runNativeCompose(
-                rootDir,
-                testCase.name,
-                testCase.service
-            )
+        for (const [name, service, expectedArgv] of equivalenceCases) {
+            const composeRes = await runNativeCompose(rootDir, name, service)
             const overrideYaml =
                 DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
-                    testCase.service,
+                    service,
                     'standard',
-                    `services.${testCase.name}`
+                    `services.${name}`
                 )
-            const svcName = `${RUN_ID}-${testCase.name}`
-                .slice(0, 60)
-                .replace(/-+$/, '')
-            let swarmRes
-            try {
-                swarmRes = await createSwarmServiceWithOverride(
-                    svcName,
-                    testCase.service.image,
-                    overrideYaml
-                )
-            } finally {
-                await removeService(svcName)
-            }
-
+            const { initial: swarmRes } = await runSwarmService(
+                serviceNameFor(name),
+                service.image,
+                overrideYaml,
+                false
+            )
             assert.ok(
                 !swarmRes.failed,
-                `Swarm task failed for ${testCase.name}: ${swarmRes.error}`
+                `Swarm failed for ${name}: ${swarmRes.error}`
             )
-            assert.deepEqual(composeRes.probe.argv, testCase.expectedArgv)
-            assert.deepEqual(swarmRes.probe.argv, composeRes.probe.argv)
+            assert.deepEqual(composeRes.argv, expectedArgv)
+            assert.deepEqual(swarmRes.argv, composeRes.argv)
             assert.equal(swarmRes.path, composeRes.path)
             assert.deepEqual(swarmRes.args, composeRes.args)
             console.log(
-                `PASS [compose == swarm]: ${testCase.name} -> path=${swarmRes.path} argv=${JSON.stringify(swarmRes.probe.argv)}`
+                `PASS [compose == swarm]: ${name} -> argv=${JSON.stringify(swarmRes.argv)}`
             )
         }
 
         console.log(
-            '\n=== 2. CapRover Full Pipeline (Legacy v4 vs Standard v5 vs Direct Compose) + Redeploy ==='
+            '\n=== 2. CapRover Legacy v4 vs Standard v5 vs Direct Compose + Redeploy ==='
         )
-        const legacyV4Template = {
-            captainVersion: 4,
-            services: {
-                '$$cap_appname-arr': {
+        const semanticsCases = [
+            [
+                'legacy-v4-array',
+                4,
+                'OFFICIAL_TEST',
+                {
                     image: imgBoth,
-                    entrypoint: ['/bin/should-be-ignored'],
+                    entrypoint: ['/bin/ignored'],
                     command: ['/usr/local/bin/probe', 'LEGACY_ARR'],
                 },
-                '$$cap_appname-str': {
+                ['LEGACY_ARR'],
+                true,
+            ],
+            [
+                'legacy-v4-string',
+                4,
+                'OFFICIAL_TEST',
+                {
                     image: imgBoth,
                     command: '/usr/local/bin/probe "LEGACY STR"',
                 },
-            },
-            caproverOneClickApp: {
-                displayName: 'Legacy V4 Test',
-                instructions: { start: '', end: 'done' },
-                variables: [{ id: '$$cap_appname', label: 'App Name' }],
-            },
-        }
-        const legacyOverrides = await deployThroughCapRoverPipeline(
-            legacyV4Template,
-            [{ key: '$$cap_appname', value: 'leg' }],
-            'OFFICIAL_TEST'
-        )
-
-        const v5Template = {
-            captainVersion: 5,
-            services: {
-                '$$cap_appname-std': {
+                ['LEGACY STR'],
+                false,
+            ],
+            [
+                'standard-v5-shell',
+                5,
+                'OFFICIAL_TEST',
+                {
                     image: imgBoth,
                     entrypoint: ['/bin/sh', '-ec'],
                     command: ['exec /usr/local/bin/probe "V5 $TEST_VAR"'],
                 },
-            },
-            caproverOneClickApp: {
-                displayName: 'Standard V5 Test',
-                instructions: { start: '', end: 'done' },
-                variables: [{ id: '$$cap_appname', label: 'App Name' }],
-            },
-        }
-        const v5Overrides = await deployThroughCapRoverPipeline(
-            v5Template,
-            [{ key: '$$cap_appname', value: 'v5' }],
-            'OFFICIAL_TEST'
-        )
-
-        const directComposeTemplate = {
-            captainVersion: 4,
-            services: {
-                'compose-svc': {
-                    image: imgBoth,
-                    command: ['FROM_COMPOSE_ARGS'],
-                },
-            },
-            caproverOneClickApp: {
-                displayName: 'Docker Compose',
-                instructions: { start: '', end: 'done' },
-                variables: [],
-            },
-        }
-        const composeOverrides = await deployThroughCapRoverPipeline(
-            directComposeTemplate,
-            [],
-            DOCKER_COMPOSE_TEMPLATE_NAME
-        )
-
-        const pipelineChecks = [
-            {
-                name: 'legacy-v4-array',
-                image: imgBoth,
-                overrideYaml: legacyOverrides.get('leg-arr'),
-                expectedArgv: ['LEGACY_ARR'],
-                redeploy: true,
-            },
-            {
-                name: 'legacy-v4-string',
-                image: imgBoth,
-                overrideYaml: legacyOverrides.get('leg-str'),
-                expectedArgv: ['LEGACY STR'],
-                redeploy: false,
-            },
-            {
-                name: 'standard-v5-shell',
-                image: imgBoth,
-                overrideYaml: v5Overrides.get('v5-std'),
-                expectedArgv: ['V5 from-container-env'],
-                redeploy: true,
-            },
-            {
-                name: 'direct-compose-v4-payload',
-                image: imgBoth,
-                overrideYaml: composeOverrides.get('compose-svc'),
-                expectedArgv: ['IMG_EP', 'FROM_COMPOSE_ARGS'],
-                redeploy: true,
-            },
+                ['V5 from-container-env'],
+                true,
+            ],
+            [
+                'direct-compose-v4',
+                4,
+                DOCKER_COMPOSE_TEMPLATE_NAME,
+                { image: imgBoth, command: ['FROM_COMPOSE_ARGS'] },
+                ['IMG_EP', 'FROM_COMPOSE_ARGS'],
+                true,
+            ],
         ]
-
-        for (const check of pipelineChecks) {
-            const svcName = `${RUN_ID}-pipe-${check.name}`
-                .slice(0, 60)
-                .replace(/-+$/, '')
-            try {
-                const initial = await createSwarmServiceWithOverride(
-                    svcName,
-                    check.image,
-                    check.overrideYaml
+        for (const [
+            name,
+            version,
+            templateName,
+            service,
+            expectedArgv,
+            redeploy,
+        ] of semanticsCases) {
+            const semantics = resolveComposeExecutionSemantics(
+                version,
+                templateName
+            )
+            const overrideYaml =
+                DockerComposeToServiceOverride.convertUnconsumedComposeParametersToServiceOverride(
+                    service,
+                    semantics,
+                    `services.${name}`
                 )
+            const { initial, redeployed } = await runSwarmService(
+                serviceNameFor(`sem-${name}`),
+                service.image,
+                overrideYaml,
+                redeploy
+            )
+            assert.ok(
+                !initial.failed,
+                `Deploy failed for ${name}: ${initial.error}`
+            )
+            assert.deepEqual(initial.argv, expectedArgv)
+            if (redeploy) {
                 assert.ok(
-                    !initial.failed,
-                    `Pipeline deploy failed for ${check.name}: ${initial.error}`
+                    !redeployed.failed,
+                    `Redeploy failed for ${name}: ${redeployed.error}`
                 )
-                assert.deepEqual(initial.probe.argv, check.expectedArgv)
-                console.log(
-                    `PASS [pipeline deploy]: ${check.name} -> argv=${JSON.stringify(initial.probe.argv)}`
-                )
-
-                if (check.redeploy) {
-                    const redeployed = await updateSwarmServiceLikeCapRover(
-                        svcName,
-                        check.overrideYaml
-                    )
-                    assert.ok(
-                        !redeployed.failed,
-                        `Pipeline redeploy failed for ${check.name}: ${redeployed.error}`
-                    )
-                    assert.deepEqual(redeployed.probe.argv, check.expectedArgv)
-                    console.log(
-                        `PASS [pipeline redeploy]: ${check.name} -> argv=${JSON.stringify(redeployed.probe.argv)}`
-                    )
-                }
-            } finally {
-                await removeService(svcName)
+                assert.deepEqual(redeployed.argv, expectedArgv)
             }
+            console.log(
+                `PASS [${semantics}${redeploy ? ' + redeploy' : ''}]: ${name} -> argv=${JSON.stringify(initial.argv)}`
+            )
         }
 
         console.log('\n=== 3. Empirical Swarm Limitation Probes ===')
-        // Probe A: Swarm ContainerSpec.Args = [] without Command -> inherits image CMD
-        const probeArgsSvc = `${RUN_ID}-probe-empty-args`
-        try {
-            const res = await createSwarmServiceWithOverride(
-                probeArgsSvc,
+        const emptyArgs = (
+            await runSwarmService(
+                serviceNameFor('probe-empty-args'),
                 imgBoth,
                 yaml.stringify({
                     TaskTemplate: { ContainerSpec: { Args: [] } },
-                })
+                }),
+                false
             )
-            assert.deepEqual(res.probe.argv, [
-                'IMG_EP',
-                'IMG_CMD_1',
-                'IMG_CMD_2',
-            ])
-            console.log(
-                `VERIFIED Swarm limitation: empty Args=[] without Command inherits image CMD -> argv=${JSON.stringify(res.probe.argv)}`
-            )
-        } finally {
-            await removeService(probeArgsSvc)
-        }
+        ).initial
+        assert.deepEqual(emptyArgs.argv, ['IMG_EP', 'IMG_CMD_1', 'IMG_CMD_2'])
+        console.log(
+            `VERIFIED empty Args=[] inherits image CMD -> argv=${JSON.stringify(emptyArgs.argv)}`
+        )
 
-        // Probe B: Swarm ContainerSpec.Command = [""] without Args -> Docker fails with "no command specified"
-        const probeEpSvc = `${RUN_ID}-probe-empty-ep`
-        try {
-            const res = await createSwarmServiceWithOverride(
-                probeEpSvc,
+        const emptyEp = (
+            await runSwarmService(
+                serviceNameFor('probe-empty-ep'),
                 imgBoth,
                 yaml.stringify({
                     TaskTemplate: { ContainerSpec: { Command: [''] } },
-                })
+                }),
+                false
             )
-            assert.equal(res.failed, true)
-            console.log(
-                `VERIFIED Swarm limitation: Command=[""] without Args fails to start -> err=${JSON.stringify(res.error)}`
-            )
-        } finally {
-            await removeService(probeEpSvc)
-        }
+        ).initial
+        assert.equal(emptyEp.failed, true)
+        console.log(
+            `VERIFIED Command=[""] without Args fails -> err=${JSON.stringify(emptyEp.error)}`
+        )
 
-        // Probe C: Native Docker Compose with command: [] (no entrypoint) on imgBoth
         const composeEmptyCmd = await runNativeCompose(
             rootDir,
             'probe-compose-empty-cmd',
-            { image: imgBoth, command: [] }
+            {
+                image: imgBoth,
+                command: [],
+            }
         )
         console.log(
-            `OBSERVED native docker compose (entrypoint omitted, command: []): argv=${JSON.stringify(composeEmptyCmd.probe.argv)}`
+            `OBSERVED native docker compose (command: [] only) -> argv=${JSON.stringify(composeEmptyCmd.argv)}`
         )
 
         console.log('\nALL DOCKER & SWARM INTEGRATION CHECKS PASSED!')
     } finally {
         for (const svcName of Array.from(createdServices)) {
-            await removeService(svcName)
+            try {
+                await docker.getService(svcName).remove()
+            } catch {
+                // best effort
+            }
         }
         for (const tag of createdImages) {
             try {
@@ -763,7 +532,6 @@ async function main() {
         if (initializedEphemeralSwarm) {
             try {
                 dockerCli(['swarm', 'leave', '--force'])
-                console.log('Left temporary local Swarm')
             } catch {
                 // best effort
             }
